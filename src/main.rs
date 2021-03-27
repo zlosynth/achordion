@@ -6,7 +6,6 @@ use core::convert::Infallible;
 use cortex_m::asm::delay;
 use panic_halt as _;
 use rtic::app;
-use rtic::cyccnt::{Instant, U32Ext as _};
 use stm32f3xx_hal::{
     gpio::{
         gpioe::{MODER, OTYPER, PE13},
@@ -27,9 +26,6 @@ use usbd_midi::{
     },
     midi_device::MidiClass,
 };
-use usbd_serial::{SerialPort, USB_CLASS_CDC};
-
-const PERIOD: u32 = 8_000_000;
 
 static mut USB_BUS: Option<UsbBusAllocator<UsbBusType>> = None;
 
@@ -166,10 +162,10 @@ fn usb_poll<B: bus::UsbBus>(
         for packet in buffer_reader.into_iter() {
             if let Ok(packet) = packet {
                 match packet.message {
-                    Message::NoteOn(Channel1, Note::C2, ..) => {
+                    Message::NoteOn(_, Note::C2, ..) => {
                         led.set_high().unwrap();
                     }
-                    Message::NoteOff(Channel1, Note::C2, ..) => {
+                    Message::NoteOff(_, Note::C2, ..) => {
                         led.set_low().unwrap();
                     }
                     _ => {}
