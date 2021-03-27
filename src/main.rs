@@ -8,12 +8,12 @@ use rtic::export::NVIC;
 
 const PERIOD: u32 = 8_000_000;
 
-#[app(device = stm32f3::stm32f303, peripherals = true, monotonic = rtic::cyccnt::CYCCNT)]
+#[app(device = stm32f3xx_hal::pac, peripherals = true, monotonic = rtic::cyccnt::CYCCNT)]
 const APP: () = {
     struct Resources {
-        gpioa: stm32f3::stm32f303::GPIOA,
-        gpioe: stm32f3::stm32f303::GPIOE,
-        exti: stm32f3::stm32f303::EXTI,
+        gpioa: stm32f3xx_hal::pac::GPIOA,
+        gpioe: stm32f3xx_hal::pac::GPIOE,
+        exti: stm32f3xx_hal::pac::EXTI,
     }
 
     #[init(schedule = [toggle_led])]
@@ -43,7 +43,7 @@ const APP: () = {
         cx.device.EXTI.imr1.modify(|_, w| w.mr0().set_bit()); // unmask interrupt
         cx.device.EXTI.rtsr1.modify(|_, w| w.tr0().set_bit()); // trigger on rising-edge
         unsafe {
-            NVIC::unmask(stm32f3::stm32f303::Interrupt::EXTI0);
+            NVIC::unmask(stm32f3xx_hal::pac::Interrupt::EXTI0);
         }
 
         let now = cx.start;
