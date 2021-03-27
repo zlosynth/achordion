@@ -68,12 +68,12 @@ const APP: () = {
 
     #[task(binds = USB_HP_CAN_TX, resources = [midi, led])]
     fn usb_tx(mut cx: usb_tx::Context) {
-        usb_poll(&mut cx.resources.midi, &mut cx.resources.led);
+        midi_poll(&mut cx.resources.midi, &mut cx.resources.led);
     }
 
     #[task(binds = USB_LP_CAN_RX0, resources = [midi, led])]
     fn usb_rx0(mut cx: usb_rx0::Context) {
-        usb_poll(&mut cx.resources.midi, &mut cx.resources.led);
+        midi_poll(&mut cx.resources.midi, &mut cx.resources.led);
     }
 
     extern "C" {
@@ -158,7 +158,7 @@ impl Midi {
     }
 }
 
-fn usb_poll(midi: &mut Midi, led: &mut Led) {
+fn midi_poll(midi: &mut Midi, led: &mut Led) {
     if !midi.usb_device.poll(&mut [&mut midi.midi_class]) {
         return;
     }
