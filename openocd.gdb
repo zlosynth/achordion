@@ -20,9 +20,6 @@ monitor tpiu config internal itm.txt uart off 8000000
 # Turn on the itm port
 monitor itm port 0 on
 
-# Set a breakpoint at main, aka entry
-break main
-
 # Set a breakpiont at DefaultHandler
 break DefaultHandler
 

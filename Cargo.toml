@@ -10,9 +10,15 @@ readme = "README.md"
 publish = false
 
 [dependencies]
-cortex-m = "0.6.3"
-cortex-m-rt = "0.6.3"
+cortex-m = "0.7.2"
+cortex-m-rt = "0.6.13"
+cortex-m-rtic = "0.5.6"
+cortex-m-semihosting = "0.3"
 panic-halt = "0.2.0"
+
+[dependencies.stm32f3]
+version = "0.13.0"
+features = ["stm32f303", "rt"]
 
 [[bin]]
 name = "achordion"
