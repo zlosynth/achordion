@@ -17,7 +17,7 @@ cortex-m-semihosting = "0.3"
 panic-halt = "0.2.0"
 usb-device = "0.2.4"
 usbd-serial = "0.1"
-usbd-midi = { git = "https://github.com/btrepp/usbd-midi", branch = "master" }
+usbd-midi = { git = "https://github.com/phoracek/usbd-midi", branch = "master" }
 
 [dependencies.stm32f3xx-hal]
 version = "0.6.1"
