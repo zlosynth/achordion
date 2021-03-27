@@ -1,0 +1,25 @@
+[package]
+authors = ["Petr Horáček <hrck@protonmail.com>"]
+edition = "2018"
+name = "achordion"
+version = "0.1.0"
+license = "GPL-3.0-or-later"
+description = "Work in progress"
+repository = "https://github.com/zlosynth/achordion"
+readme = "README.md"
+publish = false
+
+[dependencies]
+cortex-m = "0.6.3"
+cortex-m-rt = "0.6.3"
+panic-halt = "0.2.0"
+
+[[bin]]
+name = "achordion"
+test = false
+bench = false
+
+[profile.release]
+codegen-units = 1 # better optimizations
+debug = true # symbols are nice and they don't increase the size on Flash
+lto = true # better optimizations
