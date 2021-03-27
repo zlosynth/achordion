@@ -23,7 +23,7 @@ use usbd_midi::{
         usb::constants::{USB_AUDIO_CLASS, USB_MIDISTREAMING_SUBCLASS},
         usb_midi::midi_packet_reader::MidiPacketBufferReader,
     },
-    midi_device::MidiClass,
+    midi_device::{MidiClass, MAX_PACKET_SIZE},
 };
 
 static mut USB_BUS: Option<UsbBusAllocator<UsbBusType>> = None;
@@ -163,7 +163,7 @@ fn midi_poll(midi: &mut Midi, led: &mut Led) {
         return;
     }
 
-    let mut buffer = [0u8; 64];
+    let mut buffer = [0u8; MAX_PACKET_SIZE];
 
     if let Ok(size) = midi.midi_class.read(&mut buffer) {
         let buffer_reader = MidiPacketBufferReader::new(&buffer, size);
