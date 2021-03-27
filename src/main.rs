@@ -49,7 +49,6 @@ const APP: () = {
             .pclk1(24u32.mhz())
             .pclk2(24u32.mhz())
             .freeze(&mut flash.acr);
-        assert!(clocks.usbclk_valid());
 
         let mut led = Led::new(gpioe.pe13, &mut gpioe.moder, &mut gpioe.otyper);
         led.set_low().unwrap();
@@ -116,6 +115,8 @@ impl Midi {
         afrg: &mut gpioa::AFRH,
         otyper: &mut gpioa::OTYPER,
     ) -> Self {
+        assert!(clocks.usbclk_valid());
+
         // F3 Discovery board has a pull-up resistor on the D+ line.
         // Pull the D+ pin down to send a RESET condition to the USB bus.
         // This forced reset is needed only for development, without it host
