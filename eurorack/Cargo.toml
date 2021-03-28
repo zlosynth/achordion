@@ -6,7 +6,7 @@ version = "0.1.0"
 license = "GPL-3.0-or-later"
 description = "Work in progress"
 repository = "https://github.com/zlosynth/achordion"
-readme = "README.md"
+readme = "../README.md"
 publish = false
 
 [dependencies]
