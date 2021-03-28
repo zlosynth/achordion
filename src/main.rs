@@ -21,7 +21,9 @@ use usbd_midi::{
     data::{
         midi::{message::Message, notes::Note},
         usb::constants::{USB_AUDIO_CLASS, USB_MIDISTREAMING_SUBCLASS},
-        usb_midi::midi_packet_reader::MidiPacketBufferReader,
+        usb_midi::{
+            midi_packet_reader::MidiPacketBufferReader, usb_midi_event_packet::UsbMidiEventPacket,
+        },
     },
     midi_device::{MidiClass, MAX_PACKET_SIZE},
 };
@@ -169,16 +171,20 @@ fn midi_poll(midi: &mut Midi, led: &mut Led) {
         let buffer_reader = MidiPacketBufferReader::new(&buffer, size);
         for packet in buffer_reader.into_iter() {
             if let Ok(packet) = packet {
-                match packet.message {
-                    Message::NoteOn(_, Note::C2, ..) => {
-                        led.set_high().unwrap();
-                    }
-                    Message::NoteOff(_, Note::C2, ..) => {
-                        led.set_low().unwrap();
-                    }
-                    _ => {}
-                }
+                process_midi_message(packet, led);
             }
         }
+    }
+}
+
+fn process_midi_message(packet: UsbMidiEventPacket, led: &mut Led) {
+    match packet.message {
+        Message::NoteOn(_, Note::C2, ..) => {
+            led.set_high().unwrap();
+        }
+        Message::NoteOff(_, Note::C2, ..) => {
+            led.set_low().unwrap();
+        }
+        _ => {}
     }
 }
