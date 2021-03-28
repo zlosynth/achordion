@@ -19,8 +19,8 @@ jobs:
         with:
           toolchain: stable
       - uses: marcopolo/cargo@a527bf4d534717ff4424a84446c5d710f8833139 # TODO: - uses: actions-rs/cargo@v1 https://github.com/actions-rs/cargo/pull/59
-        working-directory: ./eurorack
         with:
+          working-directory: ./eurorack
           command: build
 
   check-libraries:
@@ -32,8 +32,8 @@ jobs:
         with:
           toolchain: stable
       - uses: marcopolo/cargo@a527bf4d534717ff4424a84446c5d710f8833139 # TODO: - uses: actions-rs/cargo@v1 https://github.com/actions-rs/cargo/pull/59
-        working-directory: ./eurorack
         with:
+          working-directory: ./eurorack
           command: check
 
   test:
@@ -45,8 +45,8 @@ jobs:
         with:
           toolchain: stable
       - uses: marcopolo/cargo@a527bf4d534717ff4424a84446c5d710f8833139 # TODO: - uses: actions-rs/cargo@v1 https://github.com/actions-rs/cargo/pull/59
-        working-directory: ./eurorack
         with:
+          working-directory: ./eurorack
           command: test
 
   format:
@@ -61,6 +61,7 @@ jobs:
       - uses: actions-rs/cargo@v1
       - uses: marcopolo/cargo@a527bf4d534717ff4424a84446c5d710f8833139 # TODO: - uses: actions-rs/cargo@v1 https://github.com/actions-rs/cargo/pull/59
         with:
+          working-directory: ./eurorack
           command: fmt
           args: -- --check
 
@@ -74,7 +75,7 @@ jobs:
           toolchain: stable
           components: clippy
       - uses: marcopolo/cargo@a527bf4d534717ff4424a84446c5d710f8833139 # TODO: - uses: actions-rs/cargo@v1 https://github.com/actions-rs/cargo/pull/59
-        working-directory: ./eurorack
         with:
+          working-directory: ./eurorack
           command: clippy
           args: -- -D warnings
