@@ -1,4 +1,4 @@
-name: Rust
+name: Eurorack
 
 on:
   push:
@@ -19,22 +19,9 @@ jobs:
         with:
           toolchain: stable
       - uses: actions-rs/cargo@v1
+        working-directory: ./eurorack
         with:
           command: build
-          args: --all
-
-  build-benches:
-    name: Build Benches
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-      - uses: actions-rs/cargo@v1
-        with:
-          command: build
-          args: --benches --all
 
   check-libraries:
     name: Check Libraries
@@ -45,22 +32,9 @@ jobs:
         with:
           toolchain: stable
       - uses: actions-rs/cargo@v1
+        working-directory: ./eurorack
         with:
           command: check
-          args: --all
-
-  check-benches:
-    name: Check Libraries
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-      - uses: actions-rs/cargo@v1
-        with:
-          command: check
-          args: --benches --all
 
   test:
     name: Test
@@ -71,9 +45,9 @@ jobs:
         with:
           toolchain: stable
       - uses: actions-rs/cargo@v1
+        working-directory: ./eurorack
         with:
           command: test
-          args: --all
 
   format:
     name: Format
@@ -85,9 +59,10 @@ jobs:
           toolchain: stable
           components: rustfmt
       - uses: actions-rs/cargo@v1
+        working-directory: ./eurorack
         with:
           command: fmt
-          args: --all -- --check
+          args: -- --check
 
   lint:
     name: Lint
@@ -99,6 +74,7 @@ jobs:
           toolchain: stable
           components: clippy
       - uses: actions-rs/cargo@v1
+        working-directory: ./eurorack
         with:
           command: clippy
-          args: --all -- -D warnings
+          args: -- -D warnings

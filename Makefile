@@ -3,16 +3,16 @@ all: format lint check test
 
 .PHONY: format
 format:
-	cargo fmt --all
+	cd eurorack && cargo fmt
 
 .PHONY: lint
 lint:
-	cargo clippy --all
+	cd eurorack && cargo clippy
 
 .PHONY: check
 check:
-	cargo check --all
+	cd eurorack && cargo check
 
 .PHONY: test
 test:
-	cargo test --all
+	cd eurorack && cargo test
