@@ -18,7 +18,7 @@ jobs:
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
-      - uses: actions-rs/cargo@v1
+      - uses: marcopolo/cargo@a527bf4d534717ff4424a84446c5d710f8833139 # TODO: - uses: actions-rs/cargo@v1 https://github.com/actions-rs/cargo/pull/59
         with:
           working-directory: ./lib
           command: build
@@ -31,7 +31,7 @@ jobs:
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
-      - uses: actions-rs/cargo@v1
+      - uses: marcopolo/cargo@a527bf4d534717ff4424a84446c5d710f8833139 # TODO: - uses: actions-rs/cargo@v1 https://github.com/actions-rs/cargo/pull/59
         with:
           working-directory: ./lib
           command: check
@@ -44,7 +44,7 @@ jobs:
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
-      - uses: actions-rs/cargo@v1
+      - uses: marcopolo/cargo@a527bf4d534717ff4424a84446c5d710f8833139 # TODO: - uses: actions-rs/cargo@v1 https://github.com/actions-rs/cargo/pull/59
         with:
           working-directory: ./lib
           command: test
@@ -59,7 +59,7 @@ jobs:
           toolchain: stable
           components: rustfmt
       - uses: actions-rs/cargo@v1
-      - uses: actions-rs/cargo@v1
+      - uses: marcopolo/cargo@a527bf4d534717ff4424a84446c5d710f8833139 # TODO: - uses: actions-rs/cargo@v1 https://github.com/actions-rs/cargo/pull/59
         with:
           working-directory: ./lib
           command: fmt
@@ -74,7 +74,7 @@ jobs:
         with:
           toolchain: stable
           components: clippy
-      - uses: actions-rs/cargo@v1
+      - uses: marcopolo/cargo@a527bf4d534717ff4424a84446c5d710f8833139 # TODO: - uses: actions-rs/cargo@v1 https://github.com/actions-rs/cargo/pull/59
         with:
           working-directory: ./lib
           command: clippy
