@@ -243,7 +243,7 @@ mod tests {
             instrument.reconcile(Message::NoteOn(*note));
         }
 
-        for i in 0..MAX_NOTES-1 {
+        for i in 0..MAX_NOTES - 1 {
             let i = notes.len() - 1 - i;
             let state = instrument.reconcile(Message::NoteOff(notes[i]));
             assert_relative_eq!(state.frequency, notes[i - 1].to_freq_f32());

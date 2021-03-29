@@ -11,6 +11,7 @@ publish = false
 
 [dependencies]
 heapless = "0.6"
+sirena = { git = "https://github.com/zlosynth/sirena", rev = "52ebc6c0e82804a3aced22d04effb04af6cd2646" }
 usbd-midi = { git = "https://github.com/phoracek/usbd-midi", branch = "master" }
 wmidi = "4"
 
