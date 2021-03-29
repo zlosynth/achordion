@@ -1,7 +1,8 @@
+#![no_std]
+#![allow(clippy::new_without_default)]
+
 #[cfg(test)]
-mod tests {
-    #[test]
-    fn it_works() {
-        assert_eq!(2 + 2, 4);
-    }
-}
+#[macro_use]
+extern crate approx;
+
+pub mod midi;

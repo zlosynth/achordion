@@ -8,3 +8,11 @@ description = "Work in progress"
 repository = "https://github.com/zlosynth/achordion"
 readme = "../README.md"
 publish = false
+
+[dependencies]
+heapless = "0.6"
+usbd-midi = { git = "https://github.com/phoracek/usbd-midi", branch = "master" }
+wmidi = "4"
+
+[dev-dependencies]
+approx = "0.4"
