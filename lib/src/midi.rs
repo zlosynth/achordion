@@ -497,4 +497,9 @@ mod tests {
             _ => panic!("Invalid variant"),
         }
     }
+
+    #[test]
+    fn convert_note_to_frequency() {
+        assert_relative_eq!(Note::A4.to_freq_f32(), 440.0);
+    }
 }
