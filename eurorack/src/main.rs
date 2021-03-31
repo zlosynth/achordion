@@ -4,8 +4,8 @@
 #[macro_use]
 extern crate lazy_static;
 
-mod wavetable;
 mod hal;
+mod wavetable;
 
 use core::cell::RefCell;
 
