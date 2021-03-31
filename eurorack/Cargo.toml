@@ -20,6 +20,10 @@ usbd-serial = "0.1"
 usbd-midi = { git = "https://github.com/phoracek/usbd-midi", branch = "master" }
 achordion-lib = { path = "../lib" }
 
+[dependencies.lazy_static]
+features = ["spin_no_std"]
+version = "1.4"
+
 [dependencies.stm32f3xx-hal]
 version = "0.6.1"
 features = ["stm32f303xc", "stm32-usbd", "rt"]
