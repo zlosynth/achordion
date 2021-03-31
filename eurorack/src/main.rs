@@ -48,18 +48,6 @@ const APP: () = {
 
     #[init]
     fn init(mut cx: init::Context) -> init::LateResources {
-        // init tim2
-        cx.device.RCC.apb1enr.modify(|_, w| w.tim2en().set_bit());
-        // calculate timer frequency
-        let sysclk = 8_000_000; // the stmf32f3 discovery board CPU runs at 8Mhz by default
-        let fs = 44_100; // we want an audio sampling rate of 44.1KHz
-        let arr = sysclk / fs; // value to use for auto reload register (arr)
-                               // configure TIM2
-        cx.device.TIM2.cr2.write(|w| w.mms().update()); // update when counter reaches arr value
-        cx.device.TIM2.arr.write(|w| w.arr().bits(arr)); // set timer period (sysclk / fs)
-                                                         // enable TIM2
-        cx.device.TIM2.cr1.modify(|_, w| w.cen().enabled());
-
         // enable GPIOA and DAC clocks
         cx.device.RCC.ahbenr.modify(|_, w| w.iopaen().set_bit());
         cx.device.RCC.apb1enr.modify(|_, w| w.dac1en().set_bit());
@@ -156,6 +144,18 @@ const APP: () = {
             let dma2 = refcell.as_ref().unwrap();
             dma2.ch3.cr.modify(|_, w| w.en().enabled());
         });
+
+        // init tim2
+        cx.device.RCC.apb1enr.modify(|_, w| w.tim2en().set_bit());
+        // calculate timer frequency
+        let sysclk = 8_000_000; // the stmf32f3 discovery board CPU runs at 8Mhz by default
+        let fs = 44_100; // we want an audio sampling rate of 44.1KHz
+        let arr = sysclk / fs; // value to use for auto reload register (arr)
+                               // configure TIM2
+        cx.device.TIM2.cr2.write(|w| w.mms().update()); // update when counter reaches arr value
+        cx.device.TIM2.arr.write(|w| w.arr().bits(arr)); // set timer period (sysclk / fs)
+                                                         // enable TIM2
+        cx.device.TIM2.cr1.modify(|_, w| w.cen().enabled());
 
         let mut rcc = cx.device.RCC.constrain();
         let mut gpioa = cx.device.GPIOA.split(&mut rcc.ahb);
@@ -269,7 +269,7 @@ fn audio_callback(buffer: &mut [u32; DMA_LENGTH], length: usize, offset: usize) 
     let wt_sin = wavetable::SIN;
     let wt_saw = wavetable::SAW;
 
-    let dx = 261.6 * (1. / 44100.); // 261.6 Hz = Middle-C
+    let dx = 80.0 * (1. / 44100.);
 
     for t in 0..length {
         let index = (phase * wt_length as f32) as usize;
