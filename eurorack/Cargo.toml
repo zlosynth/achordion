@@ -15,18 +15,15 @@ cortex-m-rt = "0.6.13"
 cortex-m-rtic = "0.5.6"
 cortex-m-semihosting = "0.3"
 panic-halt = "0.2.0"
-usb-device = "0.2.4"
-usbd-serial = "0.1"
-usbd-midi = { git = "https://github.com/phoracek/usbd-midi", branch = "master" }
 achordion-lib = { path = "../lib" }
 
 [dependencies.lazy_static]
 features = ["spin_no_std"]
 version = "1.4"
 
-[dependencies.stm32f3xx-hal]
-version = "0.6.1"
-features = ["stm32f303xc", "stm32-usbd", "rt"]
+[dependencies.stm32f3]
+version = "0.13.0"
+features = ["stm32f303", "rt"]
 
 [[bin]]
 name = "achordion"

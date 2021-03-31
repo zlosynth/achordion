@@ -4,51 +4,26 @@
 #[macro_use]
 extern crate lazy_static;
 
-mod led;
-mod midi;
 mod wavetable;
-mod hal;
 
 use core::cell::RefCell;
 
 use cortex_m::interrupt::Mutex;
-
 use panic_halt as _;
 use rtic::app;
-use stm32f3xx_hal::{prelude::*, usb::UsbBusType};
-use usb_device::bus::UsbBusAllocator;
-use usbd_midi::{
-    data::{
-        midi::{message::Message, notes::Note},
-        usb_midi::{
-            midi_packet_reader::MidiPacketBufferReader, usb_midi_event_packet::UsbMidiEventPacket,
-        },
-    },
-    midi_device::MAX_PACKET_SIZE,
-};
-
-use crate::led::Led;
-use crate::midi::Midi;
-
-static mut USB_BUS: Option<UsbBusAllocator<UsbBusType>> = None;
+use stm32f3::stm32f303;
 
 const DMA_LENGTH: usize = 64;
 static mut DMA_BUFFER: [u32; DMA_LENGTH] = [0; DMA_LENGTH];
 
 lazy_static! {
-    static ref MUTEX_DMA2: Mutex<RefCell<Option<stm32f3xx_hal::pac::DMA2>>> =
-        Mutex::new(RefCell::new(None));
+    static ref MUTEX_DMA2: Mutex<RefCell<Option<stm32f303::DMA2>>> = Mutex::new(RefCell::new(None));
 }
 
-#[app(device = stm32f3xx_hal::pac, peripherals = true, monotonic = rtic::cyccnt::CYCCNT)]
+#[app(device = stm32f3::stm32f303, peripherals = true, monotonic = rtic::cyccnt::CYCCNT)]
 const APP: () = {
-    struct Resources {
-        led: Led,
-        midi: Midi,
-    }
-
     #[init]
-    fn init(mut cx: init::Context) -> init::LateResources {
+    fn init(mut cx: init::Context) {
         // enable GPIOA and DAC clocks
         cx.device.RCC.ahbenr.modify(|_, w| w.iopaen().set_bit());
         cx.device.RCC.apb1enr.modify(|_, w| w.dac1en().set_bit());
@@ -65,7 +40,7 @@ const APP: () = {
             .modify(|_, w| w.pupdr4().floating().pupdr5().floating());
 
         // configure DAC
-        cx.device.DAC.cr.write(|w| {
+        cx.device.DAC1.cr.write(|w| {
             w.boff1()
                 .disabled() // disable dac output buffer for channel 1
                 .boff2()
@@ -81,7 +56,7 @@ const APP: () = {
         }); // set trigger for channel 2 to TIM2
 
         // enable DAC
-        cx.device.DAC.cr.modify(|_, w| {
+        cx.device.DAC1.cr.modify(|_, w| {
             w.en1()
                 .enabled() // enable dac channel 1
                 .en2()
@@ -128,10 +103,10 @@ const APP: () = {
 
         // enable DMA interrupt
         #[allow(deprecated)]
-        cx.core.NVIC.enable(stm32f3xx_hal::pac::interrupt::DMA2_CH3);
+        cx.core.NVIC.enable(stm32f303::interrupt::DMA2_CH3);
 
         // enable DMA for DAC
-        cx.device.DAC.cr.modify(|_, w| w.dmaen1().enabled());
+        cx.device.DAC1.cr.modify(|_, w| w.dmaen1().enabled());
 
         // wrap shared peripherals
         let dma2 = cx.device.DMA2;
@@ -157,45 +132,6 @@ const APP: () = {
         cx.device.TIM2.arr.write(|w| w.arr().bits(arr)); // set timer period (sysclk / fs)
                                                          // enable TIM2
         cx.device.TIM2.cr1.modify(|_, w| w.cen().enabled());
-
-        let mut rcc = cx.device.RCC.constrain();
-        let mut gpioa = cx.device.GPIOA.split(&mut rcc.ahb);
-        let mut gpioe = cx.device.GPIOE.split(&mut rcc.ahb);
-        let mut flash = cx.device.FLASH.constrain();
-
-        let clocks = rcc
-            .cfgr
-            .use_hse(8u32.mhz())
-            .sysclk(48u32.mhz())
-            .pclk1(24u32.mhz())
-            .pclk2(24u32.mhz())
-            .freeze(&mut flash.acr);
-
-        let mut led = Led::new(gpioe.pe13, &mut gpioe.moder, &mut gpioe.otyper);
-        led.set_low().unwrap();
-
-        let midi = Midi::new(
-            gpioa.pa11,
-            gpioa.pa12,
-            cx.device.USB,
-            &clocks,
-            &mut gpioa.moder,
-            &mut gpioa.afrh,
-            &mut gpioa.otyper,
-            unsafe { &mut USB_BUS },
-        );
-
-        init::LateResources { led, midi }
-    }
-
-    #[task(binds = USB_HP_CAN_TX, resources = [midi, led])]
-    fn usb_tx(mut cx: usb_tx::Context) {
-        midi_poll(&mut cx.resources.midi, &mut cx.resources.led);
-    }
-
-    #[task(binds = USB_LP_CAN_RX0, resources = [midi, led])]
-    fn usb_rx0(mut cx: usb_rx0::Context) {
-        midi_poll(&mut cx.resources.midi, &mut cx.resources.led);
     }
 
     #[task(binds = DMA2_CH3)]
@@ -232,35 +168,6 @@ const APP: () = {
         fn EXTI0();
     }
 };
-
-fn midi_poll(midi: &mut Midi, led: &mut Led) {
-    if !midi.usb_device.poll(&mut [&mut midi.midi_class]) {
-        return;
-    }
-
-    let mut buffer = [0u8; MAX_PACKET_SIZE];
-
-    if let Ok(size) = midi.midi_class.read(&mut buffer) {
-        let buffer_reader = MidiPacketBufferReader::new(&buffer, size);
-        for packet in buffer_reader.into_iter() {
-            if let Ok(packet) = packet {
-                process_midi_message(packet, led);
-            }
-        }
-    }
-}
-
-fn process_midi_message(packet: UsbMidiEventPacket, led: &mut Led) {
-    match packet.message {
-        Message::NoteOn(_, Note::C2, ..) => {
-            led.set_high().unwrap();
-        }
-        Message::NoteOff(_, Note::C2, ..) => {
-            led.set_low().unwrap();
-        }
-        _ => {}
-    }
-}
 
 fn audio_callback(buffer: &mut [u32; DMA_LENGTH], length: usize, offset: usize) {
     static mut PHASE: f32 = 0.;
