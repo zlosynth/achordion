@@ -7,6 +7,7 @@ extern crate lazy_static;
 mod led;
 mod midi;
 mod wavetable;
+mod hal;
 
 use core::cell::RefCell;
 
