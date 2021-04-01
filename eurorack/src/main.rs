@@ -29,39 +29,37 @@ const APP: () = {
     fn init(mut cx: init::Context) {
         let mut rcc = cx.device.RCC.constrain();
         let mut gpioa = cx.device.GPIOA.split(&mut rcc.ahb);
+        let mut dac = cx.device.DAC1.constrain(&mut rcc.apb1);
 
         // configure PA04, PA05 (DAC_OUT1 & DAC_OUT2) as analog, floating
         gpioa.pa4.into_analog(&mut gpioa.moder, &mut gpioa.pupdr);
         gpioa.pa5.into_analog(&mut gpioa.moder, &mut gpioa.pupdr);
 
-        // enable DAC clocks
-        unsafe {
-            rcc.apb1.enr().modify(|_, w| w.dac1en().set_bit());
-        }
-
         // configure DAC
-        cx.device.DAC1.cr.write(|w| {
-            w.boff1()
-                .disabled() // disable dac output buffer for channel 1
-                .boff2()
-                .disabled() // disable dac output buffer for channel 2
-                .ten1()
-                .enabled() // enable trigger for channel 1
-                .ten2()
-                .enabled() // enable trigger for channel 2
-                .tsel1()
-                .tim2_trgo() // set trigger for channel 1 to TIM2
-                .tsel2()
-                .tim2_trgo()
-        }); // set trigger for channel 2 to TIM2
+        unsafe {
+            dac.cr().write(|w| {
+                w.boff1()
+                    .disabled() // disable dac output buffer for channel 1
+                    .boff2()
+                    .disabled() // disable dac output buffer for channel 2
+                    .ten1()
+                    .enabled() // enable trigger for channel 1
+                    .ten2()
+                    .enabled() // enable trigger for channel 2
+                    .tsel1()
+                    .tim2_trgo() // set trigger for channel 1 to TIM2
+                    .tsel2()
+                    .tim2_trgo()
+            }); // set trigger for channel 2 to TIM2
 
-        // enable DAC
-        cx.device.DAC1.cr.modify(|_, w| {
-            w.en1()
-                .enabled() // enable dac channel 1
-                .en2()
-                .enabled()
-        }); // enable dac channel 2
+            // enable DAC
+            dac.cr().modify(|_, w| {
+                w.en1()
+                    .enabled() // enable dac channel 1
+                    .en2()
+                    .enabled()
+            }); // enable dac channel 2
+        }
 
         // init dma2
         unsafe {
@@ -108,7 +106,9 @@ const APP: () = {
         cx.core.NVIC.enable(stm32f303::interrupt::DMA2_CH3);
 
         // enable DMA for DAC
-        cx.device.DAC1.cr.modify(|_, w| w.dmaen1().enabled());
+        unsafe {
+            dac.cr().modify(|_, w| w.dmaen1().enabled());
+        }
 
         // wrap shared peripherals
         let dma2 = cx.device.DMA2;
