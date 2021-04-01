@@ -123,19 +123,9 @@ const APP: () = {
             dma2.ch3.cr.modify(|_, w| w.en().enabled());
         });
 
-        // init tim2
-        unsafe {
-            rcc.apb1.enr().modify(|_, w| w.tim2en().set_bit());
-        }
-        // calculate timer frequency
-        let sysclk = 8_000_000; // the stmf32f3 discovery board CPU runs at 8Mhz by default
-        let fs = 44_100; // we want an audio sampling rate of 44.1KHz
-        let arr = sysclk / fs; // value to use for auto reload register (arr)
-                               // configure TIM2
-        cx.device.TIM2.cr2.write(|w| w.mms().update()); // update when counter reaches arr value
-        cx.device.TIM2.arr.write(|w| w.arr().bits(arr)); // set timer period (sysclk / fs)
-                                                         // enable TIM2
-        cx.device.TIM2.cr1.modify(|_, w| w.cen().enabled());
+        let tim2 = cx.device.TIM2.constrain(&mut rcc.apb1);
+        let mut tim2 = tim2.into_periodic(44_100);
+        tim2.enable();
     }
 
     #[task(binds = DMA2_CH3)]
