@@ -28,23 +28,17 @@ const APP: () = {
     #[init]
     fn init(mut cx: init::Context) {
         let mut rcc = cx.device.RCC.constrain();
+        let mut gpioa = cx.device.GPIOA.split(&mut rcc.ahb);
 
-        // enable GPIOA and DAC clocks
+        // configure PA04, PA05 (DAC_OUT1 & DAC_OUT2) as analog, floating
+        gpioa.pa4.into_analog(&mut gpioa.moder, &mut gpioa.pupdr);
+        gpioa.pa5.into_analog(&mut gpioa.moder, &mut gpioa.pupdr);
+
+        // enable DAC clocks
         unsafe {
-            rcc.ahb.enr().modify(|_, w| w.iopaen().set_bit());
             rcc.apb1.enr().modify(|_, w| w.dac1en().set_bit());
             rcc.apb1.enr().modify(|_, w| w.dac2en().set_bit());
         }
-
-        // configure PA04, PA05 (DAC_OUT1 & DAC_OUT2) as analog, floating
-        cx.device
-            .GPIOA
-            .moder
-            .modify(|_, w| w.moder4().analog().moder5().analog());
-        cx.device
-            .GPIOA
-            .pupdr
-            .modify(|_, w| w.pupdr4().floating().pupdr5().floating());
 
         // configure DAC
         cx.device.DAC1.cr.write(|w| {

@@ -1,7 +1,3 @@
-// TODO: Support all registries used in the code
-// incrementaly convert them to hals
-// in the meantime, let them access unsafe methods
-
 use super::pac::{rcc, RCC};
 
 pub trait RccConstrain {
@@ -32,6 +28,10 @@ pub struct AHB {
 impl AHB {
     pub unsafe fn enr(&mut self) -> &rcc::AHBENR {
         &(*RCC::ptr()).ahbenr
+    }
+
+    pub unsafe fn rstr(&mut self) -> &rcc::AHBRSTR {
+        &(*RCC::ptr()).ahbrstr
     }
 }
 
