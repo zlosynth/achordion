@@ -14,6 +14,8 @@ use panic_halt as _;
 use rtic::app;
 use stm32f3::stm32f303;
 
+use crate::hal::prelude::*;
+
 const DMA_LENGTH: usize = 64;
 static mut DMA_BUFFER: [u32; DMA_LENGTH] = [0; DMA_LENGTH];
 
@@ -25,10 +27,14 @@ lazy_static! {
 const APP: () = {
     #[init]
     fn init(mut cx: init::Context) {
+        let mut rcc = cx.device.RCC.constrain();
+
         // enable GPIOA and DAC clocks
-        cx.device.RCC.ahbenr.modify(|_, w| w.iopaen().set_bit());
-        cx.device.RCC.apb1enr.modify(|_, w| w.dac1en().set_bit());
-        cx.device.RCC.apb1enr.modify(|_, w| w.dac2en().set_bit());
+        unsafe {
+            rcc.ahb.enr().modify(|_, w| w.iopaen().set_bit());
+            rcc.apb1.enr().modify(|_, w| w.dac1en().set_bit());
+            rcc.apb1.enr().modify(|_, w| w.dac2en().set_bit());
+        }
 
         // configure PA04, PA05 (DAC_OUT1 & DAC_OUT2) as analog, floating
         cx.device
@@ -65,7 +71,9 @@ const APP: () = {
         }); // enable dac channel 2
 
         // init dma2
-        cx.device.RCC.ahbenr.modify(|_, w| w.dma2en().set_bit());
+        unsafe {
+            rcc.ahb.enr().modify(|_, w| w.dma2en().set_bit());
+        }
 
         // dma parameters
         let ma = unsafe { DMA_BUFFER.as_ptr() } as usize as u32; // source: memory address
@@ -123,7 +131,9 @@ const APP: () = {
         });
 
         // init tim2
-        cx.device.RCC.apb1enr.modify(|_, w| w.tim2en().set_bit());
+        unsafe {
+            rcc.apb1.enr().modify(|_, w| w.tim2en().set_bit());
+        }
         // calculate timer frequency
         let sysclk = 8_000_000; // the stmf32f3 discovery board CPU runs at 8Mhz by default
         let fs = 44_100; // we want an audio sampling rate of 44.1KHz
