@@ -37,7 +37,6 @@ const APP: () = {
         // enable DAC clocks
         unsafe {
             rcc.apb1.enr().modify(|_, w| w.dac1en().set_bit());
-            rcc.apb1.enr().modify(|_, w| w.dac2en().set_bit());
         }
 
         // configure DAC
