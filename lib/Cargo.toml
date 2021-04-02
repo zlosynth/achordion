@@ -14,7 +14,7 @@ heapless = "0.6"
 micromath = "1.1"
 usbd-midi = { git = "https://github.com/phoracek/usbd-midi", branch = "master" }
 
-[dependencies.sirena]
+[dev-dependencies.sirena]
 git = "https://github.com/zlosynth/sirena"
 rev = "52ebc6c0e82804a3aced22d04effb04af6cd2646"
 default-features = false
