@@ -1,10 +1,7 @@
-use core::convert::TryFrom;
-
 use heapless::consts::*;
 use heapless::Vec;
 #[allow(unused_imports)]
 use micromath::F32Ext;
-use usbd_midi::data::midi::message::Message as UsbdMessage;
 
 const MAX_NOTES: usize = 8;
 
@@ -82,18 +79,6 @@ pub struct State {
 pub enum Message {
     NoteOn(Note),
     NoteOff(Note),
-}
-
-impl TryFrom<UsbdMessage> for Message {
-    type Error = &'static str;
-
-    fn try_from(message: UsbdMessage) -> Result<Self, Self::Error> {
-        match message {
-            UsbdMessage::NoteOn(_, note, _) => Ok(Message::NoteOn(Note::from_u8(note.into()))),
-            UsbdMessage::NoteOff(_, note, _) => Ok(Message::NoteOff(Note::from_u8(note.into()))),
-            _ => Err("Conversion not implemented"),
-        }
-    }
 }
 
 #[repr(u8)]
@@ -452,50 +437,6 @@ mod tests {
 
         let state = instrument.reconcile(Message::NoteOff(notes[1]));
         assert_relative_eq!(state.frequency, 0.0);
-    }
-
-    #[test]
-    fn from_usbd_note_on() {
-        use core::convert::TryFrom;
-        use usbd_midi::data::byte::u7::U7 as UsbdU7;
-        use usbd_midi::data::midi::channel::Channel as UsbdChannel;
-        use usbd_midi::data::midi::notes::Note as UsbdNote;
-
-        let message = Message::try_from(UsbdMessage::NoteOn(
-            UsbdChannel::Channel1,
-            UsbdNote::A4,
-            UsbdU7::try_from(127).ok().unwrap(),
-        ))
-        .unwrap();
-
-        match message {
-            Message::NoteOn(note) => {
-                assert_eq!(note, Note::A4);
-            }
-            _ => panic!("Invalid variant"),
-        }
-    }
-
-    #[test]
-    fn from_usbd_note_off() {
-        use core::convert::TryFrom;
-        use usbd_midi::data::byte::u7::U7 as UsbdU7;
-        use usbd_midi::data::midi::channel::Channel as UsbdChannel;
-        use usbd_midi::data::midi::notes::Note as UsbdNote;
-
-        let message = Message::try_from(UsbdMessage::NoteOff(
-            UsbdChannel::Channel1,
-            UsbdNote::A4,
-            UsbdU7::try_from(0).ok().unwrap(),
-        ))
-        .unwrap();
-
-        match message {
-            Message::NoteOff(note) => {
-                assert_eq!(note, Note::A4);
-            }
-            _ => panic!("Invalid variant"),
-        }
     }
 
     #[test]

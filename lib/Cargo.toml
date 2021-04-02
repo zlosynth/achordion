@@ -12,7 +12,6 @@ publish = false
 [dependencies]
 heapless = "0.6"
 micromath = "1.1"
-usbd-midi = { git = "https://github.com/phoracek/usbd-midi", branch = "master" }
 
 [dev-dependencies.sirena]
 git = "https://github.com/zlosynth/sirena"
