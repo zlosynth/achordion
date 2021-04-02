@@ -1,5 +1,6 @@
 #![no_main]
 #![no_std]
+#![allow(clippy::upper_case_acronyms)]
 
 mod hal;
 
