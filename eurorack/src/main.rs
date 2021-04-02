@@ -1,15 +1,9 @@
 #![no_main]
 #![no_std]
 
-#[macro_use]
-extern crate lazy_static;
-
 mod hal;
 mod wavetable;
 
-use core::cell::RefCell;
-
-use cortex_m::interrupt::Mutex;
 use panic_halt as _;
 use rtic::app;
 
@@ -22,14 +16,14 @@ const SAMPLE_RATE: u32 = 44_100;
 const DMA_LENGTH: usize = 64;
 static mut DMA_BUFFER: [u32; DMA_LENGTH] = [0; DMA_LENGTH];
 
-lazy_static! {
-    static ref MUTEX_DMA: Mutex<RefCell<Option<CHANNEL3>>> = Mutex::new(RefCell::new(None));
-}
-
 #[app(device = stm32f3::stm32f303, peripherals = true, monotonic = rtic::cyccnt::CYCCNT)]
 const APP: () = {
+    struct Resources {
+        dma: CHANNEL3,
+    }
+
     #[init]
-    fn init(cx: init::Context) {
+    fn init(cx: init::Context) -> init::LateResources {
         let mut rcc = cx.device.RCC.constrain();
         let mut gpioa = cx.device.GPIOA.split(&mut rcc.ahb);
         let tim2 = cx.device.TIM2.constrain(&mut rcc.apb1);
@@ -68,21 +62,16 @@ const APP: () = {
         dma.enable();
         tim2.enable();
 
-        // wrap shared peripherals
-        cortex_m::interrupt::free(|cs| {
-            MUTEX_DMA.borrow(cs).replace(Some(dma));
-        });
+        init::LateResources { dma }
     }
 
-    #[task(binds = DMA2_CH3)]
-    fn dma2_ch3(_: dma2_ch3::Context) {
-        let event = cortex_m::interrupt::free(|cs| {
-            let mut refcell = MUTEX_DMA.borrow(cs).borrow_mut();
-            let dma = refcell.as_mut().unwrap();
-            let event = dma.event();
-            dma.clear_events();
+    #[task(binds = DMA2_CH3, resources = [dma])]
+    fn dma2_ch3(cx: dma2_ch3::Context) {
+        let event = {
+            let event = cx.resources.dma.event();
+            cx.resources.dma.clear_events();
             event
-        });
+        };
 
         if let Some(event) = event {
             match event {
