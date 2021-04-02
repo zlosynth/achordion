@@ -1,5 +1,5 @@
 .PHONY: all
-all: format clippy check test
+all: clippy check test format
 
 .PHONY: check-format
 check-format:
