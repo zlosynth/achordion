@@ -65,19 +65,13 @@ const APP: () = {
         dma.listen(Event::Any);
         dma.unmask_interrupt();
 
+        dma.enable();
+        tim2.enable();
+
         // wrap shared peripherals
         cortex_m::interrupt::free(|cs| {
             MUTEX_DMA.borrow(cs).replace(Some(dma));
         });
-
-        // start dma transfer
-        cortex_m::interrupt::free(|cs| {
-            let mut refcell = MUTEX_DMA.borrow(cs).borrow_mut();
-            let dma = refcell.as_mut().unwrap();
-            dma.enable();
-        });
-
-        tim2.enable();
     }
 
     #[task(binds = DMA2_CH3)]
