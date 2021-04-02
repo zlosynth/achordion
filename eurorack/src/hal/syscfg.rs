@@ -7,10 +7,7 @@ pub trait SysCfgConstrain {
 
 impl SysCfgConstrain for SYSCFG {
     fn constrain(self, apb2: &mut APB2) -> SysCfg {
-        unsafe {
-            apb2.enr().modify(|_, w| w.syscfgen().enabled());
-        }
-
+        apb2.enr().modify(|_, w| w.syscfgen().enabled());
         SysCfg(self)
     }
 }
@@ -18,7 +15,7 @@ impl SysCfgConstrain for SYSCFG {
 pub struct SysCfg(SYSCFG);
 
 impl SysCfg {
-    pub unsafe fn exticr1(&self) -> &syscfg::EXTICR1 {
-        &(*SYSCFG::ptr()).exticr1
+    pub fn exticr1(&self) -> &syscfg::EXTICR1 {
+        unsafe { &(*SYSCFG::ptr()).exticr1 }
     }
 }

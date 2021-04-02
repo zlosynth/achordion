@@ -13,15 +13,15 @@ impl ExtiConstrain for EXTI {
 pub struct Exti(EXTI);
 
 impl Exti {
-    pub unsafe fn pr1(&self) -> &exti::PR1 {
-        &(*EXTI::ptr()).pr1
+    pub fn pr1(&self) -> &exti::PR1 {
+        unsafe { &(*EXTI::ptr()).pr1 }
     }
 
-    pub unsafe fn imr1(&self) -> &exti::IMR1 {
-        &(*EXTI::ptr()).imr1
+    pub fn imr1(&self) -> &exti::IMR1 {
+        unsafe { &(*EXTI::ptr()).imr1 }
     }
 
-    pub unsafe fn rtsr1(&self) -> &exti::RTSR1 {
-        &(*EXTI::ptr()).rtsr1
+    pub fn rtsr1(&self) -> &exti::RTSR1 {
+        unsafe { &(*EXTI::ptr()).rtsr1 }
     }
 }

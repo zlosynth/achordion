@@ -30,8 +30,8 @@ pub mod a {
     }
 
     impl MODER {
-        pub unsafe fn moder(&mut self) -> &gpioa::MODER {
-            &(*GPIOA::ptr()).moder
+        pub fn moder(&mut self) -> &gpioa::MODER {
+            unsafe { &(*GPIOA::ptr()).moder }
         }
     }
 
@@ -41,8 +41,8 @@ pub mod a {
     }
 
     impl PUPDR {
-        pub unsafe fn pupdr(&mut self) -> &gpioa::PUPDR {
-            &(*GPIOA::ptr()).pupdr
+        pub fn pupdr(&mut self) -> &gpioa::PUPDR {
+            unsafe { &(*GPIOA::ptr()).pupdr }
         }
     }
 
@@ -52,30 +52,24 @@ pub mod a {
 
     impl PA0<Uninitialized> {
         pub fn into_pull_down(self, moder: &mut MODER, pupdr: &mut PUPDR) -> PA0<Input> {
-            unsafe {
-                moder.moder().modify(|_, w| w.moder0().input());
-                pupdr.pupdr().modify(|_, w| w.pupdr0().pull_down());
-            }
+            moder.moder().modify(|_, w| w.moder0().input());
+            pupdr.pupdr().modify(|_, w| w.pupdr0().pull_down());
             PA0 { _mode: PhantomData }
         }
     }
 
     impl PA0<Input> {
         pub fn interrupt_exti0(&mut self, syscfg: &mut SysCfg) {
-            unsafe {
-                syscfg.exticr1().modify(|_, w| w.exti0().pa0());
-            }
+            syscfg.exticr1().modify(|_, w| w.exti0().pa0());
         }
 
         pub fn clear_exti0(&mut self, exti: &mut Exti) {
-            unsafe {
-                exti.pr1().modify(|_, w| w.pr0().clear());
-            }
+            exti.pr1().modify(|_, w| w.pr0().clear());
         }
 
         pub fn unmask_exti0(&mut self, exti: &mut Exti) {
+            exti.imr1().modify(|_, w| w.mr0().unmasked());
             unsafe {
-                exti.imr1().modify(|_, w| w.mr0().unmasked());
                 rtic::export::NVIC::unmask(interrupt::DMA2_CH3);
             }
         }
@@ -84,9 +78,9 @@ pub mod a {
             use super::Edge::*;
 
             match edge {
-                Rising => unsafe {
+                Rising => {
                     exti.rtsr1().modify(|_, w| w.tr0().enabled());
-                },
+                }
             }
         }
 
@@ -107,10 +101,8 @@ pub mod a {
         /// Configures the pin to operate as analog, with disabled schmitt trigger.
         /// This mode is suitable when the pin is connected to the DAC or ADC.
         pub fn into_analog(self, moder: &mut MODER, pupdr: &mut PUPDR) -> PA4<Analog> {
-            unsafe {
-                moder.moder().modify(|_, w| w.moder4().analog());
-                pupdr.pupdr().modify(|_, w| w.pupdr4().floating());
-            }
+            moder.moder().modify(|_, w| w.moder4().analog());
+            pupdr.pupdr().modify(|_, w| w.pupdr4().floating());
             PA4 { _mode: PhantomData }
         }
     }
@@ -123,10 +115,8 @@ pub mod a {
         /// Configures the pin to operate as analog, with disabled schmitt trigger.
         /// This mode is suitable when the pin is connected to the DAC or ADC.
         pub fn into_analog(self, moder: &mut MODER, pupdr: &mut PUPDR) -> PA5<Analog> {
-            unsafe {
-                moder.moder().modify(|_, w| w.moder5().analog());
-                pupdr.pupdr().modify(|_, w| w.pupdr5().floating());
-            }
+            moder.moder().modify(|_, w| w.moder5().analog());
+            pupdr.pupdr().modify(|_, w| w.pupdr5().floating());
             PA5 { _mode: PhantomData }
         }
     }
@@ -148,11 +138,9 @@ pub mod a {
         type Parts = Parts;
 
         fn split(self, ahb: &mut AHB) -> Parts {
-            unsafe {
-                ahb.enr().modify(|_, w| w.iopaen().set_bit());
-                ahb.rstr().modify(|_, w| w.ioparst().set_bit());
-                ahb.rstr().modify(|_, w| w.ioparst().clear_bit());
-            }
+            ahb.enr().modify(|_, w| w.iopaen().set_bit());
+            ahb.rstr().modify(|_, w| w.ioparst().set_bit());
+            ahb.rstr().modify(|_, w| w.ioparst().clear_bit());
 
             Parts {
                 moder: MODER { _0: () },

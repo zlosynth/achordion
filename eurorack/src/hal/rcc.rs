@@ -29,12 +29,12 @@ pub struct AHB {
 }
 
 impl AHB {
-    pub unsafe fn enr(&mut self) -> &rcc::AHBENR {
-        &(*RCC::ptr()).ahbenr
+    pub fn enr(&mut self) -> &rcc::AHBENR {
+        unsafe { &(*RCC::ptr()).ahbenr }
     }
 
-    pub unsafe fn rstr(&mut self) -> &rcc::AHBRSTR {
-        &(*RCC::ptr()).ahbrstr
+    pub fn rstr(&mut self) -> &rcc::AHBRSTR {
+        unsafe { &(*RCC::ptr()).ahbrstr }
     }
 }
 
@@ -44,8 +44,8 @@ pub struct APB1 {
 }
 
 impl APB1 {
-    pub unsafe fn enr(&mut self) -> &rcc::APB1ENR {
-        &(*RCC::ptr()).apb1enr
+    pub fn enr(&mut self) -> &rcc::APB1ENR {
+        unsafe { &(*RCC::ptr()).apb1enr }
     }
 }
 
@@ -55,7 +55,7 @@ pub struct APB2 {
 }
 
 impl APB2 {
-    pub unsafe fn enr(&mut self) -> &rcc::APB2ENR {
-        &(*RCC::ptr()).apb2enr
+    pub fn enr(&mut self) -> &rcc::APB2ENR {
+        unsafe { &(*RCC::ptr()).apb2enr }
     }
 }

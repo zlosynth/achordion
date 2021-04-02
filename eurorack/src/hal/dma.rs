@@ -68,9 +68,7 @@ pub mod _2 {
         type Parts = Parts;
 
         fn split(self, ahb: &mut AHB) -> Parts {
-            unsafe {
-                ahb.enr().modify(|_, w| w.dma2en().set_bit());
-            }
+            ahb.enr().modify(|_, w| w.dma2en().set_bit());
 
             Parts {
                 ch3: CHANNEL3 { _0: () },
@@ -89,10 +87,10 @@ pub mod _2 {
     impl CHANNEL3 {
         pub fn set_direction(&mut self, direction: Direction) {
             match direction {
-                Direction::FromMemory => unsafe {
+                Direction::FromMemory => {
                     self.cr()
                         .modify(|_, w| w.dir().from_memory().mem2mem().disabled());
-                },
+                }
             }
         }
 
@@ -119,9 +117,7 @@ pub mod _2 {
                 panic!();
             }
 
-            unsafe {
-                self.ndtr().write(|w| w.ndt().bits(len));
-            }
+            self.ndtr().write(|w| w.ndt().bits(len));
         }
 
         pub fn set_word_size<W>(&mut self) {
@@ -134,46 +130,38 @@ pub mod _2 {
                 s => panic!("unsupported word size: {:?}", s),
             };
 
-            unsafe {
-                self.cr().modify(|_, w| {
-                    w.psize().variant(psize);
-                    w.msize().variant(psize)
-                });
-            }
+            self.cr().modify(|_, w| {
+                w.psize().variant(psize);
+                w.msize().variant(psize)
+            });
         }
 
         pub fn set_priority_level(&mut self, priority: Priority) {
             let priority_level = priority.into();
-            unsafe {
-                self.cr().modify(|_, w| w.pl().variant(priority_level));
-            }
+            self.cr().modify(|_, w| w.pl().variant(priority_level));
         }
 
         pub fn set_circular(&mut self, circular: bool) {
-            unsafe {
-                self.cr().modify(|_, w| w.circ().bit(circular));
-            }
+            self.cr().modify(|_, w| w.circ().bit(circular));
         }
 
         pub fn listen(&mut self, event: Event) {
             use Event::*;
 
             match event {
-                HalfTransfer => unsafe { self.cr().modify(|_, w| w.htie().enabled()) },
-                TransferComplete => unsafe { self.cr().modify(|_, w| w.tcie().enabled()) },
-                TransferError => unsafe { self.cr().modify(|_, w| w.teie().enabled()) },
-                Any => unsafe {
-                    self.cr().modify(|_, w| {
-                        w.htie().enabled();
-                        w.tcie().enabled();
-                        w.teie().enabled()
-                    })
-                },
+                HalfTransfer => self.cr().modify(|_, w| w.htie().enabled()),
+                TransferComplete => self.cr().modify(|_, w| w.tcie().enabled()),
+                TransferError => self.cr().modify(|_, w| w.teie().enabled()),
+                Any => self.cr().modify(|_, w| {
+                    w.htie().enabled();
+                    w.tcie().enabled();
+                    w.teie().enabled()
+                }),
             }
         }
 
         pub fn event(&self) -> Option<Event> {
-            let isr = unsafe { self.isr().read() };
+            let isr = self.isr().read();
             if isr.htif3().is_half() {
                 Some(Event::HalfTransfer)
             } else if isr.tcif3().is_complete() {
@@ -202,33 +190,31 @@ pub mod _2 {
         }
 
         pub fn enable(&mut self) {
-            unsafe {
-                self.cr().modify(|_, w| w.en().enabled());
-            }
+            self.cr().modify(|_, w| w.en().enabled());
         }
 
         fn is_enabled(&mut self) -> bool {
-            unsafe { self.cr().read().en().is_enabled() }
+            self.cr().read().en().is_enabled()
         }
 
-        unsafe fn cr(&mut self) -> &stm32f3::Reg<u32, dma1::ch::_CR> {
-            &(*DMA2::ptr()).ch3.cr
+        fn cr(&mut self) -> &stm32f3::Reg<u32, dma1::ch::_CR> {
+            unsafe { &(*DMA2::ptr()).ch3.cr }
         }
 
-        unsafe fn par(&mut self) -> &stm32f3::Reg<u32, dma1::ch::_PAR> {
-            &(*DMA2::ptr()).ch3.par
+        fn par(&mut self) -> &stm32f3::Reg<u32, dma1::ch::_PAR> {
+            unsafe { &(*DMA2::ptr()).ch3.par }
         }
 
-        unsafe fn mar(&mut self) -> &stm32f3::Reg<u32, dma1::ch::_MAR> {
-            &(*DMA2::ptr()).ch3.mar
+        fn mar(&mut self) -> &stm32f3::Reg<u32, dma1::ch::_MAR> {
+            unsafe { &(*DMA2::ptr()).ch3.mar }
         }
 
-        unsafe fn ndtr(&mut self) -> &stm32f3::Reg<u32, dma1::ch::_NDTR> {
-            &(*DMA2::ptr()).ch3.ndtr
+        fn ndtr(&mut self) -> &stm32f3::Reg<u32, dma1::ch::_NDTR> {
+            unsafe { &(*DMA2::ptr()).ch3.ndtr }
         }
 
-        unsafe fn isr(&self) -> &dma1::ISR {
-            &(*DMA2::ptr()).isr
+        fn isr(&self) -> &dma1::ISR {
+            unsafe { &(*DMA2::ptr()).isr }
         }
 
         unsafe fn ifcr(&mut self) -> &dma1::IFCR {
