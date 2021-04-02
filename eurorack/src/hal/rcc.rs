@@ -9,6 +9,7 @@ impl RccConstrain for RCC {
         Rcc {
             ahb: AHB { _0: () },
             apb1: APB1 { _0: () },
+            apb2: APB2 { _0: () },
         }
     }
 }
@@ -18,6 +19,8 @@ pub struct Rcc {
     pub ahb: AHB,
     /// Advanced Peripheral Bus 1 (APB1) registers
     pub apb1: APB1,
+    /// Advanced Peripheral Bus 1 (APB1) registers
+    pub apb2: APB2,
 }
 
 /// AMBA High-performance Bus (AHB) registers
@@ -43,5 +46,16 @@ pub struct APB1 {
 impl APB1 {
     pub unsafe fn enr(&mut self) -> &rcc::APB1ENR {
         &(*RCC::ptr()).apb1enr
+    }
+}
+
+/// Advanced Peripheral Bus 2 (APB2) registers
+pub struct APB2 {
+    _0: (),
+}
+
+impl APB2 {
+    pub unsafe fn enr(&mut self) -> &rcc::APB2ENR {
+        &(*RCC::ptr()).apb2enr
     }
 }

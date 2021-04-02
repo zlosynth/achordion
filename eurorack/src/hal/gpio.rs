@@ -10,12 +10,19 @@ pub trait GpioSplit {
     fn split(self, ahb: &mut AHB) -> Self::Parts;
 }
 
+pub enum Edge {
+    Rising,
+}
+
 pub mod a {
     use core::marker::PhantomData;
 
+    use super::super::exti::Exti;
+    use super::super::pac::interrupt;
     use super::super::pac::{gpioa, GPIOA};
     use super::super::rcc::AHB;
-    use super::{Analog, GpioSplit, Input, Uninitialized};
+    use super::super::syscfg::SysCfg;
+    use super::{Analog, Edge, GpioSplit, Input, Uninitialized};
 
     /// Opaque MODER register
     pub struct MODER {
@@ -50,6 +57,45 @@ pub mod a {
                 pupdr.pupdr().modify(|_, w| w.pupdr0().pull_down());
             }
             PA0 { _mode: PhantomData }
+        }
+    }
+
+    impl PA0<Input> {
+        pub fn interrupt_exti0(&mut self, syscfg: &mut SysCfg) {
+            unsafe {
+                syscfg.exticr1().modify(|_, w| w.exti0().pa0());
+            }
+        }
+
+        pub fn clear_exti0(&mut self, exti: &mut Exti) {
+            unsafe {
+                exti.pr1().modify(|_, w| w.pr0().clear());
+            }
+        }
+
+        pub fn unmask_exti0(&mut self, exti: &mut Exti) {
+            unsafe {
+                exti.imr1().modify(|_, w| w.mr0().unmasked());
+                rtic::export::NVIC::unmask(interrupt::DMA2_CH3);
+            }
+        }
+
+        pub fn trigger_on_edge(&mut self, exti: &mut Exti, edge: Edge) {
+            use super::Edge::*;
+
+            match edge {
+                Rising => unsafe {
+                    exti.rtsr1().modify(|_, w| w.tr0().enabled());
+                },
+            }
+        }
+
+        pub fn is_high(&mut self) -> bool {
+            unsafe { self.idr().read().idr0().is_high() }
+        }
+
+        pub unsafe fn idr(&self) -> &gpioa::IDR {
+            &(*GPIOA::ptr()).idr
         }
     }
 

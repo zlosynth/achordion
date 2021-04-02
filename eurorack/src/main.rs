@@ -9,6 +9,9 @@ use rtic::app;
 
 use crate::hal::dma::_2::CHANNEL3;
 use crate::hal::dma::{Direction, Event, Increment, Priority};
+use crate::hal::exti::Exti;
+use crate::hal::gpio::a::PA0;
+use crate::hal::gpio::{Edge, Input};
 use crate::hal::prelude::*;
 
 const SAMPLE_RATE: u32 = 44_100;
@@ -19,7 +22,10 @@ static mut DMA_BUFFER: [u32; DMA_LENGTH] = [0; DMA_LENGTH];
 #[app(device = stm32f3::stm32f303, peripherals = true, monotonic = rtic::cyccnt::CYCCNT)]
 const APP: () = {
     struct Resources {
+        exti: Exti,
         dma: CHANNEL3,
+        button: PA0<Input>,
+
         #[init(40.0)]
         frequency: f32,
     }
@@ -36,6 +42,8 @@ const APP: () = {
             &mut gpioa.moder,
             &mut gpioa.pupdr,
         );
+        let mut syscfg = cx.device.SYSCFG.constrain(&mut rcc.apb2);
+        let mut exti = cx.device.EXTI.constrain();
         let mut dma = cx.device.DMA2.split(&mut rcc.ahb).ch3;
 
         let mut tim2 = tim2.into_periodic(SAMPLE_RATE);
@@ -64,12 +72,15 @@ const APP: () = {
         dma.enable();
         tim2.enable();
 
-        let mut _button = gpioa.pa0.into_pull_down(&mut gpioa.moder, &mut gpioa.pupdr);
+        let mut button = gpioa.pa0.into_pull_down(&mut gpioa.moder, &mut gpioa.pupdr);
+        button.interrupt_exti0(&mut syscfg);
+        button.trigger_on_edge(&mut exti, Edge::Rising);
+        button.unmask_exti0(&mut exti);
 
-        init::LateResources { dma }
+        init::LateResources { exti, dma, button }
     }
 
-    #[task(binds = DMA2_CH3, resources = [dma, frequency])]
+    #[task(priority = 2, binds = DMA2_CH3, resources = [dma, frequency])]
     fn dma2_ch3(cx: dma2_ch3::Context) {
         let event = {
             let event = cx.resources.dma.event();
@@ -96,8 +107,17 @@ const APP: () = {
         }
     }
 
+    #[task(binds = EXTI0, resources = [button, frequency, exti])]
+    fn exti0(mut cx: exti0::Context) {
+        cx.resources.button.clear_exti0(&mut cx.resources.exti);
+
+        cx.resources.frequency.lock(|frequency| {
+            *frequency *= 1.5;
+        });
+    }
+
     extern "C" {
-        fn EXTI0();
+        fn EXTI1();
     }
 };
 
