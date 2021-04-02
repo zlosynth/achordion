@@ -12,9 +12,9 @@ use core::cell::RefCell;
 use cortex_m::interrupt::Mutex;
 use panic_halt as _;
 use rtic::app;
-use stm32f3::stm32f303;
-use stm32f303::interrupt;
 
+use crate::hal::dma::_2::CHANNEL3;
+use crate::hal::dma::{Direction, Event, Increment, Priority};
 use crate::hal::prelude::*;
 
 const SAMPLE_RATE: u32 = 44_100;
@@ -23,7 +23,7 @@ const DMA_LENGTH: usize = 64;
 static mut DMA_BUFFER: [u32; DMA_LENGTH] = [0; DMA_LENGTH];
 
 lazy_static! {
-    static ref MUTEX_DMA2: Mutex<RefCell<Option<stm32f303::DMA2>>> = Mutex::new(RefCell::new(None));
+    static ref MUTEX_DMA: Mutex<RefCell<Option<CHANNEL3>>> = Mutex::new(RefCell::new(None));
 }
 
 #[app(device = stm32f3::stm32f303, peripherals = true, monotonic = rtic::cyccnt::CYCCNT)]
@@ -32,6 +32,7 @@ const APP: () = {
     fn init(cx: init::Context) {
         let mut rcc = cx.device.RCC.constrain();
         let mut gpioa = cx.device.GPIOA.split(&mut rcc.ahb);
+        let tim2 = cx.device.TIM2.constrain(&mut rcc.apb1);
         let mut dac = cx.device.DAC1.constrain(
             gpioa.pa4,
             gpioa.pa5,
@@ -39,7 +40,7 @@ const APP: () = {
             &mut gpioa.moder,
             &mut gpioa.pupdr,
         );
-        let tim2 = cx.device.TIM2.constrain(&mut rcc.apb1);
+        let mut dma = cx.device.DMA2.split(&mut rcc.ahb).ch3;
 
         let mut tim2 = tim2.into_periodic(SAMPLE_RATE);
 
@@ -48,62 +49,32 @@ const APP: () = {
         dac.enable_dma();
         dac.enable();
 
-        // init dma2
-        unsafe {
-            rcc.ahb.enr().modify(|_, w| w.dma2en().set_bit());
-        }
-
-        // dma parameters
         let ma = unsafe { DMA_BUFFER.as_ptr() } as usize as u32; // source: memory address
         let pa = 0x40007420; // destination: Dual DAC 12-bit right-aligned data holding register (DHR12RD)
         let ndt = DMA_LENGTH as u16; // number of items to transfer
 
-        // configure and enable DMA2 channel 3
-        cx.device.DMA2.ch3.mar.write(|w| unsafe { w.ma().bits(ma) }); // source memory address
-        cx.device.DMA2.ch3.par.write(|w| unsafe { w.pa().bits(pa) }); // destination peripheral address
-        cx.device.DMA2.ch3.ndtr.write(|w| w.ndt().bits(ndt)); // number of items to transfer
-
-        cx.device.DMA2.ch3.cr.write(|w| {
-            w.dir()
-                .from_memory() // source is memory
-                .mem2mem()
-                .disabled() // disable memory to memory transfer
-                .minc()
-                .enabled() // increment memory address every transfer
-                .pinc()
-                .disabled() // don't increment peripheral address every transfer
-                .msize()
-                .bits32() // memory word size is 32 bits
-                .psize()
-                .bits32() // peripheral word size is 32 bits
-                .circ()
-                .enabled() // dma mode is circular
-                .pl()
-                .high() // set dma priority to high
-                .teie()
-                .enabled() // trigger an interrupt if an error occurs
-                .tcie()
-                .enabled() // trigger an interrupt when transfer is complete
-                .htie()
-                .enabled() // trigger an interrupt when half the transfer is complete
-        });
-
-        // enable DMA interrupt
+        dma.set_direction(Direction::FromMemory);
         unsafe {
-            rtic::export::NVIC::unmask(interrupt::DMA2_CH3);
+            dma.set_memory_address(ma, Increment::Enable);
+            dma.set_peripheral_address(pa, Increment::Disable);
         }
+        dma.set_transfer_length(ndt);
+        dma.set_word_size::<u32>();
+        dma.set_circular(true);
+        dma.set_priority_level(Priority::High);
+        dma.listen(Event::Any);
+        dma.unmask_interrupt();
 
         // wrap shared peripherals
-        let dma2 = cx.device.DMA2;
         cortex_m::interrupt::free(|cs| {
-            MUTEX_DMA2.borrow(cs).replace(Some(dma2));
+            MUTEX_DMA.borrow(cs).replace(Some(dma));
         });
 
         // start dma transfer
         cortex_m::interrupt::free(|cs| {
-            let refcell = MUTEX_DMA2.borrow(cs).borrow();
-            let dma2 = refcell.as_ref().unwrap();
-            dma2.ch3.cr.modify(|_, w| w.en().enabled());
+            let mut refcell = MUTEX_DMA.borrow(cs).borrow_mut();
+            let dma = refcell.as_mut().unwrap();
+            dma.enable();
         });
 
         tim2.enable();
@@ -111,31 +82,24 @@ const APP: () = {
 
     #[task(binds = DMA2_CH3)]
     fn dma2_ch3(_: dma2_ch3::Context) {
-        // determine interrupt event
-        let isr = cortex_m::interrupt::free(|cs| {
-            let refcell = MUTEX_DMA2.borrow(cs).borrow();
-            let dma2 = refcell.as_ref();
-
-            // cache interrupt state register (before we clear the flags!)
-            let isr = dma2.unwrap().isr.read();
-
-            // clear interrupt flags
-            dma2.unwrap()
-                .ifcr
-                .write(|w| w.ctcif3().clear().chtif3().clear().cteif3().clear());
-
-            isr
+        let event = cortex_m::interrupt::free(|cs| {
+            let mut refcell = MUTEX_DMA.borrow(cs).borrow_mut();
+            let dma = refcell.as_mut().unwrap();
+            let event = dma.event();
+            dma.clear_events();
+            event
         });
 
-        // handle interrupt events
-        if isr.htif3().is_half() {
-            audio_callback(unsafe { &mut DMA_BUFFER }, DMA_LENGTH / 2, 0);
-        } else if isr.tcif3().is_complete() {
-            audio_callback(unsafe { &mut DMA_BUFFER }, DMA_LENGTH / 2, 1);
-        // } else if isr.teif3().is_error() {
-        // handle dma error
-        } else {
-            // handle unknown interrupt
+        if let Some(event) = event {
+            match event {
+                Event::HalfTransfer => {
+                    audio_callback(unsafe { &mut DMA_BUFFER }, DMA_LENGTH / 2, 0)
+                }
+                Event::TransferComplete => {
+                    audio_callback(unsafe { &mut DMA_BUFFER }, DMA_LENGTH / 2, 1)
+                }
+                _ => (),
+            }
         }
     }
 
@@ -152,7 +116,7 @@ fn audio_callback(buffer: &mut [u32; DMA_LENGTH], length: usize, offset: usize) 
     let wt_sin = wavetable::SIN;
     let wt_saw = wavetable::SAW;
 
-    let dx = 80.0 * (1. / 44100.);
+    let dx = 80.0 * (1. / SAMPLE_RATE as f32);
 
     for t in 0..length {
         let index = (phase * wt_length as f32) as usize;
