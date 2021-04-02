@@ -29,37 +29,19 @@ const APP: () = {
     fn init(mut cx: init::Context) {
         let mut rcc = cx.device.RCC.constrain();
         let mut gpioa = cx.device.GPIOA.split(&mut rcc.ahb);
-        let mut dac = cx.device.DAC1.constrain(&mut rcc.apb1);
+        let mut dac = cx.device.DAC1.constrain(
+            gpioa.pa4,
+            gpioa.pa5,
+            &mut rcc.apb1,
+            &mut gpioa.moder,
+            &mut gpioa.pupdr,
+        );
 
-        // configure PA04, PA05 (DAC_OUT1 & DAC_OUT2) as analog, floating
-        gpioa.pa4.into_analog(&mut gpioa.moder, &mut gpioa.pupdr);
-        gpioa.pa5.into_analog(&mut gpioa.moder, &mut gpioa.pupdr);
-
-        // configure DAC
-        unsafe {
-            dac.cr().write(|w| {
-                w.boff1()
-                    .disabled() // disable dac output buffer for channel 1
-                    .boff2()
-                    .disabled() // disable dac output buffer for channel 2
-                    .ten1()
-                    .enabled() // enable trigger for channel 1
-                    .ten2()
-                    .enabled() // enable trigger for channel 2
-                    .tsel1()
-                    .tim2_trgo() // set trigger for channel 1 to TIM2
-                    .tsel2()
-                    .tim2_trgo()
-            }); // set trigger for channel 2 to TIM2
-
-            // enable DAC
-            dac.cr().modify(|_, w| {
-                w.en1()
-                    .enabled() // enable dac channel 1
-                    .en2()
-                    .enabled()
-            }); // enable dac channel 2
-        }
+        // disable the output buffer for improved SNR at the cost of limited output current. (AN4566, page 5)
+        dac.disable_buffer();
+        dac.set_trigger_tim2();
+        dac.enable_dma();
+        dac.enable();
 
         // init dma2
         unsafe {
@@ -104,11 +86,6 @@ const APP: () = {
         // enable DMA interrupt
         #[allow(deprecated)]
         cx.core.NVIC.enable(stm32f303::interrupt::DMA2_CH3);
-
-        // enable DMA for DAC
-        unsafe {
-            dac.cr().modify(|_, w| w.dmaen1().enabled());
-        }
 
         // wrap shared peripherals
         let dma2 = cx.device.DMA2;
