@@ -13,6 +13,7 @@ use cortex_m::interrupt::Mutex;
 use panic_halt as _;
 use rtic::app;
 use stm32f3::stm32f303;
+use stm32f303::interrupt;
 
 use crate::hal::prelude::*;
 
@@ -28,7 +29,7 @@ lazy_static! {
 #[app(device = stm32f3::stm32f303, peripherals = true, monotonic = rtic::cyccnt::CYCCNT)]
 const APP: () = {
     #[init]
-    fn init(mut cx: init::Context) {
+    fn init(cx: init::Context) {
         let mut rcc = cx.device.RCC.constrain();
         let mut gpioa = cx.device.GPIOA.split(&mut rcc.ahb);
         let mut dac = cx.device.DAC1.constrain(
@@ -88,8 +89,9 @@ const APP: () = {
         });
 
         // enable DMA interrupt
-        #[allow(deprecated)]
-        cx.core.NVIC.enable(stm32f303::interrupt::DMA2_CH3);
+        unsafe {
+            rtic::export::NVIC::unmask(interrupt::DMA2_CH3);
+        }
 
         // wrap shared peripherals
         let dma2 = cx.device.DMA2;
