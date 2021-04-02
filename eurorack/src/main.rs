@@ -127,7 +127,7 @@ fn audio_callback(buffer: &mut [u32; DMA_LENGTH], length: usize, offset: usize, 
     let mut phase = unsafe { PHASE };
 
     let wt_length = wavetable::LENGTH;
-    let wt_sin = wavetable::SIN;
+    let wt_sin = wavetable::SINE;
     let wt_saw = wavetable::SAW;
 
     let dx = frequency * (1. / SAMPLE_RATE as f32);

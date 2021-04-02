@@ -8,6 +8,7 @@ description = "Work in progress"
 repository = "https://github.com/zlosynth/achordion"
 readme = "../README.md"
 publish = false
+build = "build/main.rs"
 
 [dependencies]
 heapless = "0.6"
