@@ -20,6 +20,8 @@ static mut DMA_BUFFER: [u32; DMA_LENGTH] = [0; DMA_LENGTH];
 const APP: () = {
     struct Resources {
         dma: CHANNEL3,
+        #[init(40.0)]
+        frequency: f32,
     }
 
     #[init]
@@ -65,7 +67,7 @@ const APP: () = {
         init::LateResources { dma }
     }
 
-    #[task(binds = DMA2_CH3, resources = [dma])]
+    #[task(binds = DMA2_CH3, resources = [dma, frequency])]
     fn dma2_ch3(cx: dma2_ch3::Context) {
         let event = {
             let event = cx.resources.dma.event();
@@ -75,12 +77,18 @@ const APP: () = {
 
         if let Some(event) = event {
             match event {
-                Event::HalfTransfer => {
-                    audio_callback(unsafe { &mut DMA_BUFFER }, DMA_LENGTH / 2, 0)
-                }
-                Event::TransferComplete => {
-                    audio_callback(unsafe { &mut DMA_BUFFER }, DMA_LENGTH / 2, 1)
-                }
+                Event::HalfTransfer => audio_callback(
+                    unsafe { &mut DMA_BUFFER },
+                    DMA_LENGTH / 2,
+                    0,
+                    *cx.resources.frequency,
+                ),
+                Event::TransferComplete => audio_callback(
+                    unsafe { &mut DMA_BUFFER },
+                    DMA_LENGTH / 2,
+                    1,
+                    *cx.resources.frequency,
+                ),
                 _ => (),
             }
         }
@@ -91,7 +99,7 @@ const APP: () = {
     }
 };
 
-fn audio_callback(buffer: &mut [u32; DMA_LENGTH], length: usize, offset: usize) {
+fn audio_callback(buffer: &mut [u32; DMA_LENGTH], length: usize, offset: usize, frequency: f32) {
     static mut PHASE: f32 = 0.;
     let mut phase = unsafe { PHASE };
 
@@ -99,7 +107,7 @@ fn audio_callback(buffer: &mut [u32; DMA_LENGTH], length: usize, offset: usize) 
     let wt_sin = wavetable::SIN;
     let wt_saw = wavetable::SAW;
 
-    let dx = 80.0 * (1. / SAMPLE_RATE as f32);
+    let dx = frequency * (1. / SAMPLE_RATE as f32);
 
     for t in 0..length {
         let index = (phase * wt_length as f32) as usize;
