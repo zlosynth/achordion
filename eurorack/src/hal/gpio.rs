@@ -1,5 +1,9 @@
 use super::rcc::AHB;
 
+pub struct Analog;
+pub struct Input;
+pub struct Uninitialized;
+
 pub trait GpioSplit {
     type Parts;
 
@@ -7,9 +11,11 @@ pub trait GpioSplit {
 }
 
 pub mod a {
+    use core::marker::PhantomData;
+
     use super::super::pac::{gpioa, GPIOA};
     use super::super::rcc::AHB;
-    use super::GpioSplit;
+    use super::{Analog, GpioSplit, Input, Uninitialized};
 
     /// Opaque MODER register
     pub struct MODER {
@@ -33,35 +39,49 @@ pub mod a {
         }
     }
 
-    pub struct PA4 {
-        _0: (),
+    pub struct PA0<MODE> {
+        _mode: PhantomData<MODE>,
     }
 
-    impl PA4 {
+    impl PA0<Uninitialized> {
+        pub fn into_pull_down(self, moder: &mut MODER, pupdr: &mut PUPDR) -> PA0<Input> {
+            unsafe {
+                moder.moder().modify(|_, w| w.moder0().input());
+                pupdr.pupdr().modify(|_, w| w.pupdr0().pull_down());
+            }
+            PA0 { _mode: PhantomData }
+        }
+    }
+
+    pub struct PA4<MODE> {
+        _mode: PhantomData<MODE>,
+    }
+
+    impl PA4<Uninitialized> {
         /// Configures the pin to operate as analog, with disabled schmitt trigger.
         /// This mode is suitable when the pin is connected to the DAC or ADC.
-        pub fn into_analog(self, moder: &mut MODER, pupdr: &mut PUPDR) -> PA4 {
+        pub fn into_analog(self, moder: &mut MODER, pupdr: &mut PUPDR) -> PA4<Analog> {
             unsafe {
                 moder.moder().modify(|_, w| w.moder4().analog());
                 pupdr.pupdr().modify(|_, w| w.pupdr4().floating());
             }
-            self
+            PA4 { _mode: PhantomData }
         }
     }
 
-    pub struct PA5 {
-        _0: (),
+    pub struct PA5<MODE> {
+        _mode: PhantomData<MODE>,
     }
 
-    impl PA5 {
+    impl PA5<Uninitialized> {
         /// Configures the pin to operate as analog, with disabled schmitt trigger.
         /// This mode is suitable when the pin is connected to the DAC or ADC.
-        pub fn into_analog(self, moder: &mut MODER, pupdr: &mut PUPDR) -> PA5 {
+        pub fn into_analog(self, moder: &mut MODER, pupdr: &mut PUPDR) -> PA5<Analog> {
             unsafe {
                 moder.moder().modify(|_, w| w.moder5().analog());
                 pupdr.pupdr().modify(|_, w| w.pupdr5().floating());
             }
-            self
+            PA5 { _mode: PhantomData }
         }
     }
 
@@ -71,9 +91,11 @@ pub mod a {
         /// Opaque PUPDR register
         pub pupdr: PUPDR,
         /// Pin
-        pub pa4: PA4,
+        pub pa0: PA0<Uninitialized>,
         /// Pin
-        pub pa5: PA5,
+        pub pa4: PA4<Uninitialized>,
+        /// Pin
+        pub pa5: PA5<Uninitialized>,
     }
 
     impl GpioSplit for GPIOA {
@@ -89,8 +111,9 @@ pub mod a {
             Parts {
                 moder: MODER { _0: () },
                 pupdr: PUPDR { _0: () },
-                pa4: PA4 { _0: () },
-                pa5: PA5 { _0: () },
+                pa0: PA0 { _mode: PhantomData },
+                pa4: PA4 { _mode: PhantomData },
+                pa5: PA5 { _mode: PhantomData },
             }
         }
     }

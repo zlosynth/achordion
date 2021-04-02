@@ -1,12 +1,13 @@
 use super::gpio::a::{MODER, PA4, PA5, PUPDR};
+use super::gpio::Uninitialized;
 use super::pac::{dac1, DAC1};
 use super::rcc::APB1;
 
 pub trait DacConstrain {
     fn constrain(
         self,
-        pa4: PA4,
-        pa5: PA5,
+        pa4: PA4<Uninitialized>,
+        pa5: PA5<Uninitialized>,
         apb1: &mut APB1,
         moder: &mut MODER,
         pupdr: &mut PUPDR,
@@ -16,8 +17,8 @@ pub trait DacConstrain {
 impl DacConstrain for DAC1 {
     fn constrain(
         self,
-        pa4: PA4,
-        pa5: PA5,
+        pa4: PA4<Uninitialized>,
+        pa5: PA5<Uninitialized>,
         apb1: &mut APB1,
         moder: &mut MODER,
         pupdr: &mut PUPDR,

@@ -64,6 +64,8 @@ const APP: () = {
         dma.enable();
         tim2.enable();
 
+        let mut _button = gpioa.pa0.into_pull_down(&mut gpioa.moder, &mut gpioa.pupdr);
+
         init::LateResources { dma }
     }
 
