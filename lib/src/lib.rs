@@ -6,3 +6,4 @@
 extern crate approx;
 
 pub mod midi;
+pub mod wavetable;

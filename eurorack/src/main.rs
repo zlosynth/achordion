@@ -2,10 +2,11 @@
 #![no_std]
 
 mod hal;
-mod wavetable;
 
 use panic_halt as _;
 use rtic::app;
+
+use achordion_lib::wavetable;
 
 use crate::hal::dma::_2::CHANNEL3;
 use crate::hal::dma::{Direction, Event, Increment, Priority};
