@@ -16,6 +16,8 @@ use stm32f3::stm32f303;
 
 use crate::hal::prelude::*;
 
+const SAMPLE_RATE: u32 = 44_100;
+
 const DMA_LENGTH: usize = 64;
 static mut DMA_BUFFER: [u32; DMA_LENGTH] = [0; DMA_LENGTH];
 
@@ -36,8 +38,10 @@ const APP: () = {
             &mut gpioa.moder,
             &mut gpioa.pupdr,
         );
+        let tim2 = cx.device.TIM2.constrain(&mut rcc.apb1);
 
-        // disable the output buffer for improved SNR at the cost of limited output current. (AN4566, page 5)
+        let mut tim2 = tim2.into_periodic(SAMPLE_RATE);
+
         dac.disable_buffer();
         dac.set_trigger_tim2();
         dac.enable_dma();
@@ -100,8 +104,6 @@ const APP: () = {
             dma2.ch3.cr.modify(|_, w| w.en().enabled());
         });
 
-        let tim2 = cx.device.TIM2.constrain(&mut rcc.apb1);
-        let mut tim2 = tim2.into_periodic(44_100);
         tim2.enable();
     }
 
