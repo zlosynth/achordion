@@ -1,6 +1,7 @@
 #![no_main]
 #![no_std]
 #![allow(clippy::upper_case_acronyms)]
+#![allow(clippy::unknown_clippy_lints)]
 
 mod hal;
 
