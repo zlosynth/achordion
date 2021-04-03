@@ -1,6 +1,7 @@
+use super::channel::Channel;
 use super::note::Note;
 
 pub enum Message {
-    NoteOn(Note),
-    NoteOff(Note),
+    NoteOn(Channel, Note),
+    NoteOff(Channel, Note),
 }

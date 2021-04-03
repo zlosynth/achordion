@@ -19,14 +19,14 @@ impl Instrument {
 
     pub fn reconcile(&mut self, message: Message) -> State {
         match message {
-            Message::NoteOn(note) => {
+            Message::NoteOn(_, note) => {
                 self.notes.remove(note);
                 self.notes.push(note);
                 State {
                     frequency: note.to_freq_f32(),
                 }
             }
-            Message::NoteOff(note) => {
+            Message::NoteOff(_, note) => {
                 self.notes.remove(note);
                 match self.notes.last() {
                     Some(note) => State {
@@ -79,6 +79,7 @@ pub struct State {
 
 #[cfg(test)]
 mod tests {
+    use super::super::channel::Channel::*;
     use super::*;
 
     #[test]
@@ -167,7 +168,7 @@ mod tests {
     fn reconcile_note_on_message() {
         let mut instrument = Instrument::new();
 
-        let state = instrument.reconcile(Message::NoteOn(Note::A4));
+        let state = instrument.reconcile(Message::NoteOn(Channel1, Note::A4));
 
         assert_relative_eq!(state.frequency, 440.0);
     }
@@ -176,8 +177,8 @@ mod tests {
     fn reconcile_note_off_message() {
         let mut instrument = Instrument::new();
 
-        instrument.reconcile(Message::NoteOn(Note::A4));
-        let state = instrument.reconcile(Message::NoteOff(Note::A4));
+        instrument.reconcile(Message::NoteOn(Channel1, Note::A4));
+        let state = instrument.reconcile(Message::NoteOff(Channel1, Note::A4));
 
         assert_relative_eq!(state.frequency, 0.0);
     }
@@ -186,16 +187,16 @@ mod tests {
     fn reconcile_multiple_note_on_messages() {
         let mut instrument = Instrument::new();
 
-        let state = instrument.reconcile(Message::NoteOn(Note::A3));
+        let state = instrument.reconcile(Message::NoteOn(Channel1, Note::A3));
         assert_relative_eq!(state.frequency, Note::A3.to_freq_f32());
 
-        let state = instrument.reconcile(Message::NoteOn(Note::A4));
+        let state = instrument.reconcile(Message::NoteOn(Channel1, Note::A4));
         assert_relative_eq!(state.frequency, Note::A4.to_freq_f32());
 
-        let state = instrument.reconcile(Message::NoteOff(Note::A4));
+        let state = instrument.reconcile(Message::NoteOff(Channel1, Note::A4));
         assert_relative_eq!(state.frequency, Note::A3.to_freq_f32());
 
-        let state = instrument.reconcile(Message::NoteOff(Note::A3));
+        let state = instrument.reconcile(Message::NoteOff(Channel1, Note::A3));
         assert_relative_eq!(state.frequency, 0.0);
     }
 
@@ -217,16 +218,16 @@ mod tests {
         ];
 
         for note in notes.iter() {
-            instrument.reconcile(Message::NoteOn(*note));
+            instrument.reconcile(Message::NoteOn(Channel1, *note));
         }
 
         for i in 0..MAX_NOTES - 1 {
             let i = notes.len() - 1 - i;
-            let state = instrument.reconcile(Message::NoteOff(notes[i]));
+            let state = instrument.reconcile(Message::NoteOff(Channel1, notes[i]));
             assert_relative_eq!(state.frequency, notes[i - 1].to_freq_f32());
         }
 
-        let state = instrument.reconcile(Message::NoteOff(notes[1]));
+        let state = instrument.reconcile(Message::NoteOff(Channel1, notes[1]));
         assert_relative_eq!(state.frequency, 0.0);
     }
 }
