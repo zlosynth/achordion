@@ -54,15 +54,16 @@ const APP: () = {
 
         let mut tim2 = tim2.into_periodic(SAMPLE_RATE);
 
+        // Configure DAC, disable buffer for better SNR and request data from DMA
         dac.disable_buffer();
         dac.set_trigger_tim2();
         dac.enable_dma();
         dac.enable();
 
+        // Configure DMA for transfer between buffer and DAC
         let ma = unsafe { DMA_BUFFER.as_ptr() } as usize as u32; // source: memory address
         let pa = 0x40007420; // destination: Dual DAC 12-bit right-aligned data holding register (DHR12RD)
         let ndt = DMA_LENGTH as u16; // number of items to transfer
-
         dma.set_direction(Direction::FromMemory);
         unsafe {
             dma.set_memory_address(ma, Increment::Enable);
@@ -75,9 +76,11 @@ const APP: () = {
         dma.listen(Event::Any);
         dma.unmask_interrupt();
 
+        // Start DMA transfer to DAC
         dma.enable();
         tim2.enable();
 
+        // Configure PA0 (blue button) to trigger an interrupt when clicked
         let mut button = gpioa.pa0.into_pull_down(&mut gpioa.moder, &mut gpioa.pupdr);
         button.interrupt_exti0(&mut syscfg);
         button.trigger_on_edge(&mut exti, Edge::Rising);
