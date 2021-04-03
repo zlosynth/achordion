@@ -1,6 +1,7 @@
 pub mod dac;
 pub mod dma;
 pub mod exti;
+pub mod flash;
 pub mod gpio;
 pub mod rcc;
 pub mod syscfg;
@@ -12,6 +13,7 @@ pub mod prelude {
     pub use super::dac::DacConstrain;
     pub use super::dma::Dma2Split;
     pub use super::exti::ExtiConstrain;
+    pub use super::flash::FlashConstrain;
     pub use super::gpio::GpioSplit;
     pub use super::rcc::RccConstrain;
     pub use super::syscfg::SysCfgConstrain;
