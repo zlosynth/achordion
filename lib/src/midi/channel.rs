@@ -31,3 +31,9 @@ impl Channel {
         unsafe { core::mem::transmute(channel) }
     }
 }
+
+impl From<u8> for Channel {
+    fn from(byte: u8) -> Self {
+        Channel::from_u8(byte)
+    }
+}

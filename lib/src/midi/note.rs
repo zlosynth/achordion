@@ -333,6 +333,12 @@ impl Note {
     }
 }
 
+impl From<u8> for Note {
+    fn from(byte: u8) -> Self {
+        Note::from_u8(byte)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

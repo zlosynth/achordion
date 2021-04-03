@@ -19,7 +19,7 @@ impl Instrument {
 
     pub fn reconcile(&mut self, message: Message) -> State {
         match message {
-            Message::NoteOn(_, note) => {
+            Message::NoteOn(_, note, _) => {
                 self.notes.remove(note);
                 self.notes.push(note);
                 State {
@@ -80,6 +80,7 @@ pub struct State {
 #[cfg(test)]
 mod tests {
     use super::super::channel::Channel::*;
+    use super::super::velocity::Velocity;
     use super::*;
 
     #[test]
@@ -168,7 +169,7 @@ mod tests {
     fn reconcile_note_on_message() {
         let mut instrument = Instrument::new();
 
-        let state = instrument.reconcile(Message::NoteOn(Channel1, Note::A4));
+        let state = instrument.reconcile(Message::NoteOn(Channel1, Note::A4, Velocity::MAX));
 
         assert_relative_eq!(state.frequency, 440.0);
     }
@@ -177,7 +178,7 @@ mod tests {
     fn reconcile_note_off_message() {
         let mut instrument = Instrument::new();
 
-        instrument.reconcile(Message::NoteOn(Channel1, Note::A4));
+        instrument.reconcile(Message::NoteOn(Channel1, Note::A4, Velocity::MAX));
         let state = instrument.reconcile(Message::NoteOff(Channel1, Note::A4));
 
         assert_relative_eq!(state.frequency, 0.0);
@@ -187,10 +188,10 @@ mod tests {
     fn reconcile_multiple_note_on_messages() {
         let mut instrument = Instrument::new();
 
-        let state = instrument.reconcile(Message::NoteOn(Channel1, Note::A3));
+        let state = instrument.reconcile(Message::NoteOn(Channel1, Note::A3, Velocity::MAX));
         assert_relative_eq!(state.frequency, Note::A3.to_freq_f32());
 
-        let state = instrument.reconcile(Message::NoteOn(Channel1, Note::A4));
+        let state = instrument.reconcile(Message::NoteOn(Channel1, Note::A4, Velocity::MAX));
         assert_relative_eq!(state.frequency, Note::A4.to_freq_f32());
 
         let state = instrument.reconcile(Message::NoteOff(Channel1, Note::A4));
@@ -218,7 +219,7 @@ mod tests {
         ];
 
         for note in notes.iter() {
-            instrument.reconcile(Message::NoteOn(Channel1, *note));
+            instrument.reconcile(Message::NoteOn(Channel1, *note, Velocity::MAX));
         }
 
         for i in 0..MAX_NOTES - 1 {
