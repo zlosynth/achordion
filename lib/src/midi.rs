@@ -1,7 +1,5 @@
 use heapless::consts::*;
 use heapless::Vec;
-#[allow(unused_imports)]
-use micromath::F32Ext;
 
 const MAX_NOTES: usize = 8;
 
