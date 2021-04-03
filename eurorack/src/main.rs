@@ -48,6 +48,9 @@ const APP: () = {
         let mut syscfg = cx.device.SYSCFG.constrain(&mut rcc.apb2);
         let mut exti = cx.device.EXTI.constrain();
         let mut dma = cx.device.DMA2.split(&mut rcc.ahb).ch3;
+        let mut flash = cx.device.FLASH.constrain();
+
+        let _clocks = rcc.cfgr.freeze(&mut flash.acr);
 
         let mut tim2 = tim2.into_periodic(SAMPLE_RATE);
 
