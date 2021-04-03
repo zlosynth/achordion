@@ -2,6 +2,7 @@ mod wavetable;
 
 use std::fs::File;
 use std::io::Write;
+use std::process::Command;
 
 fn main() {
     println!("cargo:rerun-if-changed=build/main.rs");
@@ -54,4 +55,13 @@ fn generate_wavetable_array(name: &str, generator: fn() -> [f32; wavetable::LENG
             write!(module, "{}, ", x).unwrap();
         });
     writeln!(module, "\n];").unwrap();
+
+    rustfmt(&path);
+}
+
+fn rustfmt(path: &str) {
+    Command::new("rustfmt")
+        .arg(path)
+        .output()
+        .expect("failed to execute rustfmt");
 }
