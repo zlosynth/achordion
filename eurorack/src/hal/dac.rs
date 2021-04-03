@@ -1,31 +1,30 @@
-use super::gpio::a::{MODER, PA4, PA5, PUPDR};
-use super::gpio::Uninitialized;
-use super::pac::{dac1, DAC1};
-use super::rcc::APB1;
+use stm32f3xx_hal::gpio::gpioa::{MODER, PA4, PA5, PUPDR};
+use stm32f3xx_hal::gpio::Analog;
+use stm32f3xx_hal::pac::{dac1, DAC1};
+use stm32f3xx_hal::rcc::APB1;
 
-pub trait DacConstrain {
+use super::rcc::Apb1 as _;
+
+pub trait DacExt {
     fn constrain(
         self,
-        pa4: PA4<Uninitialized>,
-        pa5: PA5<Uninitialized>,
+        _pa4: PA4<Analog>,
+        _pa5: PA5<Analog>,
         apb1: &mut APB1,
-        moder: &mut MODER,
-        pupdr: &mut PUPDR,
+        _moder: &mut MODER,
+        _pupdr: &mut PUPDR,
     ) -> DualModeDac;
 }
 
-impl DacConstrain for DAC1 {
+impl DacExt for DAC1 {
     fn constrain(
         self,
-        pa4: PA4<Uninitialized>,
-        pa5: PA5<Uninitialized>,
+        _pa4: PA4<Analog>,
+        _pa5: PA5<Analog>,
         apb1: &mut APB1,
-        moder: &mut MODER,
-        pupdr: &mut PUPDR,
+        _moder: &mut MODER,
+        _pupdr: &mut PUPDR,
     ) -> DualModeDac {
-        pa4.into_analog(moder, pupdr);
-        pa5.into_analog(moder, pupdr);
-
         apb1.enr().modify(|_, w| w.dac1en().set_bit());
 
         DualModeDac { _0: () }

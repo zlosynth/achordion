@@ -8,13 +8,17 @@ mod hal;
 use panic_halt as _;
 use rtic::app;
 
+use stm32f3xx_hal::dma::dma2::C3;
+use stm32f3xx_hal::dma::Channel;
+use stm32f3xx_hal::dma::{self, Direction, Increment, Priority};
+use stm32f3xx_hal::gpio::{Edge, Gpioa, Input, Pin};
+use stm32f3xx_hal::pac::{Interrupt, NVIC};
+use stm32f3xx_hal::prelude::*;
+use stm32f3xx_hal::timer::Timer;
+use typenum::UTerm;
+
 use achordion_lib::wavetable;
 
-use crate::hal::dma::_2::CHANNEL3;
-use crate::hal::dma::{Direction, Event, Increment, Priority};
-use crate::hal::exti::Exti;
-use crate::hal::gpio::a::PA0;
-use crate::hal::gpio::{Edge, Input};
 use crate::hal::prelude::*;
 
 const SAMPLE_RATE: u32 = 44_100;
@@ -22,13 +26,11 @@ const SAMPLE_RATE: u32 = 44_100;
 const DMA_LENGTH: usize = 64;
 static mut DMA_BUFFER: [u32; DMA_LENGTH] = [0; DMA_LENGTH];
 
-#[app(device = stm32f3::stm32f303, peripherals = true, monotonic = rtic::cyccnt::CYCCNT)]
+#[app(device = stm32f3xx_hal::pac, peripherals = true, monotonic = rtic::cyccnt::CYCCNT)]
 const APP: () = {
     struct Resources {
-        exti: Exti,
-        dma: CHANNEL3,
-        button: PA0<Input>,
-
+        dma_ch3: C3,
+        button: Pin<Gpioa, UTerm, Input>,
         #[init(40.0)]
         frequency: f32,
     }
@@ -37,75 +39,95 @@ const APP: () = {
     fn init(cx: init::Context) -> init::LateResources {
         let mut rcc = cx.device.RCC.constrain();
         let mut gpioa = cx.device.GPIOA.split(&mut rcc.ahb);
-        let tim2 = cx.device.TIM2.constrain(&mut rcc.apb1);
+        let mut exti = cx.device.EXTI;
+        let mut syscfg = cx.device.SYSCFG.constrain(&mut rcc.apb2);
+        let mut flash = cx.device.FLASH.constrain();
+        let mut dma2 = cx.device.DMA2.split(&mut rcc.ahb);
+
+        let clocks = rcc.cfgr.freeze(&mut flash.acr);
+
+        // Start periodic timer on TIM2
+        let mut t2 = Timer::tim2(cx.device.TIM2, SAMPLE_RATE.Hz(), clocks, &mut rcc.apb1);
+        t2.reset_on_overflow();
+
+        // Configure DAC, disable buffer for better SNR and request data from DMA
         let mut dac = cx.device.DAC1.constrain(
-            gpioa.pa4,
-            gpioa.pa5,
+            gpioa.pa4.into_analog(&mut gpioa.moder, &mut gpioa.pupdr),
+            gpioa.pa5.into_analog(&mut gpioa.moder, &mut gpioa.pupdr),
             &mut rcc.apb1,
             &mut gpioa.moder,
             &mut gpioa.pupdr,
         );
-        let mut syscfg = cx.device.SYSCFG.constrain(&mut rcc.apb2);
-        let mut exti = cx.device.EXTI.constrain();
-        let mut dma = cx.device.DMA2.split(&mut rcc.ahb).ch3;
-        let mut flash = cx.device.FLASH.constrain();
-
-        let _clocks = rcc.cfgr.freeze(&mut flash.acr);
-
-        let mut tim2 = tim2.into_periodic(SAMPLE_RATE);
-
-        // Configure DAC, disable buffer for better SNR and request data from DMA
         dac.disable_buffer();
         dac.set_trigger_tim2();
         dac.enable_dma();
         dac.enable();
 
-        // Configure DMA for transfer between buffer and DAC
+        // // Configure DMA for transfer between buffer and DAC
         let ma = unsafe { DMA_BUFFER.as_ptr() } as usize as u32; // source: memory address
         let pa = 0x40007420; // destination: Dual DAC 12-bit right-aligned data holding register (DHR12RD)
         let ndt = DMA_LENGTH as u16; // number of items to transfer
-        dma.set_direction(Direction::FromMemory);
-        unsafe {
-            dma.set_memory_address(ma, Increment::Enable);
-            dma.set_peripheral_address(pa, Increment::Disable);
-        }
-        dma.set_transfer_length(ndt);
-        dma.set_word_size::<u32>();
-        dma.set_circular(true);
-        dma.set_priority_level(Priority::High);
-        dma.listen(Event::Any);
-        dma.unmask_interrupt();
 
-        // Start DMA transfer to DAC
-        dma.enable();
-        tim2.enable();
+        dma2.ch3.set_direction(Direction::FromMemory);
+        unsafe {
+            dma2.ch3.set_memory_address(ma, Increment::Enable);
+            dma2.ch3.set_peripheral_address(pa, Increment::Disable);
+        }
+        dma2.ch3.set_transfer_length(ndt);
+        dma2.ch3.set_word_size::<u32>();
+        dma2.ch3.set_circular(true);
+        dma2.ch3.set_priority_level(Priority::High);
+        dma2.ch3.listen(dma::Event::Any);
+        unsafe { NVIC::unmask(Interrupt::DMA2_CH3) };
+        dma2.ch3.enable();
 
         // Configure PA0 (blue button) to trigger an interrupt when clicked
-        let mut button = gpioa.pa0.into_pull_down(&mut gpioa.moder, &mut gpioa.pupdr);
-        button.interrupt_exti0(&mut syscfg);
+        let mut button = gpioa
+            .pa0
+            .into_pull_down_input(&mut gpioa.moder, &mut gpioa.pupdr);
+        button.make_interrupt_source(&mut syscfg);
         button.trigger_on_edge(&mut exti, Edge::Rising);
-        button.unmask_exti0(&mut exti);
+        button.enable_interrupt(&mut exti);
+        let interrupt_num = button.nvic();
+        unsafe { NVIC::unmask(interrupt_num) };
 
-        init::LateResources { exti, dma, button }
+        init::LateResources {
+            button,
+            dma_ch3: dma2.ch3,
+        }
     }
 
-    #[task(priority = 2, binds = DMA2_CH3, resources = [dma, frequency])]
+    #[task(priority = 2, binds = DMA2_CH3, resources = [dma_ch3, frequency])]
     fn dma2_ch3(cx: dma2_ch3::Context) {
         let event = {
-            let event = cx.resources.dma.event();
-            cx.resources.dma.clear_events();
+            let event = if cx
+                .resources
+                .dma_ch3
+                .event_occurred(dma::Event::HalfTransfer)
+            {
+                Some(dma::Event::HalfTransfer)
+            } else if cx
+                .resources
+                .dma_ch3
+                .event_occurred(dma::Event::TransferComplete)
+            {
+                Some(dma::Event::TransferComplete)
+            } else {
+                None
+            };
+            cx.resources.dma_ch3.clear_event(dma::Event::Any);
             event
         };
 
         if let Some(event) = event {
             match event {
-                Event::HalfTransfer => audio_callback(
+                dma::Event::HalfTransfer => audio_callback(
                     unsafe { &mut DMA_BUFFER },
                     DMA_LENGTH / 2,
                     0,
                     *cx.resources.frequency,
                 ),
-                Event::TransferComplete => audio_callback(
+                dma::Event::TransferComplete => audio_callback(
                     unsafe { &mut DMA_BUFFER },
                     DMA_LENGTH / 2,
                     1,
@@ -116,9 +138,9 @@ const APP: () = {
         }
     }
 
-    #[task(binds = EXTI0, resources = [button, frequency, exti])]
+    #[task(binds = EXTI0, resources = [button, frequency])]
     fn exti0(mut cx: exti0::Context) {
-        cx.resources.button.clear_exti0(&mut cx.resources.exti);
+        cx.resources.button.clear_interrupt_pending_bit();
 
         cx.resources.frequency.lock(|frequency| {
             *frequency *= 1.5;

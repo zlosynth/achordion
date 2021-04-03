@@ -14,13 +14,14 @@ cortex-m = "0.7.2"
 cortex-m-rt = "0.6.13"
 cortex-m-rtic = "0.5.6"
 cortex-m-semihosting = "0.3"
-embedded-time = "0.10"
 panic-halt = "0.2.0"
+typenum = "1"
 achordion-lib = { path = "../lib" }
 
-[dependencies.stm32f3]
-version = "0.13.0"
-features = ["stm32f303", "rt"]
+[dependencies.stm32f3xx-hal]
+features = ["stm32f303xc", "rt"]
+git = "https://github.com/stm32-rs/stm32f3xx-hal"
+rev = "231c9592508d85d72e4f54b5f408d42546184ea4"
 
 [[bin]]
 name = "achordion"
