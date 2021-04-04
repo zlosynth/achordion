@@ -145,35 +145,29 @@ const APP: () = {
 
     #[task(priority = 2, binds = DMA2_CH3, resources = [dsp_dma, frequency])]
     fn dsp_request(cx: dsp_request::Context) {
+        use dma::Event::*;
+
         let event = {
-            let event = if cx
-                .resources
-                .dsp_dma
-                .event_occurred(dma::Event::HalfTransfer)
-            {
-                Some(dma::Event::HalfTransfer)
-            } else if cx
-                .resources
-                .dsp_dma
-                .event_occurred(dma::Event::TransferComplete)
-            {
-                Some(dma::Event::TransferComplete)
+            let event = if cx.resources.dsp_dma.event_occurred(HalfTransfer) {
+                Some(HalfTransfer)
+            } else if cx.resources.dsp_dma.event_occurred(TransferComplete) {
+                Some(TransferComplete)
             } else {
                 None
             };
-            cx.resources.dsp_dma.clear_event(dma::Event::Any);
+            cx.resources.dsp_dma.clear_event(Any);
             event
         };
 
         if let Some(event) = event {
             match event {
-                dma::Event::HalfTransfer => audio_callback(
+                HalfTransfer => audio_callback(
                     unsafe { &mut DMA_BUFFER },
                     DMA_LENGTH / 2,
                     0,
                     *cx.resources.frequency,
                 ),
-                dma::Event::TransferComplete => audio_callback(
+                TransferComplete => audio_callback(
                     unsafe { &mut DMA_BUFFER },
                     DMA_LENGTH / 2,
                     1,
