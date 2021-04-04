@@ -143,19 +143,8 @@ const APP: () = {
         }
     }
 
-    #[task(binds = USART1_EXTI25, resources = [frequency, midi_rx, midi_controller])]
-    fn usart1(mut cx: usart1::Context) {
-        while let Ok(x) = cx.resources.midi_rx.read() {
-            if let Some(state) = cx.resources.midi_controller.reconcile_byte(x) {
-                cx.resources.frequency.lock(|frequency| {
-                    *frequency = state.frequency;
-                });
-            }
-        }
-    }
-
     #[task(priority = 2, binds = DMA2_CH3, resources = [dsp_dma, frequency])]
-    fn dma2_ch3(cx: dma2_ch3::Context) {
+    fn dsp_request(cx: dsp_request::Context) {
         let event = {
             let event = if cx
                 .resources
@@ -195,10 +184,20 @@ const APP: () = {
         }
     }
 
-    #[task(binds = EXTI0, resources = [button, frequency])]
-    fn exti0(mut cx: exti0::Context) {
-        cx.resources.button.clear_interrupt_pending_bit();
+    #[task(binds = USART1_EXTI25, resources = [frequency, midi_rx, midi_controller])]
+    fn midi_rx(mut cx: midi_rx::Context) {
+        while let Ok(x) = cx.resources.midi_rx.read() {
+            if let Some(state) = cx.resources.midi_controller.reconcile_byte(x) {
+                cx.resources.frequency.lock(|frequency| {
+                    *frequency = state.frequency;
+                });
+            }
+        }
+    }
 
+    #[task(binds = EXTI0, resources = [button, frequency])]
+    fn button_click(mut cx: button_click::Context) {
+        cx.resources.button.clear_interrupt_pending_bit();
         cx.resources.frequency.lock(|frequency| {
             *frequency *= 1.5;
         });
