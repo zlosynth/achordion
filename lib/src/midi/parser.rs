@@ -4,7 +4,7 @@ use super::channel::Channel;
 use super::message::Message;
 use super::note::Note;
 
-enum MidiParserState {
+enum ParserState {
     Idle,
     NoteOnRecieved(Channel),
     NoteOnNoteRecieved(Channel, Note),
@@ -12,14 +12,14 @@ enum MidiParserState {
     NoteOffNoteRecieved(Channel, Note),
 }
 
-pub struct MidiParser {
-    state: MidiParserState,
+pub struct Parser {
+    state: ParserState,
 }
 
-impl MidiParser {
+impl Parser {
     pub fn new() -> Self {
-        MidiParser {
-            state: MidiParserState::Idle,
+        Parser {
+            state: ParserState::Idle,
         }
     }
 
@@ -29,31 +29,31 @@ impl MidiParser {
 
             match message {
                 0x80 => {
-                    self.state = MidiParserState::NoteOffRecieved(channel);
+                    self.state = ParserState::NoteOffRecieved(channel);
                     None
                 }
                 0x90 => {
-                    self.state = MidiParserState::NoteOnRecieved(channel);
+                    self.state = ParserState::NoteOnRecieved(channel);
                     None
                 }
                 _ => None,
             }
         } else {
             match self.state {
-                MidiParserState::NoteOffRecieved(channel) => {
-                    self.state = MidiParserState::NoteOffNoteRecieved(channel, byte.into());
+                ParserState::NoteOffRecieved(channel) => {
+                    self.state = ParserState::NoteOffNoteRecieved(channel, byte.into());
                     None
                 }
-                MidiParserState::NoteOffNoteRecieved(channel, note) => {
-                    self.state = MidiParserState::NoteOffRecieved(channel);
+                ParserState::NoteOffNoteRecieved(channel, note) => {
+                    self.state = ParserState::NoteOffRecieved(channel);
                     Some(Message::NoteOff(channel, note))
                 }
-                MidiParserState::NoteOnRecieved(channel) => {
-                    self.state = MidiParserState::NoteOnNoteRecieved(channel, byte.into());
+                ParserState::NoteOnRecieved(channel) => {
+                    self.state = ParserState::NoteOnNoteRecieved(channel, byte.into());
                     None
                 }
-                MidiParserState::NoteOnNoteRecieved(channel, note) => {
-                    self.state = MidiParserState::NoteOnRecieved(channel);
+                ParserState::NoteOnNoteRecieved(channel, note) => {
+                    self.state = ParserState::NoteOnRecieved(channel);
                     Some(Message::NoteOn(channel, note, byte.into()))
                 }
                 _ => None,
@@ -94,7 +94,7 @@ mod tests {
 
     #[test]
     fn parse_note_on() {
-        let mut parser = MidiParser::new();
+        let mut parser = Parser::new();
         assert!(parser.parse_byte(0x92).is_none());
         assert!(parser.parse_byte(0x45).is_none());
         assert_eq!(
@@ -105,7 +105,7 @@ mod tests {
 
     #[test]
     fn split_stream_of_note_on() {
-        let mut parser = MidiParser::new();
+        let mut parser = Parser::new();
         assert!(parser.parse_byte(0x92).is_none());
         assert!(parser.parse_byte(0x45).is_none());
         assert_eq!(
@@ -121,7 +121,7 @@ mod tests {
 
     #[test]
     fn parse_note_off() {
-        let mut parser = MidiParser::new();
+        let mut parser = Parser::new();
         assert!(parser.parse_byte(0x82).is_none());
         assert!(parser.parse_byte(0x45).is_none());
         assert_eq!(
@@ -132,7 +132,7 @@ mod tests {
 
     #[test]
     fn incomplete_message() {
-        let mut parser = MidiParser::new();
+        let mut parser = Parser::new();
         assert!(parser.parse_byte(0x92).is_none()); // note on
         assert!(parser.parse_byte(0x82).is_none()); // note off
         assert!(parser.parse_byte(0x45).is_none());

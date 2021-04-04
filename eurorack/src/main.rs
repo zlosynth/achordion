@@ -17,8 +17,7 @@ use stm32f3xx_hal::serial::{self, Serial};
 use stm32f3xx_hal::timer::Timer;
 use typenum::UTerm;
 
-use achordion_lib::midi::instrument::Instrument as MidiInstrument;
-use achordion_lib::midi::parser::MidiParser;
+use achordion_lib::midi::controller::Controller as MidiController;
 use achordion_lib::wavetable;
 
 use crate::hal::prelude::*;
@@ -34,8 +33,7 @@ const APP: () = {
         dma_ch3: C3,
         button: Pin<Gpioa, UTerm, Input>,
         serial_rx: serial::Rx<stm32f3xx_hal::pac::USART1>,
-        midi_parser: MidiParser,
-        midi_instrument: MidiInstrument,
+        midi_controller: MidiController,
         #[init(0.0)]
         frequency: f32,
     }
@@ -115,26 +113,17 @@ const APP: () = {
             button,
             dma_ch3: dma2.ch3,
             serial_rx: rx,
-            midi_parser: MidiParser::new(),
-            midi_instrument: MidiInstrument::new(),
+            midi_controller: MidiController::new(),
         }
     }
 
-    #[task(binds = USART1_EXTI25, resources = [frequency, serial_rx, midi_parser, midi_instrument])]
+    #[task(binds = USART1_EXTI25, resources = [frequency, serial_rx, midi_controller])]
     fn usart1(mut cx: usart1::Context) {
-        loop {
-            match cx.resources.serial_rx.read() {
-                Ok(x) => {
-                    if let Some(m) = cx.resources.midi_parser.parse_byte(x) {
-                        let state = cx.resources.midi_instrument.reconcile(m);
-                        cx.resources.frequency.lock(|frequency| {
-                            *frequency = state.frequency;
-                        });
-                    }
-                }
-                _ => {
-                    return;
-                }
+        while let Ok(x) = cx.resources.serial_rx.read() {
+            if let Some(state) = cx.resources.midi_controller.reconcile_byte(x) {
+                cx.resources.frequency.lock(|frequency| {
+                    *frequency = state.frequency;
+                });
             }
         }
     }

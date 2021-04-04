@@ -73,6 +73,7 @@ impl NoteBuffer {
     }
 }
 
+#[derive(Clone, Copy, PartialEq, Debug)]
 pub struct State {
     pub frequency: f32,
 }

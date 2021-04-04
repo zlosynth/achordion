@@ -1,6 +1,8 @@
 pub mod channel;
-pub mod instrument;
+pub mod controller;
 pub mod message;
 pub mod note;
-pub mod parser;
 pub mod velocity;
+
+mod instrument;
+mod parser;
