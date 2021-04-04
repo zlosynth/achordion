@@ -1,6 +1,6 @@
 use core::f32::consts::PI;
 
-pub const LENGTH: usize = 2048;
+pub const LENGTH: usize = 512 * 2;
 
 pub fn sine() -> [f32; LENGTH] {
     let mut wavetable = [0.0; LENGTH];

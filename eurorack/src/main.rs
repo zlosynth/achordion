@@ -19,6 +19,7 @@ use stm32f3xx_hal::timer::Timer;
 use typenum::UTerm;
 
 use achordion_lib::midi::controller::Controller as MidiController;
+use achordion_lib::oscillator::Oscillator;
 use achordion_lib::wavetable;
 
 use crate::hal::prelude::*;
@@ -35,8 +36,7 @@ const APP: () = {
         button: Pin<Gpioa, UTerm, Input>,
         midi_rx: serial::Rx<USART1>,
         midi_controller: MidiController,
-        #[init(0.0)]
-        frequency: f32,
+        oscillator: Oscillator<'static>,
     }
 
     #[init]
@@ -143,10 +143,11 @@ const APP: () = {
             dsp_dma,
             midi_rx,
             midi_controller: MidiController::new(),
+            oscillator: Oscillator::new(&wavetable::SAW, SAMPLE_RATE),
         }
     }
 
-    #[task(priority = 2, binds = DMA2_CH3, resources = [dsp_dma, frequency])]
+    #[task(priority = 2, binds = DMA2_CH3, resources = [dsp_dma, oscillator])]
     fn dsp_request(cx: dsp_request::Context) {
         use dma::Event::*;
 
@@ -168,35 +169,35 @@ const APP: () = {
                     unsafe { &mut DMA_BUFFER },
                     DMA_LENGTH / 2,
                     0,
-                    *cx.resources.frequency,
+                    cx.resources.oscillator,
                 ),
                 TransferComplete => audio_callback(
                     unsafe { &mut DMA_BUFFER },
                     DMA_LENGTH / 2,
                     1,
-                    *cx.resources.frequency,
+                    cx.resources.oscillator,
                 ),
                 _ => (),
             }
         }
     }
 
-    #[task(binds = USART1_EXTI25, resources = [frequency, midi_rx, midi_controller])]
+    #[task(binds = USART1_EXTI25, resources = [oscillator, midi_rx, midi_controller])]
     fn midi_rx(mut cx: midi_rx::Context) {
         while let Ok(x) = cx.resources.midi_rx.read() {
             if let Some(state) = cx.resources.midi_controller.reconcile_byte(x) {
-                cx.resources.frequency.lock(|frequency| {
-                    *frequency = state.frequency;
+                cx.resources.oscillator.lock(|oscillator| {
+                    oscillator.frequency = state.frequency;
                 });
             }
         }
     }
 
-    #[task(binds = EXTI0, resources = [button, frequency])]
+    #[task(binds = EXTI0, resources = [button, oscillator])]
     fn button_click(mut cx: button_click::Context) {
         cx.resources.button.clear_interrupt_pending_bit();
-        cx.resources.frequency.lock(|frequency| {
-            *frequency *= 1.5;
+        cx.resources.oscillator.lock(|oscillator| {
+            oscillator.frequency *= 1.5;
         });
     }
 
@@ -205,31 +206,20 @@ const APP: () = {
     }
 };
 
-fn audio_callback(buffer: &mut [u32; DMA_LENGTH], length: usize, offset: usize, frequency: f32) {
-    static mut PHASE: f32 = 0.;
-    let mut phase = unsafe { PHASE };
+fn audio_callback(
+    buffer: &mut [u32; DMA_LENGTH],
+    length: usize,
+    offset: usize,
+    oscillator: &mut Oscillator,
+) {
+    let mut buffer_osc = [0; DMA_LENGTH / 2];
+    oscillator.populate(&mut buffer_osc);
 
-    let wt_length = wavetable::LENGTH;
-    let wt_sin = wavetable::SINE;
-    let wt_saw = wavetable::SAW;
-
-    let dx = frequency * (1. / SAMPLE_RATE as f32);
-
-    for t in 0..length {
-        let index = (phase * wt_length as f32) as usize;
-        let channel_1 = wt_saw[index] as u32;
-        let channel_2 = wt_sin[index] as u32;
-
-        let frame = t + (offset * length);
-        buffer[frame] = (channel_2 << 16) + channel_1;
-
-        phase += dx;
-        if phase >= 1.0 {
-            phase -= 1.0;
-        }
-    }
-
-    unsafe {
-        PHASE = phase;
+    for (i, x) in buffer[offset * length..offset * length + length]
+        .iter_mut()
+        .enumerate()
+    {
+        let value = buffer_osc[i] as u32;
+        *x = (value << 16) + value;
     }
 }
