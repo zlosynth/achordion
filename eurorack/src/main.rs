@@ -127,10 +127,13 @@ const APP: () = {
                     .pc5
                     .into_af7_push_pull(&mut gpioc.moder, &mut gpioc.otyper, &mut gpioc.afrl),
             );
+
             let mut serial =
                 Serial::usart1(cx.device.USART1, pins, 9600.Bd(), clocks, &mut rcc.apb2);
             serial.listen(serial::Event::Rxne);
+
             unsafe { NVIC::unmask(Interrupt::USART1_EXTI25) };
+
             let (_tx, rx) = serial.split();
             rx
         };
