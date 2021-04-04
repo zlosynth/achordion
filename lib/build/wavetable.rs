@@ -1,19 +1,19 @@
 use core::f32::consts::PI;
 
-pub const LENGTH: usize = 1024;
+pub const FULL_LENGTH: usize = 1024;
 
-pub fn sine() -> [f32; LENGTH] {
-    let mut wavetable = [0.0; LENGTH];
+pub fn sine() -> [f32; FULL_LENGTH] {
+    let mut wavetable = [0.0; FULL_LENGTH];
     for (i, x) in wavetable.iter_mut().enumerate() {
         *x = sin(i as f32);
     }
     wavetable
 }
 
-pub fn saw() -> [f32; LENGTH] {
-    let niquist = LENGTH / 2;
+pub fn saw() -> [f32; FULL_LENGTH] {
+    let niquist = FULL_LENGTH / 2;
     let harmonics = niquist - 1;
-    let mut wavetable = [0.0; LENGTH];
+    let mut wavetable = [0.0; FULL_LENGTH];
 
     for (i, x) in wavetable.iter_mut().enumerate() {
         *x = sin(i as f32);
@@ -31,16 +31,16 @@ pub fn saw() -> [f32; LENGTH] {
     wavetable
 }
 
+fn sin(phase: f32) -> f32 {
+    f32::sin(phase / (FULL_LENGTH as f32) * 2.0 * PI)
+}
+
 pub fn to_u16(x: f32) -> u16 {
     ((x + 1.0) * f32::powi(2.0, 15)) as u16
 }
 
 pub fn to_12bit(x: u16) -> u16 {
     x >> 4
-}
-
-fn sin(phase: f32) -> f32 {
-    f32::sin(phase / (LENGTH as f32) * 2.0 * PI)
 }
 
 fn normalize(data: &mut [f32]) {
