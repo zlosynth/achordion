@@ -36,7 +36,10 @@ impl Parser {
                     self.state = ParserState::NoteOnRecieved(channel);
                     None
                 }
-                _ => None,
+                _ => {
+                    self.state = ParserState::Idle;
+                    None
+                }
             }
         } else {
             match self.state {
@@ -56,7 +59,7 @@ impl Parser {
                     self.state = ParserState::NoteOnRecieved(channel);
                     Some(Message::NoteOn(channel, note, byte.into()))
                 }
-                _ => None,
+                _ => None
             }
         }
     }

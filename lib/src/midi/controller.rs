@@ -47,13 +47,32 @@ mod tests {
     fn parse_note_on() {
         let mut controller = Controller::new();
 
-        assert!(controller.reconcile_byte(0x92).is_none());
-        assert!(controller.reconcile_byte(0x45).is_none());
+        assert_eq!(controller.reconcile_byte(0x92), None);
+        assert_eq!(controller.reconcile_byte(0x45), None);
         assert_eq!(
             controller.reconcile_byte(0x7f).unwrap(),
             State {
                 frequency: Note::A4.to_freq_f32(),
             }
         );
+    }
+
+    #[test]
+    fn send_unimplemented_cc_after_note_on() {
+        let mut controller = Controller::new();
+
+        // Note on
+        controller.reconcile_byte(0x92);
+        controller.reconcile_byte(0x45);
+        controller.reconcile_byte(0x7f);
+
+        // CC
+        assert_eq!(controller.reconcile_byte(0xb2), None);
+        assert_eq!(controller.reconcile_byte(0x3c), None);
+        assert_eq!(controller.reconcile_byte(0x18), None);
+
+        // CC running state
+        assert_eq!(controller.reconcile_byte(0x43), None);
+        assert_eq!(controller.reconcile_byte(0x01), None);
     }
 }
