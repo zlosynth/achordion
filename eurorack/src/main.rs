@@ -1,6 +1,7 @@
 #![no_main]
 #![no_std]
 #![allow(clippy::upper_case_acronyms)]
+#![allow(clippy::let_and_return)]
 
 mod hal;
 
@@ -11,7 +12,7 @@ use stm32f3xx_hal::dma::dma2::C3;
 use stm32f3xx_hal::dma::Channel;
 use stm32f3xx_hal::dma::{self, Direction, Increment, Priority};
 use stm32f3xx_hal::gpio::{Edge, Gpioa, Input, Pin};
-use stm32f3xx_hal::pac::{Interrupt, NVIC};
+use stm32f3xx_hal::pac::{Interrupt, NVIC, USART1};
 use stm32f3xx_hal::prelude::*;
 use stm32f3xx_hal::serial::{self, Serial};
 use stm32f3xx_hal::timer::Timer;
@@ -30,9 +31,9 @@ static mut DMA_BUFFER: [u32; DMA_LENGTH] = [0; DMA_LENGTH];
 #[app(device = stm32f3xx_hal::pac, peripherals = true, monotonic = rtic::cyccnt::CYCCNT)]
 const APP: () = {
     struct Resources {
-        dma_ch3: C3,
+        dsp_dma: C3,
         button: Pin<Gpioa, UTerm, Input>,
-        serial_rx: serial::Rx<stm32f3xx_hal::pac::USART1>,
+        midi_rx: serial::Rx<USART1>,
         midi_controller: MidiController,
         #[init(0.0)]
         frequency: f32,
@@ -50,76 +51,101 @@ const APP: () = {
 
         let clocks = rcc.cfgr.freeze(&mut flash.acr);
 
-        // Start periodic timer on TIM2
-        let mut tim2 = Timer::tim2(cx.device.TIM2, SAMPLE_RATE.Hz(), clocks, &mut rcc.apb1);
-        tim2.reset_on_overflow();
+        // Configure DSP
+        let dsp_dma = {
+            // Start periodic timer on TIM2
+            {
+                let mut tim2 = Timer::tim2(cx.device.TIM2, SAMPLE_RATE.Hz(), clocks, &mut rcc.apb1);
+                tim2.reset_on_overflow();
+            }
 
-        // Configure DAC, disable buffer for better SNR and request data from DMA
-        let mut dac = cx.device.DAC1.constrain(
-            gpioa.pa4.into_analog(&mut gpioa.moder, &mut gpioa.pupdr),
-            gpioa.pa5.into_analog(&mut gpioa.moder, &mut gpioa.pupdr),
-            &mut rcc.apb1,
-            &mut gpioa.moder,
-            &mut gpioa.pupdr,
-        );
-        dac.disable_buffer();
-        dac.set_trigger_tim2();
-        dac.enable_dma();
-        dac.enable();
+            // Configure DAC, triggered by TIM2 and requesting data from DMA
+            {
+                let mut dac = cx.device.DAC1.constrain(
+                    gpioa.pa4.into_analog(&mut gpioa.moder, &mut gpioa.pupdr),
+                    gpioa.pa5.into_analog(&mut gpioa.moder, &mut gpioa.pupdr),
+                    &mut rcc.apb1,
+                    &mut gpioa.moder,
+                    &mut gpioa.pupdr,
+                );
+                // disable buffer for better SNR
+                dac.disable_buffer();
+                dac.set_trigger_tim2();
+                dac.enable_dma();
+                dac.enable();
+            }
 
-        // // Configure DMA for transfer between buffer and DAC
-        let ma = unsafe { DMA_BUFFER.as_ptr() } as usize as u32; // source: memory address
-        let pa = 0x40007420; // destination: Dual DAC 12-bit right-aligned data holding register (DHR12RD)
-        let ndt = DMA_LENGTH as u16; // number of items to transfer
+            // Configure DMA for transfer between buffer and DAC
+            let dsp_dma = {
+                let ma = unsafe { DMA_BUFFER.as_ptr() } as usize as u32; // source: memory address
+                let pa = 0x40007420; // destination: Dual DAC 12-bit right-aligned data holding register (DHR12RD)
+                let ndt = DMA_LENGTH as u16; // number of items to transfer
 
-        dma2.ch3.set_direction(Direction::FromMemory);
-        unsafe {
-            dma2.ch3.set_memory_address(ma, Increment::Enable);
-            dma2.ch3.set_peripheral_address(pa, Increment::Disable);
-        }
-        dma2.ch3.set_transfer_length(ndt);
-        dma2.ch3.set_word_size::<u32>();
-        dma2.ch3.set_circular(true);
-        dma2.ch3.set_priority_level(Priority::High);
-        dma2.ch3.listen(dma::Event::Any);
-        unsafe { NVIC::unmask(Interrupt::DMA2_CH3) };
-        dma2.ch3.enable();
+                dma2.ch3.set_direction(Direction::FromMemory);
+                unsafe {
+                    dma2.ch3.set_memory_address(ma, Increment::Enable);
+                    dma2.ch3.set_peripheral_address(pa, Increment::Disable);
+                }
+                dma2.ch3.set_transfer_length(ndt);
+                dma2.ch3.set_word_size::<u32>();
+                dma2.ch3.set_circular(true);
+                dma2.ch3.set_priority_level(Priority::High);
+                dma2.ch3.listen(dma::Event::Any);
+
+                unsafe { NVIC::unmask(Interrupt::DMA2_CH3) };
+
+                dma2.ch3.enable();
+
+                dma2.ch3
+            };
+
+            dsp_dma
+        };
 
         // Configure PA0 (blue button) to trigger an interrupt when clicked
-        let mut button = gpioa
-            .pa0
-            .into_pull_down_input(&mut gpioa.moder, &mut gpioa.pupdr);
-        button.make_interrupt_source(&mut syscfg);
-        button.trigger_on_edge(&mut exti, Edge::Rising);
-        button.enable_interrupt(&mut exti);
-        let interrupt_num = button.nvic();
-        unsafe { NVIC::unmask(interrupt_num) };
+        let button = {
+            let mut button = gpioa
+                .pa0
+                .into_pull_down_input(&mut gpioa.moder, &mut gpioa.pupdr);
+            button.make_interrupt_source(&mut syscfg);
+            button.trigger_on_edge(&mut exti, Edge::Rising);
+            button.enable_interrupt(&mut exti);
+
+            let interrupt_num = button.nvic();
+            unsafe { NVIC::unmask(interrupt_num) };
+
+            button
+        };
 
         // Configure USART for MIDI
-        let pins = (
-            gpioc
-                .pc4
-                .into_af7_push_pull(&mut gpioc.moder, &mut gpioc.otyper, &mut gpioc.afrl),
-            gpioc
-                .pc5
-                .into_af7_push_pull(&mut gpioc.moder, &mut gpioc.otyper, &mut gpioc.afrl),
-        );
-        let mut serial = Serial::usart1(cx.device.USART1, pins, 9600.Bd(), clocks, &mut rcc.apb2);
-        serial.listen(serial::Event::Rxne);
-        unsafe { NVIC::unmask(Interrupt::USART1_EXTI25) };
-        let (_tx, rx) = serial.split();
+        let midi_rx = {
+            let pins = (
+                gpioc
+                    .pc4
+                    .into_af7_push_pull(&mut gpioc.moder, &mut gpioc.otyper, &mut gpioc.afrl),
+                gpioc
+                    .pc5
+                    .into_af7_push_pull(&mut gpioc.moder, &mut gpioc.otyper, &mut gpioc.afrl),
+            );
+            let mut serial =
+                Serial::usart1(cx.device.USART1, pins, 9600.Bd(), clocks, &mut rcc.apb2);
+            serial.listen(serial::Event::Rxne);
+            unsafe { NVIC::unmask(Interrupt::USART1_EXTI25) };
+            let (_tx, rx) = serial.split();
+            rx
+        };
 
         init::LateResources {
             button,
-            dma_ch3: dma2.ch3,
-            serial_rx: rx,
+            dsp_dma,
+            midi_rx,
             midi_controller: MidiController::new(),
         }
     }
 
-    #[task(binds = USART1_EXTI25, resources = [frequency, serial_rx, midi_controller])]
+    #[task(binds = USART1_EXTI25, resources = [frequency, midi_rx, midi_controller])]
     fn usart1(mut cx: usart1::Context) {
-        while let Ok(x) = cx.resources.serial_rx.read() {
+        while let Ok(x) = cx.resources.midi_rx.read() {
             if let Some(state) = cx.resources.midi_controller.reconcile_byte(x) {
                 cx.resources.frequency.lock(|frequency| {
                     *frequency = state.frequency;
@@ -128,25 +154,25 @@ const APP: () = {
         }
     }
 
-    #[task(priority = 2, binds = DMA2_CH3, resources = [dma_ch3, frequency])]
+    #[task(priority = 2, binds = DMA2_CH3, resources = [dsp_dma, frequency])]
     fn dma2_ch3(cx: dma2_ch3::Context) {
         let event = {
             let event = if cx
                 .resources
-                .dma_ch3
+                .dsp_dma
                 .event_occurred(dma::Event::HalfTransfer)
             {
                 Some(dma::Event::HalfTransfer)
             } else if cx
                 .resources
-                .dma_ch3
+                .dsp_dma
                 .event_occurred(dma::Event::TransferComplete)
             {
                 Some(dma::Event::TransferComplete)
             } else {
                 None
             };
-            cx.resources.dma_ch3.clear_event(dma::Event::Any);
+            cx.resources.dsp_dma.clear_event(dma::Event::Any);
             event
         };
 
