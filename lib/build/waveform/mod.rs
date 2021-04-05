@@ -1,5 +1,5 @@
-pub mod builder;
-pub mod consts;
-pub mod processing;
+mod builder;
+mod consts;
+mod processing;
 pub mod saw;
 pub mod sine;

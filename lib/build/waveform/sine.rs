@@ -20,7 +20,7 @@ pub fn generate_module(directory: &Path) {
 
     let wavetable = processing::undersampled_1024(sine::sine());
     builder::dump_wavetable(&mut module, NAME, 1, &wavetable);
-
+    builder::dump_factor_list(&mut module, NAME, &[1]);
     builder::rustfmt(path.to_str().unwrap());
 }
 

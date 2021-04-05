@@ -41,6 +41,12 @@ pub fn generate_module(directory: &Path) {
     let wavetable = processing::undersampled_64(sine::sine());
     builder::dump_wavetable(&mut module, NAME, 1, &wavetable);
 
+    builder::dump_factor_list(
+        &mut module,
+        NAME,
+        &[1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024],
+    );
+
     builder::rustfmt(path.to_str().unwrap());
 }
 
