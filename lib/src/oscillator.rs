@@ -21,11 +21,13 @@ impl<'a> Oscillator<'a> {
     }
 
     pub fn populate(&mut self, buffer: &mut [u16]) {
+        // TODO: In second stage optimization, frequency should be treated as integer too
         let interval_in_samples = self.frequency / self.sample_rate;
         let band_wavetable = self.wavetable.band(self.frequency);
         for x in buffer.iter_mut() {
             *x = band_wavetable.read(self.phase);
             self.phase += interval_in_samples;
+            // TODO: Could be dropped with u32 to encode this, will overflow back
             if self.phase >= 1.0 {
                 self.phase -= 1.0;
             }

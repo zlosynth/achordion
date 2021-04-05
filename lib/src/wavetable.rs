@@ -1,3 +1,9 @@
+// TODO: Optimize
+// - the worst part is linear interpolation due to conversion from f32 to u16
+// - phase could be encoded by 12 bits for integer part (will encode wavetables
+//   up to 4096 frames)
+//
+
 #[allow(unused_imports)]
 use micromath::F32Ext;
 

@@ -21,4 +21,9 @@ default-features = false
 
 [dev-dependencies]
 approx = "0.4"
+criterion = "0.3"
 lazy_static = { version = "1.4", features = [ "spin_no_std" ] }
+
+[[bench]]
+name = "bench"
+harness = false
