@@ -1,19 +1,25 @@
+// TODO: Split helpers and individual waveforms
+// TODO: Waveform code rendering should happen here, so the implementor can
+// select how hifi the form should be
+
 use core::f32::consts::PI;
 
-pub const FULL_LENGTH: usize = 1024;
+use sirena::state_variable_filter::{LowPass, StateVariableFilter};
 
-pub fn sine() -> [f32; FULL_LENGTH] {
-    let mut wavetable = [0.0; FULL_LENGTH];
+pub const OVERSAMPLED_LENGTH: usize = 1024 * 4;
+
+pub fn sine() -> [f32; OVERSAMPLED_LENGTH] {
+    let mut wavetable = [0.0; OVERSAMPLED_LENGTH];
     for (i, x) in wavetable.iter_mut().enumerate() {
         *x = sin(i as f32);
     }
     wavetable
 }
 
-pub fn saw() -> [f32; FULL_LENGTH] {
-    let niquist = FULL_LENGTH / 2;
+pub fn saw() -> [f32; OVERSAMPLED_LENGTH] {
+    let niquist = OVERSAMPLED_LENGTH / 2;
     let harmonics = niquist - 1;
-    let mut wavetable = [0.0; FULL_LENGTH];
+    let mut wavetable = [0.0; OVERSAMPLED_LENGTH];
 
     for (i, x) in wavetable.iter_mut().enumerate() {
         *x = sin(i as f32);
@@ -32,7 +38,7 @@ pub fn saw() -> [f32; FULL_LENGTH] {
 }
 
 fn sin(phase: f32) -> f32 {
-    f32::sin(phase / (FULL_LENGTH as f32) * 2.0 * PI)
+    f32::sin(phase / (OVERSAMPLED_LENGTH as f32) * 2.0 * PI)
 }
 
 pub fn to_u16(x: f32) -> u16 {
@@ -56,3 +62,48 @@ fn normalization_ratio(data: &[f32]) -> f32 {
     let max_delta = f32::max(max, f32::abs(min));
     1.0 / max_delta
 }
+
+pub fn filtered(
+    wavetable: &[f32; OVERSAMPLED_LENGTH],
+    frequency: f32,
+) -> [f32; OVERSAMPLED_LENGTH] {
+    let mut wavetable = *wavetable;
+
+    let mut filter = StateVariableFilter::new((OVERSAMPLED_LENGTH * 2) as u32);
+    filter
+        .set_bandform(LowPass)
+        .set_frequency(frequency)
+        .set_q_factor(0.7);
+    for _ in 0..3 {
+        filter.pass(&wavetable);
+    }
+    filter.process(&mut wavetable);
+
+    normalize(&mut wavetable);
+
+    wavetable
+}
+
+macro_rules! fn_undersampled {
+    ( $func_name:ident, $target_size:expr ) => {
+        pub fn $func_name(data: [f32; OVERSAMPLED_LENGTH]) -> [f32; $target_size] {
+            assert!(data.len() >= $target_size);
+            assert!(data.len() % $target_size == 0);
+
+            let ratio = data.len() / $target_size;
+
+            let mut undersampled_data = [0.0; $target_size];
+            for i in 0..$target_size {
+                undersampled_data[i] = data[i * ratio];
+            }
+
+            undersampled_data
+        }
+    };
+}
+
+fn_undersampled!(undersampled_1024, 1024);
+fn_undersampled!(undersampled_512, 512);
+fn_undersampled!(undersampled_256, 256);
+fn_undersampled!(undersampled_128, 128);
+fn_undersampled!(undersampled_64, 64);

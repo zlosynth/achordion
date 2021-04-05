@@ -143,7 +143,7 @@ const APP: () = {
             dsp_dma,
             midi_rx,
             midi_controller: MidiController::new(),
-            oscillator: Oscillator::new(&wavetable::SAW, SAMPLE_RATE),
+            oscillator: Oscillator::new(&wavetable::saw::SAW_FACTOR_2, SAMPLE_RATE),
         }
     }
 

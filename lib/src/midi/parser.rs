@@ -59,7 +59,7 @@ impl Parser {
                     self.state = ParserState::NoteOnRecieved(channel);
                     Some(Message::NoteOn(channel, note, byte.into()))
                 }
-                _ => None
+                _ => None,
             }
         }
     }
