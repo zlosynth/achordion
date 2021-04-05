@@ -3,6 +3,9 @@
 #![allow(clippy::upper_case_acronyms)]
 #![allow(clippy::let_and_return)]
 
+#[macro_use]
+extern crate lazy_static;
+
 mod hal;
 
 use panic_halt as _;
@@ -21,6 +24,7 @@ use typenum::UTerm;
 use achordion_lib::midi::controller::Controller as MidiController;
 use achordion_lib::oscillator::Oscillator;
 use achordion_lib::waveform;
+use achordion_lib::wavetable::Wavetable;
 
 use crate::hal::prelude::*;
 
@@ -28,6 +32,11 @@ const SAMPLE_RATE: u32 = 44_100;
 
 const DMA_LENGTH: usize = 64;
 static mut DMA_BUFFER: [u32; DMA_LENGTH] = [0; DMA_LENGTH];
+
+lazy_static! {
+    static ref WAVETABLE: Wavetable<'static> =
+        Wavetable::new(&waveform::saw::SAW_FACTORS, SAMPLE_RATE);
+}
 
 #[app(device = stm32f3xx_hal::pac, peripherals = true, monotonic = rtic::cyccnt::CYCCNT)]
 const APP: () = {
@@ -143,7 +152,7 @@ const APP: () = {
             dsp_dma,
             midi_rx,
             midi_controller: MidiController::new(),
-            oscillator: Oscillator::new(&waveform::saw::SAW_FACTORS, SAMPLE_RATE),
+            oscillator: Oscillator::new(&WAVETABLE, SAMPLE_RATE),
         }
     }
 
