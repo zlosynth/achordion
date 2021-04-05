@@ -12,7 +12,7 @@ fn main() {
         );
     }
 
-    let wavetable_package = Path::new("src/wavetable");
+    let wavetable_package = Path::new("src/waveform");
     let mut wavetable_module = File::create(wavetable_package.join("mod.rs")).unwrap();
 
     waveform::saw::register_in_package(&mut wavetable_module);

@@ -7,4 +7,4 @@ extern crate approx;
 
 pub mod midi;
 pub mod oscillator;
-pub mod wavetable;
+pub mod waveform;

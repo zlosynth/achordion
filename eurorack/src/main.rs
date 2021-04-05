@@ -20,7 +20,7 @@ use typenum::UTerm;
 
 use achordion_lib::midi::controller::Controller as MidiController;
 use achordion_lib::oscillator::Oscillator;
-use achordion_lib::wavetable;
+use achordion_lib::waveform;
 
 use crate::hal::prelude::*;
 
@@ -143,7 +143,7 @@ const APP: () = {
             dsp_dma,
             midi_rx,
             midi_controller: MidiController::new(),
-            oscillator: Oscillator::new(&wavetable::saw::SAW_FACTORS, SAMPLE_RATE),
+            oscillator: Oscillator::new(&waveform::saw::SAW_FACTORS, SAMPLE_RATE),
         }
     }
 
