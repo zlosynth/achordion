@@ -52,7 +52,7 @@ fn generate_wavetables_module(
     macro_rules! dump {
         ( $factor:expr, $cutoff:expr, $undersampler:expr ) => {
             let wavetable = $undersampler(waveform::processing::filtered(&oversampled, $cutoff));
-            dump_wavetable(&mut module, name, $factor, &wavetable);
+            waveform::builder::dump_wavetable(&mut module, name, $factor, &wavetable);
         };
     }
 
@@ -68,36 +68,7 @@ fn generate_wavetables_module(
     dump!(2, 1.0, waveform::processing::undersampled_64);
 
     let wavetable = waveform::processing::undersampled_64(waveform::sine::sine());
-    dump_wavetable(&mut module, name, 1, &wavetable);
+    waveform::builder::dump_wavetable(&mut module, name, 1, &wavetable);
 
-    rustfmt(&path);
-}
-
-fn dump_wavetable(module: &mut File, name: &str, factor: usize, wavetable: &[f32]) {
-    writeln!(
-        module,
-        "pub const {}_FACTOR_{}: [u16; {}] = [",
-        name.to_uppercase(),
-        factor,
-        wavetable.len(),
-    )
-    .unwrap();
-
-    wavetable
-        .iter()
-        .copied()
-        .map(waveform::processing::to_u16)
-        .map(waveform::processing::to_12bit)
-        .for_each(|x| {
-            write!(module, "{}, ", x).unwrap();
-        });
-
-    writeln!(module, "\n];").unwrap();
-}
-
-fn rustfmt(path: &str) {
-    Command::new("rustfmt")
-        .arg(path)
-        .output()
-        .expect("failed to execute rustfmt");
+    waveform::builder::rustfmt(&path);
 }
