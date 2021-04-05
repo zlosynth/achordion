@@ -1,45 +1,6 @@
-// TODO: Split helpers and individual waveforms
-// TODO: Waveform code rendering should happen here, so the implementor can
-// select how hifi the form should be
-
-use core::f32::consts::PI;
-
 use sirena::state_variable_filter::{LowPass, StateVariableFilter};
 
-pub const OVERSAMPLED_LENGTH: usize = 1024 * 4;
-
-pub fn sine() -> [f32; OVERSAMPLED_LENGTH] {
-    let mut wavetable = [0.0; OVERSAMPLED_LENGTH];
-    for (i, x) in wavetable.iter_mut().enumerate() {
-        *x = sin(i as f32);
-    }
-    wavetable
-}
-
-pub fn saw() -> [f32; OVERSAMPLED_LENGTH] {
-    let niquist = OVERSAMPLED_LENGTH / 2;
-    let harmonics = niquist - 1;
-    let mut wavetable = [0.0; OVERSAMPLED_LENGTH];
-
-    for (i, x) in wavetable.iter_mut().enumerate() {
-        *x = sin(i as f32);
-        for j in 2..harmonics {
-            if j % 2 == 0 {
-                *x -= sin(i as f32 * j as f32) / j as f32;
-            } else {
-                *x += sin(i as f32 * j as f32) / j as f32;
-            }
-        }
-    }
-
-    normalize(&mut wavetable);
-
-    wavetable
-}
-
-fn sin(phase: f32) -> f32 {
-    f32::sin(phase / (OVERSAMPLED_LENGTH as f32) * 2.0 * PI)
-}
+use super::consts::OVERSAMPLED_LENGTH;
 
 pub fn to_u16(x: f32) -> u16 {
     ((x + 1.0) * f32::powi(2.0, 15)) as u16
@@ -49,7 +10,7 @@ pub fn to_12bit(x: u16) -> u16 {
     x >> 4
 }
 
-fn normalize(data: &mut [f32]) {
+pub fn normalize(data: &mut [f32]) {
     let ratio = normalization_ratio(data);
     for x in data.iter_mut() {
         *x *= ratio;
