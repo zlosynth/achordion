@@ -25,6 +25,7 @@ clippy:
 check:
 	cd eurorack && cargo check
 	cd lib && cargo check
+	cd lib && cargo check --benches
 
 .PHONY: test
 test:
