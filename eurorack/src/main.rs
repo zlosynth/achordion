@@ -210,7 +210,11 @@ const APP: () = {
     fn button_click(mut cx: button_click::Context) {
         cx.resources.button.clear_interrupt_pending_bit();
         cx.resources.oscillator.lock(|oscillator| {
-            oscillator.frequency = 100.0;
+            if oscillator.frequency == 0.0 {
+                oscillator.frequency = 20.0;
+            } else {
+                oscillator.frequency *= 1.5;
+            }
         });
     }
 
