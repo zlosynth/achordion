@@ -58,7 +58,7 @@ const APP: () = {
         let mut flash = cx.device.FLASH.constrain();
         let mut dma2 = cx.device.DMA2.split(&mut rcc.ahb);
 
-        let clocks = rcc.cfgr.freeze(&mut flash.acr);
+        let clocks = rcc.cfgr.use_hse(8.MHz()).sysclk(72.MHz()).freeze(&mut flash.acr);
 
         // Configure DSP
         let dsp_dma = {
@@ -206,7 +206,7 @@ const APP: () = {
     fn button_click(mut cx: button_click::Context) {
         cx.resources.button.clear_interrupt_pending_bit();
         cx.resources.oscillator.lock(|oscillator| {
-            oscillator.frequency *= 1.5;
+            oscillator.frequency = 100.0;
         });
     }
 
