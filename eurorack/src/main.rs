@@ -58,7 +58,11 @@ const APP: () = {
         let mut flash = cx.device.FLASH.constrain();
         let mut dma2 = cx.device.DMA2.split(&mut rcc.ahb);
 
-        let clocks = rcc.cfgr.use_hse(8.MHz()).sysclk(72.MHz()).freeze(&mut flash.acr);
+        let clocks = rcc
+            .cfgr
+            .use_hse(8.MHz())
+            .sysclk(72.MHz())
+            .freeze(&mut flash.acr);
 
         // Configure DSP
         let dsp_dma = {
