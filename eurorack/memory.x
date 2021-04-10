@@ -1,10 +1,9 @@
-/* Linker script for the STM32F303VCT6 */
 MEMORY
 {
-  CCRAM : ORIGIN = 0x10000000, LENGTH = 8K
-  FLASH : ORIGIN = 0x08000000, LENGTH = 256K
-  RAM : ORIGIN = 0x20000000, LENGTH = 40K
+  FLASH : ORIGIN = 0x08000000, LENGTH = 1024K
+  RAM : ORIGIN = 0x20000000, LENGTH = 128K
 }
 
-_stack_start = ORIGIN(CCRAM) + LENGTH(CCRAM);
-
+/* This is where the call stack will be allocated. */
+/* The stack is of the full descending type. */
+_stack_start = ORIGIN(RAM) + LENGTH(RAM);
