@@ -133,9 +133,9 @@ const APP: () = {
         // Configure I2S connected to the DAC.
         let mut i2s = {
             let i2s_pins = (
-                gpioa.pa4.into_alternate_af6(), // WS for I2S3
+                gpioa.pa4.into_alternate_af6(),  // WS for I2S3
                 gpioc.pc10.into_alternate_af6(), // CK
-                gpioc.pc7.into_alternate_af6(), // MCLK
+                gpioc.pc7.into_alternate_af6(),  // MCLK
                 gpioc.pc12.into_alternate_af6(), // SD
             );
             let hal_i2s = I2s::i2s3(cx.device.SPI3, i2s_pins, clocks);
