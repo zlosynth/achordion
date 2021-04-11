@@ -6,8 +6,8 @@ pub fn to_u16(x: f32) -> u16 {
     ((x + 1.0) * f32::powi(2.0, 15)) as u16
 }
 
-pub fn to_12bit(x: u16) -> u16 {
-    x >> 4
+pub fn to_15bit(x: u16) -> u16 {
+    x >> 1
 }
 
 pub fn normalize(data: &mut [f32]) {

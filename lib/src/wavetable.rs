@@ -8,8 +8,8 @@
 use micromath::F32Ext;
 
 // TODO: Keep everything u16, convert to 12 bit only in embedded
-// const EQULIBRIUM: [u16; 1] = [32768];
-const EQULIBRIUM: [u16; 1] = [2048];
+const EQULIBRIUM: [u16; 1] = [16384];
+// const EQULIBRIUM: [u16; 1] = [2048];
 
 pub struct Wavetable<'a> {
     sample_rate: u32,

@@ -1,79 +1,95 @@
-//! Bare-bones driver for configuring a CS43L22 digital-analog converter
-
-use stm32f4xx_hal::hal::blocking::i2c::{Read, Write};
+use stm32f4xx_hal::delay::Delay;
+use stm32f4xx_hal::gpio::gpiod::PD4;
+use stm32f4xx_hal::gpio::{Output, PushPull};
+use stm32f4xx_hal::hal::blocking::i2c::Write;
+use stm32f4xx_hal::prelude::*;
 
 /// Interface to the I2C control port of a Cirrus Logic CS43L22 DAC
 pub struct Cs43L22<I> {
     /// I2C interface
     i2c: I,
-    /// Address of DAC
+    /// Address of DAC in 7 bit, shifted left
     address: u8,
 }
 
 impl<I> Cs43L22<I>
 where
-    I: Write + Read,
+    I: Write,
 {
-    pub fn new(i2c: I, address: u8) -> Self {
-        Cs43L22 { i2c, address }
+    pub fn new(
+        i2c: I,
+        address: u8,
+        reset_pin: PD4<Output<PushPull>>,
+        delay: Delay,
+    ) -> Result<Self, <I as Write>::Error> {
+        let mut dac = Cs43L22 { i2c, address };
+        dac.reset(reset_pin, delay);
+        dac.setup()?;
+        Ok(dac)
     }
 
     /// Does basic configuration as specified in the datasheet
-    pub fn basic_setup(&mut self) -> Result<(), <I as Write>::Error> {
+    fn setup(&mut self) -> Result<(), <I as Write>::Error> {
         // Settings from section 4.11 of the datasheet
         self.write(Register::Magic00, 0x99)?;
         self.write(Register::Magic47, 0x80)?;
         self.write(Register::Magic32, 0x80)?;
         self.write(Register::Magic32, 0x00)?;
-        self.write(Register::Magic00, 0x00)
+        self.write(Register::Magic00, 0x00)?;
+
+        // Clocking control from the table in section 4.6 of the datasheet:
+        // Auto mode: disabled
+        // Speed mode: 01 (single-speed)
+        // 8 kHz, 16 kHz, or 32 kHz sample rate: no
+        // 27 MHz video clock: no
+        // Internal MCLK/LRCLCK ratio: 00
+        // MCLK divide by 2: no
+        #[allow(clippy::unusual_byte_groupings)]
+        self.write(Register::ClockingCtl, 0b0_01_0_0_00_0)?;
+
+        // Interface control:
+        // Slave mode
+        // SCLK not inverted
+        // DSP mode disabled
+        // Interface format I2S
+        // Word length 16 bits
+        #[allow(clippy::unusual_byte_groupings)]
+        self.write(Register::InterfaceCtl1, 0b0_0_0_0_01_11)
     }
 
-    /// Writes the value of one register
-    pub fn write(&mut self, register: Register, value: u8) -> Result<(), <I as Write>::Error> {
+    fn reset(&mut self, mut reset_pin: PD4<Output<PushPull>>, mut delay: Delay) {
+        // Keep DAC reset low for at least one millisecond
+        delay.delay_ms(1u8);
+
+        // Release the DAC from reset
+        reset_pin.set_high().unwrap();
+
+        // Wait at least 550 ns before starting I2C communication
+        delay.delay_us(1u8);
+    }
+
+    pub fn set_volume_a(&mut self, volume: i8) -> Result<(), <I as Write>::Error> {
+        self.write(Register::HeadphoneAVol, volume as u8)
+    }
+
+    pub fn set_volume_b(&mut self, volume: i8) -> Result<(), <I as Write>::Error> {
+        self.write(Register::HeadphoneBVol, volume as u8)
+    }
+
+    pub fn enable(&mut self) -> Result<(), <I as Write>::Error> {
+        self.write(Register::PowerCtl1, 0b1001_1110)
+    }
+
+    fn write(&mut self, register: Register, value: u8) -> Result<(), <I as Write>::Error> {
         // Set auto-increment bit
         let map = (register as u8) | 0x80;
         self.i2c.write(self.address, &[map, value])
     }
-
-    /// Reads the value of one register
-    #[allow(dead_code)]
-    pub fn read(
-        &mut self,
-        register: Register,
-    ) -> Result<u8, CombinedI2cError<<I as Read>::Error, <I as Write>::Error>> {
-        let mut values = [0u8];
-        self.read_multiple(register, &mut values)?;
-        Ok(values[0])
-    }
-    /// Reads the values of zero or more consecutive registers
-    #[allow(dead_code)]
-    pub fn read_multiple(
-        &mut self,
-        register: Register,
-        values: &mut [u8],
-    ) -> Result<(), CombinedI2cError<<I as Read>::Error, <I as Write>::Error>> {
-        // Two transactions: set the memory address pointer, then read
-        // An empty write sets the address
-        // Set auto-increment bit
-        let map = (register as u8) | 0x80;
-        self.i2c
-            .write(self.address, &[map])
-            .map_err(CombinedI2cError::Write)?;
-        self.i2c
-            .read(self.address, values)
-            .map_err(CombinedI2cError::Read)
-    }
-}
-
-#[derive(Debug)]
-pub enum CombinedI2cError<R, W> {
-    Read(R),
-    Write(W),
 }
 
 /// CS43L22 registers
 #[allow(dead_code)]
-pub enum Register {
+enum Register {
     /// This is used in the specified startup sequence, but its actual content is not documented.
     Magic00 = 0x00,
     Id = 0x01,
