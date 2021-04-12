@@ -19,6 +19,10 @@ git = "https://github.com/zlosynth/sirena"
 rev = "52ebc6c0e82804a3aced22d04effb04af6cd2646"
 default-features = false
 
+[dependencies.usbd-midi]
+git = "https://github.com/btrepp/usbd-midi"
+rev = "49484f0b157c61818149fe6ef17ea5183dddef04"
+
 [dev-dependencies]
 approx = "0.4"
 criterion = "0.3"

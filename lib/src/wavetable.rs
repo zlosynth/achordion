@@ -1,15 +1,7 @@
-// TODO: Optimize
-// - the worst part is linear interpolation due to conversion from f32 to u16
-// - phase could be encoded by 12 bits for integer part (will encode wavetables
-//   up to 4096 frames)
-//
-
 #[allow(unused_imports)]
 use micromath::F32Ext;
 
-// TODO: Keep everything u16, convert to 12 bit only in embedded
 const EQULIBRIUM: [u16; 1] = [16384];
-// const EQULIBRIUM: [u16; 1] = [2048];
 
 pub struct Wavetable<'a> {
     sample_rate: u32,

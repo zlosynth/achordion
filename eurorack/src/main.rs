@@ -21,6 +21,8 @@ extern crate lazy_static;
 mod cs43l22;
 mod hal;
 
+use core::convert::TryInto;
+
 use panic_halt as _;
 
 use rtic::app;
@@ -34,12 +36,21 @@ use stm32f4xx_hal::gpio::gpiod::{PD12, PD14, PD15};
 use stm32f4xx_hal::gpio::{Edge, Input, Output, PullDown, PushPull};
 use stm32f4xx_hal::i2c::I2c;
 use stm32f4xx_hal::i2s::I2s;
+use stm32f4xx_hal::otg_fs::{UsbBus, USB};
 use stm32f4xx_hal::pac::DMA1;
 use stm32f4xx_hal::prelude::*;
+
+use usb_device::bus::UsbBusAllocator;
+use usb_device::prelude::*;
+
+use usbd_midi::data::usb::constants::*;
+use usbd_midi::data::usb_midi::midi_packet_reader::MidiPacketBufferReader;
+use usbd_midi::midi_device::MidiClass;
 
 use stm32_i2s_v12x::format::{Data16Frame16, FrameFormat};
 use stm32_i2s_v12x::{MasterClock, MasterConfig, Polarity};
 
+use achordion_lib::midi::instrument::Instrument as MidiInstrument;
 use achordion_lib::oscillator::Oscillator;
 use achordion_lib::waveform;
 use achordion_lib::wavetable::Wavetable;
@@ -47,6 +58,8 @@ use achordion_lib::wavetable::Wavetable;
 use crate::cs43l22::Cs43L22;
 use crate::hal::prelude::*;
 use crate::hal::stream::WordSize;
+
+static mut EP_MEMORY: [u32; 1024] = [0; 1024];
 
 // 7-bit address
 const DAC_ADDRESS: u8 = 0x94 >> 1;
@@ -61,13 +74,17 @@ const VOLUME: i8 = -100;
 const SAMPLE_RATE: u32 = 48000;
 
 const BUFFER_SIZE: usize = 64 * 2;
-
 static mut STEREO_BUFFER: [u16; BUFFER_SIZE * 2] = [16384; BUFFER_SIZE * 2];
 
 lazy_static! {
     static ref WAVETABLE: Wavetable<'static> =
         Wavetable::new(&waveform::saw::SAW_FACTORS, SAMPLE_RATE);
 }
+
+// Static globals used to keep the state of MIDI interface
+static mut USB_BUS: Option<UsbBusAllocator<UsbBus<USB>>> = None;
+static mut USB_MIDI: Option<MidiClass<UsbBus<USB>>> = None;
+static mut USB_DEVICE: Option<UsbDevice<UsbBus<USB>>> = None;
 
 #[app(device = stm32f4xx_hal::pac, peripherals = true, monotonic = rtic::cyccnt::CYCCNT)]
 const APP: () = {
@@ -78,6 +95,7 @@ const APP: () = {
         red_led: PD14<Output<PushPull>>,
         button: PA0<Input<PullDown>>,
         oscillator: Oscillator<'static>,
+        midi_instrument: MidiInstrument,
     }
 
     /// Initialize all the peripherals.
@@ -97,6 +115,7 @@ const APP: () = {
             .use_hse(8.mhz())
             .sysclk(168.mhz())
             .i2s_clk(86.mhz())
+            .require_pll48clk()
             .freeze();
 
         // Status LEDs to indicate the state of the execution.
@@ -199,6 +218,37 @@ const APP: () = {
             button
         };
 
+        // MIDI over USB, reconciling incomming MIDI messages in an interrupt
+        // handler. Unsafe to allow access to static variables. This is safe
+        // since all of these variables are accessed only by the interrupt
+        // handler.
+        unsafe {
+            let usb = USB {
+                usb_global: cx.device.OTG_FS_GLOBAL,
+                usb_device: cx.device.OTG_FS_DEVICE,
+                usb_pwrclk: cx.device.OTG_FS_PWRCLK,
+                pin_dm: gpioa.pa11.into_alternate_af10(),
+                pin_dp: gpioa.pa12.into_alternate_af10(),
+                hclk: clocks.hclk(),
+            };
+
+            USB_BUS = Some(UsbBus::new(usb, &mut EP_MEMORY));
+
+            USB_MIDI = Some(MidiClass::new(USB_BUS.as_ref().unwrap()));
+
+            USB_DEVICE = Some(
+                UsbDeviceBuilder::new(USB_BUS.as_ref().unwrap(), UsbVidPid(0x16c0, 0x5e4))
+                    .product("Achordion")
+                    .device_class(USB_AUDIO_CLASS)
+                    .device_sub_class(USB_MIDISTREAMING_SUBCLASS)
+                    .build(),
+            );
+        }
+
+        // MIDI instrument is used to interpret received MIDI messages and
+        // control the Oscillator based on it.
+        let midi_instrument = MidiInstrument::new();
+
         // The main instrument used to fill in the circular buffer.
         let oscillator = Oscillator::new(&WAVETABLE, SAMPLE_RATE);
 
@@ -209,11 +259,12 @@ const APP: () = {
             red_led,
             button,
             oscillator,
+            midi_instrument,
         }
     }
 
     /// Handling of DMA requests to populate the circular buffer.
-    #[task(priority = 2, binds = DMA1_STREAM5, resources = [stream, green_led, red_led, oscillator])]
+    #[task(binds = DMA1_STREAM5, resources = [stream, green_led, red_led, oscillator])]
     fn dsp_request(cx: dsp_request::Context) {
         let stream = cx.resources.stream;
 
@@ -243,16 +294,43 @@ const APP: () = {
         cx.resources.green_led.set_low().unwrap();
     }
 
+    /// Reconcile incoming MIDI messages.
+    #[task(binds = OTG_FS, resources = [blue_led, midi_instrument, oscillator])]
+    fn midi_request(cx: midi_request::Context) {
+        let usb_device = unsafe { USB_DEVICE.as_mut().unwrap() };
+        let usb_midi = unsafe { USB_MIDI.as_mut().unwrap() };
+
+        loop {
+            if !usb_device.poll(&mut [usb_midi]) {
+                break;
+            }
+
+            let mut buffer = [0; 64];
+
+            if let Ok(size) = usb_midi.read(&mut buffer) {
+                let buffer_reader = MidiPacketBufferReader::new(&buffer, size);
+                for packet in buffer_reader.into_iter() {
+                    if let Ok(packet) = packet {
+                        if let Ok(message) = packet.message.try_into() {
+                            let state = cx.resources.midi_instrument.reconcile(message);
+                            cx.resources.oscillator.frequency = state.frequency;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     /// Control the oscillator frequency using the button.
     #[task(binds = EXTI0, resources = [button, oscillator])]
-    fn button_click(mut cx: button_click::Context) {
+    fn button_click(cx: button_click::Context) {
         cx.resources.button.clear_interrupt_pending_bit();
-        cx.resources.oscillator.lock(|oscillator| {
-            if oscillator.frequency == 0.0 {
-                oscillator.frequency = 40.0;
-            } else {
-                oscillator.frequency *= 1.5;
-            }
-        });
+
+        let oscillator = cx.resources.oscillator;
+        if oscillator.frequency == 0.0 {
+            oscillator.frequency = 40.0;
+        } else {
+            oscillator.frequency *= 1.5;
+        }
     }
 };

@@ -1,8 +1,7 @@
 pub mod channel;
-pub mod controller;
+pub mod instrument;
 pub mod message;
 pub mod note;
+pub mod parser;
+pub mod usbd_midi;
 pub mod velocity;
-
-mod instrument;
-mod parser;
