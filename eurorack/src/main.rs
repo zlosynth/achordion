@@ -300,11 +300,7 @@ const APP: () = {
         let usb_device = unsafe { USB_DEVICE.as_mut().unwrap() };
         let usb_midi = unsafe { USB_MIDI.as_mut().unwrap() };
 
-        loop {
-            if !usb_device.poll(&mut [usb_midi]) {
-                break;
-            }
-
+        while usb_device.poll(&mut [usb_midi]) {
             let mut buffer = [0; 64];
 
             if let Ok(size) = usb_midi.read(&mut buffer) {
