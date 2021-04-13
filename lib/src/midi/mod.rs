@@ -1,4 +1,5 @@
 pub mod channel;
+pub mod control;
 pub mod instrument;
 pub mod message;
 pub mod note;

@@ -1,6 +1,7 @@
 use heapless::consts::*;
 use heapless::Vec;
 
+use super::control::{ControlFunction, ControlValue};
 use super::message::Message;
 use super::note::Note;
 
@@ -8,12 +9,14 @@ const MAX_NOTES: usize = 8;
 
 pub struct Instrument {
     notes: NoteBuffer,
+    state: State,
 }
 
 impl Instrument {
     pub fn new() -> Self {
         Self {
             notes: NoteBuffer::new(),
+            state: State::default(),
         }
     }
 
@@ -22,21 +25,28 @@ impl Instrument {
             Message::NoteOn(_, note, _) => {
                 self.notes.remove(note);
                 self.notes.push(note);
-                State {
-                    frequency: note.to_freq_f32(),
-                }
+                self.state.frequency = note.to_freq_f32();
             }
             Message::NoteOff(_, note) => {
                 self.notes.remove(note);
                 match self.notes.last() {
-                    Some(note) => State {
-                        frequency: note.to_freq_f32(),
-                    },
-                    None => State { frequency: 0.0 },
-                }
+                    Some(note) => self.state.frequency = note.to_freq_f32(),
+                    None => self.state.frequency = 0.0,
+                };
             }
+            Message::ControlChange(_, function, value) => match function {
+                ControlFunction::CC1 => {
+                    self.state.cc1 = control_value_to_float(value);
+                }
+                _ => (),
+            },
         }
+        self.state
     }
+}
+
+fn control_value_to_float(value: ControlValue) -> f32 {
+    u8::from(value) as f32 / u8::from(ControlValue::MAX) as f32
 }
 
 struct NoteBuffer {
@@ -73,9 +83,10 @@ impl NoteBuffer {
     }
 }
 
-#[derive(Clone, Copy, PartialEq, Debug)]
+#[derive(Clone, Copy, PartialEq, Default, Debug)]
 pub struct State {
     pub frequency: f32,
+    pub cc1: f32,
 }
 
 #[cfg(test)]
@@ -183,6 +194,25 @@ mod tests {
         let state = instrument.reconcile(Message::NoteOff(Channel1, Note::A4));
 
         assert_relative_eq!(state.frequency, 0.0);
+    }
+
+    #[test]
+    fn reconcile_control_change_message() {
+        let mut instrument = Instrument::new();
+
+        let state = instrument.reconcile(Message::ControlChange(
+            Channel1,
+            ControlFunction::CC1,
+            127.into(),
+        ));
+        assert_relative_eq!(state.cc1, 1.0);
+
+        let state = instrument.reconcile(Message::ControlChange(
+            Channel1,
+            ControlFunction::CC1,
+            63.into(),
+        ));
+        assert_relative_eq!(state.cc1, 0.5, epsilon = 0.1);
     }
 
     #[test]

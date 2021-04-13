@@ -1,4 +1,5 @@
 use super::channel::Channel;
+use super::control::{ControlFunction, ControlValue};
 use super::note::Note;
 use super::velocity::Velocity;
 
@@ -6,4 +7,5 @@ use super::velocity::Velocity;
 pub enum Message {
     NoteOn(Channel, Note, Velocity),
     NoteOff(Channel, Note),
+    ControlChange(Channel, ControlFunction, ControlValue),
 }

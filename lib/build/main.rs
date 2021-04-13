@@ -20,4 +20,10 @@ fn main() {
 
     waveform::sine::register_in_package(&mut wavetable_module);
     waveform::sine::generate_module(wavetable_package);
+
+    waveform::triangle::register_in_package(&mut wavetable_module);
+    waveform::triangle::generate_module(wavetable_package);
+
+    waveform::square::register_in_package(&mut wavetable_module);
+    waveform::square::generate_module(wavetable_package);
 }
