@@ -79,7 +79,6 @@ impl<'a> BandWavetable<'a> {
     }
 }
 
-// TODO: Bench and optimize
 fn linear_interpolation(data: &[u16], position: f32) -> u16 {
     let index = position as usize;
     let remainder = position - index as f32;
@@ -94,7 +93,6 @@ fn linear_interpolation(data: &[u16], position: f32) -> u16 {
     (value as f32 + delta_to_next as f32 * remainder) as u16
 }
 
-// TODO: Bench and optimize
 fn linear_xfade(a: u16, b: u16, mix: f32) -> u16 {
     debug_assert!((0.0..=1.0).contains(&mix));
 
