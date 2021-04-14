@@ -34,6 +34,7 @@ impl Instrument {
                     None => self.state.frequency = 0.0,
                 };
             }
+            #[allow(clippy::single_match)]
             Message::ControlChange(_, function, value) => match function {
                 ControlFunction::CC1 => {
                     self.state.cc1 = control_value_to_float(value);

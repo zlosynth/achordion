@@ -11,5 +11,6 @@ extern crate lazy_static;
 
 pub mod midi;
 pub mod oscillator;
+pub mod quantizer;
 pub mod waveform;
 pub mod wavetable;

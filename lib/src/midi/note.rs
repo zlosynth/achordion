@@ -331,11 +331,22 @@ impl Note {
     pub fn to_freq_f32(self) -> f32 {
         FREQUENCIES[self as usize]
     }
+
+    #[inline(always)]
+    pub fn to_midi_id(self) -> u8 {
+        self as u8
+    }
 }
 
 impl From<u8> for Note {
     fn from(byte: u8) -> Self {
         Note::from_u8(byte)
+    }
+}
+
+impl From<Note> for u8 {
+    fn from(note: Note) -> u8 {
+        note.to_midi_id()
     }
 }
 
@@ -346,5 +357,10 @@ mod tests {
     #[test]
     fn convert_note_to_frequency() {
         assert_relative_eq!(Note::A4.to_freq_f32(), 440.0);
+    }
+
+    #[test]
+    fn convert_to_midi_id() {
+        assert_eq!(Note::C3.to_midi_id(), 48);
     }
 }
