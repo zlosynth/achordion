@@ -317,7 +317,7 @@ const APP: () = {
                         if let Ok(message) = packet.message.try_into() {
                             let state = cx.resources.midi_instrument.reconcile(message);
 
-                            let base = quantizer::chromatic::quantize(state.cc2 * 12.0);
+                            let base = quantizer::chromatic::quantize(state.cc2);
 
                             if state.frequency < 0.1 {
                                 cx.resources.oscillator.frequency = 0.0;
