@@ -333,6 +333,11 @@ impl Note {
     }
 
     #[inline(always)]
+    pub fn to_voct(self) -> f32 {
+        (self as usize) as f32 / 12.0
+    }
+
+    #[inline(always)]
     pub fn to_midi_id(self) -> u8 {
         self as u8
     }

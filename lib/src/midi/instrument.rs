@@ -26,12 +26,19 @@ impl Instrument {
                 self.notes.remove(note);
                 self.notes.push(note);
                 self.state.frequency = note.to_freq_f32();
+                self.state.voct = note.to_voct();
             }
             Message::NoteOff(_, note) => {
                 self.notes.remove(note);
                 match self.notes.last() {
-                    Some(note) => self.state.frequency = note.to_freq_f32(),
-                    None => self.state.frequency = 0.0,
+                    Some(note) => {
+                        self.state.frequency = note.to_freq_f32();
+                        self.state.voct = note.to_voct();
+                    }
+                    None => {
+                        self.state.frequency = 0.0;
+                        self.state.voct = 0.0;
+                    }
                 };
             }
             #[allow(clippy::single_match)]
@@ -87,6 +94,7 @@ impl NoteBuffer {
 #[derive(Clone, Copy, PartialEq, Default, Debug)]
 pub struct State {
     pub frequency: f32,
+    pub voct: f32,
     pub cc1: f32,
 }
 
@@ -185,6 +193,7 @@ mod tests {
         let state = instrument.reconcile(Message::NoteOn(Channel1, Note::A4, Velocity::MAX));
 
         assert_relative_eq!(state.frequency, 440.0);
+        assert_relative_eq!(state.voct, 5.0 + 9.0 / 12.0);
     }
 
     #[test]

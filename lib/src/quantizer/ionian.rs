@@ -20,17 +20,17 @@ pub fn quantize(root: Note, mut voct: f32) -> Note {
 
     let difference = voct - close_root;
 
-    if difference <= 1.0 / 12.0 {
+    if difference <= 1.1 / 12.0 {
         to_midi_note(close_root)
-    } else if difference <= 3.0 / 12.0 {
+    } else if difference <= 3.1 / 12.0 {
         to_midi_note(close_root + 2.0 / 12.0)
     } else if difference <= 4.5 / 12.0 {
         to_midi_note(close_root + 4.0 / 12.0)
-    } else if difference <= 6.0 / 12.0 {
+    } else if difference <= 6.1 / 12.0 {
         to_midi_note(close_root + 5.0 / 12.0)
-    } else if difference <= 8.0 / 12.0 {
+    } else if difference <= 8.1 / 12.0 {
         to_midi_note(close_root + 7.0 / 12.0)
-    } else if difference <= 10.0 / 12.0 {
+    } else if difference <= 10.1 / 12.0 {
         to_midi_note(close_root + 9.0 / 12.0)
     } else if difference <= 11.5 / 12.0 {
         to_midi_note(close_root + 11.0 / 12.0)
@@ -135,7 +135,7 @@ mod tests {
         let voct = 2.0 + 1.3 / 12.0;
         assert_eq!(quantize(Note::C0, voct), Note::D1);
 
-        let voct = 2.0 + 3.1 / 12.0;
+        let voct = 2.0 + 3.2 / 12.0;
         assert_eq!(quantize(Note::C0, voct), Note::E1);
 
         let voct = 2.0 + 4.6 / 12.0;
@@ -144,7 +144,7 @@ mod tests {
         let voct = 2.0 + 7.9 / 12.0;
         assert_eq!(quantize(Note::C0, voct), Note::G1);
 
-        let voct = 2.0 + 9.1 / 12.0;
+        let voct = 2.0 + 9.2 / 12.0;
         assert_eq!(quantize(Note::C0, voct), Note::A1);
 
         let voct = 2.0 + 11.4 / 12.0;
