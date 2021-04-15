@@ -51,7 +51,6 @@ use stm32_i2s_v12x::format::{Data16Frame16, FrameFormat};
 use stm32_i2s_v12x::{MasterClock, MasterConfig, Polarity};
 
 use achordion_lib::midi::instrument::Instrument as MidiInstrument;
-use achordion_lib::midi::note::Note as MidiNote;
 use achordion_lib::oscillator::Oscillator;
 use achordion_lib::quantizer;
 use achordion_lib::waveform;
@@ -318,10 +317,12 @@ const APP: () = {
                         if let Ok(message) = packet.message.try_into() {
                             let state = cx.resources.midi_instrument.reconcile(message);
 
+                            let base = quantizer::chromatic::quantize(state.cc2 * 12.0);
+
                             if state.frequency < 0.1 {
                                 cx.resources.oscillator.frequency = 0.0;
                             } else {
-                                let note = quantizer::ionian::quantize(MidiNote::A0, state.voct);
+                                let note = quantizer::ionian::quantize(base, state.voct);
                                 cx.resources.oscillator.frequency = note.to_freq_f32();
                             }
 
