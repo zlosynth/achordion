@@ -35,7 +35,7 @@ pub fn quantize(root: Note, mut voct: f32) -> Note {
     } else if difference <= 11.5 / 12.0 {
         to_midi_note(close_root + 11.0 / 12.0)
     } else {
-        to_midi_note(close_root + 12.0 / 12.0)
+        to_midi_note(close_root + 1.0)
     }
 }
 
