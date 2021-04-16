@@ -132,7 +132,7 @@ const APP: () = {
 
         // Configure Cirrus DAC.
         {
-            let i2c = I2c::i2c1(
+            let i2c = I2c::new(
                 cx.device.I2C1,
                 (
                     gpiob.pb6.into_alternate_af4_open_drain(), // SDA
