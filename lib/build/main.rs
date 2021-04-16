@@ -1,8 +1,8 @@
+mod rustfmt;
 mod waveform;
 
 use std::fs::File;
 use std::path::Path;
-use std::process::Command;
 
 fn main() {
     println!("cargo:rerun-if-changed=build/main.rs");
@@ -23,12 +23,5 @@ fn main() {
     waveform::square::register_in_package(&mut wavetable_module);
     waveform::square::generate_module(wavetable_package);
 
-    rustfmt(wavetable_package.join("mod.rs").to_str().unwrap());
-}
-
-fn rustfmt(path: &str) {
-    Command::new("rustfmt")
-        .arg(path)
-        .output()
-        .expect("failed to execute rustfmt");
+    rustfmt::format(wavetable_package.join("mod.rs").to_str().unwrap());
 }

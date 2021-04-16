@@ -7,6 +7,7 @@ use super::builder;
 use super::consts::OVERSAMPLED_LENGTH;
 use super::processing;
 use super::sine;
+use crate::rustfmt;
 
 const NAME: &str = "saw";
 
@@ -47,7 +48,7 @@ pub fn generate_module(directory: &Path) {
         &[1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024],
     );
 
-    builder::rustfmt(path.to_str().unwrap());
+    rustfmt::format(path.to_str().unwrap());
 }
 
 fn saw() -> [f32; OVERSAMPLED_LENGTH] {

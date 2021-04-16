@@ -1,6 +1,5 @@
 use std::fs::File;
 use std::io::Write;
-use std::process::Command;
 
 use super::processing;
 
@@ -40,11 +39,4 @@ pub fn dump_factor_list(module: &mut File, name: &str, factors: &[usize]) {
     });
 
     writeln!(module, "\n];").unwrap();
-}
-
-pub fn rustfmt(path: &str) {
-    Command::new("rustfmt")
-        .arg(path)
-        .output()
-        .expect("failed to execute rustfmt");
 }
