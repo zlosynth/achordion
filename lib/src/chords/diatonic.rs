@@ -19,8 +19,8 @@ pub fn build(
     let progression_start = semitones
         .iter()
         .enumerate()
-        .find(|(i, x)| **x as i16 == chord_root_id - scale_root_id)
-        .map(|(i, x)| i)
+        .find(|(_, x)| **x as i16 == chord_root_id - scale_root_id)
+        .map(|(i, _)| i)
         .unwrap_or(0);
 
     let mut notes = [None; 3];
