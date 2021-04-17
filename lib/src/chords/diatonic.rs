@@ -1,8 +1,12 @@
 use crate::midi::note::Note;
+use crate::scales::diatonic::{Mode, SEMITONES};
 
-const SEMITONES: [i8; 7] = [0, 2, 4, 5, 7, 9, 11];
-
-pub fn build(scale_root: Note, chord_root: Note, degrees: [i8; 3]) -> [Option<Note>; 3] {
+pub fn build(
+    mode: Mode,
+    scale_root: Note,
+    chord_root: Note,
+    degrees: [i8; 3],
+) -> [Option<Note>; 3] {
     let scale_root_id = (scale_root.to_midi_id() % 12) as i16;
     let mut chord_root_id = (chord_root.to_midi_id() % 12) as i16;
 
@@ -10,16 +14,14 @@ pub fn build(scale_root: Note, chord_root: Note, degrees: [i8; 3]) -> [Option<No
         chord_root_id += 12;
     }
 
-    let progression_start = match chord_root_id - scale_root_id {
-        0 => 0,
-        2 => 1,
-        4 => 2,
-        5 => 3,
-        7 => 4,
-        9 => 5,
-        11 => 6,
-        _ => 0,
-    };
+    let semitones = SEMITONES[mode as usize];
+
+    let progression_start = semitones
+        .iter()
+        .enumerate()
+        .find(|(i, x)| **x as i16 == chord_root_id - scale_root_id)
+        .map(|(i, x)| i)
+        .unwrap_or(0);
 
     let mut notes = [None; 3];
 
@@ -32,10 +34,10 @@ pub fn build(scale_root: Note, chord_root: Note, degrees: [i8; 3]) -> [Option<No
         let target = progression_start + *degree as usize - 1;
 
         let x = if target > 6 {
-            SEMITONES[(progression_start + *degree as usize - 1) % 7] - SEMITONES[progression_start]
+            semitones[(progression_start + *degree as usize - 1) % 7] - semitones[progression_start]
                 + 12
         } else {
-            SEMITONES[(progression_start + *degree as usize - 1)] - SEMITONES[progression_start]
+            semitones[(progression_start + *degree as usize - 1)] - semitones[progression_start]
         };
 
         notes[i] = Some(Note::from_u8(chord_root.to_midi_id() + x as u8));
@@ -47,10 +49,11 @@ pub fn build(scale_root: Note, chord_root: Note, degrees: [i8; 3]) -> [Option<No
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::scales::diatonic::Mode::*;
 
     #[test]
     fn build_major_triad_on_the_first_degree() {
-        let notes = build(Note::C3, Note::C4, [1, 3, 5]);
+        let notes = build(Ionian, Note::C3, Note::C4, [1, 3, 5]);
 
         assert_eq!(notes[0], Some(Note::C4));
         assert_eq!(notes[1], Some(Note::E4));
@@ -59,7 +62,7 @@ mod tests {
 
     #[test]
     fn build_minor_triad_on_the_second_degree() {
-        let notes = build(Note::C3, Note::D4, [1, 3, 5]);
+        let notes = build(Ionian, Note::C3, Note::D4, [1, 3, 5]);
 
         assert_eq!(notes[0], Some(Note::D4));
         assert_eq!(notes[1], Some(Note::F4));

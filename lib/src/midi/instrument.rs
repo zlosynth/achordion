@@ -52,6 +52,9 @@ impl Instrument {
                 ControlFunction::CC3 => {
                     self.state.cc3 = control_value_to_float(value);
                 }
+                ControlFunction::CC4 => {
+                    self.state.cc4 = control_value_to_float(value);
+                }
                 _ => (),
             },
         }
@@ -104,6 +107,7 @@ pub struct State {
     pub cc1: f32,
     pub cc2: f32,
     pub cc3: f32,
+    pub cc4: f32,
 }
 
 #[cfg(test)]

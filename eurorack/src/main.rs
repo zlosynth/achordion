@@ -54,6 +54,7 @@ use achordion_lib::chords;
 use achordion_lib::midi::instrument::Instrument as MidiInstrument;
 use achordion_lib::oscillator::Oscillator;
 use achordion_lib::quantizer;
+use achordion_lib::scales;
 use achordion_lib::waveform;
 use achordion_lib::wavetable::Wavetable;
 
@@ -329,7 +330,7 @@ const APP: () = {
                         if let Ok(message) = packet.message.try_into() {
                             let state = cx.resources.midi_instrument.reconcile(message);
                             let oscillation_disabled = state.frequency < 0.1;
-                            let chord_mode = state.cc3 > 0.1;
+                            let chord_mode = state.cc4 > 0.1;
                             let wavetable = state.cc1;
 
                             if !chord_mode {
@@ -343,26 +344,44 @@ const APP: () = {
                                 cx.resources.oscillator_c.frequency = 0.0;
                             } else {
                                 let scale_base = quantizer::chromatic::quantize(state.cc2);
-                                let note_base = quantizer::ionian::quantize(scale_base, state.voct);
 
-                                let notes = if state.cc3 < 0.2 {
-                                    chords::ionian::build(scale_base, note_base, [1, 3, 5])
-                                } else if state.cc3 < 0.3 {
-                                    chords::ionian::build(scale_base, note_base, [1, 2, 5])
-                                } else if state.cc3 < 0.4 {
-                                    chords::ionian::build(scale_base, note_base, [1, 4, 5])
-                                } else if state.cc3 < 0.5 {
-                                    chords::ionian::build(scale_base, note_base, [1, 5, 7])
-                                } else if state.cc3 < 0.6 {
-                                    chords::ionian::build(scale_base, note_base, [1, 3, 7])
-                                } else if state.cc3 < 0.7 {
-                                    chords::ionian::build(scale_base, note_base, [1, 4, 7])
-                                } else if state.cc3 < 0.8 {
-                                    chords::ionian::build(scale_base, note_base, [1, 2, 7])
-                                } else if state.cc3 < 0.9 {
-                                    chords::ionian::build(scale_base, note_base, [1, 5, 9])
+                                let mode = if state.cc3 < 1.0 / 7.0 {
+                                    scales::diatonic::Ionian
+                                } else if state.cc3 < 2.0 / 7.0 {
+                                    scales::diatonic::Dorian
+                                } else if state.cc3 < 3.0 / 7.0 {
+                                    scales::diatonic::Phrygian
+                                } else if state.cc3 < 4.0 / 7.0 {
+                                    scales::diatonic::Lydian
+                                } else if state.cc3 < 5.0 / 7.0 {
+                                    scales::diatonic::Mixolydian
+                                } else if state.cc3 < 6.0 / 7.0 {
+                                    scales::diatonic::Aeolian
                                 } else {
-                                    chords::ionian::build(scale_base, note_base, [1, 2, 9])
+                                    scales::diatonic::Locrian
+                                };
+
+                                let chord_base =
+                                    quantizer::diatonic::quantize(mode, scale_base, state.voct);
+
+                                let notes = if state.cc4 < 0.2 {
+                                    chords::diatonic::build(mode, scale_base, chord_base, [1, 3, 5])
+                                } else if state.cc4 < 0.3 {
+                                    chords::diatonic::build(mode, scale_base, chord_base, [1, 2, 5])
+                                } else if state.cc4 < 0.4 {
+                                    chords::diatonic::build(mode, scale_base, chord_base, [1, 4, 5])
+                                } else if state.cc4 < 0.5 {
+                                    chords::diatonic::build(mode, scale_base, chord_base, [1, 5, 7])
+                                } else if state.cc4 < 0.6 {
+                                    chords::diatonic::build(mode, scale_base, chord_base, [1, 3, 7])
+                                } else if state.cc4 < 0.7 {
+                                    chords::diatonic::build(mode, scale_base, chord_base, [1, 4, 7])
+                                } else if state.cc4 < 0.8 {
+                                    chords::diatonic::build(mode, scale_base, chord_base, [1, 2, 7])
+                                } else if state.cc4 < 0.9 {
+                                    chords::diatonic::build(mode, scale_base, chord_base, [1, 5, 9])
+                                } else {
+                                    chords::diatonic::build(mode, scale_base, chord_base, [1, 2, 9])
                                 };
 
                                 cx.resources.oscillator_a.frequency =

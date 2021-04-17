@@ -13,5 +13,6 @@ pub mod chords;
 pub mod midi;
 pub mod oscillator;
 pub mod quantizer;
+pub mod scales;
 pub mod waveform;
 pub mod wavetable;

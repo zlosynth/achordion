@@ -1,2 +1,2 @@
 pub mod chromatic;
-pub mod ionian;
+pub mod diatonic;
