@@ -50,6 +50,7 @@ use usbd_midi::midi_device::MidiClass;
 use stm32_i2s_v12x::format::{Data16Frame16, FrameFormat};
 use stm32_i2s_v12x::{MasterClock, MasterConfig, Polarity};
 
+use achordion_lib::chords;
 use achordion_lib::midi::instrument::Instrument as MidiInstrument;
 use achordion_lib::oscillator::Oscillator;
 use achordion_lib::quantizer;
@@ -101,7 +102,9 @@ const APP: () = {
         blue_led: PD15<Output<PushPull>>,
         red_led: PD14<Output<PushPull>>,
         button: PA0<Input<PullDown>>,
-        oscillator: Oscillator<'static>,
+        oscillator_a: Oscillator<'static>,
+        oscillator_b: Oscillator<'static>,
+        oscillator_c: Oscillator<'static>,
         midi_instrument: MidiInstrument,
     }
 
@@ -257,7 +260,9 @@ const APP: () = {
         let midi_instrument = MidiInstrument::new();
 
         // The main instrument used to fill in the circular buffer.
-        let oscillator = Oscillator::new(&WAVETABLES[..], SAMPLE_RATE);
+        let oscillator_a = Oscillator::new(&WAVETABLES[..], SAMPLE_RATE);
+        let oscillator_b = Oscillator::new(&WAVETABLES[..], SAMPLE_RATE);
+        let oscillator_c = Oscillator::new(&WAVETABLES[..], SAMPLE_RATE);
 
         init::LateResources {
             stream,
@@ -265,13 +270,15 @@ const APP: () = {
             blue_led,
             red_led,
             button,
-            oscillator,
+            oscillator_a,
+            oscillator_b,
+            oscillator_c,
             midi_instrument,
         }
     }
 
     /// Handling of DMA requests to populate the circular buffer.
-    #[task(binds = DMA1_STREAM5, resources = [stream, green_led, red_led, oscillator])]
+    #[task(binds = DMA1_STREAM5, resources = [stream, green_led, red_led, oscillator_a, oscillator_b, oscillator_c])]
     fn dsp_request(cx: dsp_request::Context) {
         let stream = cx.resources.stream;
 
@@ -289,12 +296,16 @@ const APP: () = {
             return;
         };
 
-        let mut buffer = [0; BUFFER_SIZE / 2];
-        cx.resources.oscillator.populate(&mut buffer[..]);
+        let mut buffer_a = [0; BUFFER_SIZE / 2];
+        cx.resources.oscillator_a.populate(&mut buffer_a[..]);
+        let mut buffer_b = [0; BUFFER_SIZE / 2];
+        cx.resources.oscillator_b.populate(&mut buffer_b[..]);
+        let mut buffer_c = [0; BUFFER_SIZE / 2];
+        cx.resources.oscillator_c.populate(&mut buffer_c[..]);
 
         unsafe {
             for (i, x) in STEREO_BUFFER[start..stop].iter_mut().enumerate() {
-                *x = buffer[i / 2];
+                *x = buffer_a[i / 2] / 3 + buffer_b[i / 2] / 3 + buffer_c[i / 2] / 3;
             }
         }
 
@@ -302,11 +313,12 @@ const APP: () = {
     }
 
     /// Reconcile incoming MIDI messages.
-    #[task(binds = OTG_FS, resources = [blue_led, midi_instrument, oscillator])]
+    #[task(binds = OTG_FS, resources = [blue_led, midi_instrument, oscillator_a, oscillator_b, oscillator_c])]
     fn midi_request(cx: midi_request::Context) {
         let usb_device = unsafe { USB_DEVICE.as_mut().unwrap() };
         let usb_midi = unsafe { USB_MIDI.as_mut().unwrap() };
 
+        cx.resources.blue_led.set_high().unwrap();
         while usb_device.poll(&mut [usb_midi]) {
             let mut buffer = [0; 64];
 
@@ -316,30 +328,52 @@ const APP: () = {
                     if let Ok(packet) = packet {
                         if let Ok(message) = packet.message.try_into() {
                             let state = cx.resources.midi_instrument.reconcile(message);
+                            let oscillation_disabled = state.frequency < 0.1;
+                            let chord_mode = state.cc3 > 0.5;
+                            let wavetable = state.cc1;
 
-                            let base = quantizer::chromatic::quantize(state.cc2);
-
-                            if state.frequency < 0.1 {
-                                cx.resources.oscillator.frequency = 0.0;
-                            } else {
-                                let note = quantizer::ionian::quantize(base, state.voct);
-                                cx.resources.oscillator.frequency = note.to_freq_f32();
+                            if !chord_mode {
+                                cx.resources.oscillator_b.frequency = 0.0;
+                                cx.resources.oscillator_c.frequency = 0.0;
                             }
 
-                            cx.resources.oscillator.wavetable = state.cc1;
+                            if oscillation_disabled {
+                                cx.resources.oscillator_a.frequency = 0.0;
+                                cx.resources.oscillator_b.frequency = 0.0;
+                                cx.resources.oscillator_c.frequency = 0.0;
+                            } else {
+                                let scale_base = quantizer::chromatic::quantize(state.cc2);
+                                let note_base = quantizer::ionian::quantize(scale_base, state.voct);
+                                let notes = chords::ionian::build(scale_base, note_base, [1, 3, 5]);
+
+                                cx.resources.oscillator_a.frequency =
+                                    notes[0].unwrap().to_freq_f32();
+
+                                if chord_mode {
+                                    cx.resources.oscillator_b.frequency =
+                                        notes[1].unwrap().to_freq_f32();
+                                    cx.resources.oscillator_c.frequency =
+                                        notes[2].unwrap().to_freq_f32();
+                                }
+                            }
+
+                            cx.resources.oscillator_a.wavetable = wavetable;
+                            cx.resources.oscillator_b.wavetable = wavetable;
+                            cx.resources.oscillator_c.wavetable = wavetable;
                         }
                     }
                 }
             }
         }
+        cx.resources.blue_led.set_low().unwrap();
     }
 
     /// Control the oscillator frequency using the button.
-    #[task(binds = EXTI0, resources = [button, oscillator])]
+    #[task(binds = EXTI0, resources = [button, oscillator_a])]
     fn button_click(cx: button_click::Context) {
         cx.resources.button.clear_interrupt_pending_bit();
 
-        let oscillator = cx.resources.oscillator;
+        let oscillator = cx.resources.oscillator_a;
         if oscillator.frequency == 0.0 {
             oscillator.frequency = 40.0;
         } else {
