@@ -329,7 +329,7 @@ const APP: () = {
                         if let Ok(message) = packet.message.try_into() {
                             let state = cx.resources.midi_instrument.reconcile(message);
                             let oscillation_disabled = state.frequency < 0.1;
-                            let chord_mode = state.cc3 > 0.5;
+                            let chord_mode = state.cc3 > 0.1;
                             let wavetable = state.cc1;
 
                             if !chord_mode {
@@ -344,7 +344,26 @@ const APP: () = {
                             } else {
                                 let scale_base = quantizer::chromatic::quantize(state.cc2);
                                 let note_base = quantizer::ionian::quantize(scale_base, state.voct);
-                                let notes = chords::ionian::build(scale_base, note_base, [1, 3, 5]);
+
+                                let notes = if state.cc3 < 0.2 {
+                                    chords::ionian::build(scale_base, note_base, [1, 3, 5])
+                                } else if state.cc3 < 0.3 {
+                                    chords::ionian::build(scale_base, note_base, [1, 2, 5])
+                                } else if state.cc3 < 0.4 {
+                                    chords::ionian::build(scale_base, note_base, [1, 4, 5])
+                                } else if state.cc3 < 0.5 {
+                                    chords::ionian::build(scale_base, note_base, [1, 5, 7])
+                                } else if state.cc3 < 0.6 {
+                                    chords::ionian::build(scale_base, note_base, [1, 3, 7])
+                                } else if state.cc3 < 0.7 {
+                                    chords::ionian::build(scale_base, note_base, [1, 4, 7])
+                                } else if state.cc3 < 0.8 {
+                                    chords::ionian::build(scale_base, note_base, [1, 2, 7])
+                                } else if state.cc3 < 0.9 {
+                                    chords::ionian::build(scale_base, note_base, [1, 5, 9])
+                                } else {
+                                    chords::ionian::build(scale_base, note_base, [1, 2, 9])
+                                };
 
                                 cx.resources.oscillator_a.frequency =
                                     notes[0].unwrap().to_freq_f32();
