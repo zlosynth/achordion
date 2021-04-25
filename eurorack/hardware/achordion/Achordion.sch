@@ -1234,17 +1234,6 @@ F 3 "http://ww1.microchip.com/downloads/en/DeviceDoc/21733j.pdf" H 2350 8025 50 
 $EndComp
 $Comp
 L Amplifier_Operational:MCP6002-xSN U7
-U 2 1 621D33D3
-P 2350 9625
-F 0 "U7" H 2450 9475 50  0000 C CNN
-F 1 "MCP6002" H 2550 9775 50  0000 C CNN
-F 2 "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm" H 2350 9625 50  0001 C CNN
-F 3 "http://ww1.microchip.com/downloads/en/DeviceDoc/21733j.pdf" H 2350 9625 50  0001 C CNN
-	2    2350 9625
-	1    0    0    1   
-$EndComp
-$Comp
-L Amplifier_Operational:MCP6002-xSN U7
 U 3 1 621D54AC
 P 2100 10825
 F 0 "U7" V 2075 10750 50  0000 L CNN
@@ -1263,17 +1252,6 @@ F 1 "MCP6002" H 5250 8175 50  0000 C CNN
 F 2 "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm" H 5050 8025 50  0001 C CNN
 F 3 "http://ww1.microchip.com/downloads/en/DeviceDoc/21733j.pdf" H 5050 8025 50  0001 C CNN
 	1    5050 8025
-	1    0    0    1   
-$EndComp
-$Comp
-L Amplifier_Operational:MCP6002-xSN U8
-U 2 1 62278AD0
-P 5050 9625
-F 0 "U8" H 5150 9475 50  0000 C CNN
-F 1 "MCP6002" H 5225 9775 50  0000 C CNN
-F 2 "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm" H 5050 9625 50  0001 C CNN
-F 3 "http://ww1.microchip.com/downloads/en/DeviceDoc/21733j.pdf" H 5050 9625 50  0001 C CNN
-	2    5050 9625
 	1    0    0    1   
 $EndComp
 $Comp
@@ -1333,18 +1311,12 @@ F 3 "http://ww1.microchip.com/downloads/en/DeviceDoc/21733j.pdf" H 7475 10825 50
 $EndComp
 Text GLabel 2750 8025 2    50   Output ~ 0
 VOCT_CV
-Text GLabel 2750 9625 2    50   Output ~ 0
-TABLE_CV
 Text GLabel 8125 8025 2    50   Output ~ 0
 RAMP_CV
-Text GLabel 5450 8025 2    50   Output ~ 0
+Text GLabel 2750 9625 2    50   Output ~ 0
 CHORD_CV
-Text GLabel 5450 9625 2    50   Output ~ 0
-SCALE_CV
 Text Notes 1100 7775 0    50   ~ 0
 -1.5 to 5.5
-Text Notes 1150 9400 0    50   ~ 0
--8.0 to 8.0
 $Comp
 L power:-10V #PWR068
 U 1 1 625CB186
@@ -1469,22 +1441,13 @@ Wire Wire Line
 	1550 7425 1550 7475
 Wire Wire Line
 	1550 7475 1650 7475
+Text Notes 1150 9400 0    50   ~ 0
+-8.0 to 8.0
 $Comp
-L Connector:AudioJack2 J7
-U 1 1 628251F6
-P 1250 9525
-F 0 "J7" H 1071 9508 50  0000 R CNN
-F 1 "Jack" H 1071 9599 50  0000 R CNN
-F 2 "Connector_Audio:Jack_3.5mm_QingPu_WQP-PJ398SM_Vertical_CircularHoles" H 1250 9525 50  0001 C CNN
-F 3 "~" H 1250 9525 50  0001 C CNN
-	1    1250 9525
-	1    0    0    1   
-$EndComp
-$Comp
-L power:-10V #PWR071
-U 1 1 628251FE
+L power:-10V #PWR075
+U 1 1 628CA6B6
 P 1550 9025
-F 0 "#PWR071" H 1550 9125 50  0001 C CNN
+F 0 "#PWR075" H 1550 9125 50  0001 C CNN
 F 1 "-10V" H 1565 9198 50  0000 C CNN
 F 2 "" H 1550 9025 50  0001 C CNN
 F 3 "" H 1550 9025 50  0001 C CNN
@@ -1493,7 +1456,7 @@ F 3 "" H 1550 9025 50  0001 C CNN
 $EndComp
 $Comp
 L Device:R_Small R20
-U 1 1 62825204
+U 1 1 628CA6BC
 P 1750 9075
 F 0 "R20" V 1825 9075 50  0000 C CNN
 F 1 "120k" V 1650 9075 50  0000 C CNN
@@ -1504,7 +1467,7 @@ F 3 "~" H 1750 9075 50  0001 C CNN
 $EndComp
 $Comp
 L Device:R_Small R22
-U 1 1 6282520A
+U 1 1 628CA6C2
 P 2325 9250
 F 0 "R22" V 2400 9250 50  0000 C CNN
 F 1 "20k" V 2225 9250 50  0000 C CNN
@@ -1515,7 +1478,7 @@ F 3 "~" H 2325 9250 50  0001 C CNN
 $EndComp
 $Comp
 L Device:R_Small R21
-U 1 1 62825210
+U 1 1 628CA6C8
 P 1750 9525
 F 0 "R21" V 1825 9525 50  0000 C CNN
 F 1 "100k" V 1650 9525 50  0000 C CNN
@@ -1525,10 +1488,10 @@ F 3 "~" H 1750 9525 50  0001 C CNN
 	0    -1   -1   0   
 $EndComp
 $Comp
-L power:GND #PWR072
-U 1 1 62825216
+L power:GND #PWR077
+U 1 1 628CA6CE
 P 1975 9800
-F 0 "#PWR072" H 1975 9550 50  0001 C CNN
+F 0 "#PWR077" H 1975 9550 50  0001 C CNN
 F 1 "GND" H 1980 9627 50  0000 C CNN
 F 2 "" H 1975 9800 50  0001 C CNN
 F 3 "" H 1975 9800 50  0001 C CNN
@@ -1537,7 +1500,7 @@ F 3 "" H 1975 9800 50  0001 C CNN
 $EndComp
 $Comp
 L Device:C_Small C41
-U 1 1 6282521C
+U 1 1 628CA6D4
 P 2325 8925
 F 0 "C41" V 2200 8875 50  0000 L CNN
 F 1 "3n3" V 2450 8850 50  0000 L CNN
@@ -1581,10 +1544,10 @@ Connection ~ 1950 9250
 Wire Wire Line
 	1450 9525 1650 9525
 $Comp
-L power:GND #PWR070
-U 1 1 62825235
+L power:GND #PWR073
+U 1 1 628CA6ED
 P 1525 9700
-F 0 "#PWR070" H 1525 9450 50  0001 C CNN
+F 0 "#PWR073" H 1525 9450 50  0001 C CNN
 F 1 "GND" H 1530 9527 50  0000 C CNN
 F 2 "" H 1525 9700 50  0001 C CNN
 F 3 "" H 1525 9700 50  0001 C CNN
@@ -1604,269 +1567,6 @@ Wire Wire Line
 	1550 9025 1550 9075
 Wire Wire Line
 	1550 9075 1650 9075
-Text Notes 3850 7800 0    50   ~ 0
--8.0 to 8.0
-$Comp
-L power:-10V #PWR075
-U 1 1 628CA6B6
-P 4250 7425
-F 0 "#PWR075" H 4250 7525 50  0001 C CNN
-F 1 "-10V" H 4265 7598 50  0000 C CNN
-F 2 "" H 4250 7425 50  0001 C CNN
-F 3 "" H 4250 7425 50  0001 C CNN
-	1    4250 7425
-	1    0    0    -1  
-$EndComp
-$Comp
-L Device:R_Small R24
-U 1 1 628CA6BC
-P 4450 7475
-F 0 "R24" V 4525 7475 50  0000 C CNN
-F 1 "120k" V 4350 7475 50  0000 C CNN
-F 2 "Resistor_SMD:R_0603_1608Metric" H 4450 7475 50  0001 C CNN
-F 3 "~" H 4450 7475 50  0001 C CNN
-	1    4450 7475
-	0    -1   -1   0   
-$EndComp
-$Comp
-L Device:R_Small R26
-U 1 1 628CA6C2
-P 5025 7650
-F 0 "R26" V 5100 7650 50  0000 C CNN
-F 1 "20k" V 4925 7650 50  0000 C CNN
-F 2 "Resistor_SMD:R_0603_1608Metric" H 5025 7650 50  0001 C CNN
-F 3 "~" H 5025 7650 50  0001 C CNN
-	1    5025 7650
-	0    -1   -1   0   
-$EndComp
-$Comp
-L Device:R_Small R25
-U 1 1 628CA6C8
-P 4450 7925
-F 0 "R25" V 4525 7925 50  0000 C CNN
-F 1 "100k" V 4350 7925 50  0000 C CNN
-F 2 "Resistor_SMD:R_0603_1608Metric" H 4450 7925 50  0001 C CNN
-F 3 "~" H 4450 7925 50  0001 C CNN
-	1    4450 7925
-	0    -1   -1   0   
-$EndComp
-$Comp
-L power:GND #PWR077
-U 1 1 628CA6CE
-P 4675 8200
-F 0 "#PWR077" H 4675 7950 50  0001 C CNN
-F 1 "GND" H 4680 8027 50  0000 C CNN
-F 2 "" H 4675 8200 50  0001 C CNN
-F 3 "" H 4675 8200 50  0001 C CNN
-	1    4675 8200
-	1    0    0    -1  
-$EndComp
-$Comp
-L Device:C_Small C42
-U 1 1 628CA6D4
-P 5025 7325
-F 0 "C42" V 4900 7275 50  0000 L CNN
-F 1 "3n3" V 5150 7250 50  0000 L CNN
-F 2 "Capacitor_SMD:C_0603_1608Metric" H 5025 7325 50  0001 C CNN
-F 3 "~" H 5025 7325 50  0001 C CNN
-	1    5025 7325
-	0    1    1    0   
-$EndComp
-Wire Wire Line
-	5450 8025 5400 8025
-Wire Wire Line
-	5125 7325 5400 7325
-Wire Wire Line
-	5400 7325 5400 7650
-Connection ~ 5400 8025
-Wire Wire Line
-	5400 8025 5350 8025
-Wire Wire Line
-	5125 7650 5400 7650
-Connection ~ 5400 7650
-Wire Wire Line
-	5400 7650 5400 8025
-Wire Wire Line
-	4750 8125 4675 8125
-Wire Wire Line
-	4675 8125 4675 8200
-Wire Wire Line
-	4550 7925 4650 7925
-Wire Wire Line
-	4650 7925 4650 7650
-Wire Wire Line
-	4650 7650 4925 7650
-Connection ~ 4650 7925
-Wire Wire Line
-	4650 7925 4750 7925
-Wire Wire Line
-	4925 7325 4650 7325
-Wire Wire Line
-	4650 7325 4650 7475
-Connection ~ 4650 7650
-Wire Wire Line
-	4150 7925 4350 7925
-$Comp
-L power:GND #PWR073
-U 1 1 628CA6ED
-P 4225 8100
-F 0 "#PWR073" H 4225 7850 50  0001 C CNN
-F 1 "GND" H 4230 7927 50  0000 C CNN
-F 2 "" H 4225 8100 50  0001 C CNN
-F 3 "" H 4225 8100 50  0001 C CNN
-	1    4225 8100
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	4150 8025 4225 8025
-Wire Wire Line
-	4225 8025 4225 8100
-Wire Wire Line
-	4550 7475 4650 7475
-Connection ~ 4650 7475
-Wire Wire Line
-	4650 7475 4650 7650
-Wire Wire Line
-	4250 7425 4250 7475
-Wire Wire Line
-	4250 7475 4350 7475
-$Comp
-L Connector:AudioJack2 J9
-U 1 1 62A09946
-P 3950 9525
-F 0 "J9" H 3771 9508 50  0000 R CNN
-F 1 "Jack" H 3771 9599 50  0000 R CNN
-F 2 "Connector_Audio:Jack_3.5mm_QingPu_WQP-PJ398SM_Vertical_CircularHoles" H 3950 9525 50  0001 C CNN
-F 3 "~" H 3950 9525 50  0001 C CNN
-	1    3950 9525
-	1    0    0    1   
-$EndComp
-Text Notes 3800 9375 0    50   ~ 0
--1.5 to 5.5
-$Comp
-L power:-10V #PWR076
-U 1 1 62A0994E
-P 4250 9025
-F 0 "#PWR076" H 4250 9125 50  0001 C CNN
-F 1 "-10V" H 4265 9198 50  0000 C CNN
-F 2 "" H 4250 9025 50  0001 C CNN
-F 3 "" H 4250 9025 50  0001 C CNN
-	1    4250 9025
-	1    0    0    -1  
-$EndComp
-$Comp
-L Device:R_Small R27
-U 1 1 62A09954
-P 4450 9075
-F 0 "R27" V 4525 9075 50  0000 C CNN
-F 1 "180k" V 4350 9075 50  0000 C CNN
-F 2 "Resistor_SMD:R_0603_1608Metric" H 4450 9075 50  0001 C CNN
-F 3 "~" H 4450 9075 50  0001 C CNN
-	1    4450 9075
-	0    -1   -1   0   
-$EndComp
-$Comp
-L Device:R_Small R29
-U 1 1 62A0995A
-P 5025 9250
-F 0 "R29" V 5100 9250 50  0000 C CNN
-F 1 "47k" V 4925 9250 50  0000 C CNN
-F 2 "Resistor_SMD:R_0603_1608Metric" H 5025 9250 50  0001 C CNN
-F 3 "~" H 5025 9250 50  0001 C CNN
-	1    5025 9250
-	0    -1   -1   0   
-$EndComp
-$Comp
-L Device:R_Small R28
-U 1 1 62A09960
-P 4450 9525
-F 0 "R28" V 4525 9525 50  0000 C CNN
-F 1 "100k" V 4350 9525 50  0000 C CNN
-F 2 "Resistor_SMD:R_0603_1608Metric" H 4450 9525 50  0001 C CNN
-F 3 "~" H 4450 9525 50  0001 C CNN
-	1    4450 9525
-	0    -1   -1   0   
-$EndComp
-$Comp
-L power:GND #PWR078
-U 1 1 62A09966
-P 4675 9800
-F 0 "#PWR078" H 4675 9550 50  0001 C CNN
-F 1 "GND" H 4680 9627 50  0000 C CNN
-F 2 "" H 4675 9800 50  0001 C CNN
-F 3 "" H 4675 9800 50  0001 C CNN
-	1    4675 9800
-	1    0    0    -1  
-$EndComp
-$Comp
-L Device:C_Small C43
-U 1 1 62A0996C
-P 5025 8925
-F 0 "C43" V 4900 8875 50  0000 L CNN
-F 1 "3n3" V 5150 8850 50  0000 L CNN
-F 2 "Capacitor_SMD:C_0603_1608Metric" H 5025 8925 50  0001 C CNN
-F 3 "~" H 5025 8925 50  0001 C CNN
-	1    5025 8925
-	0    1    1    0   
-$EndComp
-Wire Wire Line
-	5450 9625 5400 9625
-Wire Wire Line
-	5125 8925 5400 8925
-Wire Wire Line
-	5400 8925 5400 9250
-Connection ~ 5400 9625
-Wire Wire Line
-	5400 9625 5350 9625
-Wire Wire Line
-	5125 9250 5400 9250
-Connection ~ 5400 9250
-Wire Wire Line
-	5400 9250 5400 9625
-Wire Wire Line
-	4750 9725 4675 9725
-Wire Wire Line
-	4675 9725 4675 9800
-Wire Wire Line
-	4550 9525 4650 9525
-Wire Wire Line
-	4650 9525 4650 9250
-Wire Wire Line
-	4650 9250 4925 9250
-Connection ~ 4650 9525
-Wire Wire Line
-	4650 9525 4750 9525
-Wire Wire Line
-	4925 8925 4650 8925
-Wire Wire Line
-	4650 8925 4650 9075
-Connection ~ 4650 9250
-Wire Wire Line
-	4150 9525 4350 9525
-$Comp
-L power:GND #PWR074
-U 1 1 62A09985
-P 4225 9700
-F 0 "#PWR074" H 4225 9450 50  0001 C CNN
-F 1 "GND" H 4230 9527 50  0000 C CNN
-F 2 "" H 4225 9700 50  0001 C CNN
-F 3 "" H 4225 9700 50  0001 C CNN
-	1    4225 9700
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	4150 9625 4225 9625
-Wire Wire Line
-	4225 9625 4225 9700
-Wire Wire Line
-	4550 9075 4650 9075
-Connection ~ 4650 9075
-Wire Wire Line
-	4650 9075 4650 9250
-Wire Wire Line
-	4250 9025 4250 9075
-Wire Wire Line
-	4250 9075 4350 9075
 Text Notes 6525 7800 0    50   ~ 0
 -8.0 to 8.0
 $Comp
@@ -3580,14 +3280,14 @@ Wire Wire Line
 Text Notes 9250 3175 0    50   ~ 0
 Pin mapping:\n* PA1 - ADC1_IN1 - SCALE_POT\n* PA2 - ADC1_IN2 - VOCT_CV\n* PA5 - ADC1_IN5 - TABLE_CV\n* PA6 - ADC1_IN6 - RAMP_CV\n* PA7 - ADC1_IN7 - CAMP_CV\n* PA8 - GPIO_Output - DISPLAY_D\n* PA9 - GPIO_Output - DISPLAY_E\n* PA10 - GPIO_Output - DISPLAY_F\n* PA11 - GPIO_Output - DISPLAY_G\n* PA12 - GPIO_Output - DISPLAY_DP\n* PA13 - SYS_ITMS-SWDIO - SWDIO\n* PA14 - SYS_ITCK - SWCLK\n* PB3 - SYS_ITDO-SWO - SWO\n* PB7 - USART1_RX - UART_RX\n* PB8 - USART1_TX - UART_TX\n* PB10 - I2C2_SCL - I2C_SCL\n* PB11 - I2C2_SDA - I2C_SDA\n* PB12 - I2S2_WS - I2S_WS\n* PB13 - I2S2_CK - I2S_CK\n* PB15 - I2S2_SD - I2S_SD\n* PC0 - ADC1_IN10 - NOTE_POT\n* PC1 - ADC1_IN11 - TABLE_POT\n* PC2 - ADC1_IN12 - CHORD_POT\n* PC4 - ADC1_IN14 - CHORD_CV\n* PC5 - ADC1_IN15 - SCALE_CV\n* PC6 - I2S2_MCK - I2S_MCK\n* PC7 - GPIO_Output - DISPLAY_A\n* PC8 - GPIO_Output - DISPLAY_B\n* PC9 - GPIO_Output - DISPLAY_C\n* PC15 - GPIO_Input - BUTTON
 $Comp
-L Connector:AudioJack2 J8
+L Connector:AudioJack2 J7
 U 1 1 628CA6B0
-P 3950 7925
-F 0 "J8" H 3771 7908 50  0000 R CNN
-F 1 "Jack" H 3771 7999 50  0000 R CNN
-F 2 "Connector_Audio:Jack_3.5mm_QingPu_WQP-PJ398SM_Vertical_CircularHoles" H 3950 7925 50  0001 C CNN
-F 3 "~" H 3950 7925 50  0001 C CNN
-	1    3950 7925
+P 1250 9525
+F 0 "J7" H 1071 9508 50  0000 R CNN
+F 1 "Jack" H 1071 9599 50  0000 R CNN
+F 2 "Connector_Audio:Jack_3.5mm_QingPu_WQP-PJ398SM_Vertical_CircularHoles" H 1250 9525 50  0001 C CNN
+F 3 "~" H 1250 9525 50  0001 C CNN
+	1    1250 9525
 	1    0    0    1   
 $EndComp
 $Comp
@@ -3635,5 +3335,305 @@ F 2 "Connector_Audio:Jack_3.5mm_QingPu_WQP-PJ398SM_Vertical_CircularHoles" H 142
 F 3 "~" H 14250 7975 50  0001 C CNN
 	1    14250 7975
 	-1   0    0    1   
+$EndComp
+Wire Wire Line
+	4250 7475 4350 7475
+Wire Wire Line
+	4250 7425 4250 7475
+Wire Wire Line
+	4650 7475 4650 7650
+Connection ~ 4650 7475
+Wire Wire Line
+	4550 7475 4650 7475
+Wire Wire Line
+	4225 8025 4225 8100
+Wire Wire Line
+	4150 8025 4225 8025
+$Comp
+L power:GND #PWR070
+U 1 1 62825235
+P 4225 8100
+F 0 "#PWR070" H 4225 7850 50  0001 C CNN
+F 1 "GND" H 4230 7927 50  0000 C CNN
+F 2 "" H 4225 8100 50  0001 C CNN
+F 3 "" H 4225 8100 50  0001 C CNN
+	1    4225 8100
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	4150 7925 4350 7925
+Connection ~ 4650 7650
+Wire Wire Line
+	4650 7325 4650 7475
+Wire Wire Line
+	4925 7325 4650 7325
+Wire Wire Line
+	4650 7925 4750 7925
+Connection ~ 4650 7925
+Wire Wire Line
+	4650 7650 4925 7650
+Wire Wire Line
+	4650 7925 4650 7650
+Wire Wire Line
+	4550 7925 4650 7925
+Wire Wire Line
+	4675 8125 4675 8200
+Wire Wire Line
+	4750 8125 4675 8125
+Wire Wire Line
+	5400 7650 5400 8025
+Connection ~ 5400 7650
+Wire Wire Line
+	5125 7650 5400 7650
+Wire Wire Line
+	5400 8025 5350 8025
+Connection ~ 5400 8025
+Wire Wire Line
+	5400 7325 5400 7650
+Wire Wire Line
+	5125 7325 5400 7325
+Wire Wire Line
+	5450 8025 5400 8025
+$Comp
+L Device:C_Small C42
+U 1 1 6282521C
+P 5025 7325
+F 0 "C42" V 4900 7275 50  0000 L CNN
+F 1 "3n3" V 5150 7250 50  0000 L CNN
+F 2 "Capacitor_SMD:C_0603_1608Metric" H 5025 7325 50  0001 C CNN
+F 3 "~" H 5025 7325 50  0001 C CNN
+	1    5025 7325
+	0    1    1    0   
+$EndComp
+$Comp
+L power:GND #PWR072
+U 1 1 62825216
+P 4675 8200
+F 0 "#PWR072" H 4675 7950 50  0001 C CNN
+F 1 "GND" H 4680 8027 50  0000 C CNN
+F 2 "" H 4675 8200 50  0001 C CNN
+F 3 "" H 4675 8200 50  0001 C CNN
+	1    4675 8200
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:R_Small R25
+U 1 1 62825210
+P 4450 7925
+F 0 "R25" V 4525 7925 50  0000 C CNN
+F 1 "100k" V 4350 7925 50  0000 C CNN
+F 2 "Resistor_SMD:R_0603_1608Metric" H 4450 7925 50  0001 C CNN
+F 3 "~" H 4450 7925 50  0001 C CNN
+	1    4450 7925
+	0    -1   -1   0   
+$EndComp
+$Comp
+L Device:R_Small R26
+U 1 1 6282520A
+P 5025 7650
+F 0 "R26" V 5100 7650 50  0000 C CNN
+F 1 "20k" V 4925 7650 50  0000 C CNN
+F 2 "Resistor_SMD:R_0603_1608Metric" H 5025 7650 50  0001 C CNN
+F 3 "~" H 5025 7650 50  0001 C CNN
+	1    5025 7650
+	0    -1   -1   0   
+$EndComp
+$Comp
+L Device:R_Small R24
+U 1 1 62825204
+P 4450 7475
+F 0 "R24" V 4525 7475 50  0000 C CNN
+F 1 "120k" V 4350 7475 50  0000 C CNN
+F 2 "Resistor_SMD:R_0603_1608Metric" H 4450 7475 50  0001 C CNN
+F 3 "~" H 4450 7475 50  0001 C CNN
+	1    4450 7475
+	0    -1   -1   0   
+$EndComp
+$Comp
+L power:-10V #PWR071
+U 1 1 628251FE
+P 4250 7425
+F 0 "#PWR071" H 4250 7525 50  0001 C CNN
+F 1 "-10V" H 4265 7598 50  0000 C CNN
+F 2 "" H 4250 7425 50  0001 C CNN
+F 3 "" H 4250 7425 50  0001 C CNN
+	1    4250 7425
+	1    0    0    -1  
+$EndComp
+$Comp
+L Connector:AudioJack2 J8
+U 1 1 628251F6
+P 3950 7925
+F 0 "J8" H 3771 7908 50  0000 R CNN
+F 1 "Jack" H 3771 7999 50  0000 R CNN
+F 2 "Connector_Audio:Jack_3.5mm_QingPu_WQP-PJ398SM_Vertical_CircularHoles" H 3950 7925 50  0001 C CNN
+F 3 "~" H 3950 7925 50  0001 C CNN
+	1    3950 7925
+	1    0    0    1   
+$EndComp
+Text Notes 3850 7800 0    50   ~ 0
+-8.0 to 8.0
+Text GLabel 5450 8025 2    50   Output ~ 0
+TABLE_CV
+$Comp
+L Amplifier_Operational:MCP6002-xSN U7
+U 2 1 621D33D3
+P 2350 9625
+F 0 "U7" H 2450 9475 50  0000 C CNN
+F 1 "MCP6002" H 2550 9775 50  0000 C CNN
+F 2 "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm" H 2350 9625 50  0001 C CNN
+F 3 "http://ww1.microchip.com/downloads/en/DeviceDoc/21733j.pdf" H 2350 9625 50  0001 C CNN
+	2    2350 9625
+	1    0    0    1   
+$EndComp
+$Comp
+L Connector:AudioJack2 J9
+U 1 1 62A09946
+P 3950 9525
+F 0 "J9" H 3771 9508 50  0000 R CNN
+F 1 "Jack" H 3771 9599 50  0000 R CNN
+F 2 "Connector_Audio:Jack_3.5mm_QingPu_WQP-PJ398SM_Vertical_CircularHoles" H 3950 9525 50  0001 C CNN
+F 3 "~" H 3950 9525 50  0001 C CNN
+	1    3950 9525
+	1    0    0    1   
+$EndComp
+Wire Wire Line
+	4250 9075 4350 9075
+Wire Wire Line
+	4250 9025 4250 9075
+Wire Wire Line
+	4650 9075 4650 9250
+Connection ~ 4650 9075
+Wire Wire Line
+	4550 9075 4650 9075
+Wire Wire Line
+	4225 9625 4225 9700
+Wire Wire Line
+	4150 9625 4225 9625
+$Comp
+L power:GND #PWR074
+U 1 1 62A09985
+P 4225 9700
+F 0 "#PWR074" H 4225 9450 50  0001 C CNN
+F 1 "GND" H 4230 9527 50  0000 C CNN
+F 2 "" H 4225 9700 50  0001 C CNN
+F 3 "" H 4225 9700 50  0001 C CNN
+	1    4225 9700
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	4150 9525 4350 9525
+Connection ~ 4650 9250
+Wire Wire Line
+	4650 8925 4650 9075
+Wire Wire Line
+	4925 8925 4650 8925
+Wire Wire Line
+	4650 9525 4750 9525
+Connection ~ 4650 9525
+Wire Wire Line
+	4650 9250 4925 9250
+Wire Wire Line
+	4650 9525 4650 9250
+Wire Wire Line
+	4550 9525 4650 9525
+Wire Wire Line
+	4675 9725 4675 9800
+Wire Wire Line
+	4750 9725 4675 9725
+Wire Wire Line
+	5400 9250 5400 9625
+Connection ~ 5400 9250
+Wire Wire Line
+	5125 9250 5400 9250
+Wire Wire Line
+	5400 9625 5350 9625
+Connection ~ 5400 9625
+Wire Wire Line
+	5400 8925 5400 9250
+Wire Wire Line
+	5125 8925 5400 8925
+Wire Wire Line
+	5450 9625 5400 9625
+$Comp
+L Device:C_Small C43
+U 1 1 62A0996C
+P 5025 8925
+F 0 "C43" V 4900 8875 50  0000 L CNN
+F 1 "3n3" V 5150 8850 50  0000 L CNN
+F 2 "Capacitor_SMD:C_0603_1608Metric" H 5025 8925 50  0001 C CNN
+F 3 "~" H 5025 8925 50  0001 C CNN
+	1    5025 8925
+	0    1    1    0   
+$EndComp
+$Comp
+L power:GND #PWR078
+U 1 1 62A09966
+P 4675 9800
+F 0 "#PWR078" H 4675 9550 50  0001 C CNN
+F 1 "GND" H 4680 9627 50  0000 C CNN
+F 2 "" H 4675 9800 50  0001 C CNN
+F 3 "" H 4675 9800 50  0001 C CNN
+	1    4675 9800
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:R_Small R28
+U 1 1 62A09960
+P 4450 9525
+F 0 "R28" V 4525 9525 50  0000 C CNN
+F 1 "100k" V 4350 9525 50  0000 C CNN
+F 2 "Resistor_SMD:R_0603_1608Metric" H 4450 9525 50  0001 C CNN
+F 3 "~" H 4450 9525 50  0001 C CNN
+	1    4450 9525
+	0    -1   -1   0   
+$EndComp
+$Comp
+L Device:R_Small R29
+U 1 1 62A0995A
+P 5025 9250
+F 0 "R29" V 5100 9250 50  0000 C CNN
+F 1 "47k" V 4925 9250 50  0000 C CNN
+F 2 "Resistor_SMD:R_0603_1608Metric" H 5025 9250 50  0001 C CNN
+F 3 "~" H 5025 9250 50  0001 C CNN
+	1    5025 9250
+	0    -1   -1   0   
+$EndComp
+$Comp
+L Device:R_Small R27
+U 1 1 62A09954
+P 4450 9075
+F 0 "R27" V 4525 9075 50  0000 C CNN
+F 1 "180k" V 4350 9075 50  0000 C CNN
+F 2 "Resistor_SMD:R_0603_1608Metric" H 4450 9075 50  0001 C CNN
+F 3 "~" H 4450 9075 50  0001 C CNN
+	1    4450 9075
+	0    -1   -1   0   
+$EndComp
+$Comp
+L power:-10V #PWR076
+U 1 1 62A0994E
+P 4250 9025
+F 0 "#PWR076" H 4250 9125 50  0001 C CNN
+F 1 "-10V" H 4265 9198 50  0000 C CNN
+F 2 "" H 4250 9025 50  0001 C CNN
+F 3 "" H 4250 9025 50  0001 C CNN
+	1    4250 9025
+	1    0    0    -1  
+$EndComp
+Text Notes 3800 9375 0    50   ~ 0
+-1.5 to 5.5
+Text GLabel 5450 9625 2    50   Output ~ 0
+SCALE_CV
+$Comp
+L Amplifier_Operational:MCP6002-xSN U8
+U 2 1 62278AD0
+P 5050 9625
+F 0 "U8" H 5150 9475 50  0000 C CNN
+F 1 "MCP6002" H 5225 9775 50  0000 C CNN
+F 2 "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm" H 5050 9625 50  0001 C CNN
+F 3 "http://ww1.microchip.com/downloads/en/DeviceDoc/21733j.pdf" H 5050 9625 50  0001 C CNN
+	2    5050 9625
+	1    0    0    1   
 $EndComp
 $EndSCHEMATC
