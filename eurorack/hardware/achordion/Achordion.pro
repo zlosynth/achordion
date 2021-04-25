@@ -1,4 +1,4 @@
-update=Sat 24 Apr 2021 11:13:44 PM CEST
+update=Fri 23 Apr 2021 08:51:44 PM CEST
 version=1
 last_client=kicad
 [general]
@@ -25,7 +25,7 @@ ERC_TestSimilarLabels=1
 [pcbnew]
 version=1
 PageLayoutDescrFile=
-LastNetListRead=core_power.net
+LastNetListRead=Achordion.net
 CopperLayerCount=4
 BoardThickness=1.6
 AllowMicroVias=0
