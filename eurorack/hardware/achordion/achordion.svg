@@ -25,7 +25,7 @@
      inkscape:pageshadow="2"
      inkscape:zoom="2.0821277"
      inkscape:cx="-73.971981"
-     inkscape:cy="190.11412"
+     inkscape:cy="185.91169"
      inkscape:document-units="mm"
      inkscape:current-layer="svg8"
      inkscape:document-rotation="0"
@@ -850,4 +850,10 @@
      height="66.712944"
      x="16.189568"
      y="9.6156845" />
+  <circle
+     style="opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.0410001;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none"
+     id="path6833"
+     cx="37.22757"
+     cy="76.436584"
+     r="1.8743346" />
 </svg>
