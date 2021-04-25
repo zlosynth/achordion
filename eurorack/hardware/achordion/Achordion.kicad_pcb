@@ -1491,7 +1491,7 @@
   )
 
   (module Capacitor_Tantalum_SMD:CP_EIA-3216-18_Kemet-A (layer F.Cu) (tedit 5EBA9318) (tstamp 6086D055)
-    (at 210.8 123.65 270)
+    (at 210.5 123.65 270)
     (descr "Tantalum Capacitor SMD Kemet-A (3216-18 Metric), IPC_7351 nominal, (Body size from: http://www.kemet.com/Lists/ProductCatalog/Attachments/253/KEM_TC101_STD.pdf), generated with kicad-footprint-generator")
     (tags "capacitor tantalum")
     (path /61C5FA08)
@@ -2316,8 +2316,8 @@
     )
   )
 
-  (module Connector_Audio:Jack_3.5mm_QingPu_WQP-PJ398SM_Vertical_CircularHoles (layer B.Cu) (tedit 5C2B6BB2) (tstamp 6086D201)
-    (at 202.692 124.525 180)
+  (module Connector_Audio:Jack_3.5mm_QingPu_WQP-PJ398SM_Vertical_CircularHoles (layer B.Cu) (tedit 5C2B6BB2) (tstamp 60878E9F)
+    (at 202.65 124.525 180)
     (descr "TRS 3.5mm, vertical, Thonkiconn, PCB mount, (http://www.qingpu-electronics.com/en/products/WQP-PJ398SM-362.html)")
     (tags "WQP-PJ398SM WQP-PJ301M-12 TRS 3.5mm mono vertical jack thonkiconn qingpu")
     (path /619F540A)
@@ -2425,7 +2425,7 @@
   )
 
   (module Connector_Audio:Jack_3.5mm_QingPu_WQP-PJ398SM_Vertical_CircularHoles (layer B.Cu) (tedit 5C2B6BB2) (tstamp 6086D245)
-    (at 224.15 109.55 180)
+    (at 223.75 109.575 180)
     (descr "TRS 3.5mm, vertical, Thonkiconn, PCB mount, (http://www.qingpu-electronics.com/en/products/WQP-PJ398SM-362.html)")
     (tags "WQP-PJ398SM WQP-PJ301M-12 TRS 3.5mm mono vertical jack thonkiconn qingpu")
     (path /622D5C4B)
@@ -2479,7 +2479,7 @@
   )
 
   (module Connector_Audio:Jack_3.5mm_QingPu_WQP-PJ398SM_Vertical_CircularHoles (layer B.Cu) (tedit 5C2B6BB2) (tstamp 6086D267)
-    (at 224.05 124.6 180)
+    (at 223.75 124.525 180)
     (descr "TRS 3.5mm, vertical, Thonkiconn, PCB mount, (http://www.qingpu-electronics.com/en/products/WQP-PJ398SM-362.html)")
     (tags "WQP-PJ398SM WQP-PJ301M-12 TRS 3.5mm mono vertical jack thonkiconn qingpu")
     (path /628251F6)
@@ -2533,7 +2533,7 @@
   )
 
   (module Connector_Audio:Jack_3.5mm_QingPu_WQP-PJ398SM_Vertical_CircularHoles (layer B.Cu) (tedit 5C2B6BB2) (tstamp 6086D289)
-    (at 213.5 109.5 180)
+    (at 213.2 109.575 180)
     (descr "TRS 3.5mm, vertical, Thonkiconn, PCB mount, (http://www.qingpu-electronics.com/en/products/WQP-PJ398SM-362.html)")
     (tags "WQP-PJ398SM WQP-PJ301M-12 TRS 3.5mm mono vertical jack thonkiconn qingpu")
     (path /628CA6B0)
@@ -2587,7 +2587,7 @@
   )
 
   (module Connector_Audio:Jack_3.5mm_QingPu_WQP-PJ398SM_Vertical_CircularHoles (layer B.Cu) (tedit 5C2B6BB2) (tstamp 6086D2AB)
-    (at 213.45 124.55 180)
+    (at 213.2 124.525 180)
     (descr "TRS 3.5mm, vertical, Thonkiconn, PCB mount, (http://www.qingpu-electronics.com/en/products/WQP-PJ398SM-362.html)")
     (tags "WQP-PJ398SM WQP-PJ301M-12 TRS 3.5mm mono vertical jack thonkiconn qingpu")
     (path /62A09946)
@@ -2641,7 +2641,7 @@
   )
 
   (module Connector_Audio:Jack_3.5mm_QingPu_WQP-PJ398SM_Vertical_CircularHoles (layer B.Cu) (tedit 5C2B6BB2) (tstamp 6087475D)
-    (at 202.65 109.55 180)
+    (at 202.65 109.575 180)
     (descr "TRS 3.5mm, vertical, Thonkiconn, PCB mount, (http://www.qingpu-electronics.com/en/products/WQP-PJ398SM-362.html)")
     (tags "WQP-PJ398SM WQP-PJ301M-12 TRS 3.5mm mono vertical jack thonkiconn qingpu")
     (path /62B59A25)
@@ -2694,8 +2694,8 @@
     )
   )
 
-  (module Connector_Audio:Jack_3.5mm_QingPu_WQP-PJ398SM_Vertical_CircularHoles (layer B.Cu) (tedit 5C2B6BB2) (tstamp 608747F0)
-    (at 192.1 109.55 180)
+  (module Connector_Audio:Jack_3.5mm_QingPu_WQP-PJ398SM_Vertical_CircularHoles (layer B.Cu) (tedit 5C2B6BB2) (tstamp 60879050)
+    (at 192.1 109.575 180)
     (descr "TRS 3.5mm, vertical, Thonkiconn, PCB mount, (http://www.qingpu-electronics.com/en/products/WQP-PJ398SM-362.html)")
     (tags "WQP-PJ398SM WQP-PJ301M-12 TRS 3.5mm mono vertical jack thonkiconn qingpu")
     (path /638EEB70)
@@ -2929,7 +2929,7 @@
   )
 
   (module Resistor_SMD:R_0603_1608Metric (layer F.Cu) (tedit 5F68FEEE) (tstamp 6086D355)
-    (at 209.45 127.6 270)
+    (at 209.125 127.6 270)
     (descr "Resistor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC_7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf), generated with kicad-footprint-generator")
     (tags resistor)
     (path /61C250CC)
@@ -2965,7 +2965,7 @@
   )
 
   (module Resistor_SMD:R_0603_1608Metric (layer F.Cu) (tedit 5F68FEEE) (tstamp 6086D366)
-    (at 211.1 127.6 270)
+    (at 210.775 127.6 270)
     (descr "Resistor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC_7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf), generated with kicad-footprint-generator")
     (tags resistor)
     (path /61BA548D)
