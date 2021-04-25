@@ -582,17 +582,6 @@ F 3 "" H 12975 3450 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L Reference_Voltage:LM4040DBZ-10 U4
-U 1 1 60B921BC
-P 12975 3200
-F 0 "U4" V 12925 3025 50  0000 L CNN
-F 1 "LM4040B10" V 13000 2675 50  0000 L CNN
-F 2 "Package_TO_SOT_SMD:SOT-23" H 12975 3000 50  0001 C CIN
-F 3 "http://www.ti.com/lit/ds/symlink/lm4040-n.pdf" H 12975 3200 50  0001 C CIN
-	1    12975 3200
-	0    1    1    0   
-$EndComp
-$Comp
 L Device:R_Small R5
 U 1 1 60B7DA3E
 P 12975 2850
@@ -1348,17 +1337,6 @@ F 1 "47k" V 2225 7650 50  0000 C CNN
 F 2 "Resistor_SMD:R_0603_1608Metric" H 2325 7650 50  0001 C CNN
 F 3 "~" H 2325 7650 50  0001 C CNN
 	1    2325 7650
-	0    -1   -1   0   
-$EndComp
-$Comp
-L Device:R_Small R18
-U 1 1 6265B422
-P 1750 7925
-F 0 "R18" V 1825 7925 50  0000 C CNN
-F 1 "100k" V 1650 7925 50  0000 C CNN
-F 2 "Resistor_SMD:R_0603_1608Metric" H 1750 7925 50  0001 C CNN
-F 3 "~" H 1750 7925 50  0001 C CNN
-	1    1750 7925
 	0    -1   -1   0   
 $EndComp
 $Comp
@@ -3635,5 +3613,27 @@ F 2 "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm" H 5050 9625 50  0001 C CNN
 F 3 "http://ww1.microchip.com/downloads/en/DeviceDoc/21733j.pdf" H 5050 9625 50  0001 C CNN
 	2    5050 9625
 	1    0    0    1   
+$EndComp
+$Comp
+L Device:R_Small R18
+U 1 1 6265B422
+P 1750 7925
+F 0 "R18" V 1825 7925 50  0000 C CNN
+F 1 "100k" V 1650 7925 50  0000 C CNN
+F 2 "Resistor_SMD:R_0603_1608Metric" H 1750 7925 50  0001 C CNN
+F 3 "~" H 1750 7925 50  0001 C CNN
+	1    1750 7925
+	0    -1   -1   0   
+$EndComp
+$Comp
+L Reference_Voltage:LM4040DBZ-10 U4
+U 1 1 60B921BC
+P 12975 3200
+F 0 "U4" V 12925 3025 50  0000 L CNN
+F 1 "LM4040C10" V 13000 2675 50  0000 L CNN
+F 2 "Package_TO_SOT_SMD:SOT-23" H 12975 3000 50  0001 C CIN
+F 3 "http://www.ti.com/lit/ds/symlink/lm4040-n.pdf" H 12975 3200 50  0001 C CIN
+	1    12975 3200
+	0    1    1    0   
 $EndComp
 $EndSCHEMATC
