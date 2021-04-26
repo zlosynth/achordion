@@ -2,7 +2,7 @@
 
   (general
     (thickness 1.6)
-    (drawings 51)
+    (drawings 56)
     (tracks 1053)
     (zones 0)
     (modules 120)
@@ -5255,6 +5255,13 @@
     )
   )
 
+  (gr_circle (center 164.025 149.374) (end 164.601 149.374) (layer Edge.Cuts) (width 0.09) (tstamp 60873786))
+  (gr_circle (center 124.175 149.749) (end 124.751 149.749) (layer Edge.Cuts) (width 0.09) (tstamp 60873786))
+  (gr_circle (center 165.15 43.474) (end 165.726 43.474) (layer Edge.Cuts) (width 0.09) (tstamp 60873786))
+  (gr_circle (center 125.325 43.674) (end 125.901 43.674) (layer Edge.Cuts) (width 0.09))
+  (gr_text JLCJLCJLCJLC (at 145.5 94.475) (layer F.SilkS)
+    (effects (font (size 1 1) (thickness 0.15)))
+  )
   (gr_circle (center 129.236001 144.45) (end 130.747002 144.45) (layer Edge.Cuts) (width 0.1) (tstamp 6087296F))
   (gr_circle (center 139.811001 144.45) (end 141.322002 144.45) (layer Edge.Cuts) (width 0.1) (tstamp 6087296F))
   (gr_circle (center 150.361001 144.45) (end 151.872002 144.45) (layer Edge.Cuts) (width 0.1) (tstamp 6087296F))
