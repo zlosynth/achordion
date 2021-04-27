@@ -96,23 +96,23 @@ $EndComp
 $Comp
 L Connector_Generic:Conn_02x05_Odd_Even J5
 U 1 1 60AF91AD
-P 5500 1400
-F 0 "J5" H 5550 1817 50  0000 C CNN
-F 1 "Power" H 5550 1726 50  0000 C CNN
-F 2 "Connector_PinHeader_2.54mm:PinHeader_2x05_P2.54mm_Vertical" H 5500 1400 50  0001 C CNN
-F 3 "~" H 5500 1400 50  0001 C CNN
-	1    5500 1400
+P 6450 1400
+F 0 "J5" H 6500 1817 50  0000 C CNN
+F 1 "Power" H 6500 1726 50  0000 C CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_2x05_P2.54mm_Vertical" H 6450 1400 50  0001 C CNN
+F 3 "~" H 6450 1400 50  0001 C CNN
+	1    6450 1400
 	1    0    0    -1  
 $EndComp
 $Comp
 L Connector_Generic:Conn_02x05_Odd_Even J6
 U 1 1 60B0973B
-P 4900 2250
-F 0 "J6" H 4950 2667 50  0000 C CNN
-F 1 "SWD" H 4950 2576 50  0000 C CNN
-F 2 "Connector_PinHeader_2.54mm:PinHeader_2x05_P2.54mm_Vertical" H 4900 2250 50  0001 C CNN
-F 3 "~" H 4900 2250 50  0001 C CNN
-	1    4900 2250
+P 5650 6625
+F 0 "J6" H 5700 7042 50  0000 C CNN
+F 1 "SWD" H 5700 6951 50  0000 C CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_2x05_P2.54mm_Vertical" H 5650 6625 50  0001 C CNN
+F 3 "~" H 5650 6625 50  0001 C CNN
+	1    5650 6625
 	1    0    0    -1  
 $EndComp
 $Comp
@@ -369,4 +369,134 @@ Wire Wire Line
 Connection ~ 2350 6775
 Wire Wire Line
 	2350 6775 2450 6775
+Text GLabel 1550 1525 0    50   Input ~ 0
+NRST
+Text GLabel 1550 1725 0    50   Input ~ 0
+BOOT0
+$Comp
+L Switch:SW_Push SW1
+U 1 1 60BE2DB3
+P 4325 1100
+F 0 "SW1" H 4325 1385 50  0000 C CNN
+F 1 "Reset" H 4325 1294 50  0000 C CNN
+F 2 "Button_Switch_SMD:SW_Push_SPST_NO_Alps_SKRK" H 4325 1300 50  0001 C CNN
+F 3 "~" H 4325 1300 50  0001 C CNN
+	1    4325 1100
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:R_Small R2
+U 1 1 60BE4509
+P 4725 1100
+F 0 "R2" V 4650 1050 50  0000 L CNN
+F 1 "10k" V 4800 1025 50  0000 L CNN
+F 2 "Resistor_SMD:R_0402_1005Metric" H 4725 1100 50  0001 C CNN
+F 3 "~" H 4725 1100 50  0001 C CNN
+	1    4725 1100
+	0    1    1    0   
+$EndComp
+$Comp
+L power:GND #PWR05
+U 1 1 60BE9668
+P 4050 1150
+F 0 "#PWR05" H 4050 900 50  0001 C CNN
+F 1 "GND" H 4055 977 50  0000 C CNN
+F 2 "" H 4050 1150 50  0001 C CNN
+F 3 "" H 4050 1150 50  0001 C CNN
+	1    4050 1150
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:+3.3V #PWR06
+U 1 1 60BEA09E
+P 4900 1050
+F 0 "#PWR06" H 4900 900 50  0001 C CNN
+F 1 "+3.3V" H 4915 1223 50  0000 C CNN
+F 2 "" H 4900 1050 50  0001 C CNN
+F 3 "" H 4900 1050 50  0001 C CNN
+	1    4900 1050
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	4825 1100 4900 1100
+Wire Wire Line
+	4900 1100 4900 1050
+Wire Wire Line
+	4125 1100 4050 1100
+Wire Wire Line
+	4050 1100 4050 1150
+$Comp
+L Switch:SW_Push SW2
+U 1 1 60C09AF8
+P 4675 1850
+F 0 "SW2" H 4675 2135 50  0000 C CNN
+F 1 "Boot0" H 4675 2044 50  0000 C CNN
+F 2 "Button_Switch_SMD:SW_Push_SPST_NO_Alps_SKRK" H 4675 2050 50  0001 C CNN
+F 3 "~" H 4675 2050 50  0001 C CNN
+	1    4675 1850
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:R_Small R3
+U 1 1 60C0A50D
+P 4275 1850
+F 0 "R3" V 4200 1800 50  0000 L CNN
+F 1 "10k" V 4350 1775 50  0000 L CNN
+F 2 "Resistor_SMD:R_0402_1005Metric" H 4275 1850 50  0001 C CNN
+F 3 "~" H 4275 1850 50  0001 C CNN
+	1    4275 1850
+	0    1    1    0   
+$EndComp
+$Comp
+L power:GND #PWR0103
+U 1 1 60C0C66D
+P 4100 1900
+F 0 "#PWR0103" H 4100 1650 50  0001 C CNN
+F 1 "GND" H 4105 1727 50  0000 C CNN
+F 2 "" H 4100 1900 50  0001 C CNN
+F 3 "" H 4100 1900 50  0001 C CNN
+	1    4100 1900
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	4175 1850 4100 1850
+Wire Wire Line
+	4100 1850 4100 1900
+$Comp
+L power:+3.3V #PWR0104
+U 1 1 60C0E060
+P 4950 1800
+F 0 "#PWR0104" H 4950 1650 50  0001 C CNN
+F 1 "+3.3V" H 4965 1973 50  0000 C CNN
+F 2 "" H 4950 1800 50  0001 C CNN
+F 3 "" H 4950 1800 50  0001 C CNN
+	1    4950 1800
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	4875 1850 4950 1850
+Wire Wire Line
+	4950 1850 4950 1800
+Wire Wire Line
+	4525 1100 4575 1100
+Text GLabel 4525 1250 0    50   Input ~ 0
+NRST
+Wire Wire Line
+	4525 1250 4575 1250
+Wire Wire Line
+	4575 1250 4575 1100
+Connection ~ 4575 1100
+Wire Wire Line
+	4575 1100 4625 1100
+Wire Wire Line
+	4375 1850 4425 1850
+Text GLabel 4475 2000 2    50   Input ~ 0
+BOOT0
+Wire Wire Line
+	4475 2000 4425 2000
+Wire Wire Line
+	4425 2000 4425 1850
+Connection ~ 4425 1850
+Wire Wire Line
+	4425 1850 4475 1850
 $EndSCHEMATC
