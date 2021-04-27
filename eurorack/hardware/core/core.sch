@@ -49,4 +49,59 @@ F 4 "C126019" H 6400 4375 50  0001 C CNN "LCSC Part #"
 	1    6400 4375
 	1    0    0    -1  
 $EndComp
+$Comp
+L Connector_Generic:Conn_01x10 J1
+U 1 1 60AE94CD
+P 8425 4300
+F 0 "J1" H 8505 4292 50  0000 L CNN
+F 1 "ConnNW" H 8505 4201 50  0000 L CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x10_P2.54mm_Vertical" H 8425 4300 50  0001 C CNN
+F 3 "~" H 8425 4300 50  0001 C CNN
+	1    8425 4300
+	1    0    0    -1  
+$EndComp
+$Comp
+L Connector_Generic:Conn_01x10 J2
+U 1 1 60AEC1D4
+P 8425 5650
+F 0 "J2" H 8505 5642 50  0000 L CNN
+F 1 "ConnSW" H 8505 5551 50  0000 L CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x10_P2.54mm_Vertical" H 8425 5650 50  0001 C CNN
+F 3 "~" H 8425 5650 50  0001 C CNN
+	1    8425 5650
+	1    0    0    -1  
+$EndComp
+$Comp
+L Connector_Generic:Conn_01x10 J3
+U 1 1 60AED02D
+P 9900 4300
+F 0 "J3" H 9980 4292 50  0000 L CNN
+F 1 "ConnNE" H 9980 4201 50  0000 L CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x10_P2.54mm_Vertical" H 9900 4300 50  0001 C CNN
+F 3 "~" H 9900 4300 50  0001 C CNN
+	1    9900 4300
+	1    0    0    -1  
+$EndComp
+$Comp
+L Connector_Generic:Conn_01x10 J4
+U 1 1 60AED5FD
+P 9900 5650
+F 0 "J4" H 9980 5642 50  0000 L CNN
+F 1 "ConnSE" H 9980 5551 50  0000 L CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x10_P2.54mm_Vertical" H 9900 5650 50  0001 C CNN
+F 3 "~" H 9900 5650 50  0001 C CNN
+	1    9900 5650
+	1    0    0    -1  
+$EndComp
+$Comp
+L Connector_Generic:Conn_02x05_Odd_Even J5
+U 1 1 60AF91AD
+P 5500 1400
+F 0 "J5" H 5550 1817 50  0000 C CNN
+F 1 "Power" H 5550 1726 50  0000 C CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_2x05_P2.54mm_Vertical" H 5500 1400 50  0001 C CNN
+F 3 "~" H 5500 1400 50  0001 C CNN
+	1    5500 1400
+	1    0    0    -1  
+$EndComp
 $EndSCHEMATC
