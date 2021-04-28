@@ -50,50 +50,6 @@ F 4 "C126019" H 9575 2575 50  0001 C CNN "LCSC Part #"
 	1    0    0    -1  
 $EndComp
 $Comp
-L Connector_Generic:Conn_01x10 J1
-U 1 1 60AE94CD
-P 9400 4375
-F 0 "J1" H 9350 5000 50  0000 L CNN
-F 1 "ConnNW" H 9275 4900 50  0000 L CNN
-F 2 "Connector_PinHeader_2.54mm:PinHeader_1x10_P2.54mm_Vertical" H 9400 4375 50  0001 C CNN
-F 3 "~" H 9400 4375 50  0001 C CNN
-	1    9400 4375
-	1    0    0    -1  
-$EndComp
-$Comp
-L Connector_Generic:Conn_01x10 J2
-U 1 1 60AEC1D4
-P 9400 5725
-F 0 "J2" H 9350 6325 50  0000 L CNN
-F 1 "ConnSW" H 9275 6250 50  0000 L CNN
-F 2 "Connector_PinHeader_2.54mm:PinHeader_1x10_P2.54mm_Vertical" H 9400 5725 50  0001 C CNN
-F 3 "~" H 9400 5725 50  0001 C CNN
-	1    9400 5725
-	1    0    0    -1  
-$EndComp
-$Comp
-L Connector_Generic:Conn_01x10 J3
-U 1 1 60AED02D
-P 10750 4375
-F 0 "J3" H 10700 5000 50  0000 L CNN
-F 1 "ConnNE" H 10650 4900 50  0000 L CNN
-F 2 "Connector_PinHeader_2.54mm:PinHeader_1x10_P2.54mm_Vertical" H 10750 4375 50  0001 C CNN
-F 3 "~" H 10750 4375 50  0001 C CNN
-	1    10750 4375
-	1    0    0    -1  
-$EndComp
-$Comp
-L Connector_Generic:Conn_01x10 J4
-U 1 1 60AED5FD
-P 10750 5725
-F 0 "J4" H 10700 6325 50  0000 L CNN
-F 1 "ConnSE" H 10650 6250 50  0000 L CNN
-F 2 "Connector_PinHeader_2.54mm:PinHeader_1x10_P2.54mm_Vertical" H 10750 5725 50  0001 C CNN
-F 3 "~" H 10750 5725 50  0001 C CNN
-	1    10750 5725
-	1    0    0    -1  
-$EndComp
-$Comp
 L Connector_Generic:Conn_02x05_Odd_Even J5
 U 1 1 60AF91AD
 P 9550 1275
@@ -1529,18 +1485,11 @@ F 3 "" H 9200 3975 50  0001 C CNN
 	0    1    1    0   
 $EndComp
 Wire Wire Line
-	9200 3975 10550 3975
+	9200 3975 9225 3975
 Wire Wire Line
-	9200 4075 10550 4075
+	10550 4175 9225 4175
 Wire Wire Line
-	10550 4175 9200 4175
-Wire Wire Line
-	9200 4275 10550 4275
-Wire Wire Line
-	10550 4375 9200 4375
-Wire Wire Line
-	9200 4475 10550 4475
-Connection ~ 9200 3975
+	10550 4375 9225 4375
 $Comp
 L power:VCC #PWR0118
 U 1 1 6190EBA1
@@ -1552,9 +1501,6 @@ F 3 "" H 9050 4075 50  0001 C CNN
 	1    9050 4075
 	0    -1   -1   0   
 $EndComp
-Wire Wire Line
-	9050 4075 9200 4075
-Connection ~ 9200 4075
 $Comp
 L power:VEE #PWR0119
 U 1 1 61957B12
@@ -1577,7 +1523,6 @@ F 3 "" H 9200 4375 50  0001 C CNN
 	1    9200 4375
 	0    -1   -1   0   
 $EndComp
-Connection ~ 9200 4275
 $Comp
 L power:+3.3VA #PWR0121
 U 1 1 6196A060
@@ -1590,21 +1535,98 @@ F 3 "" H 9025 4475 50  0001 C CNN
 	0    -1   -1   0   
 $EndComp
 $Comp
-L power:-10V #PWR?
+L power:-10V #PWR0122
 U 1 1 619A4697
 P 9050 4275
-F 0 "#PWR?" H 9050 4375 50  0001 C CNN
+F 0 "#PWR0122" H 9050 4375 50  0001 C CNN
 F 1 "-10V" V 9065 4403 50  0000 L CNN
 F 2 "" H 9050 4275 50  0001 C CNN
 F 3 "" H 9050 4275 50  0001 C CNN
 	1    9050 4275
 	0    -1   -1   0   
 $EndComp
+Text GLabel 7875 2950 2    50   Input ~ 0
+LOUT
+Text GLabel 7875 3050 2    50   Input ~ 0
+ROUT
+Text GLabel 7875 3550 2    50   Input ~ 0
+LIN
+Text GLabel 7875 3650 2    50   Input ~ 0
+RIN
+$Comp
+L Connector_Generic:Conn_01x14 J1
+U 1 1 61A20C8E
+P 9425 4575
+F 0 "J1" H 9375 5375 50  0000 L CNN
+F 1 "ConnNW" H 9275 5300 50  0000 L CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x14_P2.54mm_Vertical" H 9425 4575 50  0001 C CNN
+F 3 "~" H 9425 4575 50  0001 C CNN
+	1    9425 4575
+	1    0    0    -1  
+$EndComp
+$Comp
+L Connector_Generic:Conn_01x14 J3
+U 1 1 61A240F0
+P 10750 4575
+F 0 "J3" H 10700 5375 50  0000 L CNN
+F 1 "ConnNE" H 10600 5300 50  0000 L CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x14_P2.54mm_Vertical" H 10750 4575 50  0001 C CNN
+F 3 "~" H 10750 4575 50  0001 C CNN
+	1    10750 4575
+	1    0    0    -1  
+$EndComp
 Wire Wire Line
-	9050 4275 9200 4275
-Connection ~ 9200 4175
-Connection ~ 9200 4375
+	9050 4075 9225 4075
 Wire Wire Line
-	9025 4475 9200 4475
-Connection ~ 9200 4475
+	9050 4275 9225 4275
+Wire Wire Line
+	9025 4475 9225 4475
+Connection ~ 9225 3975
+Wire Wire Line
+	9225 3975 10550 3975
+Connection ~ 9225 4075
+Wire Wire Line
+	9225 4075 10550 4075
+Connection ~ 9225 4175
+Wire Wire Line
+	9225 4175 9200 4175
+Connection ~ 9225 4275
+Wire Wire Line
+	9225 4275 10550 4275
+Connection ~ 9225 4375
+Wire Wire Line
+	9225 4375 9200 4375
+Connection ~ 9225 4475
+Wire Wire Line
+	9225 4475 10550 4475
+$Comp
+L Connector_Generic:Conn_01x06 J2
+U 1 1 61A34DEB
+P 9425 6000
+F 0 "J2" H 9375 6400 50  0000 L CNN
+F 1 "ConnSW" H 9275 6325 50  0000 L CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x06_P2.54mm_Vertical" H 9425 6000 50  0001 C CNN
+F 3 "~" H 9425 6000 50  0001 C CNN
+	1    9425 6000
+	1    0    0    -1  
+$EndComp
+$Comp
+L Connector_Generic:Conn_01x06 J4
+U 1 1 61A3654B
+P 10750 6000
+F 0 "J4" H 10700 6400 50  0000 L CNN
+F 1 "ConnSE" H 10600 6325 50  0000 L CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x06_P2.54mm_Vertical" H 10750 6000 50  0001 C CNN
+F 3 "~" H 10750 6000 50  0001 C CNN
+	1    10750 6000
+	1    0    0    -1  
+$EndComp
+Text GLabel 9225 4675 0    50   Input ~ 0
+LIN
+Text GLabel 9225 4575 0    50   Input ~ 0
+RIN
+Text GLabel 10550 4575 0    50   Input ~ 0
+LOUT
+Text GLabel 10550 4675 0    50   Input ~ 0
+ROUT
 $EndSCHEMATC
