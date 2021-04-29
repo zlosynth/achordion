@@ -1629,4 +1629,100 @@ Text GLabel 10550 4575 0    50   Input ~ 0
 LOUT
 Text GLabel 10550 4675 0    50   Input ~ 0
 ROUT
+Text GLabel 10550 6300 0    50   Input ~ 0
+PIN24
+Text GLabel 10550 6200 0    50   Input ~ 0
+PIN23
+Text GLabel 10550 6100 0    50   Input ~ 0
+PIN22
+Text GLabel 10550 6000 0    50   Input ~ 0
+PIN21
+Text GLabel 10550 5900 0    50   Input ~ 0
+PIN20
+Text GLabel 10550 5800 0    50   Input ~ 0
+PIN19
+Text GLabel 10550 5275 0    50   Input ~ 0
+PIN18
+Text GLabel 10550 5175 0    50   Input ~ 0
+PIN17
+Text GLabel 10550 5075 0    50   Input ~ 0
+PIN16
+Text GLabel 10550 4975 0    50   Input ~ 0
+PIN15
+Text GLabel 10550 4875 0    50   Input ~ 0
+PIN14
+Text GLabel 10550 4775 0    50   Input ~ 0
+PIN13
+Text GLabel 9225 4775 0    50   Input ~ 0
+PIN1
+Text GLabel 9225 4875 0    50   Input ~ 0
+PIN2
+Text GLabel 9225 4975 0    50   Input ~ 0
+PIN3
+Text GLabel 9225 5075 0    50   Input ~ 0
+PIN4
+Text GLabel 9225 5175 0    50   Input ~ 0
+PIN5
+Text GLabel 9225 5275 0    50   Input ~ 0
+PIN6
+Text GLabel 9225 5800 0    50   Input ~ 0
+PIN7
+Text GLabel 9225 5900 0    50   Input ~ 0
+PIN8
+Text GLabel 9225 6000 0    50   Input ~ 0
+PIN9
+Text GLabel 9225 6100 0    50   Input ~ 0
+PIN10
+Text GLabel 9225 6200 0    50   Input ~ 0
+PIN11
+Text GLabel 9225 6300 0    50   Input ~ 0
+PIN12
+Text GLabel 4450 4650 2    50   Input ~ 0
+PIN24
+Text GLabel 4450 4750 2    50   Input ~ 0
+PIN23
+Text GLabel 4450 4850 2    50   Input ~ 0
+PIN22
+Text GLabel 4450 4950 2    50   Input ~ 0
+PIN21
+Text GLabel 4450 1250 2    50   Input ~ 0
+PIN20
+Text GLabel 4450 1350 2    50   Input ~ 0
+PIN19
+Text GLabel 4450 1450 2    50   Input ~ 0
+PIN18
+Text GLabel 4450 1550 2    50   Input ~ 0
+PIN17
+Text GLabel 4450 1650 2    50   Input ~ 0
+PIN16
+Text GLabel 4450 1750 2    50   Input ~ 0
+PIN15
+Text GLabel 4450 1850 2    50   Input ~ 0
+PIN14
+Text GLabel 4450 1950 2    50   Input ~ 0
+PIN13
+Text GLabel 4450 3050 2    50   Input ~ 0
+PIN1
+Text GLabel 4450 2950 2    50   Input ~ 0
+PIN2
+Text GLabel 4450 5150 2    50   Input ~ 0
+PIN3
+Text GLabel 4450 5050 2    50   Input ~ 0
+PIN4
+Text GLabel 2650 3050 0    50   Input ~ 0
+PIN12
+Text GLabel 2650 2950 0    50   Input ~ 0
+PIN11
+Text GLabel 4450 5650 2    50   Input ~ 0
+PIN7
+Text GLabel 4450 5750 2    50   Input ~ 0
+PIN8
+Text GLabel 2650 5050 0    50   Input ~ 0
+PIN9
+Text GLabel 2650 5150 0    50   Input ~ 0
+PIN10
+Text GLabel 4450 2350 2    50   Input ~ 0
+PIN6
+Text GLabel 4450 2250 2    50   Input ~ 0
+PIN5
 $EndSCHEMATC
