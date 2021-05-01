@@ -5,12 +5,12 @@ $Descr A4 11693 8268
 encoding utf-8
 Sheet 1 1
 Title ""
-Date ""
-Rev ""
-Comp ""
-Comment1 ""
-Comment2 ""
-Comment3 ""
+Date "2021-05-01"
+Rev "1"
+Comp "Petr Horáček"
+Comment1 "hrck@protonmail.com"
+Comment2 "github.com/zlosynth/TODO"
+Comment3 "cc-by-sa"
 Comment4 ""
 $EndDescr
 $Comp
@@ -1746,5 +1746,16 @@ F 2 "Diode_SMD:D_SOD-123" V 9150 1475 50  0001 C CNN
 F 3 "~" V 9150 1475 50  0001 C CNN
 	1    9150 1475
 	-1   0    0    1   
+$EndComp
+$Comp
+L Graphic:Logo_Open_Hardware_Small #LOGO1
+U 1 1 61E1BF99
+P 10900 6875
+F 0 "#LOGO1" H 10900 7150 50  0001 C CNN
+F 1 "Logo_Open_Hardware_Small" H 10900 6650 50  0001 C CNN
+F 2 "Symbol:OSHW-Symbol_6.7x6mm_Copper" H 10900 7169 50  0001 C CNN
+F 3 "~" H 10900 6875 50  0001 C CNN
+	1    10900 6875
+	1    0    0    -1  
 $EndComp
 $EndSCHEMATC
