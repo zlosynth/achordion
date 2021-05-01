@@ -14,19 +14,6 @@ Comment3 "cc-by-sa"
 Comment4 ""
 $EndDescr
 $Comp
-L MCU_ST_STM32F4:STM32F427VGTx U1
-U 1 1 60870DB2
-P 3550 3650
-F 0 "U1" H 4200 6200 50  0000 C CNN
-F 1 " STM32F427VGT6" H 4100 975 50  0000 C CNN
-F 2 "Package_QFP:LQFP-100_14x14mm_P0.5mm" H 2850 1050 50  0001 R CNN
-F 3 "http://www.st.com/st-web-ui/static/active/en/resource/technical/document/datasheet/DM00071990.pdf" H 3550 3650 50  0001 C CNN
-F 4 "C117815" H 3550 3650 50  0001 C CNN "LCSC Part #"
-F 5 "C117815" H 3550 3650 50  0001 C CNN "LCSC"
-	1    3550 3650
-	1    0    0    -1  
-$EndComp
-$Comp
 L Audio:TLV320AIC23BPW U2
 U 1 1 608C10F7
 P 7075 3650
@@ -70,16 +57,16 @@ HSE_OUT
 $Comp
 L power:+3.3VA #PWR03
 U 1 1 60B878C3
-P 3950 850
-F 0 "#PWR03" H 3950 700 50  0001 C CNN
-F 1 "+3.3VA" H 3965 1023 50  0000 C CNN
-F 2 "" H 3950 850 50  0001 C CNN
-F 3 "" H 3950 850 50  0001 C CNN
-	1    3950 850 
+P 3850 850
+F 0 "#PWR03" H 3850 700 50  0001 C CNN
+F 1 "+3.3VA" H 3865 1023 50  0000 C CNN
+F 2 "" H 3850 850 50  0001 C CNN
+F 3 "" H 3850 850 50  0001 C CNN
+	1    3850 850 
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	3950 950  3950 850 
+	3850 950  3850 850 
 $Comp
 L power:+3.3VA #PWR02
 U 1 1 60B89629
@@ -140,16 +127,11 @@ Wire Wire Line
 	3250 850  3250 900 
 Wire Wire Line
 	3250 900  3350 900 
-Wire Wire Line
-	3850 900  3850 950 
 Connection ~ 3250 900 
 Wire Wire Line
 	3250 900  3250 950 
 Wire Wire Line
 	3750 950  3750 900 
-Connection ~ 3750 900 
-Wire Wire Line
-	3750 900  3850 900 
 Wire Wire Line
 	3650 950  3650 900 
 Connection ~ 3650 900 
@@ -173,12 +155,12 @@ Wire Wire Line
 $Comp
 L power:GND #PWR0102
 U 1 1 60BB4C61
-P 3350 6550
-F 0 "#PWR0102" H 3350 6300 50  0001 C CNN
-F 1 "GND" H 3355 6377 50  0000 C CNN
-F 2 "" H 3350 6550 50  0001 C CNN
-F 3 "" H 3350 6550 50  0001 C CNN
-	1    3350 6550
+P 3250 6550
+F 0 "#PWR0102" H 3250 6300 50  0001 C CNN
+F 1 "GND" H 3255 6377 50  0000 C CNN
+F 2 "" H 3250 6550 50  0001 C CNN
+F 3 "" H 3250 6550 50  0001 C CNN
+	1    3250 6550
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
@@ -187,9 +169,6 @@ Wire Wire Line
 	3350 6500 3450 6500
 Wire Wire Line
 	3750 6500 3750 6450
-Connection ~ 3350 6500
-Wire Wire Line
-	3350 6500 3350 6550
 Wire Wire Line
 	3650 6450 3650 6500
 Connection ~ 3650 6500
@@ -779,37 +758,14 @@ F 5 "C1525" H 6050 7175 50  0001 C CNN "LCSC"
 	1    6050 7175
 	1    0    0    -1  
 $EndComp
-$Comp
-L Device:C_Small C19
-U 1 1 60F6EE39
-P 6450 7175
-F 0 "C19" H 6542 7221 50  0000 L CNN
-F 1 "100n" H 6542 7130 50  0000 L CNN
-F 2 "Capacitor_SMD:C_0402_1005Metric" H 6450 7175 50  0001 C CNN
-F 3 "~" H 6450 7175 50  0001 C CNN
-F 4 "C1525" H 6450 7175 50  0001 C CNN "LCSC Part #"
-F 5 "C1525" H 6450 7175 50  0001 C CNN "LCSC"
-	1    6450 7175
-	1    0    0    -1  
-$EndComp
 Wire Wire Line
 	5650 7025 6050 7025
 Wire Wire Line
 	6050 7025 6050 7075
 Wire Wire Line
-	6050 7025 6450 7025
-Wire Wire Line
-	6450 7025 6450 7075
-Connection ~ 6050 7025
-Wire Wire Line
 	5650 7325 6050 7325
 Wire Wire Line
 	6050 7325 6050 7275
-Wire Wire Line
-	6450 7325 6450 7275
-Wire Wire Line
-	6050 7325 6450 7325
-Connection ~ 6050 7325
 Connection ~ 5650 7025
 Connection ~ 5650 7325
 $Comp
@@ -932,8 +888,6 @@ Wire Wire Line
 Wire Wire Line
 	6175 2950 6175 2900
 Wire Wire Line
-	6275 3050 5925 3050
-Wire Wire Line
 	5925 3050 5925 2900
 $Comp
 L power:+3.3V #PWR0111
@@ -953,12 +907,8 @@ Wire Wire Line
 Wire Wire Line
 	5925 2650 5925 2700
 Wire Wire Line
-	6050 2650 6175 2650
-Wire Wire Line
 	6175 2650 6175 2700
 Connection ~ 6050 2650
-Wire Wire Line
-	6175 2950 5800 2950
 Connection ~ 6175 2950
 Wire Wire Line
 	5925 3050 5800 3050
@@ -1540,8 +1490,6 @@ Text GLabel 6275 3450 0    50   Input ~ 0
 I2S_DIN
 Wire Wire Line
 	5825 3150 5825 3200
-Wire Wire Line
-	5825 3150 6175 3150
 Text GLabel 4450 4350 2    50   Input ~ 0
 I2S_DIN
 Text GLabel 6275 3550 0    50   Input ~ 0
@@ -1878,4 +1826,33 @@ NoConn ~ 4450 5950
 NoConn ~ 4450 6050
 NoConn ~ 4450 6150
 NoConn ~ 7875 4250
+$Comp
+L MCU_ST_STM32H7:STM32H743VITx U1
+U 1 1 6240D4B7
+P 3550 3650
+F 0 "U1" H 4200 6225 50  0000 C CNN
+F 1 "STM32H743VIT6" H 4100 975 50  0000 C CNN
+F 2 "Package_QFP:LQFP-100_14x14mm_P0.5mm" H 2850 1050 50  0001 R CNN
+F 3 "http://www.st.com/st-web-ui/static/active/en/resource/technical/document/datasheet/DM00387108.pdf" H 3550 3650 50  0001 C CNN
+F 4 "C114409" H 3550 3650 50  0001 C CNN "LCSC"
+F 5 "C114409" H 3550 3650 50  0001 C CNN "LCSC Part #"
+	1    3550 3650
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	5825 3150 6175 3150
+Wire Wire Line
+	5925 3050 6275 3050
+Wire Wire Line
+	5800 2950 6175 2950
+Wire Wire Line
+	6050 2650 6175 2650
+Wire Wire Line
+	3250 6450 3250 6500
+Wire Wire Line
+	3350 6500 3250 6500
+Connection ~ 3350 6500
+Connection ~ 3250 6500
+Wire Wire Line
+	3250 6500 3250 6550
 $EndSCHEMATC
