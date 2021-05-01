@@ -1,4 +1,4 @@
-Designator,Value,Footprint,Mix X,Mid Y,Rotation,Layer
+Designator,Value,Footprint,Mid X,Mid Y,Rotation,Layer
 "C1","20p","C_0402_1005Metric",153.120000,-120.990000,90.000000,top
 "C2","20p","C_0402_1005Metric",153.030000,-125.350000,270.000000,top
 "C3","2u2","C_0603_1608Metric",155.970000,-97.840000,90.000000,top
