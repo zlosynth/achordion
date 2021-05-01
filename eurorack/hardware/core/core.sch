@@ -1747,15 +1747,50 @@ F 3 "~" V 9150 1475 50  0001 C CNN
 	1    9150 1475
 	-1   0    0    1   
 $EndComp
-$Comp
-L Graphic:Logo_Open_Hardware_Small #LOGO1
-U 1 1 61E1BF99
-P 10900 6875
-F 0 "#LOGO1" H 10900 7150 50  0001 C CNN
-F 1 "Logo_Open_Hardware_Small" H 10900 6650 50  0001 C CNN
-F 2 "Symbol:OSHW-Symbol_6.7x6mm_Copper" H 10900 7169 50  0001 C CNN
-F 3 "~" H 10900 6875 50  0001 C CNN
-	1    10900 6875
-	1    0    0    -1  
-$EndComp
+NoConn ~ 4450 2150
+NoConn ~ 4450 2450
+NoConn ~ 4450 3150
+NoConn ~ 4450 3350
+NoConn ~ 4450 3450
+NoConn ~ 4450 3550
+NoConn ~ 4450 3650
+NoConn ~ 4450 3750
+NoConn ~ 4450 3850
+NoConn ~ 4450 3950
+NoConn ~ 4450 4050
+NoConn ~ 2650 3150
+NoConn ~ 2650 3250
+NoConn ~ 2650 3350
+NoConn ~ 2650 3450
+NoConn ~ 2650 3550
+NoConn ~ 2650 3650
+NoConn ~ 2650 3750
+NoConn ~ 2650 3850
+NoConn ~ 2650 3950
+NoConn ~ 2650 4050
+NoConn ~ 2650 4150
+NoConn ~ 2650 4250
+NoConn ~ 2650 4350
+NoConn ~ 2650 4450
+NoConn ~ 2650 4650
+NoConn ~ 2650 4750
+NoConn ~ 2650 4850
+NoConn ~ 2650 4950
+NoConn ~ 2650 5250
+NoConn ~ 2650 5350
+NoConn ~ 2650 5450
+NoConn ~ 2650 5550
+NoConn ~ 2650 5650
+NoConn ~ 2650 5750
+NoConn ~ 2650 5850
+NoConn ~ 2650 5950
+NoConn ~ 2650 6050
+NoConn ~ 2650 6150
+NoConn ~ 4450 5350
+NoConn ~ 4450 5450
+NoConn ~ 4450 5850
+NoConn ~ 4450 5950
+NoConn ~ 4450 6050
+NoConn ~ 4450 6150
+NoConn ~ 7875 4250
 $EndSCHEMATC
