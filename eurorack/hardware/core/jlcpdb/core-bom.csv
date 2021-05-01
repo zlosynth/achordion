@@ -1,7 +1,7 @@
 Comment,Designator,Footprint,LCSC
 "20p","C1,C2","Capacitor_SMD:C_0402_1005Metric","C1554"
 "1u","C10,C20","Capacitor_SMD:C_0402_1005Metric","C52923"
-"100n","C11,C12,C13,C14,C15,C16,C17,C18,C19,C21,C22,C23","Capacitor_SMD:C_0402_1005Metric","C1525"
+"100n","C11,C12,C13,C14,C15,C16,C17,C18,C21,C22,C23","Capacitor_SMD:C_0402_1005Metric","C1525"
 "100n","C24","Capacitor_SMD:C_0805_2012Metric","C49678"
 "2u2","C3,C4,C7","Capacitor_SMD:C_0603_1608Metric","C23630"
 "47u","C5,C6,C8,C9","Capacitor_Tantalum_SMD:CP_EIA-3216-18_Kemet-A","C129570"
@@ -20,7 +20,7 @@ Comment,Designator,Footprint,LCSC
 "1k","R7,R8","Resistor_SMD:R_0805_2012Metric","C17513"
 "Reset","SW1","Button_Switch_SMD:SW_Push_SPST_NO_Alps_SKRK","C115357"
 "Boot0","SW2","Button_Switch_SMD:SW_Push_SPST_NO_Alps_SKRK","C115357"
-" STM32F427VGT6","U1","Package_QFP:LQFP-100_14x14mm_P0.5mm","C117815"
+"STM32H743VIT6","U1","Package_QFP:LQFP-100_14x14mm_P0.5mm","C114409"
 "TLV320AIC23BPW","U2","Package_SO:TSSOP-28_4.4x9.7mm_P0.65mm","C9915"
 " LM1117F-3.3","U3","Package_TO_SOT_SMD:SOT-89-3","C126019"
 "LM4040C10IDBZR","U4","Package_TO_SOT_SMD:SOT-23","C201738"
