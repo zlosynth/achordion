@@ -18,3 +18,6 @@ fp-info-cache
 
 # Netlist files (exported from Eeschema)
 *.net
+
+# Avoid out-of-sync gerbers by not keeping them under the source tree
+gerber/
