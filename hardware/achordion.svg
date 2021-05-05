@@ -19,7 +19,34 @@
    inkscape:export-xdpi="276.80777"
    inkscape:export-ydpi="276.80777">
   <defs
-     id="defs2" />
+     id="defs2">
+    <filter
+       inkscape:collect="always"
+       style="color-interpolation-filters:sRGB"
+       id="filter1065"
+       x="-1.0990911e-05"
+       width="1.000022"
+       y="-2.2073537e-05"
+       height="1.0000441">
+      <feGaussianBlur
+         inkscape:collect="always"
+         stdDeviation="4.5986536e-05"
+         id="feGaussianBlur1067" />
+    </filter>
+    <filter
+       inkscape:collect="always"
+       style="color-interpolation-filters:sRGB"
+       id="filter1069"
+       x="-1.0990911e-05"
+       width="1.000022"
+       y="-2.2073537e-05"
+       height="1.0000441">
+      <feGaussianBlur
+         inkscape:collect="always"
+         stdDeviation="4.5986536e-05"
+         id="feGaussianBlur1071" />
+    </filter>
+  </defs>
   <sodipodi:namedview
      id="base"
      pagecolor="#ffffff"
@@ -27,11 +54,11 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="1.2271424"
-     inkscape:cx="-35.585859"
-     inkscape:cy="289.17399"
+     inkscape:zoom="1.4142136"
+     inkscape:cx="65.051218"
+     inkscape:cy="141.30666"
      inkscape:document-units="mm"
-     inkscape:current-layer="layer7"
+     inkscape:current-layer="g1799"
      inkscape:document-rotation="0"
      showgrid="false"
      inkscape:window-width="1920"
@@ -119,7 +146,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -446,7 +473,8 @@
       </g>
       <g
          id="g2441"
-         transform="translate(0,0.67230423)">
+         transform="translate(0,0.67230423)"
+         style="filter:url(#filter1069)">
         <rect
            style="fill:#f2f2f2;stroke:none;stroke-width:0.155798;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4.3;stroke-dasharray:none"
            id="rect1679-8"
@@ -521,6 +549,29 @@
            x="-2.717922"
            y="87.797852"
            style="stroke-width:0.264583" /></text>
+      <g
+         id="g1079"
+         transform="translate(-0.84374818)">
+        <rect
+           style="fill:#f2f2f2;stroke:none;stroke-width:0.155798;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4.3;stroke-dasharray:none;filter:url(#filter1065)"
+           id="rect1679-8-6"
+           width="10.041723"
+           height="5"
+           x="33.312859"
+           y="26.759533"
+           transform="matrix(1.1680465,0,0,0.99999643,-5.5980988,1.0444315e-4)" />
+        <text
+           xml:space="preserve"
+           style="font-style:normal;font-weight:normal;font-size:3.175px;line-height:1.25;font-family:sans-serif;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583;filter:url(#filter1065)"
+           x="35.257942"
+           y="30.439045"
+           id="text1797-2-0-1-0-9-7"><tspan
+             sodipodi:role="line"
+             id="tspan1795-1-5-1-8-6-5"
+             x="35.257942"
+             y="30.439045"
+             style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:3.175px;font-family:'Noto Sans Mono CJK HK';-inkscape-font-specification:'Noto Sans Mono CJK HK';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#000000;stroke-width:0.264583">TABLE</tspan></text>
+      </g>
     </g>
   </g>
   <g
@@ -822,7 +873,7 @@
      inkscape:groupmode="layer"
      inkscape:label="Holes"
      id="g340"
-     style="display:inline;fill:#f2f2f2">
+     style="display:none;fill:#f2f2f2">
     <g
        inkscape:label="Holes"
        style="fill:#000000;stroke:none;stroke-width:0"
@@ -844,7 +895,8 @@
   <g
      inkscape:groupmode="layer"
      id="layer7"
-     inkscape:label="graphical">
+     inkscape:label="graphical"
+     style="display:inline">
     <g
        id="g2062"
        transform="translate(1.653523,-1.2336657)">
