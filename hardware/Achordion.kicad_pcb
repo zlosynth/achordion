@@ -13,7 +13,7 @@
   (title_block
     (title Achordion)
     (date 2021-04-25)
-    (rev 1)
+    (rev 2)
     (company "Petr Horáček")
     (comment 1 hrck@protonmail.com)
     (comment 2 https://github.com/zlosynth/achordion)
@@ -4273,7 +4273,7 @@
   (segment (start 128.385 86.935) (end 127.74 87.58) (width 0.3) (layer F.Cu) (net 70))
   (segment (start 129.77 86.935) (end 128.385 86.935) (width 0.3) (layer F.Cu) (net 70))
 
-  (zone (net 1) (net_name GND) (layer In1.Cu) (tstamp 6097BAAB) (hatch edge 0.508)
+  (zone (net 1) (net_name GND) (layer In1.Cu) (tstamp 6097BD26) (hatch edge 0.508)
     (connect_pads (clearance 0.508))
     (min_thickness 0.254)
     (fill yes (arc_segments 32) (thermal_gap 0.508) (thermal_bridge_width 0.508))
@@ -5119,7 +5119,7 @@
       )
     )
   )
-  (zone (net 3) (net_name +3.3VA) (layer In2.Cu) (tstamp 6097BAA8) (hatch edge 0.508)
+  (zone (net 3) (net_name +3.3VA) (layer In2.Cu) (tstamp 6097BD23) (hatch edge 0.508)
     (connect_pads (clearance 0.508))
     (min_thickness 0.254)
     (fill yes (arc_segments 32) (thermal_gap 0.508) (thermal_bridge_width 0.508))
