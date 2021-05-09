@@ -1,6 +1,4 @@
 use crate::oscillator::Oscillator;
-use crate::quantizer;
-use crate::scales;
 use crate::tone::ToFrequency;
 use crate::wavetable::Wavetable;
 

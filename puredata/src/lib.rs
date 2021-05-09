@@ -109,7 +109,9 @@ unsafe fn register_set_frequency_method(class: *mut pd_sys::_class) {
 }
 
 unsafe extern "C" fn set_frequency(class: *mut Class, value: pd_sys::t_float) {
-    (*class).instrument.set_frequency(value.clamp(0.0, 20_000.0));
+    (*class)
+        .instrument
+        .set_frequency(value.clamp(0.0, 20_000.0));
 }
 
 fn perform(

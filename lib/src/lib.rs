@@ -9,11 +9,12 @@ extern crate approx;
 #[macro_use]
 extern crate lazy_static;
 
-pub mod instrument;
 pub mod chords;
+pub mod instrument;
 pub mod midi;
 pub mod oscillator;
 pub mod quantizer;
 pub mod scales;
+pub mod tone;
 pub mod waveform;
 pub mod wavetable;
