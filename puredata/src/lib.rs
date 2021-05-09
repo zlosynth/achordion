@@ -15,7 +15,7 @@ mod log;
 
 use std::os::raw::{c_int, c_void};
 
-use achordion_lib::oscillator::Oscillator;
+use achordion_lib::instrument::Instrument;
 use achordion_lib::waveform;
 use achordion_lib::wavetable::Wavetable;
 
@@ -44,7 +44,7 @@ lazy_static! {
 #[repr(C)]
 struct Class<'a> {
     pd_obj: pd_sys::t_object,
-    oscillator: Oscillator<'a>,
+    instrument: Instrument<'a>,
     signal_dummy: f32,
 }
 
@@ -86,9 +86,9 @@ unsafe extern "C" fn new() -> *mut c_void {
     let class = pd_sys::pd_new(CLASS.unwrap()) as *mut Class;
 
     let sample_rate = pd_sys::sys_getsr() as u32;
-    let oscillator = Oscillator::new(&WAVETABLES[..], sample_rate);
+    let instrument = Instrument::new(&WAVETABLES[..], sample_rate);
 
-    (*class).oscillator = oscillator;
+    (*class).instrument = instrument;
 
     pd_sys::outlet_new(&mut (*class).pd_obj, &mut pd_sys::s_signal);
 
@@ -109,7 +109,7 @@ unsafe fn register_set_frequency_method(class: *mut pd_sys::_class) {
 }
 
 unsafe extern "C" fn set_frequency(class: *mut Class, value: pd_sys::t_float) {
-    (*class).oscillator.frequency = value.clamp(0.0, 20_000.0);
+    (*class).instrument.set_frequency(value.clamp(0.0, 20_000.0));
 }
 
 fn perform(
@@ -120,7 +120,7 @@ fn perform(
 ) {
     let mut buffer = [0];
     for x in outlets[0].iter_mut() {
-        class.oscillator.populate(&mut buffer[..]);
+        class.instrument.populate(&mut buffer[..]);
         *x = buffer[0] as f32 / f32::powi(2.0, 16);
     }
 }
