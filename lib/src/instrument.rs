@@ -1,5 +1,7 @@
+use crate::note::Note;
 use crate::oscillator::Oscillator;
 use crate::quantizer;
+use crate::scales;
 use crate::wavetable::Wavetable;
 
 pub struct Instrument<'a> {
@@ -13,7 +15,7 @@ impl<'a> Instrument<'a> {
     }
 
     pub fn set_voct(&mut self, voct: f32) {
-        let note = quantizer::chromatic::quantize(voct);
+        let note = quantizer::diatonic::quantize(scales::diatonic::Ionian, Note::C1, voct);
         self.oscillator.frequency = note.to_freq_f32();
     }
 
