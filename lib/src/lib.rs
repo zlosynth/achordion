@@ -16,6 +16,5 @@ pub mod note;
 pub mod oscillator;
 pub mod quantizer;
 pub mod scales;
-pub mod tone;
 pub mod waveform;
 pub mod wavetable;

@@ -1,5 +1,5 @@
 use crate::oscillator::Oscillator;
-use crate::tone::ToFrequency;
+use crate::quantizer;
 use crate::wavetable::Wavetable;
 
 pub struct Instrument<'a> {
@@ -12,11 +12,9 @@ impl<'a> Instrument<'a> {
         Self { oscillator }
     }
 
-    pub fn set_frequency<T>(&mut self, tone: T)
-    where
-        T: ToFrequency,
-    {
-        self.oscillator.frequency = tone.to_frequency();
+    pub fn set_voct(&mut self, voct: f32) {
+        let note = quantizer::chromatic::quantize(voct);
+        self.oscillator.frequency = note.to_freq_f32();
     }
 
     pub fn populate(&mut self, buffer: &mut [u16]) {
