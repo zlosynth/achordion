@@ -65,6 +65,7 @@ pub unsafe extern "C" fn achordion_tilde_setup() {
 
     register_set_frequency_method(class);
     register_set_mode_method(class);
+    register_set_root_method(class);
 }
 
 unsafe fn create_class() -> *mut pd_sys::_class {
@@ -122,6 +123,19 @@ unsafe fn register_set_mode_method(class: *mut pd_sys::_class) {
     );
 }
 
+unsafe fn register_set_root_method(class: *mut pd_sys::_class) {
+    pd_sys::class_addmethod(
+        class,
+        Some(std::mem::transmute::<
+            unsafe extern "C" fn(*mut Class, pd_sys::t_float),
+            _,
+        >(set_root)),
+        pd_sys::gensym(cstr::cstr("root").as_ptr()),
+        pd_sys::t_atomtype::A_FLOAT,
+        0,
+    );
+}
+
 unsafe extern "C" fn set_frequency(class: *mut Class, value: pd_sys::t_float) {
     // TODO: Convert frequency to voct
     (*class).instrument.set_voct(value.clamp(0.0, 20.0));
@@ -129,6 +143,10 @@ unsafe extern "C" fn set_frequency(class: *mut Class, value: pd_sys::t_float) {
 
 unsafe extern "C" fn set_mode(class: *mut Class, value: pd_sys::t_float) {
     (*class).instrument.set_mode(value.clamp(0.0, 1.0));
+}
+
+unsafe extern "C" fn set_root(class: *mut Class, value: pd_sys::t_float) {
+    (*class).instrument.set_root(value.clamp(0.0, 20.0));
 }
 
 fn perform(

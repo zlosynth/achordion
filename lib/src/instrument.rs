@@ -7,6 +7,7 @@ use crate::wavetable::Wavetable;
 pub struct Instrument<'a> {
     voct: f32,
     mode: scales::diatonic::Mode,
+    root: Note,
     oscillator: Oscillator<'a>,
 }
 
@@ -16,6 +17,7 @@ impl<'a> Instrument<'a> {
         Self {
             oscillator,
             voct: 0.0,
+            root: Note::C1,
             mode: scales::diatonic::Ionian,
         }
     }
@@ -39,6 +41,11 @@ impl<'a> Instrument<'a> {
         self.apply_settings();
     }
 
+    pub fn set_root(&mut self, root: f32) {
+        self.root = quantizer::chromatic::quantize(root);
+        self.apply_settings();
+    }
+
     pub fn set_voct(&mut self, voct: f32) {
         self.voct = voct;
         self.apply_settings();
@@ -49,7 +56,7 @@ impl<'a> Instrument<'a> {
     }
 
     fn apply_settings(&mut self) {
-        let note = quantizer::diatonic::quantize(self.mode, Note::C1, self.voct);
+        let note = quantizer::diatonic::quantize(self.mode, self.root, self.voct);
         self.oscillator.frequency = note.to_freq_f32();
     }
 }
