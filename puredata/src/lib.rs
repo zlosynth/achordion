@@ -64,6 +64,7 @@ pub unsafe extern "C" fn achordion_tilde_setup() {
     );
 
     register_float_method(class, "float", set_chord_root);
+    register_float_method(class, "chord_degrees", set_chord_degrees);
     register_float_method(class, "scale_mode", set_scale_mode);
     register_float_method(class, "scale_root", set_scale_root);
     register_float_method(class, "wavetable", set_wavetable);
@@ -117,6 +118,10 @@ unsafe fn register_float_method(
 
 unsafe extern "C" fn set_chord_root(class: *mut Class, value: pd_sys::t_float) {
     (*class).instrument.set_chord_root(value.clamp(0.0, 20.0));
+}
+
+unsafe extern "C" fn set_chord_degrees(class: *mut Class, value: pd_sys::t_float) {
+    (*class).instrument.set_chord_degrees(value.clamp(0.0, 1.0));
 }
 
 unsafe extern "C" fn set_scale_mode(class: *mut Class, value: pd_sys::t_float) {

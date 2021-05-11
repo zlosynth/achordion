@@ -51,6 +51,36 @@ impl<'a> Oscillator<'a> {
             }
         }
     }
+
+    pub fn populate_add(&mut self, buffer: &mut [u16], amplitude: f32) {
+        let scaled_wavetable = self.wavetable * (self.wavetables.len() - 1) as f32;
+        let wavetable_a_index = scaled_wavetable as usize;
+        let wavetable_b_index = if wavetable_a_index == self.wavetables.len() - 1 {
+            wavetable_a_index
+        } else {
+            wavetable_a_index + 1
+        };
+
+        let xfade = scaled_wavetable - wavetable_a_index as f32;
+
+        let band_wavetable_a = self.wavetables[wavetable_a_index].band(self.frequency);
+        let band_wavetable_b = self.wavetables[wavetable_b_index].band(self.frequency);
+
+        let interval_in_samples = self.frequency / self.sample_rate;
+
+        for x in buffer.iter_mut() {
+            let value_a = band_wavetable_a.read(self.phase);
+            let value_b = band_wavetable_b.read(self.phase);
+
+            let value = value_a as f32 * (1.0 - xfade) + value_b as f32 * xfade;
+            *x += (value * amplitude) as u16;
+
+            self.phase += interval_in_samples;
+            if self.phase >= 1.0 {
+                self.phase -= 1.0;
+            }
+        }
+    }
 }
 
 #[cfg(test)]

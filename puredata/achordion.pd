@@ -1,22 +1,26 @@
 #N canvas 718 198 676 576 12;
-#X obj 117 220 achordion~;
-#X obj 117 270 dac~;
-#X obj 117 245 *~ 0.3;
-#X obj 120 56 hsl 256 15 2 8 0 0 empty empty empty -2 -8 0 10 -262144
--1 -1 4300 1;
-#X obj 120 121 hsl 256 15 0 1 0 0 mode_\$1 empty empty -2 -8 0 10 -262144
--1 -1 7900 1;
-#X obj 120 76 hsl 256 15 0 1 0 0 mode_\$1 empty empty -2 -8 0 10 -262144
--1 -1 18600 1;
-#X obj 120 166 hsl 256 15 0 1 0 0 mode_\$1 empty empty -2 -8 0 10 -262144
--1 -1 15100 1;
-#X text 382 164 wavetable;
-#X msg 117 186 wavetable \$1;
-#X text 383 53 chord_root;
-#X text 382 119 scale_mode;
-#X text 382 74 scale_root;
-#X msg 117 96 scale_root \$1;
-#X msg 117 141 scale_mode \$1;
+#X obj 117 289 achordion~;
+#X obj 117 339 dac~;
+#X obj 117 314 *~ 0.3;
+#X obj 120 80 hsl 256 15 2 8 0 0 empty empty empty -2 -8 0 10 -262144
+-1 -1 9200 1;
+#X obj 120 190 hsl 256 15 0 1 0 0 mode_\$1 empty empty -2 -8 0 10 -262144
+-1 -1 0 1;
+#X obj 120 145 hsl 256 15 0 1 0 0 mode_\$1 empty empty -2 -8 0 10 -262144
+-1 -1 0 1;
+#X obj 120 235 hsl 256 15 0 1 0 0 mode_\$1 empty empty -2 -8 0 10 -262144
+-1 -1 17900 1;
+#X text 382 233 wavetable;
+#X msg 117 255 wavetable \$1;
+#X text 383 77 chord_root;
+#X text 382 188 scale_mode;
+#X text 382 143 scale_root;
+#X msg 117 165 scale_root \$1;
+#X msg 117 210 scale_mode \$1;
+#X obj 120 100 hsl 256 15 0 1 0 0 mode_\$1 empty empty -2 -8 0 10 -262144
+-1 -1 1300 1;
+#X text 382 98 chord_degrees;
+#X msg 117 120 chord_degrees \$1;
 #X connect 0 0 2 0;
 #X connect 2 0 1 0;
 #X connect 2 0 1 1;
@@ -27,3 +31,5 @@
 #X connect 8 0 0 0;
 #X connect 12 0 0 0;
 #X connect 13 0 0 0;
+#X connect 14 0 16 0;
+#X connect 16 0 0 0;
