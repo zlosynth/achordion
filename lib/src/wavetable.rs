@@ -11,8 +11,8 @@ pub struct Wavetable<'a> {
 impl<'a> Wavetable<'a> {
     pub fn new(factors: &'a [&'a [u16]], sample_rate: u32) -> Self {
         Wavetable {
-            factors,
             sample_rate,
+            factors,
         }
     }
 
