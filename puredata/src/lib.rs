@@ -63,10 +63,10 @@ pub unsafe extern "C" fn achordion_tilde_setup() {
         callback = perform
     );
 
-    register_set_voct_method(class);
-    register_set_mode_method(class);
-    register_set_root_method(class);
-    register_set_wavetable_method(class);
+    register_float_method(class, "float", set_voct);
+    register_float_method(class, "mode", set_mode);
+    register_float_method(class, "root", set_root);
+    register_float_method(class, "wavetable", set_wavetable);
 }
 
 unsafe fn create_class() -> *mut pd_sys::_class {
@@ -98,53 +98,18 @@ unsafe extern "C" fn new() -> *mut c_void {
     class as *mut c_void
 }
 
-unsafe fn register_set_voct_method(class: *mut pd_sys::_class) {
+unsafe fn register_float_method(
+    class: *mut pd_sys::_class,
+    symbol: &str,
+    method: unsafe extern "C" fn(*mut Class, pd_sys::t_float),
+) {
     pd_sys::class_addmethod(
         class,
         Some(std::mem::transmute::<
             unsafe extern "C" fn(*mut Class, pd_sys::t_float),
             _,
-        >(set_voct)),
-        &mut pd_sys::s_float,
-        pd_sys::t_atomtype::A_FLOAT,
-        0,
-    );
-}
-
-unsafe fn register_set_mode_method(class: *mut pd_sys::_class) {
-    pd_sys::class_addmethod(
-        class,
-        Some(std::mem::transmute::<
-            unsafe extern "C" fn(*mut Class, pd_sys::t_float),
-            _,
-        >(set_mode)),
-        pd_sys::gensym(cstr::cstr("mode").as_ptr()),
-        pd_sys::t_atomtype::A_FLOAT,
-        0,
-    );
-}
-
-unsafe fn register_set_wavetable_method(class: *mut pd_sys::_class) {
-    pd_sys::class_addmethod(
-        class,
-        Some(std::mem::transmute::<
-            unsafe extern "C" fn(*mut Class, pd_sys::t_float),
-            _,
-        >(set_wavetable)),
-        pd_sys::gensym(cstr::cstr("wavetable").as_ptr()),
-        pd_sys::t_atomtype::A_FLOAT,
-        0,
-    );
-}
-
-unsafe fn register_set_root_method(class: *mut pd_sys::_class) {
-    pd_sys::class_addmethod(
-        class,
-        Some(std::mem::transmute::<
-            unsafe extern "C" fn(*mut Class, pd_sys::t_float),
-            _,
-        >(set_root)),
-        pd_sys::gensym(cstr::cstr("root").as_ptr()),
+        >(method)),
+        pd_sys::gensym(cstr::cstr(symbol).as_ptr()),
         pd_sys::t_atomtype::A_FLOAT,
         0,
     );
