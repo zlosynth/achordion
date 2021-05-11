@@ -90,11 +90,12 @@ impl<'a> Instrument<'a> {
         self.oscillator_c.wavetable = wavetable;
     }
 
-    pub fn populate(&mut self, buffer: &mut [u16]) {
-        zero_slice(buffer);
-        self.oscillator_a.populate_add(buffer, 1.0 / 3.0);
-        self.oscillator_b.populate_add(buffer, 1.0 / 3.0);
-        self.oscillator_c.populate_add(buffer, 1.0 / 3.0);
+    pub fn populate(&mut self, buffer_root: &mut [u16], buffer_chord: &mut [u16]) {
+        zero_slice(buffer_root);
+        zero_slice(buffer_chord);
+        self.oscillator_a.populate_add(buffer_root, 1.0);
+        self.oscillator_b.populate_add(buffer_chord, 1.0 / 2.0);
+        self.oscillator_c.populate_add(buffer_chord, 1.0 / 2.0);
     }
 
     fn apply_settings(&mut self) {

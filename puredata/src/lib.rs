@@ -44,6 +44,8 @@ lazy_static! {
 #[repr(C)]
 struct Class<'a> {
     pd_obj: pd_sys::t_object,
+    root_outlet: *mut pd_sys::_outlet,
+    chord_outlet: *mut pd_sys::_outlet,
     instrument: Instrument<'a>,
     signal_dummy: f32,
 }
@@ -59,7 +61,7 @@ pub unsafe extern "C" fn achordion_tilde_setup() {
         receiver = Class,
         dummy_offset = offset_of!(Class => signal_dummy),
         number_of_inlets = 1,
-        number_of_outlets = 1,
+        number_of_outlets = 3,
         callback = perform
     );
 
@@ -95,6 +97,8 @@ unsafe extern "C" fn new() -> *mut c_void {
     (*class).instrument = instrument;
 
     pd_sys::outlet_new(&mut (*class).pd_obj, &mut pd_sys::s_signal);
+    (*class).root_outlet = pd_sys::outlet_new(&mut (*class).pd_obj, &mut pd_sys::s_signal);
+    (*class).chord_outlet = pd_sys::outlet_new(&mut (*class).pd_obj, &mut pd_sys::s_signal);
 
     class as *mut c_void
 }
@@ -142,9 +146,22 @@ fn perform(
     _inlets: &[&mut [pd_sys::t_float]],
     outlets: &mut [&mut [pd_sys::t_float]],
 ) {
-    let mut buffer = [0];
-    for x in outlets[0].iter_mut() {
-        class.instrument.populate(&mut buffer[..]);
-        *x = buffer[0] as f32 / f32::powi(2.0, 16);
+    const BUFFER_LEN: usize = 32;
+    assert!(outlets[0].len() % BUFFER_LEN == 0);
+
+    let mut buffer_root = [0; BUFFER_LEN];
+    let mut buffer_chord = [0; BUFFER_LEN];
+
+    for chunk_index in 0..outlets[0].len() / BUFFER_LEN {
+        class
+            .instrument
+            .populate(&mut buffer_root[..], &mut buffer_chord[..]);
+
+        let start = chunk_index * BUFFER_LEN;
+        for i in 0..BUFFER_LEN {
+            outlets[1][start + i] = buffer_root[i] as f32 / f32::powi(2.0, 15) - 1.0;
+            outlets[2][start + i] = buffer_chord[i] as f32 / f32::powi(2.0, 15) - 1.0;
+            outlets[0][start + i] = (outlets[1][start + i] + outlets[2][start + i]) / 2.0;
+        }
     }
 }

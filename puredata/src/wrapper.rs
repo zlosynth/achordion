@@ -90,6 +90,7 @@ macro_rules! register_dsp_method {
             for i in 0..$outlets {
                 outlets[i] =
                     crate::wrapper::read_signal(arguments[3 + $inlets + i], number_of_frames);
+                // TODO: Is inlet offset needed?
             }
 
             $perform(&mut *receiver, number_of_frames, &inlets, &mut outlets);
