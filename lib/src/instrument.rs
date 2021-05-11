@@ -5,9 +5,9 @@ use crate::scales;
 use crate::wavetable::Wavetable;
 
 pub struct Instrument<'a> {
-    voct: f32,
-    mode: scales::diatonic::Mode,
-    root: Note,
+    scale_root: Note,
+    scale_mode: scales::diatonic::Mode,
+    chord_root: f32,
     oscillator: Oscillator<'a>,
 }
 
@@ -15,25 +15,25 @@ impl<'a> Instrument<'a> {
     pub fn new(wavetables: &'a [&'a Wavetable], sample_rate: u32) -> Self {
         let oscillator = Oscillator::new(wavetables, sample_rate);
         Self {
+            scale_root: Note::C1,
+            scale_mode: scales::diatonic::Ionian,
+            chord_root: 0.0,
             oscillator,
-            voct: 0.0,
-            root: Note::C1,
-            mode: scales::diatonic::Ionian,
         }
     }
 
-    pub fn set_mode(&mut self, mode: f32) {
-        self.mode = if mode < 1.0 / 7.0 {
+    pub fn set_scale_mode(&mut self, scale_mode: f32) {
+        self.scale_mode = if scale_mode < 1.0 / 7.0 {
             scales::diatonic::Ionian
-        } else if mode < 2.0 / 7.0 {
+        } else if scale_mode < 2.0 / 7.0 {
             scales::diatonic::Dorian
-        } else if mode < 3.0 / 7.0 {
+        } else if scale_mode < 3.0 / 7.0 {
             scales::diatonic::Phrygian
-        } else if mode < 4.0 / 7.0 {
+        } else if scale_mode < 4.0 / 7.0 {
             scales::diatonic::Lydian
-        } else if mode < 5.0 / 7.0 {
+        } else if scale_mode < 5.0 / 7.0 {
             scales::diatonic::Mixolydian
-        } else if mode < 6.0 / 7.0 {
+        } else if scale_mode < 6.0 / 7.0 {
             scales::diatonic::Aeolian
         } else {
             scales::diatonic::Locrian
@@ -41,13 +41,13 @@ impl<'a> Instrument<'a> {
         self.apply_settings();
     }
 
-    pub fn set_root(&mut self, root: f32) {
-        self.root = quantizer::chromatic::quantize(root);
+    pub fn set_scale_root(&mut self, scale_root: f32) {
+        self.scale_root = quantizer::chromatic::quantize(scale_root);
         self.apply_settings();
     }
 
-    pub fn set_voct(&mut self, voct: f32) {
-        self.voct = voct;
+    pub fn set_chord_root(&mut self, chord_root: f32) {
+        self.chord_root = chord_root;
         self.apply_settings();
     }
 
@@ -60,7 +60,7 @@ impl<'a> Instrument<'a> {
     }
 
     fn apply_settings(&mut self) {
-        let note = quantizer::diatonic::quantize(self.mode, self.root, self.voct);
+        let note = quantizer::diatonic::quantize(self.scale_mode, self.scale_root, self.chord_root);
         self.oscillator.frequency = note.to_freq_f32();
     }
 }

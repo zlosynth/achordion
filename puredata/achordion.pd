@@ -3,27 +3,27 @@
 #X obj 117 270 dac~;
 #X obj 117 245 *~ 0.3;
 #X obj 120 56 hsl 256 15 2 8 0 0 empty empty empty -2 -8 0 10 -262144
--1 -1 0 1;
-#X obj 120 76 hsl 256 15 0 1 0 0 mode_\$1 empty empty -2 -8 0 10 -262144
--1 -1 0 1;
-#X text 382 74 mode;
-#X text 383 53 voct;
-#X msg 117 96 mode \$1;
+-1 -1 4300 1;
 #X obj 120 121 hsl 256 15 0 1 0 0 mode_\$1 empty empty -2 -8 0 10 -262144
--1 -1 14100 1;
-#X text 382 119 root;
-#X msg 117 141 root \$1;
+-1 -1 7900 1;
+#X obj 120 76 hsl 256 15 0 1 0 0 mode_\$1 empty empty -2 -8 0 10 -262144
+-1 -1 18600 1;
 #X obj 120 166 hsl 256 15 0 1 0 0 mode_\$1 empty empty -2 -8 0 10 -262144
--1 -1 25500 1;
+-1 -1 15100 1;
 #X text 382 164 wavetable;
 #X msg 117 186 wavetable \$1;
+#X text 383 53 chord_root;
+#X text 382 119 scale_mode;
+#X text 382 74 scale_root;
+#X msg 117 96 scale_root \$1;
+#X msg 117 141 scale_mode \$1;
 #X connect 0 0 2 0;
 #X connect 2 0 1 0;
 #X connect 2 0 1 1;
 #X connect 3 0 0 0;
-#X connect 4 0 7 0;
-#X connect 7 0 0 0;
-#X connect 8 0 10 0;
-#X connect 10 0 0 0;
-#X connect 11 0 13 0;
+#X connect 4 0 13 0;
+#X connect 5 0 12 0;
+#X connect 6 0 8 0;
+#X connect 8 0 0 0;
+#X connect 12 0 0 0;
 #X connect 13 0 0 0;
