@@ -51,6 +51,10 @@ impl<'a> Instrument<'a> {
         self.apply_settings();
     }
 
+    pub fn set_wavetable(&mut self, wavetable: f32) {
+        self.oscillator.wavetable = wavetable;
+    }
+
     pub fn populate(&mut self, buffer: &mut [u16]) {
         self.oscillator.populate(buffer);
     }
