@@ -1,10 +1,17 @@
-#N canvas 1035 405 450 300 12;
-#X obj 117 79 achordion~;
-#X obj 117 129 dac~;
-#X obj 117 104 *~ 0.3;
+#N canvas 718 198 676 576 12;
+#X obj 117 129 achordion~;
+#X obj 117 179 dac~;
+#X obj 117 154 *~ 0.3;
 #X obj 120 56 hsl 256 15 2 8 0 0 empty empty empty -2 -8 0 10 -262144
--1 -1 14500 1;
+-1 -1 13500 1;
+#X obj 120 76 hsl 256 15 0 1 0 0 mode_\$1 empty empty -2 -8 0 10 -262144
+-1 -1 7000 1;
+#X text 382 74 mode;
+#X text 383 53 voct;
+#X msg 117 96 mode \$1;
 #X connect 0 0 2 0;
 #X connect 2 0 1 0;
 #X connect 2 0 1 1;
 #X connect 3 0 0 0;
+#X connect 4 0 7 0;
+#X connect 7 0 0 0;
