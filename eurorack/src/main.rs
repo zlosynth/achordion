@@ -14,6 +14,8 @@
 
 #![no_std]
 #![no_main]
+#![allow(unknown_lints)]
+#![allow(clippy::inconsistent_struct_constructor)]
 
 #[macro_use]
 extern crate lazy_static;
@@ -325,80 +327,77 @@ const APP: () = {
 
             if let Ok(size) = usb_midi.read(&mut buffer) {
                 let buffer_reader = MidiPacketBufferReader::new(&buffer, size);
-                for packet in buffer_reader.into_iter() {
-                    if let Ok(packet) = packet {
-                        if let Ok(message) = packet.message.try_into() {
-                            let state = cx.resources.midi_instrument.reconcile(message);
-                            let oscillation_disabled = state.frequency < 0.1;
-                            let chord_mode = state.cc4 > 0.1;
-                            let wavetable = state.cc1;
+                for packet in buffer_reader.into_iter().flatten() {
+                    if let Ok(message) = packet.message.try_into() {
+                        let state = cx.resources.midi_instrument.reconcile(message);
+                        let oscillation_disabled = state.frequency < 0.1;
+                        let chord_mode = state.cc4 > 0.1;
+                        let wavetable = state.cc1;
 
-                            if !chord_mode {
-                                cx.resources.oscillator_b.frequency = 0.0;
-                                cx.resources.oscillator_c.frequency = 0.0;
-                            }
-
-                            if oscillation_disabled {
-                                cx.resources.oscillator_a.frequency = 0.0;
-                                cx.resources.oscillator_b.frequency = 0.0;
-                                cx.resources.oscillator_c.frequency = 0.0;
-                            } else {
-                                let scale_base = quantizer::chromatic::quantize(state.cc2);
-
-                                let mode = if state.cc3 < 1.0 / 7.0 {
-                                    scales::diatonic::Ionian
-                                } else if state.cc3 < 2.0 / 7.0 {
-                                    scales::diatonic::Dorian
-                                } else if state.cc3 < 3.0 / 7.0 {
-                                    scales::diatonic::Phrygian
-                                } else if state.cc3 < 4.0 / 7.0 {
-                                    scales::diatonic::Lydian
-                                } else if state.cc3 < 5.0 / 7.0 {
-                                    scales::diatonic::Mixolydian
-                                } else if state.cc3 < 6.0 / 7.0 {
-                                    scales::diatonic::Aeolian
-                                } else {
-                                    scales::diatonic::Locrian
-                                };
-
-                                let chord_base =
-                                    quantizer::diatonic::quantize(mode, scale_base, state.voct);
-
-                                let notes = if state.cc4 < 0.2 {
-                                    chords::diatonic::build(mode, scale_base, chord_base, [1, 3, 5])
-                                } else if state.cc4 < 0.3 {
-                                    chords::diatonic::build(mode, scale_base, chord_base, [1, 2, 5])
-                                } else if state.cc4 < 0.4 {
-                                    chords::diatonic::build(mode, scale_base, chord_base, [1, 4, 5])
-                                } else if state.cc4 < 0.5 {
-                                    chords::diatonic::build(mode, scale_base, chord_base, [1, 5, 7])
-                                } else if state.cc4 < 0.6 {
-                                    chords::diatonic::build(mode, scale_base, chord_base, [1, 3, 7])
-                                } else if state.cc4 < 0.7 {
-                                    chords::diatonic::build(mode, scale_base, chord_base, [1, 4, 7])
-                                } else if state.cc4 < 0.8 {
-                                    chords::diatonic::build(mode, scale_base, chord_base, [1, 2, 7])
-                                } else if state.cc4 < 0.9 {
-                                    chords::diatonic::build(mode, scale_base, chord_base, [1, 5, 9])
-                                } else {
-                                    chords::diatonic::build(mode, scale_base, chord_base, [1, 2, 9])
-                                };
-
-                                cx.resources.oscillator_a.frequency =
-                                    notes[0].unwrap().to_freq_f32();
-
-                                if chord_mode {
-                                    cx.resources.oscillator_b.frequency =
-                                        notes[1].unwrap().to_freq_f32();
-                                    cx.resources.oscillator_c.frequency =
-                                        notes[2].unwrap().to_freq_f32();
-                                }
-                            }
-
-                            cx.resources.oscillator_a.wavetable = wavetable;
-                            cx.resources.oscillator_b.wavetable = wavetable;
-                            cx.resources.oscillator_c.wavetable = wavetable;
+                        if !chord_mode {
+                            cx.resources.oscillator_b.frequency = 0.0;
+                            cx.resources.oscillator_c.frequency = 0.0;
                         }
+
+                        if oscillation_disabled {
+                            cx.resources.oscillator_a.frequency = 0.0;
+                            cx.resources.oscillator_b.frequency = 0.0;
+                            cx.resources.oscillator_c.frequency = 0.0;
+                        } else {
+                            let scale_base = quantizer::chromatic::quantize(state.cc2);
+
+                            let mode = if state.cc3 < 1.0 / 7.0 {
+                                scales::diatonic::Ionian
+                            } else if state.cc3 < 2.0 / 7.0 {
+                                scales::diatonic::Dorian
+                            } else if state.cc3 < 3.0 / 7.0 {
+                                scales::diatonic::Phrygian
+                            } else if state.cc3 < 4.0 / 7.0 {
+                                scales::diatonic::Lydian
+                            } else if state.cc3 < 5.0 / 7.0 {
+                                scales::diatonic::Mixolydian
+                            } else if state.cc3 < 6.0 / 7.0 {
+                                scales::diatonic::Aeolian
+                            } else {
+                                scales::diatonic::Locrian
+                            };
+
+                            let chord_base =
+                                quantizer::diatonic::quantize(mode, scale_base, state.voct);
+
+                            let notes = if state.cc4 < 0.2 {
+                                chords::diatonic::build(mode, scale_base, chord_base, [1, 3, 5])
+                            } else if state.cc4 < 0.3 {
+                                chords::diatonic::build(mode, scale_base, chord_base, [1, 2, 5])
+                            } else if state.cc4 < 0.4 {
+                                chords::diatonic::build(mode, scale_base, chord_base, [1, 4, 5])
+                            } else if state.cc4 < 0.5 {
+                                chords::diatonic::build(mode, scale_base, chord_base, [1, 5, 7])
+                            } else if state.cc4 < 0.6 {
+                                chords::diatonic::build(mode, scale_base, chord_base, [1, 3, 7])
+                            } else if state.cc4 < 0.7 {
+                                chords::diatonic::build(mode, scale_base, chord_base, [1, 4, 7])
+                            } else if state.cc4 < 0.8 {
+                                chords::diatonic::build(mode, scale_base, chord_base, [1, 2, 7])
+                            } else if state.cc4 < 0.9 {
+                                chords::diatonic::build(mode, scale_base, chord_base, [1, 5, 9])
+                            } else {
+                                chords::diatonic::build(mode, scale_base, chord_base, [1, 2, 9])
+                            };
+
+                            cx.resources.oscillator_a.frequency = notes[0].unwrap().to_freq_f32();
+
+                            if chord_mode {
+                                cx.resources.oscillator_b.frequency =
+                                    notes[1].unwrap().to_freq_f32();
+                                cx.resources.oscillator_c.frequency =
+                                    notes[2].unwrap().to_freq_f32();
+                            }
+                        }
+
+                        cx.resources.oscillator_a.wavetable = wavetable;
+                        cx.resources.oscillator_b.wavetable = wavetable;
+                        cx.resources.oscillator_c.wavetable = wavetable;
                     }
                 }
             }
