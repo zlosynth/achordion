@@ -28,18 +28,23 @@ use core::convert::TryInto;
 use panic_halt as _;
 
 use rtic::app;
+use rtic::cyccnt::{Instant, U32Ext as _};
 
-use stm32f4xx_hal::delay::Delay;
+use cortex_m::peripheral::DWT;
+
+use stm32f4xx_hal::adc::config::AdcConfig;
+use stm32f4xx_hal::adc::config::SampleTime;
+use stm32f4xx_hal::adc::Adc;
 use stm32f4xx_hal::dma::config::Priority;
 use stm32f4xx_hal::dma::traits::{PeriAddress, Stream};
 use stm32f4xx_hal::dma::{Channel0, MemoryToPeripheral, Stream5, StreamsTuple};
-use stm32f4xx_hal::gpio::gpioc::PC4;
+use stm32f4xx_hal::gpio::gpioc::{PC1, PC4};
 use stm32f4xx_hal::gpio::gpiod::{PD12, PD14, PD15};
-use stm32f4xx_hal::gpio::{Edge, Input, Output, PullUp, PushPull};
+use stm32f4xx_hal::gpio::{Edge, Input, Output, PullUp, PushPull, Analog};
 use stm32f4xx_hal::i2c::I2c;
 use stm32f4xx_hal::i2s::I2s;
 use stm32f4xx_hal::otg_fs::{UsbBus, USB};
-use stm32f4xx_hal::pac::DMA1;
+use stm32f4xx_hal::pac::{DMA1, ADC2};
 use stm32f4xx_hal::prelude::*;
 
 use usb_device::bus::UsbBusAllocator;
@@ -65,6 +70,8 @@ use crate::hal::prelude::*;
 use crate::hal::stream::WordSize;
 
 static mut EP_MEMORY: [u32; 1024] = [0; 1024];
+
+const PERIOD: u32 = 8_000_000;
 
 // 7-bit address
 const DAC_ADDRESS: u8 = 0x94 >> 1;
@@ -101,6 +108,8 @@ static mut USB_DEVICE: Option<UsbDevice<UsbBus<USB>>> = None;
 const APP: () = {
     struct Resources {
         stream: Stream5<DMA1>,
+        adc: Adc<ADC2>,
+        note_pot: PC1<Analog>,
         green_led: PD12<Output<PushPull>>,
         blue_led: PD15<Output<PushPull>>,
         red_led: PD14<Output<PushPull>>,
@@ -112,7 +121,7 @@ const APP: () = {
     }
 
     /// Initialize all the peripherals.
-    #[init]
+    #[init(schedule = [read_pots])]
     fn init(mut cx: init::Context) -> init::LateResources {
         let mut syscfg = cx.device.SYSCFG.constrain();
         let rcc = cx.device.RCC.constrain();
@@ -120,6 +129,10 @@ const APP: () = {
         let gpiob = cx.device.GPIOB.split();
         let gpioc = cx.device.GPIOC.split();
         let gpiod = cx.device.GPIOD.split();
+
+        cx.core.DCB.enable_trace();
+        DWT::unlock();
+        cx.core.DWT.enable_cycle_counter();
 
         // Maximum system frequency supported by the board. The I2S clock should
         // align well with 48 khz sample rate.
@@ -154,6 +167,10 @@ const APP: () = {
         let mut display_dp = gpioa.pa2.into_push_pull_output();
         display_dp.set_high().unwrap();
 
+        let note_pot = gpioc.pc1.into_analog();
+        let adc = Adc::adc2(cx.device.ADC2, true, AdcConfig::default());
+        cx.schedule.read_pots(cx.start + PERIOD.cycles()).unwrap();
+
         // Configure Cirrus DAC.
         {
             let i2c = I2c::new(
@@ -170,7 +187,6 @@ const APP: () = {
                 i2c,
                 DAC_ADDRESS,
                 gpiod.pd4.into_push_pull_output(), // DAC RESET
-                Delay::new(cx.core.SYST, clocks),
             )
             .unwrap();
 
@@ -287,6 +303,8 @@ const APP: () = {
 
         init::LateResources {
             stream,
+            adc,
+            note_pot,
             green_led,
             blue_led,
             red_led,
@@ -305,15 +323,15 @@ const APP: () = {
 
         let (start, stop) = if Stream5::<DMA1>::get_transfer_complete_flag() {
             stream.clear_transfer_complete_interrupt();
-            // cx.resources.green_led.set_high().unwrap();
+            cx.resources.green_led.set_high().unwrap();
             (BUFFER_SIZE, BUFFER_SIZE * 2)
         } else if Stream5::<DMA1>::get_half_transfer_flag() {
             stream.clear_half_transfer_interrupt();
-            // cx.resources.green_led.set_high().unwrap();
+            cx.resources.green_led.set_high().unwrap();
             (0, BUFFER_SIZE)
         } else {
             stream.clear_interrupts();
-            // cx.resources.red_led.set_high().unwrap();
+            cx.resources.red_led.set_high().unwrap();
             return;
         };
 
@@ -330,7 +348,15 @@ const APP: () = {
             }
         }
 
-        // cx.resources.green_led.set_low().unwrap();
+        cx.resources.green_led.set_low().unwrap();
+    }
+
+    #[task(schedule = [read_pots], resources = [adc, note_pot])]
+    fn read_pots(cx: read_pots::Context) {
+        let sample = cx.resources.adc.convert(cx.resources.note_pot, SampleTime::Cycles_480);
+        let millivolts = cx.resources.adc.sample_to_millivolts(sample);
+
+        cx.schedule.read_pots(cx.scheduled + PERIOD.cycles()).unwrap();
     }
 
     /// Reconcile incoming MIDI messages.
@@ -434,5 +460,9 @@ const APP: () = {
         } else {
             oscillator.frequency *= 1.5;
         }
+    }
+
+    extern "C" {
+        fn EXTI0();
     }
 };

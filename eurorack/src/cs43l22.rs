@@ -20,10 +20,9 @@ where
         i2c: I,
         address: u8,
         reset_pin: PD4<Output<PushPull>>,
-        delay: Delay,
     ) -> Result<Self, <I as Write>::Error> {
         let mut dac = Cs43L22 { i2c, address };
-        dac.reset(reset_pin, delay);
+        dac.reset(reset_pin);
         dac.setup()?;
         Ok(dac)
     }
@@ -57,15 +56,15 @@ where
         self.write(Register::InterfaceCtl1, 0b0_0_0_0_01_11)
     }
 
-    fn reset(&mut self, mut reset_pin: PD4<Output<PushPull>>, mut delay: Delay) {
+    fn reset(&mut self, mut reset_pin: PD4<Output<PushPull>>) {
         // Keep DAC reset low for at least one millisecond
-        delay.delay_ms(1u8);
+        cortex_m::asm::delay(168_000_000 / 1_000);
 
         // Release the DAC from reset
         reset_pin.set_high().unwrap();
 
         // Wait at least 550 ns before starting I2C communication
-        delay.delay_us(1u8);
+        cortex_m::asm::delay(168_000_000 / 1_000);
     }
 
     pub fn set_volume_a(&mut self, volume: i8) -> Result<(), <I as Write>::Error> {
