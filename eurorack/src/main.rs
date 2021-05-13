@@ -33,9 +33,9 @@ use stm32f4xx_hal::delay::Delay;
 use stm32f4xx_hal::dma::config::Priority;
 use stm32f4xx_hal::dma::traits::{PeriAddress, Stream};
 use stm32f4xx_hal::dma::{Channel0, MemoryToPeripheral, Stream5, StreamsTuple};
-use stm32f4xx_hal::gpio::gpioa::PA0;
+use stm32f4xx_hal::gpio::gpioc::PC4;
 use stm32f4xx_hal::gpio::gpiod::{PD12, PD14, PD15};
-use stm32f4xx_hal::gpio::{Edge, Input, Output, PullDown, PushPull};
+use stm32f4xx_hal::gpio::{Edge, Input, Output, PullUp, PushPull};
 use stm32f4xx_hal::i2c::I2c;
 use stm32f4xx_hal::i2s::I2s;
 use stm32f4xx_hal::otg_fs::{UsbBus, USB};
@@ -104,7 +104,7 @@ const APP: () = {
         green_led: PD12<Output<PushPull>>,
         blue_led: PD15<Output<PushPull>>,
         red_led: PD14<Output<PushPull>>,
-        button: PA0<Input<PullDown>>,
+        button: PC4<Input<PullUp>>,
         oscillator_a: Oscillator<'static>,
         oscillator_b: Oscillator<'static>,
         oscillator_c: Oscillator<'static>,
@@ -138,21 +138,21 @@ const APP: () = {
 
         // 7 segment display
         let mut display_a = gpioa.pa1.into_push_pull_output();
-        display_a.set_high();
+        display_a.set_high().unwrap();
         let mut display_b = gpiob.pb0.into_push_pull_output();
-        display_b.set_high();
+        display_b.set_high().unwrap();
         let mut display_c = gpioa.pa3.into_push_pull_output();
-        display_c.set_high();
+        display_c.set_high().unwrap();
         let mut display_d = gpioc.pc5.into_push_pull_output();
-        display_d.set_high();
+        display_d.set_high().unwrap();
         let mut display_e = gpioa.pa7.into_push_pull_output();
-        display_e.set_high();
+        display_e.set_high().unwrap();
         let mut display_f = gpiob.pb1.into_push_pull_output();
-        display_f.set_high();
+        display_f.set_high().unwrap();
         let mut display_g = gpioa.pa5.into_push_pull_output();
-        display_g.set_high();
+        display_g.set_high().unwrap();
         let mut display_dp = gpioa.pa2.into_push_pull_output();
-        display_dp.set_high();
+        display_dp.set_high().unwrap();
 
         // Configure Cirrus DAC.
         {
@@ -242,10 +242,10 @@ const APP: () = {
         // The blue button on the board. When clicked, it raises an EXTI
         // interrupt.
         let button = {
-            let mut button = gpioa.pa0.into_pull_down_input();
+            let mut button = gpioc.pc4.into_pull_up_input();
             button.make_interrupt_source(&mut syscfg);
             button.enable_interrupt(&mut cx.device.EXTI);
-            button.trigger_on_edge(&mut cx.device.EXTI, Edge::RISING);
+            button.trigger_on_edge(&mut cx.device.EXTI, Edge::FALLING);
             button
         };
 
@@ -424,7 +424,7 @@ const APP: () = {
     }
 
     /// Control the oscillator frequency using the button.
-    #[task(binds = EXTI0, resources = [button, oscillator_a])]
+    #[task(binds = EXTI4, resources = [button, oscillator_a, red_led])]
     fn button_click(cx: button_click::Context) {
         cx.resources.button.clear_interrupt_pending_bit();
 
