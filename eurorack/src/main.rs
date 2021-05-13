@@ -136,6 +136,24 @@ const APP: () = {
         let blue_led = gpiod.pd15.into_push_pull_output();
         let red_led = gpiod.pd14.into_push_pull_output();
 
+        // 7 segment display
+        let mut display_a = gpioa.pa1.into_push_pull_output();
+        display_a.set_high();
+        let mut display_b = gpiob.pb0.into_push_pull_output();
+        display_b.set_high();
+        let mut display_c = gpioa.pa3.into_push_pull_output();
+        display_c.set_high();
+        let mut display_d = gpioc.pc5.into_push_pull_output();
+        display_d.set_high();
+        let mut display_e = gpioa.pa7.into_push_pull_output();
+        display_e.set_high();
+        let mut display_f = gpiob.pb1.into_push_pull_output();
+        display_f.set_high();
+        let mut display_g = gpioa.pa5.into_push_pull_output();
+        display_g.set_high();
+        let mut display_dp = gpioa.pa2.into_push_pull_output();
+        display_dp.set_high();
+
         // Configure Cirrus DAC.
         {
             let i2c = I2c::new(
@@ -287,15 +305,15 @@ const APP: () = {
 
         let (start, stop) = if Stream5::<DMA1>::get_transfer_complete_flag() {
             stream.clear_transfer_complete_interrupt();
-            cx.resources.green_led.set_high().unwrap();
+            // cx.resources.green_led.set_high().unwrap();
             (BUFFER_SIZE, BUFFER_SIZE * 2)
         } else if Stream5::<DMA1>::get_half_transfer_flag() {
             stream.clear_half_transfer_interrupt();
-            cx.resources.green_led.set_high().unwrap();
+            // cx.resources.green_led.set_high().unwrap();
             (0, BUFFER_SIZE)
         } else {
             stream.clear_interrupts();
-            cx.resources.red_led.set_high().unwrap();
+            // cx.resources.red_led.set_high().unwrap();
             return;
         };
 
@@ -312,7 +330,7 @@ const APP: () = {
             }
         }
 
-        cx.resources.green_led.set_low().unwrap();
+        // cx.resources.green_led.set_low().unwrap();
     }
 
     /// Reconcile incoming MIDI messages.
