@@ -23,12 +23,10 @@ extern crate lazy_static;
 mod cs43l22;
 mod hal;
 
-use core::convert::TryInto;
-
 use panic_halt as _;
 
 use rtic::app;
-use rtic::cyccnt::{Instant, U32Ext as _};
+use rtic::cyccnt::U32Ext as _;
 
 use cortex_m::peripheral::DWT;
 
@@ -40,28 +38,16 @@ use stm32f4xx_hal::dma::traits::{PeriAddress, Stream};
 use stm32f4xx_hal::dma::{Channel0, MemoryToPeripheral, Stream5, StreamsTuple};
 use stm32f4xx_hal::gpio::gpioc::{PC1, PC4};
 use stm32f4xx_hal::gpio::gpiod::{PD12, PD14, PD15};
-use stm32f4xx_hal::gpio::{Edge, Input, Output, PullUp, PushPull, Analog};
+use stm32f4xx_hal::gpio::{Analog, Edge, Input, Output, PullUp, PushPull};
 use stm32f4xx_hal::i2c::I2c;
 use stm32f4xx_hal::i2s::I2s;
-use stm32f4xx_hal::otg_fs::{UsbBus, USB};
-use stm32f4xx_hal::pac::{DMA1, ADC2};
+use stm32f4xx_hal::pac::{ADC2, DMA1};
 use stm32f4xx_hal::prelude::*;
-
-use usb_device::bus::UsbBusAllocator;
-use usb_device::prelude::*;
-
-use usbd_midi::data::usb::constants::*;
-use usbd_midi::data::usb_midi::midi_packet_reader::MidiPacketBufferReader;
-use usbd_midi::midi_device::MidiClass;
 
 use stm32_i2s_v12x::format::{Data16Frame16, FrameFormat};
 use stm32_i2s_v12x::{MasterClock, MasterConfig, Polarity};
 
-use achordion_lib::chords;
-use achordion_lib::midi::instrument::Instrument as MidiInstrument;
 use achordion_lib::oscillator::Oscillator;
-use achordion_lib::quantizer;
-use achordion_lib::scales;
 use achordion_lib::waveform;
 use achordion_lib::wavetable::Wavetable;
 
@@ -69,9 +55,7 @@ use crate::cs43l22::Cs43L22;
 use crate::hal::prelude::*;
 use crate::hal::stream::WordSize;
 
-static mut EP_MEMORY: [u32; 1024] = [0; 1024];
-
-const PERIOD: u32 = 8_000_000;
+const PERIOD: u32 = 1_000_000;
 
 // 7-bit address
 const DAC_ADDRESS: u8 = 0x94 >> 1;
@@ -99,11 +83,6 @@ lazy_static! {
     static ref WAVETABLES: [&'static Wavetable<'static>; 4] = [&SINE, &TRIANGLE, &SQUARE, &SAW];
 }
 
-// Static globals used to keep the state of MIDI interface
-static mut USB_BUS: Option<UsbBusAllocator<UsbBus<USB>>> = None;
-static mut USB_MIDI: Option<MidiClass<UsbBus<USB>>> = None;
-static mut USB_DEVICE: Option<UsbDevice<UsbBus<USB>>> = None;
-
 #[app(device = stm32f4xx_hal::pac, peripherals = true, monotonic = rtic::cyccnt::CYCCNT)]
 const APP: () = {
     struct Resources {
@@ -117,7 +96,6 @@ const APP: () = {
         oscillator_a: Oscillator<'static>,
         oscillator_b: Oscillator<'static>,
         oscillator_c: Oscillator<'static>,
-        midi_instrument: MidiInstrument,
     }
 
     /// Initialize all the peripherals.
@@ -265,37 +243,6 @@ const APP: () = {
             button
         };
 
-        // MIDI over USB, reconciling incomming MIDI messages in an interrupt
-        // handler. Unsafe to allow access to static variables. This is safe
-        // since all of these variables are accessed only by the interrupt
-        // handler.
-        unsafe {
-            let usb = USB {
-                usb_global: cx.device.OTG_FS_GLOBAL,
-                usb_device: cx.device.OTG_FS_DEVICE,
-                usb_pwrclk: cx.device.OTG_FS_PWRCLK,
-                pin_dm: gpioa.pa11.into_alternate_af10(),
-                pin_dp: gpioa.pa12.into_alternate_af10(),
-                hclk: clocks.hclk(),
-            };
-
-            USB_BUS = Some(UsbBus::new(usb, &mut EP_MEMORY));
-
-            USB_MIDI = Some(MidiClass::new(USB_BUS.as_ref().unwrap()));
-
-            USB_DEVICE = Some(
-                UsbDeviceBuilder::new(USB_BUS.as_ref().unwrap(), UsbVidPid(0x16c0, 0x5e4))
-                    .product("Achordion")
-                    .device_class(USB_AUDIO_CLASS)
-                    .device_sub_class(USB_MIDISTREAMING_SUBCLASS)
-                    .build(),
-            );
-        }
-
-        // MIDI instrument is used to interpret received MIDI messages and
-        // control the Oscillator based on it.
-        let midi_instrument = MidiInstrument::new();
-
         // The main instrument used to fill in the circular buffer.
         let oscillator_a = Oscillator::new(&WAVETABLES[..], SAMPLE_RATE);
         let oscillator_b = Oscillator::new(&WAVETABLES[..], SAMPLE_RATE);
@@ -312,7 +259,6 @@ const APP: () = {
             oscillator_a,
             oscillator_b,
             oscillator_c,
-            midi_instrument,
         }
     }
 
@@ -351,102 +297,20 @@ const APP: () = {
         cx.resources.green_led.set_low().unwrap();
     }
 
-    #[task(schedule = [read_pots], resources = [adc, note_pot])]
+    #[task(schedule = [read_pots], resources = [adc, note_pot, oscillator_a, oscillator_b, oscillator_c])]
     fn read_pots(cx: read_pots::Context) {
-        let sample = cx.resources.adc.convert(cx.resources.note_pot, SampleTime::Cycles_480);
+        let sample = cx
+            .resources
+            .adc
+            .convert(cx.resources.note_pot, SampleTime::Cycles_480);
         let millivolts = cx.resources.adc.sample_to_millivolts(sample);
+        cx.resources.oscillator_a.frequency = 600.0 - millivolts as f32;
+        cx.resources.oscillator_b.frequency = (600.0 - millivolts as f32) * 1.5;
+        cx.resources.oscillator_c.frequency = (600.0 - millivolts as f32) * 2.0;
 
-        cx.schedule.read_pots(cx.scheduled + PERIOD.cycles()).unwrap();
-    }
-
-    /// Reconcile incoming MIDI messages.
-    #[task(binds = OTG_FS, resources = [blue_led, midi_instrument, oscillator_a, oscillator_b, oscillator_c])]
-    fn midi_request(cx: midi_request::Context) {
-        let usb_device = unsafe { USB_DEVICE.as_mut().unwrap() };
-        let usb_midi = unsafe { USB_MIDI.as_mut().unwrap() };
-
-        cx.resources.blue_led.set_high().unwrap();
-        while usb_device.poll(&mut [usb_midi]) {
-            let mut buffer = [0; 64];
-
-            if let Ok(size) = usb_midi.read(&mut buffer) {
-                let buffer_reader = MidiPacketBufferReader::new(&buffer, size);
-                for packet in buffer_reader.into_iter().flatten() {
-                    if let Ok(message) = packet.message.try_into() {
-                        let state = cx.resources.midi_instrument.reconcile(message);
-                        let oscillation_disabled = state.frequency < 0.1;
-                        let chord_mode = state.cc4 > 0.1;
-                        let wavetable = state.cc1;
-
-                        if !chord_mode {
-                            cx.resources.oscillator_b.frequency = 0.0;
-                            cx.resources.oscillator_c.frequency = 0.0;
-                        }
-
-                        if oscillation_disabled {
-                            cx.resources.oscillator_a.frequency = 0.0;
-                            cx.resources.oscillator_b.frequency = 0.0;
-                            cx.resources.oscillator_c.frequency = 0.0;
-                        } else {
-                            let scale_base = quantizer::chromatic::quantize(state.cc2);
-
-                            let mode = if state.cc3 < 1.0 / 7.0 {
-                                scales::diatonic::Ionian
-                            } else if state.cc3 < 2.0 / 7.0 {
-                                scales::diatonic::Dorian
-                            } else if state.cc3 < 3.0 / 7.0 {
-                                scales::diatonic::Phrygian
-                            } else if state.cc3 < 4.0 / 7.0 {
-                                scales::diatonic::Lydian
-                            } else if state.cc3 < 5.0 / 7.0 {
-                                scales::diatonic::Mixolydian
-                            } else if state.cc3 < 6.0 / 7.0 {
-                                scales::diatonic::Aeolian
-                            } else {
-                                scales::diatonic::Locrian
-                            };
-
-                            let chord_base =
-                                quantizer::diatonic::quantize(mode, scale_base, state.voct);
-
-                            let notes = if state.cc4 < 0.2 {
-                                chords::diatonic::build(mode, scale_base, chord_base, [1, 3, 5])
-                            } else if state.cc4 < 0.3 {
-                                chords::diatonic::build(mode, scale_base, chord_base, [1, 2, 5])
-                            } else if state.cc4 < 0.4 {
-                                chords::diatonic::build(mode, scale_base, chord_base, [1, 4, 5])
-                            } else if state.cc4 < 0.5 {
-                                chords::diatonic::build(mode, scale_base, chord_base, [1, 5, 7])
-                            } else if state.cc4 < 0.6 {
-                                chords::diatonic::build(mode, scale_base, chord_base, [1, 3, 7])
-                            } else if state.cc4 < 0.7 {
-                                chords::diatonic::build(mode, scale_base, chord_base, [1, 4, 7])
-                            } else if state.cc4 < 0.8 {
-                                chords::diatonic::build(mode, scale_base, chord_base, [1, 2, 7])
-                            } else if state.cc4 < 0.9 {
-                                chords::diatonic::build(mode, scale_base, chord_base, [1, 5, 9])
-                            } else {
-                                chords::diatonic::build(mode, scale_base, chord_base, [1, 2, 9])
-                            };
-
-                            cx.resources.oscillator_a.frequency = notes[0].unwrap().to_freq_f32();
-
-                            if chord_mode {
-                                cx.resources.oscillator_b.frequency =
-                                    notes[1].unwrap().to_freq_f32();
-                                cx.resources.oscillator_c.frequency =
-                                    notes[2].unwrap().to_freq_f32();
-                            }
-                        }
-
-                        cx.resources.oscillator_a.wavetable = wavetable;
-                        cx.resources.oscillator_b.wavetable = wavetable;
-                        cx.resources.oscillator_c.wavetable = wavetable;
-                    }
-                }
-            }
-        }
-        cx.resources.blue_led.set_low().unwrap();
+        cx.schedule
+            .read_pots(cx.scheduled + PERIOD.cycles())
+            .unwrap();
     }
 
     /// Control the oscillator frequency using the button.

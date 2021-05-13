@@ -1,4 +1,3 @@
-use stm32f4xx_hal::delay::Delay;
 use stm32f4xx_hal::gpio::gpiod::PD4;
 use stm32f4xx_hal::gpio::{Output, PushPull};
 use stm32f4xx_hal::hal::blocking::i2c::Write;
