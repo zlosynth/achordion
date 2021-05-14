@@ -1,15 +1,14 @@
 #N canvas 718 198 676 576 12;
-#X obj 117 289 achordion~;
-#X obj 117 339 dac~;
-#X obj 117 314 *~ 0.3;
+#X obj 117 329 achordion~;
+#X obj 117 379 dac~;
 #X obj 120 80 hsl 256 15 2 8 0 0 empty empty empty -2 -8 0 10 -262144
--1 -1 9200 1;
+-1 -1 14300 1;
 #X obj 120 190 hsl 256 15 0 1 0 0 mode_\$1 empty empty -2 -8 0 10 -262144
 -1 -1 0 1;
 #X obj 120 145 hsl 256 15 0 1 0 0 mode_\$1 empty empty -2 -8 0 10 -262144
 -1 -1 0 1;
 #X obj 120 235 hsl 256 15 0 1 0 0 mode_\$1 empty empty -2 -8 0 10 -262144
--1 -1 17900 1;
+-1 -1 0 1;
 #X text 382 233 wavetable;
 #X msg 117 255 wavetable \$1;
 #X text 383 77 chord_root;
@@ -18,18 +17,25 @@
 #X msg 117 165 scale_root \$1;
 #X msg 117 210 scale_mode \$1;
 #X obj 120 100 hsl 256 15 0 1 0 0 mode_\$1 empty empty -2 -8 0 10 -262144
--1 -1 1300 1;
+-1 -1 17900 1;
 #X text 382 98 chord_degrees;
 #X msg 117 120 chord_degrees \$1;
-#X connect 0 0 2 0;
-#X connect 2 0 1 0;
-#X connect 2 0 1 1;
-#X connect 3 0 0 0;
-#X connect 4 0 13 0;
-#X connect 5 0 12 0;
-#X connect 6 0 8 0;
-#X connect 8 0 0 0;
+#X obj 120 280 hsl 256 15 0 1 0 0 mode_\$1 empty empty -2 -8 0 10 -262144
+-1 -1 0 1;
+#X text 383 278 detune;
+#X msg 117 300 detune \$1;
+#X obj 117 354 *~ 0.6;
+#X connect 0 0 19 0;
+#X connect 2 0 0 0;
+#X connect 3 0 12 0;
+#X connect 4 0 11 0;
+#X connect 5 0 7 0;
+#X connect 7 0 0 0;
+#X connect 11 0 0 0;
 #X connect 12 0 0 0;
-#X connect 13 0 0 0;
-#X connect 14 0 16 0;
-#X connect 16 0 0 0;
+#X connect 13 0 15 0;
+#X connect 15 0 0 0;
+#X connect 16 0 18 0;
+#X connect 18 0 0 0;
+#X connect 19 0 1 0;
+#X connect 19 0 1 1;

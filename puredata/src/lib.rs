@@ -70,6 +70,7 @@ pub unsafe extern "C" fn achordion_tilde_setup() {
     register_float_method(class, "scale_mode", set_scale_mode);
     register_float_method(class, "scale_root", set_scale_root);
     register_float_method(class, "wavetable", set_wavetable);
+    register_float_method(class, "detune", set_detune);
 }
 
 unsafe fn create_class() -> *mut pd_sys::_class {
@@ -138,6 +139,10 @@ unsafe extern "C" fn set_scale_root(class: *mut Class, value: pd_sys::t_float) {
 
 unsafe extern "C" fn set_wavetable(class: *mut Class, value: pd_sys::t_float) {
     (*class).instrument.set_wavetable(value.clamp(0.0, 1.0));
+}
+
+unsafe extern "C" fn set_detune(class: *mut Class, value: pd_sys::t_float) {
+    (*class).instrument.set_detune(value.clamp(0.0, 1.0));
 }
 
 fn perform(

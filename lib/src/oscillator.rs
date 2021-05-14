@@ -6,7 +6,7 @@ use super::wavetable::Wavetable;
 pub struct Oscillator<'a> {
     pub frequency: f32,
     pub wavetable: f32,
-    phase: f32,
+    pub phase: f32,
     sample_rate: f32,
     wavetables: &'a [&'a Wavetable<'a>],
 }

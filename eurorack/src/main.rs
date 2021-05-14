@@ -64,7 +64,7 @@ const PERIOD: u32 = 1_000_000;
 const DAC_ADDRESS: u8 = 0x94 >> 1;
 
 // Volume in decibels
-const VOLUME: i8 = -100;
+const VOLUME: i8 = -80;
 
 // Audio timing configuration:
 // Sample rate 48 kHz
@@ -292,7 +292,7 @@ const APP: () = {
 
     #[task(schedule = [read_pots], resources = [adc, note_pot, wavetable_pot, chord_pot, instrument])]
     fn read_pots(cx: read_pots::Context) {
-        let sample_length = 12;
+        let sample_length = 2;
 
         let note_sample = {
             let mut sample = 0;
