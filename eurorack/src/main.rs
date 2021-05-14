@@ -31,12 +31,15 @@ use rtic::cyccnt::U32Ext as _;
 use cortex_m::peripheral::DWT;
 
 use stm32f4xx_hal::adc::config::AdcConfig;
+use stm32f4xx_hal::adc::config::Resolution;
 use stm32f4xx_hal::adc::config::SampleTime;
 use stm32f4xx_hal::adc::Adc;
 use stm32f4xx_hal::dma::config::Priority;
 use stm32f4xx_hal::dma::traits::{PeriAddress, Stream};
 use stm32f4xx_hal::dma::{Channel0, MemoryToPeripheral, Stream5, StreamsTuple};
-use stm32f4xx_hal::gpio::gpioc::{PC1, PC4};
+use stm32f4xx_hal::gpio::gpioa::{PA1, PA2};
+use stm32f4xx_hal::gpio::gpiob::{PB0, PB1};
+use stm32f4xx_hal::gpio::gpioc::PC4;
 use stm32f4xx_hal::gpio::gpiod::{PD12, PD14, PD15};
 use stm32f4xx_hal::gpio::{Analog, Edge, Input, Output, PullUp, PushPull};
 use stm32f4xx_hal::i2c::I2c;
@@ -47,7 +50,7 @@ use stm32f4xx_hal::prelude::*;
 use stm32_i2s_v12x::format::{Data16Frame16, FrameFormat};
 use stm32_i2s_v12x::{MasterClock, MasterConfig, Polarity};
 
-use achordion_lib::oscillator::Oscillator;
+use achordion_lib::instrument::Instrument;
 use achordion_lib::waveform;
 use achordion_lib::wavetable::Wavetable;
 
@@ -88,14 +91,15 @@ const APP: () = {
     struct Resources {
         stream: Stream5<DMA1>,
         adc: Adc<ADC2>,
-        note_pot: PC1<Analog>,
+        note_pot: PA2<Analog>,
+        wavetable_pot: PA1<Analog>,
+        chord_pot: PB0<Analog>,
+        scale_pot: PB1<Analog>,
         green_led: PD12<Output<PushPull>>,
         blue_led: PD15<Output<PushPull>>,
         red_led: PD14<Output<PushPull>>,
         button: PC4<Input<PullUp>>,
-        oscillator_a: Oscillator<'static>,
-        oscillator_b: Oscillator<'static>,
-        oscillator_c: Oscillator<'static>,
+        instrument: Instrument<'static>,
     }
 
     /// Initialize all the peripherals.
@@ -127,26 +131,17 @@ const APP: () = {
         let blue_led = gpiod.pd15.into_push_pull_output();
         let red_led = gpiod.pd14.into_push_pull_output();
 
-        // 7 segment display
-        let mut display_a = gpioa.pa1.into_push_pull_output();
-        display_a.set_high().unwrap();
-        let mut display_b = gpiob.pb0.into_push_pull_output();
-        display_b.set_high().unwrap();
-        let mut display_c = gpioa.pa3.into_push_pull_output();
-        display_c.set_high().unwrap();
-        let mut display_d = gpioc.pc5.into_push_pull_output();
-        display_d.set_high().unwrap();
-        let mut display_e = gpioa.pa7.into_push_pull_output();
-        display_e.set_high().unwrap();
-        let mut display_f = gpiob.pb1.into_push_pull_output();
-        display_f.set_high().unwrap();
-        let mut display_g = gpioa.pa5.into_push_pull_output();
-        display_g.set_high().unwrap();
-        let mut display_dp = gpioa.pa2.into_push_pull_output();
-        display_dp.set_high().unwrap();
+        // Potentiometers
+        let note_pot = gpioa.pa2.into_analog();
+        let wavetable_pot = gpioa.pa1.into_analog();
+        let chord_pot = gpiob.pb0.into_analog();
+        let scale_pot = gpiob.pb1.into_analog();
+        let adc = Adc::adc2(
+            cx.device.ADC2,
+            true,
+            AdcConfig::default().resolution(Resolution::Twelve),
+        );
 
-        let note_pot = gpioc.pc1.into_analog();
-        let adc = Adc::adc2(cx.device.ADC2, true, AdcConfig::default());
         cx.schedule.read_pots(cx.start + PERIOD.cycles()).unwrap();
 
         // Configure Cirrus DAC.
@@ -244,26 +239,25 @@ const APP: () = {
         };
 
         // The main instrument used to fill in the circular buffer.
-        let oscillator_a = Oscillator::new(&WAVETABLES[..], SAMPLE_RATE);
-        let oscillator_b = Oscillator::new(&WAVETABLES[..], SAMPLE_RATE);
-        let oscillator_c = Oscillator::new(&WAVETABLES[..], SAMPLE_RATE);
+        let instrument = Instrument::new(&WAVETABLES[..], SAMPLE_RATE);
 
         init::LateResources {
             stream,
             adc,
             note_pot,
+            wavetable_pot,
+            scale_pot,
+            chord_pot,
             green_led,
             blue_led,
             red_led,
             button,
-            oscillator_a,
-            oscillator_b,
-            oscillator_c,
+            instrument,
         }
     }
 
     /// Handling of DMA requests to populate the circular buffer.
-    #[task(binds = DMA1_STREAM5, resources = [stream, green_led, red_led, oscillator_a, oscillator_b, oscillator_c])]
+    #[task(binds = DMA1_STREAM5, resources = [stream, green_led, red_led, instrument])]
     fn dsp_request(cx: dsp_request::Context) {
         let stream = cx.resources.stream;
 
@@ -282,31 +276,71 @@ const APP: () = {
         };
 
         let mut buffer_a = [0; BUFFER_SIZE / 2];
-        cx.resources.oscillator_a.populate(&mut buffer_a[..]);
         let mut buffer_b = [0; BUFFER_SIZE / 2];
-        cx.resources.oscillator_b.populate(&mut buffer_b[..]);
-        let mut buffer_c = [0; BUFFER_SIZE / 2];
-        cx.resources.oscillator_c.populate(&mut buffer_c[..]);
+        cx.resources
+            .instrument
+            .populate(&mut buffer_a[..], &mut buffer_b[..]);
 
         unsafe {
             for (i, x) in STEREO_BUFFER[start..stop].iter_mut().enumerate() {
-                *x = buffer_a[i / 2] / 3 + buffer_b[i / 2] / 3 + buffer_c[i / 2] / 3;
+                *x = buffer_a[i / 2] / 2 + buffer_b[i / 2] / 2;
             }
         }
 
         cx.resources.green_led.set_low().unwrap();
     }
 
-    #[task(schedule = [read_pots], resources = [adc, note_pot, oscillator_a, oscillator_b, oscillator_c])]
+    #[task(schedule = [read_pots], resources = [adc, note_pot, wavetable_pot, chord_pot, instrument])]
     fn read_pots(cx: read_pots::Context) {
-        let sample = cx
-            .resources
-            .adc
-            .convert(cx.resources.note_pot, SampleTime::Cycles_480);
-        let millivolts = cx.resources.adc.sample_to_millivolts(sample);
-        cx.resources.oscillator_a.frequency = 600.0 - millivolts as f32;
-        cx.resources.oscillator_b.frequency = (600.0 - millivolts as f32) * 1.5;
-        cx.resources.oscillator_c.frequency = (600.0 - millivolts as f32) * 2.0;
+        let sample_length = 12;
+
+        let note_sample = {
+            let mut sample = 0;
+            for _ in 0..sample_length {
+                sample += cx
+                    .resources
+                    .adc
+                    .convert(cx.resources.note_pot, SampleTime::Cycles_480)
+                    / sample_length;
+            }
+            sample
+        };
+        let note_millivolts = cx.resources.adc.sample_to_millivolts(note_sample);
+        cx.resources
+            .instrument
+            .set_chord_root((4096.0 - note_millivolts as f32) / 4096.0 * 6.0 + 1.0);
+
+        let wavetable_sample = {
+            let mut sample = 0;
+            for _ in 0..sample_length {
+                sample += cx
+                    .resources
+                    .adc
+                    .convert(cx.resources.wavetable_pot, SampleTime::Cycles_480)
+                    / sample_length;
+            }
+            sample
+        };
+        let wavetable_millivolts = cx.resources.adc.sample_to_millivolts(wavetable_sample);
+        cx.resources
+            .instrument
+            .set_wavetable((4096.0 - wavetable_millivolts as f32) / 4096.0);
+
+        let chord_sample = {
+            let mut sample = 0;
+            for _ in 0..sample_length {
+                sample += cx
+                    .resources
+                    .adc
+                    .convert(cx.resources.chord_pot, SampleTime::Cycles_480)
+                    / sample_length;
+            }
+            sample
+        };
+        let chord_millivolts = cx.resources.adc.sample_to_millivolts(chord_sample);
+        cx.resources
+            .instrument
+            .set_chord_degrees((4096.0 - chord_millivolts as f32) / 4096.0);
 
         cx.schedule
             .read_pots(cx.scheduled + PERIOD.cycles())
@@ -314,16 +348,11 @@ const APP: () = {
     }
 
     /// Control the oscillator frequency using the button.
-    #[task(binds = EXTI4, resources = [button, oscillator_a, red_led])]
+    #[task(binds = EXTI4, resources = [button, red_led])]
     fn button_click(cx: button_click::Context) {
         cx.resources.button.clear_interrupt_pending_bit();
 
-        let oscillator = cx.resources.oscillator_a;
-        if oscillator.frequency == 0.0 {
-            oscillator.frequency = 40.0;
-        } else {
-            oscillator.frequency *= 1.5;
-        }
+        cx.resources.red_led.toggle().unwrap();
     }
 
     extern "C" {
