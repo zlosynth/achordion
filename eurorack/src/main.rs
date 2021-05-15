@@ -301,81 +301,43 @@ const APP: () = {
 
     #[task(schedule = [read_pots], resources = [adc, note_pot, wavetable_pot, chord_pot, detune_pot, note_buffer, wavetable_buffer, chord_buffer, detune_buffer, instrument])]
     fn read_pots(cx: read_pots::Context) {
-        let sample_length = 2;
+        let adc = cx.resources.adc;
 
-        let note_sample = {
-            let mut sample = 0;
-            for _ in 0..sample_length {
-                sample += cx
-                    .resources
-                    .adc
-                    .convert(cx.resources.note_pot, SampleTime::Cycles_480)
-                    / sample_length;
-            }
-            sample
+        let chord_root = {
+            let sample = adc.convert(cx.resources.note_pot, SampleTime::Cycles_480);
+            let millivolts = adc.sample_to_millivolts(sample);
+            cx.resources.note_buffer.write(4096 - millivolts);
+            let buffered = cx.resources.note_buffer.read() as f32;
+            buffered / 4096.0 * 6.0 + 1.0
         };
-        let note_millivolts = cx.resources.adc.sample_to_millivolts(note_sample);
-        cx.resources.note_buffer.write(4096 - note_millivolts);
-        let buffered_millivolts = cx.resources.note_buffer.read() as f32;
-        cx.resources
-            .instrument
-            .set_chord_root(buffered_millivolts / 4096.0 * 6.0 + 1.0);
+        cx.resources.instrument.set_chord_root(chord_root);
 
-        let wavetable_sample = {
-            let mut sample = 0;
-            for _ in 0..sample_length {
-                sample += cx
-                    .resources
-                    .adc
-                    .convert(cx.resources.wavetable_pot, SampleTime::Cycles_480)
-                    / sample_length;
-            }
-            sample
+        let chord_degrees = {
+            let sample = adc.convert(cx.resources.chord_pot, SampleTime::Cycles_480);
+            let millivolts = adc.sample_to_millivolts(sample);
+            cx.resources.chord_buffer.write(4096 - millivolts);
+            let buffered = cx.resources.chord_buffer.read() as f32;
+            buffered / 4096.0
         };
-        let wavetable_millivolts = cx.resources.adc.sample_to_millivolts(wavetable_sample);
-        cx.resources
-            .wavetable_buffer
-            .write(4096 - wavetable_millivolts);
-        let buffered_millivolts = cx.resources.wavetable_buffer.read() as f32;
-        cx.resources
-            .instrument
-            .set_wavetable(buffered_millivolts / 4096.0);
+        cx.resources.instrument.set_chord_degrees(chord_degrees);
 
-        let chord_sample = {
-            let mut sample = 0;
-            for _ in 0..sample_length {
-                sample += cx
-                    .resources
-                    .adc
-                    .convert(cx.resources.chord_pot, SampleTime::Cycles_480)
-                    / sample_length;
-            }
-            sample
+        let detune = {
+            let sample = adc.convert(cx.resources.detune_pot, SampleTime::Cycles_480);
+            let millivolts = adc.sample_to_millivolts(sample);
+            cx.resources.detune_buffer.write(4096 - millivolts);
+            let buffered = cx.resources.detune_buffer.read() as f32;
+            buffered / 4096.0
         };
-        let chord_millivolts = cx.resources.adc.sample_to_millivolts(chord_sample);
-        cx.resources.chord_buffer.write(4096 - chord_millivolts);
-        let buffered_millivolts = cx.resources.chord_buffer.read() as f32;
-        cx.resources
-            .instrument
-            .set_chord_degrees(buffered_millivolts / 4096.0);
+        cx.resources.instrument.set_detune(detune);
 
-        let detune_sample = {
-            let mut sample = 0;
-            for _ in 0..sample_length {
-                sample += cx
-                    .resources
-                    .adc
-                    .convert(cx.resources.detune_pot, SampleTime::Cycles_480)
-                    / sample_length;
-            }
-            sample
+        let wavetable = {
+            let sample = adc.convert(cx.resources.wavetable_pot, SampleTime::Cycles_480);
+            let millivolts = adc.sample_to_millivolts(sample);
+            cx.resources.wavetable_buffer.write(4096 - millivolts);
+            let buffered = cx.resources.wavetable_buffer.read() as f32;
+            buffered / 4096.0
         };
-        let detune_millivolts = cx.resources.adc.sample_to_millivolts(detune_sample);
-        cx.resources.detune_buffer.write(4096 - detune_millivolts);
-        let buffered_millivolts = cx.resources.detune_buffer.read() as f32;
-        cx.resources
-            .instrument
-            .set_detune(buffered_millivolts / 4096.0);
+        cx.resources.instrument.set_wavetable(wavetable);
 
         cx.schedule
             .read_pots(cx.scheduled + PERIOD.cycles())
