@@ -54,11 +54,11 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="3.1126662"
-     inkscape:cx="143.5997"
-     inkscape:cy="389.53316"
+     inkscape:zoom="1.1004937"
+     inkscape:cx="118.95134"
+     inkscape:cy="229.74719"
      inkscape:document-units="mm"
-     inkscape:current-layer="g1799"
+     inkscape:current-layer="g332"
      inkscape:document-rotation="0"
      showgrid="false"
      inkscape:window-width="1920"
@@ -133,6 +133,10 @@
        position="8.8333868,31.021643"
        orientation="0,-1"
        id="guide2728" />
+    <sodipodi:guide
+       position="19.864901,5.8545207"
+       orientation="1,0"
+       id="guide1067" />
   </sodipodi:namedview>
   <metadata
      id="metadata5">
@@ -288,7 +292,7 @@
       </g>
       <g
          id="g2686"
-         transform="translate(0.03964753,-0.24639893)">
+         transform="translate(-0.0367758,-0.24639893)">
         <rect
            style="fill:#f2f2f2;stroke:none;stroke-width:0.144994;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4.3;stroke-dasharray:none"
            id="rect1679-8-5-1-8"
@@ -309,26 +313,26 @@
              style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:2.82222px;font-family:'Noto Sans Mono CJK HK';-inkscape-font-specification:'Noto Sans Mono CJK HK';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#000000;stroke-width:0.264583">TABLE</tspan></text>
       </g>
       <g
-         id="g2662"
-         transform="translate(1.0916527)">
+         id="g1065"
+         transform="translate(-0.57769464)">
         <rect
-           style="fill:#f2f2f2;stroke:none;stroke-width:0.144994;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4.3;stroke-dasharray:none"
+           style="fill:#f2f2f2;stroke:none;stroke-width:0.154068;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4.3;stroke-dasharray:none"
            id="rect1679-8-5-1-8-3"
-           width="9.6636171"
+           width="10.911043"
            height="4.5"
-           x="3.4802094"
+           x="4.5718622"
            y="116.36327" />
         <text
            xml:space="preserve"
            style="font-style:normal;font-weight:normal;font-size:2.82222px;line-height:1.25;font-family:sans-serif;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583"
-           x="4.7729645"
+           x="5.8025336"
            y="119.66173"
            id="text1797-2-0-1"><tspan
              sodipodi:role="line"
              id="tspan1795-1-5-1"
-             x="4.7729645"
+             x="5.8025336"
              y="119.66173"
-             style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:2.82222px;font-family:'Noto Sans Mono CJK HK';-inkscape-font-specification:'Noto Sans Mono CJK HK';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#000000;stroke-width:0.264583">CHORD</tspan></text>
+             style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:2.82222px;font-family:'Noto Sans Mono CJK HK';-inkscape-font-specification:'Noto Sans Mono CJK HK';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#000000;stroke-width:0.264583">DETUNE</tspan></text>
       </g>
       <g
          id="g2657"
@@ -354,7 +358,7 @@
       </g>
       <g
          id="g2609"
-         transform="translate(0.45501487,-0.95001896)">
+         transform="translate(0.74685574,-0.95001896)">
         <rect
            style="fill:#f2f2f2;stroke:none;stroke-width:0.147926;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4.3;stroke-dasharray:none"
            id="rect1679-8-5-1-1"
@@ -372,11 +376,11 @@
              id="tspan1795-1-5-1-8-0"
              x="15.619658"
              y="105.62656"
-             style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:2.82222px;font-family:'Noto Sans Mono CJK HK';-inkscape-font-specification:'Noto Sans Mono CJK HK';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#000000;stroke-width:0.264583">SCALE</tspan></text>
+             style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:2.82222px;font-family:'Noto Sans Mono CJK HK';-inkscape-font-specification:'Noto Sans Mono CJK HK';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#000000;stroke-width:0.264583">TONIC</tspan></text>
       </g>
       <g
          id="g2597"
-         transform="translate(0.12005086,-0.62449559)">
+         transform="translate(-0.38639264,-0.62449559)">
         <rect
            style="fill:#f2f2f2;stroke:none;stroke-width:0.141365;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4.3;stroke-dasharray:none"
            id="rect1679-8-5-1"
@@ -394,29 +398,29 @@
              id="tspan1795-1-5-1-8-0-4"
              x="28.117828"
              y="105.30103"
-             style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:2.82222px;font-family:'Noto Sans Mono CJK HK';-inkscape-font-specification:'Noto Sans Mono CJK HK';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#000000;stroke-width:0.264583">ROOT</tspan></text>
+             style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:2.82222px;font-family:'Noto Sans Mono CJK HK';-inkscape-font-specification:'Noto Sans Mono CJK HK';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#000000;stroke-width:0.264583">MODE</tspan></text>
       </g>
       <g
-         id="g2583"
-         transform="translate(-1.2686357,-0.65783604)">
+         id="g1076"
+         transform="translate(-0.44136373)">
         <rect
-           style="fill:#f2f2f2;stroke:none;stroke-width:0.138137;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4.3;stroke-dasharray:none"
+           style="fill:#f2f2f2;stroke:none;stroke-width:0.147489;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4.3;stroke-dasharray:none"
            id="rect1679-8-5-1-5"
-           width="8.7711916"
+           width="9.999074"
            height="4.5"
-           x="37.971107"
-           y="102.03592" />
+           x="36.702473"
+           y="101.37808" />
         <text
            xml:space="preserve"
            style="font-style:normal;font-weight:normal;font-size:2.82222px;line-height:1.25;font-family:sans-serif;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583"
-           x="39.503448"
-           y="105.33437"
+           x="38.162956"
+           y="104.67654"
            id="text1797-2-0-1-0-5-6-6"><tspan
              sodipodi:role="line"
              id="tspan1795-1-5-1-8-0-4-2"
-             x="39.503448"
-             y="105.33437"
-             style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:2.82222px;font-family:'Noto Sans Mono CJK HK';-inkscape-font-specification:'Noto Sans Mono CJK HK';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#000000;stroke-width:0.264583">MODE</tspan></text>
+             x="38.162956"
+             y="104.67654"
+             style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:2.82222px;font-family:'Noto Sans Mono CJK HK';-inkscape-font-specification:'Noto Sans Mono CJK HK';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#000000;stroke-width:0.264583">CHORD</tspan></text>
       </g>
       <g
          id="g2441"
