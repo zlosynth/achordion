@@ -16,6 +16,7 @@
 #![no_main]
 #![allow(unknown_lints)]
 #![allow(clippy::inconsistent_struct_constructor)]
+#![allow(clippy::new_without_default)]
 
 #[macro_use]
 extern crate lazy_static;
@@ -58,7 +59,7 @@ use crate::cs43l22::Cs43L22;
 use crate::hal::prelude::*;
 use crate::hal::stream::WordSize;
 
-const PERIOD: u32 = 8_000_000;
+const PERIOD: u32 = 1_000_000;
 
 // 7-bit address
 const DAC_ADDRESS: u8 = 0x94 >> 1;
@@ -92,9 +93,13 @@ const APP: () = {
         stream: Stream5<DMA1>,
         adc: Adc<ADC2>,
         note_pot: PA2<Analog>,
+        note_buffer: ControlBuffer,
         wavetable_pot: PA1<Analog>,
+        wavetable_buffer: ControlBuffer,
         chord_pot: PB0<Analog>,
+        chord_buffer: ControlBuffer,
         detune_pot: PB1<Analog>,
+        detune_buffer: ControlBuffer,
         green_led: PD12<Output<PushPull>>,
         blue_led: PD15<Output<PushPull>>,
         red_led: PD14<Output<PushPull>>,
@@ -245,9 +250,13 @@ const APP: () = {
             stream,
             adc,
             note_pot,
+            note_buffer: ControlBuffer::new(),
             wavetable_pot,
+            wavetable_buffer: ControlBuffer::new(),
             detune_pot,
+            detune_buffer: ControlBuffer::new(),
             chord_pot,
+            chord_buffer: ControlBuffer::new(),
             green_led,
             blue_led,
             red_led,
@@ -290,7 +299,7 @@ const APP: () = {
         cx.resources.green_led.set_low().unwrap();
     }
 
-    #[task(schedule = [read_pots], resources = [adc, note_pot, wavetable_pot, chord_pot, detune_pot, instrument])]
+    #[task(schedule = [read_pots], resources = [adc, note_pot, wavetable_pot, chord_pot, detune_pot, note_buffer, wavetable_buffer, chord_buffer, detune_buffer, instrument])]
     fn read_pots(cx: read_pots::Context) {
         let sample_length = 2;
 
@@ -306,9 +315,11 @@ const APP: () = {
             sample
         };
         let note_millivolts = cx.resources.adc.sample_to_millivolts(note_sample);
+        cx.resources.note_buffer.write(4096 - note_millivolts);
+        let buffered_millivolts = cx.resources.note_buffer.read() as f32;
         cx.resources
             .instrument
-            .set_chord_root((4096.0 - note_millivolts as f32) / 4096.0 * 6.0 + 1.0);
+            .set_chord_root(buffered_millivolts / 4096.0 * 6.0 + 1.0);
 
         let wavetable_sample = {
             let mut sample = 0;
@@ -323,8 +334,12 @@ const APP: () = {
         };
         let wavetable_millivolts = cx.resources.adc.sample_to_millivolts(wavetable_sample);
         cx.resources
+            .wavetable_buffer
+            .write(4096 - wavetable_millivolts);
+        let buffered_millivolts = cx.resources.wavetable_buffer.read() as f32;
+        cx.resources
             .instrument
-            .set_wavetable((4096.0 - wavetable_millivolts as f32) / 4096.0);
+            .set_wavetable(buffered_millivolts / 4096.0);
 
         let chord_sample = {
             let mut sample = 0;
@@ -338,9 +353,11 @@ const APP: () = {
             sample
         };
         let chord_millivolts = cx.resources.adc.sample_to_millivolts(chord_sample);
+        cx.resources.chord_buffer.write(4096 - chord_millivolts);
+        let buffered_millivolts = cx.resources.chord_buffer.read() as f32;
         cx.resources
             .instrument
-            .set_chord_degrees((4096.0 - chord_millivolts as f32) / 4096.0);
+            .set_chord_degrees(buffered_millivolts / 4096.0);
 
         let detune_sample = {
             let mut sample = 0;
@@ -354,9 +371,11 @@ const APP: () = {
             sample
         };
         let detune_millivolts = cx.resources.adc.sample_to_millivolts(detune_sample);
+        cx.resources.detune_buffer.write(4096 - detune_millivolts);
+        let buffered_millivolts = cx.resources.detune_buffer.read() as f32;
         cx.resources
             .instrument
-            .set_detune((4096.0 - detune_millivolts as f32) / 4096.0);
+            .set_detune(buffered_millivolts / 4096.0);
 
         cx.schedule
             .read_pots(cx.scheduled + PERIOD.cycles())
@@ -375,3 +394,29 @@ const APP: () = {
         fn EXTI0();
     }
 };
+
+const CONTROL_BUFFER_LEN: usize = 16;
+
+pub struct ControlBuffer {
+    buffer: [f32; CONTROL_BUFFER_LEN],
+    pointer: usize,
+}
+
+impl ControlBuffer {
+    pub fn new() -> Self {
+        Self {
+            buffer: [0.0; CONTROL_BUFFER_LEN],
+            pointer: 0,
+        }
+    }
+
+    pub fn write(&mut self, value: u16) {
+        self.buffer[self.pointer] = value as f32;
+        self.pointer = (self.pointer + 1) % CONTROL_BUFFER_LEN;
+    }
+
+    pub fn read(&self) -> u16 {
+        let sum: f32 = self.buffer.iter().sum();
+        (sum / CONTROL_BUFFER_LEN as f32) as u16
+    }
+}
