@@ -55,14 +55,14 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="1.5563331"
-     inkscape:cx="80.447193"
-     inkscape:cy="225.24555"
+     inkscape:cx="200.58079"
+     inkscape:cy="241.50195"
      inkscape:document-units="mm"
-     inkscape:current-layer="g332"
+     inkscape:current-layer="g1799"
      inkscape:document-rotation="0"
      showgrid="false"
      inkscape:window-width="1920"
-     inkscape:window-height="1011"
+     inkscape:window-height="1043"
      inkscape:window-x="0"
      inkscape:window-y="0"
      inkscape:window-maximized="1"
@@ -464,26 +464,26 @@
              style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:3.175px;font-family:'Noto Sans Mono CJK HK';-inkscape-font-specification:'Noto Sans Mono CJK HK';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#000000;stroke-width:0.264583">CHORD</tspan></text>
       </g>
       <g
-         id="g2457"
-         transform="translate(-0.94398138,-0.37181193)">
+         id="g1057"
+         transform="translate(-0.78577187)">
         <rect
-           style="fill:#f2f2f2;stroke:none;stroke-width:0.167102;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4.3;stroke-dasharray:none"
+           style="fill:#f2f2f2;stroke:none;stroke-width:0.178838;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4.3;stroke-dasharray:none"
            id="rect1679-8-5-6"
-           width="11.551791"
+           width="13.231414"
            height="5"
-           x="7.3838611"
-           y="84.2938" />
+           x="6.4398799"
+           y="83.921989" />
         <text
            xml:space="preserve"
            style="font-style:normal;font-weight:normal;font-size:3.175px;line-height:1.25;font-family:sans-serif;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583"
-           x="9.2227688"
-           y="87.973312"
+           x="8.3026266"
+           y="87.601501"
            id="text1797-2-0-1-0-9-3-0"><tspan
              sodipodi:role="line"
              id="tspan1795-1-5-1-8-6-8-5"
-             x="9.2227688"
-             y="87.973312"
-             style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:3.175px;font-family:'Noto Sans Mono CJK HK';-inkscape-font-specification:'Noto Sans Mono CJK HK';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#000000;stroke-width:0.264583">SCALE</tspan></text>
+             x="8.3026266"
+             y="87.601501"
+             style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:3.175px;font-family:'Noto Sans Mono CJK HK';-inkscape-font-specification:'Noto Sans Mono CJK HK';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#000000;stroke-width:0.264583">DETUNE</tspan></text>
       </g>
       <text
          xml:space="preserve"
