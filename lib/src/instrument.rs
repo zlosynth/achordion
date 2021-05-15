@@ -26,11 +26,6 @@ const DETUNES: [[DetuneConfig; 3]; 4] = [
         DetuneConfig::Disabled,
     ],
     [
-        DetuneConfig::BothSides(1.0, 1.01),
-        DetuneConfig::BothSides(1.0, 1.01),
-        DetuneConfig::BothSides(1.0, 1.01),
-    ],
-    [
         DetuneConfig::SingleSide(0.5, 0.5 + 0.01),
         DetuneConfig::Disabled,
         DetuneConfig::Disabled,
@@ -39,6 +34,11 @@ const DETUNES: [[DetuneConfig; 3]; 4] = [
         DetuneConfig::SingleSide(0.5, 0.5 + 0.01),
         DetuneConfig::SingleSide(0.5, 0.5 + 0.01),
         DetuneConfig::SingleSide(0.5, 0.5 + 0.01),
+    ],
+    [
+        DetuneConfig::BothSides(1.0, 1.01),
+        DetuneConfig::BothSides(1.0, 1.01),
+        DetuneConfig::BothSides(1.0, 1.01),
     ],
 ];
 
@@ -184,15 +184,7 @@ impl<'a> Degree<'a> {
         self.detune_phase = detune_phase;
         self.detune_amplitude = match detune_config {
             DetuneConfig::Disabled => 0.0,
-            _ => {
-                if detune_phase < 0.1 {
-                    detune_phase / 0.1
-                } else if detune_phase > 1.0 - 0.1 {
-                    (1.0 - detune_phase) / 0.1
-                } else {
-                    1.0
-                }
-            }
+            _ => 1.0,
         };
         self.apply_settings();
     }
