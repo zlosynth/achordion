@@ -19,15 +19,27 @@ const CHORDS: [[i8; 3]; 9] = [
     [1, 2, 9],
 ];
 
-const DETUNES: [[f32; 3]; 8] = [
-    [0.0, 0.0, 0.0],
-    [0.1, 0.1, 0.1],
-    [0.5, 0.0, 0.0],
-    [0.5, 0.0, 0.0],
-    [0.5, 0.5, 0.5],
-    [4.0 / 3.0, 4.0 / 3.0, 4.0 / 3.0],
-    [4.0 / 3.0, 4.0 / 3.0, 4.0 / 3.0],
-    [5.0 / 2.0, 5.0 / 2.0, 5.0 / 2.0],
+const DETUNES: [[DetuneConfig; 3]; 4] = [
+    [
+        DetuneConfig::Disabled,
+        DetuneConfig::Disabled,
+        DetuneConfig::Disabled,
+    ],
+    [
+        DetuneConfig::BothSides(1.0, 1.01),
+        DetuneConfig::BothSides(1.0, 1.01),
+        DetuneConfig::BothSides(1.0, 1.01),
+    ],
+    [
+        DetuneConfig::SingleSide(0.5, 0.5 + 0.01),
+        DetuneConfig::Disabled,
+        DetuneConfig::Disabled,
+    ],
+    [
+        DetuneConfig::SingleSide(0.5, 0.5 + 0.01),
+        DetuneConfig::SingleSide(0.5, 0.5 + 0.01),
+        DetuneConfig::SingleSide(0.5, 0.5 + 0.01),
+    ],
 ];
 
 const DEGREES_IN_INSTRUMENT: usize = 3;
@@ -101,7 +113,14 @@ impl<'a> Instrument<'a> {
     }
 
     pub fn set_detune(&mut self, detune: f32) {
-        self.degrees.iter_mut().for_each(|d| d.set_detune(detune));
+        let index = ((detune * DETUNES.len() as f32) as usize).min(DETUNES.len() - 1);
+
+        let section = 1.0 / DETUNES.len() as f32;
+        let phase = (detune % section) / section;
+
+        for (i, degree) in self.degrees.iter_mut().enumerate() {
+            degree.set_detune(DETUNES[index][i], phase)
+        }
     }
 
     pub fn populate(&mut self, buffer_root: &mut [u16], buffer_chord: &mut [u16]) {
@@ -135,8 +154,8 @@ const OSCILLATORS_IN_DEGREE: usize = 2;
 
 struct Degree<'a> {
     frequency: f32,
-    detune_base: f32,
-    detune_intensity: f32,
+    detune_config: DetuneConfig,
+    detune_phase: f32,
     detune_amplitude: f32,
     oscillators: [Oscillator<'a>; OSCILLATORS_IN_DEGREE],
 }
@@ -145,8 +164,8 @@ impl<'a> Degree<'a> {
     pub fn new(wavetables: &'a [&'a Wavetable], sample_rate: u32) -> Self {
         Self {
             frequency: 0.0,
-            detune_base: 1.0,
-            detune_intensity: 0.0,
+            detune_config: DetuneConfig::Disabled,
+            detune_phase: 0.0,
             detune_amplitude: 0.0,
             oscillators: [
                 Oscillator::new(wavetables, sample_rate),
@@ -160,32 +179,54 @@ impl<'a> Degree<'a> {
         self.apply_settings();
     }
 
-    pub fn set_detune(&mut self, detune: f32) {
-        const TURN_ON_TRESHOLD: f32 = 0.02;
-
-        self.detune_intensity = detune;
-
-        if detune > TURN_ON_TRESHOLD {
-            self.detune_amplitude = 1.0;
-        } else {
-            self.detune_amplitude = detune / TURN_ON_TRESHOLD;
+    pub fn set_detune(&mut self, detune_config: DetuneConfig, detune_phase: f32) {
+        self.detune_config = detune_config;
+        self.detune_phase = detune_phase;
+        self.detune_amplitude = match detune_config {
+            DetuneConfig::Disabled => 0.0,
+            _ => {
+                if detune_phase < 0.1 {
+                    detune_phase / 0.1
+                } else if detune_phase > 1.0 - 0.1 {
+                    (1.0 - detune_phase) / 0.1
+                } else {
+                    1.0
+                }
+            }
         };
-
         self.apply_settings();
     }
 
     fn apply_settings(&mut self) {
-        let start = if OSCILLATORS_IN_DEGREE % 2 == 0 { 0 } else { 1 };
-        let distance = (OSCILLATORS_IN_DEGREE - start) / 2;
+        match self.detune_config {
+            DetuneConfig::Disabled => {
+                self.oscillators[0].frequency = self.frequency;
+            }
+            DetuneConfig::SingleSide(min, max) => {
+                self.oscillators[0].frequency = self.frequency;
 
-        self.oscillators[0].frequency = self.frequency;
+                for (i, oscillator) in self.oscillators[1..].iter_mut().enumerate() {
+                    let detune_delta = max - min;
+                    let stage = (i + 1) as f32;
+                    let detune = (min + detune_delta * self.detune_phase) * stage;
+                    oscillator.frequency = self.frequency * detune;
+                }
+            }
+            DetuneConfig::BothSides(min, max) => {
+                let start = if OSCILLATORS_IN_DEGREE % 2 == 0 { 0 } else { 1 };
 
-        for (i, pair) in self.oscillators[start..].chunks_exact_mut(2).enumerate() {
-            // TODO: Detune base
-            let detune = 0.01 * self.detune_intensity * ((i + 1) / distance) as f32;
-            pair[0].frequency = self.frequency * (1.0 - detune) * (1.0 / self.detune_base) * (i + 1) as f32;
-            pair[1].frequency =
-                self.frequency * (1.0 + detune) * self.detune_base * (i + 1) as f32;
+                if start > 0 {
+                    self.oscillators[0].frequency = self.frequency;
+                }
+
+                for (i, pair) in self.oscillators[start..].chunks_exact_mut(2).enumerate() {
+                    let detune_delta = max - min;
+                    let stage = (i + 1) as f32;
+                    let detune = (min + detune_delta * self.detune_phase) * stage;
+                    pair[0].frequency = self.frequency * (1.0 / detune);
+                    pair[1].frequency = self.frequency * detune;
+                }
+            }
         }
     }
 
@@ -196,13 +237,19 @@ impl<'a> Degree<'a> {
     }
 
     pub fn populate_add(&mut self, buffer: &mut [u16], amplitude: f32) {
-        self.oscillators[0].populate_add(buffer, amplitude / OSCILLATORS_IN_DEGREE as f32);
-
-        let amplitude = amplitude * self.detune_amplitude / OSCILLATORS_IN_DEGREE as f32;
+        self.oscillators[0].populate_add(buffer, amplitude / OSCILLATORS_IN_DEGREE as f32 / 3.0);
+        let amplitude = self.detune_amplitude / OSCILLATORS_IN_DEGREE as f32 / 3.0;
         self.oscillators[1..]
             .iter_mut()
             .for_each(|o| o.populate_add(buffer, amplitude));
     }
+}
+
+#[derive(Clone, Copy, PartialEq)]
+enum DetuneConfig {
+    Disabled,
+    SingleSide(f32, f32),
+    BothSides(f32, f32),
 }
 
 fn zero_slice(slice: &mut [u16]) {
@@ -210,22 +257,6 @@ fn zero_slice(slice: &mut [u16]) {
         let p = slice.as_mut_ptr();
         ptr::write_bytes(p, 0, slice.len());
     }
-}
-
-fn detune_interpolation<const N: usize>(detunes: &[[f32; N]], position: f32) -> [f32; N] {
-    let index = position as usize;
-    let next_index = usize::min(index + 1, DETUNES.len() - 1);
-    let remainder = position - index as f32;
-
-    let mut detune = [0.0; N];
-
-    for i in 0..N {
-        let value = detunes[index][i];
-        let delta_to_next = detunes[next_index][i] - detunes[index][i];
-        detune[i] = value + delta_to_next * remainder;
-    }
-
-    detune
 }
 
 #[cfg(test)]
@@ -237,18 +268,5 @@ mod tests {
         let mut slice = [1, 2, 3];
         zero_slice(&mut slice);
         assert_eq!(slice, [0, 0, 0]);
-    }
-
-    #[test]
-    fn detune_interpolation_in_the_middle() {
-        let detunes = [
-            [0.0, 0.0],
-            [1.0, 2.0],
-        ];
-
-        let detune = detune_interpolation(&detunes, 0.5);
-
-        assert_relative_eq!(detune[0], 0.5);
-        assert_relative_eq!(detune[1], 1.0);
     }
 }

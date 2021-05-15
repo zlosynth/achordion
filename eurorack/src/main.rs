@@ -58,7 +58,7 @@ use crate::cs43l22::Cs43L22;
 use crate::hal::prelude::*;
 use crate::hal::stream::WordSize;
 
-const PERIOD: u32 = 1_000_000;
+const PERIOD: u32 = 8_000_000;
 
 // 7-bit address
 const DAC_ADDRESS: u8 = 0x94 >> 1;
@@ -94,7 +94,7 @@ const APP: () = {
         note_pot: PA2<Analog>,
         wavetable_pot: PA1<Analog>,
         chord_pot: PB0<Analog>,
-        scale_pot: PB1<Analog>,
+        detune_pot: PB1<Analog>,
         green_led: PD12<Output<PushPull>>,
         blue_led: PD15<Output<PushPull>>,
         red_led: PD14<Output<PushPull>>,
@@ -135,7 +135,7 @@ const APP: () = {
         let note_pot = gpioa.pa2.into_analog();
         let wavetable_pot = gpioa.pa1.into_analog();
         let chord_pot = gpiob.pb0.into_analog();
-        let scale_pot = gpiob.pb1.into_analog();
+        let detune_pot = gpiob.pb1.into_analog();
         let adc = Adc::adc2(
             cx.device.ADC2,
             true,
@@ -246,7 +246,7 @@ const APP: () = {
             adc,
             note_pot,
             wavetable_pot,
-            scale_pot,
+            detune_pot,
             chord_pot,
             green_led,
             blue_led,
@@ -290,7 +290,7 @@ const APP: () = {
         cx.resources.green_led.set_low().unwrap();
     }
 
-    #[task(schedule = [read_pots], resources = [adc, note_pot, wavetable_pot, chord_pot, instrument])]
+    #[task(schedule = [read_pots], resources = [adc, note_pot, wavetable_pot, chord_pot, detune_pot, instrument])]
     fn read_pots(cx: read_pots::Context) {
         let sample_length = 2;
 
@@ -341,6 +341,22 @@ const APP: () = {
         cx.resources
             .instrument
             .set_chord_degrees((4096.0 - chord_millivolts as f32) / 4096.0);
+
+        let detune_sample = {
+            let mut sample = 0;
+            for _ in 0..sample_length {
+                sample += cx
+                    .resources
+                    .adc
+                    .convert(cx.resources.detune_pot, SampleTime::Cycles_480)
+                    / sample_length;
+            }
+            sample
+        };
+        let detune_millivolts = cx.resources.adc.sample_to_millivolts(detune_sample);
+        cx.resources
+            .instrument
+            .set_detune((4096.0 - detune_millivolts as f32) / 4096.0);
 
         cx.schedule
             .read_pots(cx.scheduled + PERIOD.cycles())
