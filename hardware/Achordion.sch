@@ -699,21 +699,21 @@ F 3 "" H 10550 9950 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 Text GLabel 9675 8575 0    50   Input ~ 0
-LED_C
+LED3
 Text GLabel 9675 8325 0    50   Input ~ 0
-LED_B
+LED2
 Text GLabel 9675 8075 0    50   Input ~ 0
-LED_A
+LED1
 Text GLabel 9675 9575 0    50   Input ~ 0
-LED_G
+LED7
 Text GLabel 9675 9825 0    50   Input ~ 0
-LED_H
+LED8
 Text GLabel 9675 9325 0    50   Input ~ 0
-LED_F
+LED6
 Text GLabel 9675 9075 0    50   Input ~ 0
-LED_E
+LED5
 Text GLabel 9675 8825 0    50   Input ~ 0
-LED_D
+LED4
 Text Notes 8975 7125 0    79   ~ 0
 Display
 Wire Wire Line
@@ -885,10 +885,10 @@ F 3 "" H 13425 4550 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L Device:R_POT RV3
+L Device:R_POT RV2
 U 1 1 61F8348D
 P 13425 4700
-F 0 "RV3" H 13355 4654 50  0000 R CNN
+F 0 "RV2" H 13355 4654 50  0000 R CNN
 F 1 "10k" H 13355 4745 50  0000 R CNN
 F 2 "Potentiometer_THT:Potentiometer_Alps_RK09L_Single_Vertical" H 13425 4700 50  0001 C CNN
 F 3 "~" H 13425 4700 50  0001 C CNN
@@ -898,9 +898,9 @@ F 5 "1" H 13425 4700 50  0001 C CNN "Order Qty"
 	-1   0    0    1   
 $EndComp
 Text GLabel 13375 6250 0    50   Output ~ 0
-SCALE_POT
+POT4
 Text GLabel 13275 4700 0    50   Output ~ 0
-TABLE_POT
+POT2
 Text Notes 525  7125 0    79   ~ 0
 CV Input
 $Comp
@@ -978,42 +978,12 @@ F 7 "1" H 7725 8025 50  0001 C CNN "Order Qty"
 	1    7725 8025
 	1    0    0    1   
 $EndComp
-$Comp
-L Amplifier_Operational:MCP6002-xSN U9
-U 2 1 62469350
-P 7725 9625
-F 0 "U9" H 7800 9475 50  0000 C CNN
-F 1 "MCP6002" H 7900 9775 50  0000 C CNN
-F 2 "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm" H 7725 9625 50  0001 C CNN
-F 3 "http://ww1.microchip.com/downloads/en/DeviceDoc/21733j.pdf" H 7725 9625 50  0001 C CNN
-F 4 "" H 7725 9625 50  0001 C CNN "LCSC Part #"
-F 5 "C7377" H 7725 9625 50  0001 C CNN "LCSC"
-F 6 "MCP6002-I/SN" H 7725 9625 50  0001 C CNN "Mfr Part Number"
-F 7 "1" H 7725 9625 50  0001 C CNN "Order Qty"
-	2    7725 9625
-	1    0    0    1   
-$EndComp
-$Comp
-L Amplifier_Operational:MCP6002-xSN U9
-U 3 1 62469356
-P 7725 10750
-F 0 "U9" V 7700 10675 50  0000 L CNN
-F 1 "MCP6002" V 7800 10575 50  0000 L CNN
-F 2 "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm" H 7725 10750 50  0001 C CNN
-F 3 "http://ww1.microchip.com/downloads/en/DeviceDoc/21733j.pdf" H 7725 10750 50  0001 C CNN
-F 4 "" H 7725 10750 50  0001 C CNN "LCSC Part #"
-F 5 "C7377" H 7725 10750 50  0001 C CNN "LCSC"
-F 6 "MCP6002-I/SN" H 7725 10750 50  0001 C CNN "Mfr Part Number"
-F 7 "1" H 7725 10750 50  0001 C CNN "Order Qty"
-	3    7725 10750
-	0    1    1    0   
-$EndComp
 Text GLabel 2750 8025 2    50   Output ~ 0
-VOCT_CV
+CV1
 Text GLabel 8125 8025 2    50   Output ~ 0
-RAMP_CV
+CV3
 Text GLabel 2750 9625 2    50   Output ~ 0
-CHORD_CV
+CV2
 $Comp
 L power:-10V #PWR068
 U 1 1 625CB186
@@ -1489,65 +1459,8 @@ Wire Wire Line
 	5575 10450 5325 10450
 Wire Wire Line
 	6175 10650 6175 10600
-$Comp
-L power:GND #PWR089
-U 1 1 6364D082
-P 7300 10700
-F 0 "#PWR089" H 7300 10450 50  0001 C CNN
-F 1 "GND" H 7305 10527 50  0000 C CNN
-F 2 "" H 7300 10700 50  0001 C CNN
-F 3 "" H 7300 10700 50  0001 C CNN
-	1    7300 10700
-	1    0    0    -1  
-$EndComp
-$Comp
-L power:+3.3VA #PWR090
-U 1 1 6364D088
-P 8225 10600
-F 0 "#PWR090" H 8225 10450 50  0001 C CNN
-F 1 "+3.3VA" H 8240 10773 50  0000 C CNN
-F 2 "" H 8225 10600 50  0001 C CNN
-F 3 "" H 8225 10600 50  0001 C CNN
-	1    8225 10600
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	7425 10650 7375 10650
-$Comp
-L Device:C_Small C48
-U 1 1 6364D08F
-P 7725 10450
-F 0 "C48" V 7925 10375 50  0000 L CNN
-F 1 "3n3" V 7850 10375 50  0000 L CNN
-F 2 "Capacitor_SMD:C_0603_1608Metric" H 7725 10450 50  0001 C CNN
-F 3 "~" H 7725 10450 50  0001 C CNN
-F 4 "" H 7725 10450 50  0001 C CNN "LCSC Part #"
-F 5 "C1613 " H 7725 10450 50  0001 C CNN "LCSC"
-F 6 "1" H 7725 10450 50  0001 C CNN "Order Qty"
-F 7 "CL10B332KB8NNNC" H 7725 10450 50  0001 C CNN "Mfr Part Number"
-	1    7725 10450
-	0    -1   -1   0   
-$EndComp
-Wire Wire Line
-	7825 10450 8075 10450
-Wire Wire Line
-	8075 10450 8075 10650
-Wire Wire Line
-	8075 10650 8025 10650
-Wire Wire Line
-	7625 10450 7375 10450
-Wire Wire Line
-	7375 10450 7375 10650
-Wire Wire Line
-	7375 10650 7300 10650
 Wire Wire Line
 	7300 10650 7300 10700
-Connection ~ 7375 10650
-Wire Wire Line
-	8075 10650 8225 10650
-Wire Wire Line
-	8225 10650 8225 10600
-Connection ~ 8075 10650
 $Comp
 L power:-10V #PWR083
 U 1 1 638EEB76
@@ -1631,19 +1544,11 @@ F 7 "CL10B332KB8NNNC" H 7700 8925 50  0001 C CNN "Mfr Part Number"
 	0    1    1    0   
 $EndComp
 Wire Wire Line
-	8125 9625 8075 9625
-Wire Wire Line
 	7800 8925 8075 8925
 Wire Wire Line
 	8075 8925 8075 9250
-Connection ~ 8075 9625
-Wire Wire Line
-	8075 9625 8025 9625
 Wire Wire Line
 	7800 9250 8075 9250
-Connection ~ 8075 9250
-Wire Wire Line
-	8075 9250 8075 9625
 Wire Wire Line
 	7425 9725 7350 9725
 Wire Wire Line
@@ -1671,46 +1576,44 @@ Wire Wire Line
 	6925 9025 6925 9075
 Wire Wire Line
 	6925 9075 7025 9075
-Text GLabel 8125 9625 2    50   Output ~ 0
-CAMP_CV
 Text GLabel 7025 4825 2    50   Output ~ 0
-LED_G
+LED7
 Text GLabel 7025 4925 2    50   Output ~ 0
-LED_H
+LED8
 Text GLabel 7025 4025 2    50   Input ~ 0
 BUTTON
 Text GLabel 5025 3825 0    50   Input ~ 0
-SCALE_CV
+CV6
 Text GLabel 5025 3925 0    50   Input ~ 0
-CHORD_CV
+CV2
 Text GLabel 5025 3625 0    50   Input ~ 0
-CAMP_CV
+CV4
 Text GLabel 5025 3525 0    50   Input ~ 0
-RAMP_CV
+CV3
 Text GLabel 5025 3725 0    50   Input ~ 0
-TABLE_CV
+CV5
 Text GLabel 5025 4025 0    50   Input ~ 0
-VOCT_CV
+CV1
 Text GLabel 5025 4125 0    50   Input ~ 0
-SCALE_POT
+POT4
 Text GLabel 5025 4225 0    50   Input ~ 0
-CHORD_POT
+POT3
 Text GLabel 5025 4525 0    50   Input ~ 0
-TABLE_POT
+POT2
 Text GLabel 5025 4325 0    50   Input ~ 0
-NOTE_POT
+POT1
 Text GLabel 7025 4425 2    50   Output ~ 0
-LED_F
+LED6
 Text GLabel 7025 4525 2    50   Output ~ 0
-LED_E
+LED5
 Text GLabel 5025 4625 0    50   Output ~ 0
-LED_D
+LED4
 Text GLabel 5025 4725 0    50   Output ~ 0
-LED_C
+LED3
 Text GLabel 7025 2625 2    50   Output ~ 0
-LED_B
+LED2
 Text GLabel 7025 2725 2    50   Output ~ 0
-LED_A
+LED1
 Wire Notes Line
 	11075 500  11075 11225
 Wire Notes Line
@@ -1809,9 +1712,9 @@ F 5 "1" H 12000 4700 50  0001 C CNN "Order Qty"
 	-1   0    0    1   
 $EndComp
 Text GLabel 11850 4700 0    50   Output ~ 0
-NOTE_POT
+POT1
 Text GLabel 11925 6250 0    50   Output ~ 0
-CHORD_POT
+POT3
 $Comp
 L power:+3.3VA #PWR057
 U 1 1 61F4D11C
@@ -1835,10 +1738,10 @@ F 3 "" H 12000 4850 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L Device:R_POT RV2
+L Device:R_POT RV3
 U 1 1 61F6C9EC
 P 12075 6250
-F 0 "RV2" H 12005 6204 50  0000 R CNN
+F 0 "RV3" H 12005 6204 50  0000 R CNN
 F 1 "10k" H 12005 6295 50  0000 R CNN
 F 2 "Potentiometer_THT:Potentiometer_Alps_RK09L_Single_Vertical" H 12075 6250 50  0001 C CNN
 F 3 "~" H 12075 6250 50  0001 C CNN
@@ -1870,9 +1773,9 @@ F 3 "" H 12075 6400 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 Text GLabel 11800 7775 0    50   Input ~ 0
-RAMP_DAC
+DAC1
 Text GLabel 12375 9300 0    50   Input ~ 0
-CAMP_DAC
+DAC2
 Wire Wire Line
 	5375 10650 5325 10650
 Wire Wire Line
@@ -2168,7 +2071,7 @@ F 3 "" H 4250 7425 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 Text GLabel 5450 8025 2    50   Output ~ 0
-TABLE_CV
+CV5
 $Comp
 L Amplifier_Operational:MCP6002-xSN U7
 U 2 1 621D33D3
@@ -2325,7 +2228,7 @@ $EndComp
 Text Notes 3475 9300 0    50   ~ 0
 -1.5 to 5.5
 Text GLabel 5450 9625 2    50   Output ~ 0
-SCALE_CV
+CV6
 $Comp
 L Amplifier_Operational:MCP6002-xSN U8
 U 2 1 62278AD0
@@ -2374,9 +2277,9 @@ $EndComp
 Wire Notes Line
 	11075 3600 16050 3600
 Text GLabel 5025 3325 0    50   Output ~ 0
-CAMP_DAC
+DAC2
 Text GLabel 5025 3225 0    50   Output ~ 0
-RAMP_DAC
+DAC1
 $Comp
 L power:GND #PWR0101
 U 1 1 60C73389
@@ -3057,4 +2960,101 @@ Wire Wire Line
 	14450 8350 12800 8350
 Wire Wire Line
 	12800 8350 12800 8875
+Connection ~ 8075 9250
+Text GLabel 8125 9625 2    50   Output ~ 0
+CV4
+Wire Wire Line
+	8075 9250 8075 9625
+Wire Wire Line
+	8075 9625 8025 9625
+Connection ~ 8075 9625
+Wire Wire Line
+	8125 9625 8075 9625
+$Comp
+L Amplifier_Operational:MCP6002-xSN U9
+U 2 1 62469350
+P 7725 9625
+F 0 "U9" H 7800 9475 50  0000 C CNN
+F 1 "MCP6002" H 7900 9775 50  0000 C CNN
+F 2 "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm" H 7725 9625 50  0001 C CNN
+F 3 "http://ww1.microchip.com/downloads/en/DeviceDoc/21733j.pdf" H 7725 9625 50  0001 C CNN
+F 4 "" H 7725 9625 50  0001 C CNN "LCSC Part #"
+F 5 "C7377" H 7725 9625 50  0001 C CNN "LCSC"
+F 6 "MCP6002-I/SN" H 7725 9625 50  0001 C CNN "Mfr Part Number"
+F 7 "1" H 7725 9625 50  0001 C CNN "Order Qty"
+	2    7725 9625
+	1    0    0    1   
+$EndComp
+Connection ~ 8075 10650
+Wire Wire Line
+	8225 10650 8225 10600
+Wire Wire Line
+	8075 10650 8225 10650
+Connection ~ 7375 10650
+Wire Wire Line
+	7375 10650 7300 10650
+Wire Wire Line
+	7375 10450 7375 10650
+Wire Wire Line
+	7625 10450 7375 10450
+Wire Wire Line
+	8075 10650 8025 10650
+Wire Wire Line
+	8075 10450 8075 10650
+Wire Wire Line
+	7825 10450 8075 10450
+$Comp
+L Device:C_Small C48
+U 1 1 6364D08F
+P 7725 10450
+F 0 "C48" V 7925 10375 50  0000 L CNN
+F 1 "3n3" V 7850 10375 50  0000 L CNN
+F 2 "Capacitor_SMD:C_0603_1608Metric" H 7725 10450 50  0001 C CNN
+F 3 "~" H 7725 10450 50  0001 C CNN
+F 4 "" H 7725 10450 50  0001 C CNN "LCSC Part #"
+F 5 "C1613 " H 7725 10450 50  0001 C CNN "LCSC"
+F 6 "1" H 7725 10450 50  0001 C CNN "Order Qty"
+F 7 "CL10B332KB8NNNC" H 7725 10450 50  0001 C CNN "Mfr Part Number"
+	1    7725 10450
+	0    -1   -1   0   
+$EndComp
+Wire Wire Line
+	7425 10650 7375 10650
+$Comp
+L power:+3.3VA #PWR090
+U 1 1 6364D088
+P 8225 10600
+F 0 "#PWR090" H 8225 10450 50  0001 C CNN
+F 1 "+3.3VA" H 8240 10773 50  0000 C CNN
+F 2 "" H 8225 10600 50  0001 C CNN
+F 3 "" H 8225 10600 50  0001 C CNN
+	1    8225 10600
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:GND #PWR089
+U 1 1 6364D082
+P 7300 10700
+F 0 "#PWR089" H 7300 10450 50  0001 C CNN
+F 1 "GND" H 7305 10527 50  0000 C CNN
+F 2 "" H 7300 10700 50  0001 C CNN
+F 3 "" H 7300 10700 50  0001 C CNN
+	1    7300 10700
+	1    0    0    -1  
+$EndComp
+$Comp
+L Amplifier_Operational:MCP6002-xSN U9
+U 3 1 62469356
+P 7725 10750
+F 0 "U9" V 7700 10675 50  0000 L CNN
+F 1 "MCP6002" V 7800 10575 50  0000 L CNN
+F 2 "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm" H 7725 10750 50  0001 C CNN
+F 3 "http://ww1.microchip.com/downloads/en/DeviceDoc/21733j.pdf" H 7725 10750 50  0001 C CNN
+F 4 "" H 7725 10750 50  0001 C CNN "LCSC Part #"
+F 5 "C7377" H 7725 10750 50  0001 C CNN "LCSC"
+F 6 "MCP6002-I/SN" H 7725 10750 50  0001 C CNN "Mfr Part Number"
+F 7 "1" H 7725 10750 50  0001 C CNN "Order Qty"
+	3    7725 10750
+	0    1    1    0   
+$EndComp
 $EndSCHEMATC
