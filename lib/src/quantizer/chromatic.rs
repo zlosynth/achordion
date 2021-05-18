@@ -1,4 +1,4 @@
-use crate::midi::note::Note;
+use crate::note::Note;
 
 pub fn quantize(voct: f32) -> Note {
     let offset_voct = voct + (1.0 / 24.0);

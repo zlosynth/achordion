@@ -1,7 +1,7 @@
 #[allow(unused_imports)]
 use micromath::F32Ext;
 
-use crate::midi::note::Note;
+use crate::note::Note;
 use crate::scales::diatonic::{Mode, SEMITONES};
 
 pub fn quantize(mode: Mode, root: Note, mut voct: f32) -> Note {

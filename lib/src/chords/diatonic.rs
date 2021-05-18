@@ -1,4 +1,4 @@
-use crate::midi::note::Note;
+use crate::note::Note;
 use crate::scales::diatonic::{Mode, SEMITONES};
 
 pub fn build(
