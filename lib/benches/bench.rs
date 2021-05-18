@@ -3,7 +3,7 @@ extern crate lazy_static;
 
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
 
-use achordion_lib::oscillator::Oscillator;
+use achordion_lib::instrument::Instrument;
 use achordion_lib::waveform;
 use achordion_lib::wavetable::Wavetable;
 
@@ -16,11 +16,12 @@ lazy_static! {
 }
 
 fn criterion_benchmark(c: &mut Criterion) {
-    c.bench_function("oscillator", |b| {
-        let mut oscillator = Oscillator::new(&WAVETABLES[..], SAMPLE_RATE);
-        oscillator.frequency = 440.0;
-        let mut buffer = [0; 64];
-        b.iter(|| oscillator.populate(black_box(&mut buffer)));
+    c.bench_function("instrument", |b| {
+        let mut instrument = Instrument::new(&WAVETABLES[..], SAMPLE_RATE);
+        instrument.set_chord_root(2.0);
+        let mut root_buffer = [0; 64];
+        let mut chord_buffer = [0; 64];
+        b.iter(|| instrument.populate(black_box(&mut root_buffer), black_box(&mut chord_buffer)));
     });
 }
 
