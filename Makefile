@@ -37,3 +37,10 @@ test:
 	cd eurorack && cargo test --all
 	cd lib && cargo test --all
 	cd puredata && cargo test --all
+
+.PHONY: puredata
+puredata:
+	mkdir -p ~/.local/lib/pd/extra
+	cd puredata && cargo build --release
+	cp puredata/target/release/libachordion_pd.so ~/.local/lib/pd/extra/achordion~.pd_linux
+	pd puredata/achordion.pd

@@ -11,6 +11,9 @@ make
 # run benchmark
 cargo bench --bench bench
 
+# run the module via pure data
+make puredata
+
 # profiling example
 rm -f target/release/deps/bench-*
 rm -f callgrind.out.*
