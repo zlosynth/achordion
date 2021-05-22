@@ -1,11 +1,12 @@
 # Achordion Pure Data
 
+This Pure Data external is meant for simple testing of the module without a need
+to flash it to the real thing.
+
 Build and install on Linux with:
 
 ```sh
-cargo build --release
-
 mkdir -p ~/.local/lib/pd/extra
-cp target/release/libachordion_pd.so ~/.local/lib/pd/extra/achordion~.pd_linux
+cargo build --release && cp target/release/libachordion_pd.so ~/.local/lib/pd/extra/achordion~.pd_linux
 ```
 
