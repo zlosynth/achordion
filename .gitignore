@@ -1,5 +1,5 @@
 .gdb_history
 /template
-Cargo.lock
+lib/Cargo.lock
 target/
 itm.txt
