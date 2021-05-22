@@ -5,6 +5,7 @@ name = "achordion-pd"
 version = "0.0.1"
 license = "GPL-3.0-or-later"
 description = "Pure Data external is meant for simple testing of the module without a need to flash it to the real thing"
+repository = "https://github.com/zlosynth/achordion"
 readme = "../README.md"
 publish = false
 
