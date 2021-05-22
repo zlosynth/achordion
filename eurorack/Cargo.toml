@@ -31,7 +31,7 @@ git = "https://github.com/btrepp/usbd-midi"
 rev = "49484f0b157c61818149fe6ef17ea5183dddef04"
 
 [[bin]]
-name = "achordion"
+name = "achordion-eurorack"
 test = false
 bench = false
 
