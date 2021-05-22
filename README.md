@@ -40,3 +40,8 @@ BY-SA. See [LICENSE-HARDWARE](LICENSE-HARDWARE) for details. Parts of the
 schematics are based on [Emilie Gillet's Mutable
 Instruments](https://github.com/pichenettes/eurorack), kudos to her for making
 them open.
+
+# Changelog
+
+Read the [CHANGELOG.md](CHANGELOG.md) to learn about changes introduced in each
+release and revision.
