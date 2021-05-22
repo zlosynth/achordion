@@ -127,10 +127,24 @@ impl<'a> Instrument<'a> {
         zero_slice(buffer_root);
         zero_slice(buffer_chord);
 
-        self.degrees[0].populate_add(buffer_root, 1.0);
+        // Amplitude of N mixed voices is not N times higher than the one of a
+        // single one. Express perceived amplitude by increasing lower values.
+        // This should make changes between different numbers of oscillators
+        // less noticable.
+        let perceived_amplitude = {
+            let max_amplitude = (DEGREES_IN_INSTRUMENT * OSCILLATORS_IN_DEGREE) as f32;
+            let total_amplitude = self.degrees.iter().fold(0.0, |a, d| a + d.amplitude());
+            (total_amplitude + max_amplitude) / 2.0
+        };
+
+        self.degrees[0].populate_add(
+            buffer_root,
+            self.degrees[0].amplitude() / perceived_amplitude,
+        );
+
         self.degrees[1..]
             .iter_mut()
-            .for_each(|d| d.populate_add(buffer_chord, 1.0 / (DEGREES_IN_INSTRUMENT as f32 - 1.0)))
+            .for_each(|d| d.populate_add(buffer_chord, d.amplitude() / perceived_amplitude));
     }
 
     fn apply_settings(&mut self) {
@@ -156,7 +170,6 @@ struct Degree<'a> {
     frequency: f32,
     detune_config: DetuneConfig,
     detune_phase: f32,
-    detune_amplitude: f32,
     oscillators: [Oscillator<'a>; OSCILLATORS_IN_DEGREE],
 }
 
@@ -166,11 +179,17 @@ impl<'a> Degree<'a> {
             frequency: 0.0,
             detune_config: DetuneConfig::Disabled,
             detune_phase: 0.0,
-            detune_amplitude: 0.0,
             oscillators: [
                 Oscillator::new(wavetables, sample_rate),
                 Oscillator::new(wavetables, sample_rate),
             ],
+        }
+    }
+
+    pub fn amplitude(&self) -> f32 {
+        match self.detune_config {
+            DetuneConfig::Disabled => 1.0,
+            _ => OSCILLATORS_IN_DEGREE as f32,
         }
     }
 
@@ -182,10 +201,6 @@ impl<'a> Degree<'a> {
     pub fn set_detune(&mut self, detune_config: DetuneConfig, detune_phase: f32) {
         self.detune_config = detune_config;
         self.detune_phase = detune_phase;
-        self.detune_amplitude = match detune_config {
-            DetuneConfig::Disabled => 0.0,
-            _ => 1.0,
-        };
         self.apply_settings();
     }
 
@@ -229,11 +244,16 @@ impl<'a> Degree<'a> {
     }
 
     pub fn populate_add(&mut self, buffer: &mut [u16], amplitude: f32) {
-        self.oscillators[0].populate_add(buffer, amplitude / OSCILLATORS_IN_DEGREE as f32 / 3.0);
-        let amplitude = self.detune_amplitude / OSCILLATORS_IN_DEGREE as f32 / 3.0;
-        self.oscillators[1..]
-            .iter_mut()
-            .for_each(|o| o.populate_add(buffer, amplitude));
+        match self.detune_config {
+            DetuneConfig::Disabled => {
+                self.oscillators[0].populate_add(buffer, amplitude);
+            }
+            _ => {
+                self.oscillators
+                    .iter_mut()
+                    .for_each(|o| o.populate_add(buffer, amplitude / OSCILLATORS_IN_DEGREE as f32));
+            }
+        }
     }
 }
 

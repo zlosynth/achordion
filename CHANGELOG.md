@@ -7,6 +7,8 @@ interface is the one between the hardware and software.
 ## Unreleased
 
 * Finally starting using Semantic Versioning.
+* Compensate perceived amplitudes, making sure that combination of less
+  oscillators sound as loud as many.
 
 ## 7123cbb, revision 3
 
