@@ -10,7 +10,7 @@ interface is the one between the hardware and software.
 * Compensate perceived amplitudes, making sure that combination of less
   oscillators sound as loud as many.
 
-## 7123cbb, revision 3
+## 7123cbb, revision 2-3
 
 * Increased size of pads on the PCB for easier hand soldering.
 
