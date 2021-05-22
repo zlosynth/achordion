@@ -40,7 +40,7 @@ pub fn build(
             semitones[(progression_start + *degree as usize - 1)] - semitones[progression_start]
         };
 
-        notes[i] = Some(Note::from_u8(chord_root.to_midi_id() + x as u8));
+        notes[i] = Note::try_from_u8(chord_root.to_midi_id() + x as u8);
     }
 
     notes
@@ -67,5 +67,14 @@ mod tests {
         assert_eq!(notes[0], Some(Note::D4));
         assert_eq!(notes[1], Some(Note::F4));
         assert_eq!(notes[2], Some(Note::A4));
+    }
+
+    #[test]
+    fn build_chord_that_overflows_note_range() {
+        let notes = build(Ionian, Note::C9, Note::G9, [1, 3, 5]);
+
+        assert_eq!(notes[0], Some(Note::G9));
+        assert_eq!(notes[1], None);
+        assert_eq!(notes[2], None);
     }
 }

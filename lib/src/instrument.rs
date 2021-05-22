@@ -159,7 +159,11 @@ impl<'a> Instrument<'a> {
         );
 
         for (i, degree) in self.degrees.iter_mut().enumerate() {
-            degree.set_frequency(chord_notes[i].unwrap().to_freq_f32());
+            if let Some(note) = chord_notes[i] {
+                degree.set_frequency(note.to_freq_f32());
+            } else {
+                degree.set_frequency(0.0);
+            }
         }
     }
 }

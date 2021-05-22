@@ -323,8 +323,16 @@ impl Note {
 
     #[inline(always)]
     pub fn from_u8(note: u8) -> Note {
-        assert!(note <= Note::HIGHEST_NOTE as u8);
-        unsafe { core::mem::transmute(note) }
+        Self::try_from_u8(note).unwrap()
+    }
+
+    #[inline(always)]
+    pub fn try_from_u8(note: u8) -> Option<Note> {
+        if note <= Note::HIGHEST_NOTE as u8 {
+            Some(unsafe { core::mem::transmute(note) })
+        } else {
+            None
+        }
     }
 
     #[inline(always)]
