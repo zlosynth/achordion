@@ -1,5 +1,7 @@
 # Achordion
 
+Chord-crafting quantizing wavetable oscillator module for Eurorack.
+
 ## Development
 
 ``` sh
