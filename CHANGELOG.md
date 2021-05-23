@@ -11,6 +11,7 @@ interface is the one between the hardware and software.
   oscillators sound as loud as many.
 * Added support for silenced chord degrees, allowing for subset of voices to
   sound and build smaller chords/intervals.
+* Added support for chord degrees spanning multiple upwards octaves.
 
 ## 7123cbb, revision 2-3
 

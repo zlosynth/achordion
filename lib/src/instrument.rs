@@ -7,7 +7,7 @@ use crate::quantizer;
 use crate::scales;
 use crate::wavetable::Wavetable;
 
-const CHORDS: [[i8; 3]; 16] = [
+const CHORDS: [[i8; 3]; 19] = [
     [1, 0, 0],
     [1, 2, 0],
     [1, 3, 0],
@@ -24,6 +24,9 @@ const CHORDS: [[i8; 3]; 16] = [
     [1, 2, 7],
     [1, 5, 9],
     [1, 2, 9],
+    [1, 7 + 5, 7 + 3],
+    [1, 7 + 7, 7 + 3],
+    [1, 7 + 9, 7 + 3],
 ];
 
 const DETUNES: [[DetuneConfig; 3]; 4] = [

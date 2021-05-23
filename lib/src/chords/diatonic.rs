@@ -7,45 +7,42 @@ pub fn build(
     chord_root: Note,
     degrees: [i8; 3],
 ) -> [Option<Note>; 3] {
-    let scale_root_id = (scale_root.to_midi_id() % 12) as i16;
-    let mut chord_root_id = (chord_root.to_midi_id() % 12) as i16;
+    let scale_semitones = SEMITONES[mode as usize];
 
-    if scale_root_id > chord_root_id {
-        chord_root_id += 12;
-    }
+    let scale_index_of_chord = {
+        let scale_root_to_chord_distance = {
+            let scale_root_id = (scale_root.to_midi_id() % 12) as i16;
+            let chord_root_id = (chord_root.to_midi_id() % 12) as i16;
+            (scale_root_id - chord_root_id).abs()
+        };
 
-    let semitones = SEMITONES[mode as usize];
-
-    let progression_start = semitones
-        .iter()
-        .enumerate()
-        .find(|(_, x)| **x as i16 == chord_root_id - scale_root_id)
-        .map(|(i, _)| i)
-        .unwrap_or(0);
+        scale_semitones
+            .iter()
+            .enumerate()
+            .find(|(_, x)| **x as i16 == scale_root_to_chord_distance)
+            .map(|(i, _)| i)
+            .unwrap_or(0)
+    };
 
     let mut notes = [None; 3];
 
     for (i, degree) in degrees.iter().enumerate() {
-        assert!(
-            (0..12).contains(degree),
-            "Only basic intervals are implemented"
-        );
+        assert!(*degree >= 0, "Only positive intervals are implemented");
 
         if *degree == 0 {
             notes[i] = None;
             continue;
         }
 
-        let target = progression_start + *degree as usize - 1;
-
-        let x = if target > 6 {
-            semitones[(progression_start + *degree as usize - 1) % 7] - semitones[progression_start]
-                + 12
-        } else {
-            semitones[(progression_start + *degree as usize - 1)] - semitones[progression_start]
+        let semitones_distance = {
+            let scale_index_of_degree = scale_index_of_chord + *degree as usize - 1;
+            let semitones_for_octaves = (scale_index_of_degree as i8 / 7) * 12;
+            let semitones_for_interval =
+                scale_semitones[scale_index_of_degree % 7] - scale_semitones[scale_index_of_chord];
+            semitones_for_interval + semitones_for_octaves
         };
 
-        notes[i] = Note::try_from_u8(chord_root.to_midi_id() + x as u8);
+        notes[i] = Note::try_from_u8(chord_root.to_midi_id() + semitones_distance as u8);
     }
 
     notes
@@ -90,5 +87,14 @@ mod tests {
         assert_eq!(notes[0], Some(Note::C4));
         assert_eq!(notes[1], None);
         assert_eq!(notes[2], Some(Note::G4));
+    }
+
+    #[test]
+    fn build_chord_over_multiple_octaves() {
+        let notes = build(Ionian, Note::C3, Note::C4, [1, 10, 19]);
+
+        assert_eq!(notes[0], Some(Note::C4));
+        assert_eq!(notes[1], Some(Note::E5));
+        assert_eq!(notes[2], Some(Note::G6));
     }
 }
