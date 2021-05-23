@@ -278,11 +278,130 @@ fn zero_slice(slice: &mut [u16]) {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::waveform;
+
+    const SAMPLE_RATE: u32 = 44_100;
+
+    lazy_static! {
+        static ref WAVETABLE: Wavetable<'static> =
+            Wavetable::new(&waveform::saw::SAW_FACTORS, SAMPLE_RATE);
+        static ref WAVETABLES: [&'static Wavetable<'static>; 1] = [&WAVETABLE];
+    }
 
     #[test]
     fn replace_slice_contents_with_zeros() {
         let mut slice = [1, 2, 3];
         zero_slice(&mut slice);
         assert_eq!(slice, [0, 0, 0]);
+    }
+
+    fn create_valid_instrument() -> Instrument<'static> {
+        let mut instrument = Instrument::new(&WAVETABLES[..], SAMPLE_RATE);
+        instrument.set_scale_mode(0.0);
+        instrument.set_scale_root(2.0);
+        instrument.set_chord_root(2.5);
+        instrument.set_chord_degrees(0.8);
+        instrument.set_wavetable(0.1);
+        instrument.set_detune(1.0);
+        instrument
+    }
+
+    fn assert_populate(instrument: &mut Instrument) {
+        let mut root_buffer = [0; 64];
+        let mut chord_buffer = [0; 64];
+        instrument.populate(&mut root_buffer, &mut chord_buffer);
+
+        assert!(root_buffer[0] > 0);
+        assert!(chord_buffer[0] > 0);
+    }
+
+    #[test]
+    fn populate_when_all_is_in_range() {
+        let mut instrument = create_valid_instrument();
+        assert_populate(&mut instrument);
+    }
+
+    #[test]
+    fn recover_after_scale_mode_was_set_above_range() {
+        let mut instrument = create_valid_instrument();
+        instrument.set_scale_mode(100.0);
+        assert_populate(&mut instrument);
+    }
+
+    #[test]
+    fn recover_after_scale_mode_was_set_below_range() {
+        let mut instrument = create_valid_instrument();
+        instrument.set_scale_mode(-100.0);
+        assert_populate(&mut instrument);
+    }
+
+    #[test]
+    fn recover_after_scale_root_was_set_above_range() {
+        let mut instrument = create_valid_instrument();
+        instrument.set_scale_root(100.0);
+        assert_populate(&mut instrument);
+    }
+
+    #[test]
+    fn recover_after_scale_root_was_set_below_range() {
+        let mut instrument = create_valid_instrument();
+        instrument.set_scale_root(-100.0);
+        assert_populate(&mut instrument);
+    }
+
+    #[test]
+    fn recover_after_chord_root_was_set_above_range() {
+        let mut instrument = create_valid_instrument();
+        instrument.set_chord_root(100.0);
+        assert_populate(&mut instrument);
+    }
+
+    #[test]
+    fn recover_after_chord_root_was_set_below_range() {
+        let mut instrument = create_valid_instrument();
+        instrument.set_chord_root(-100.0);
+        assert_populate(&mut instrument);
+    }
+
+    #[test]
+    fn recover_after_chord_degrees_were_set_above_range() {
+        let mut instrument = create_valid_instrument();
+        instrument.set_chord_degrees(10.0);
+        assert_populate(&mut instrument);
+    }
+
+    #[test]
+    fn recover_after_chord_degrees_were_set_below_range() {
+        let mut instrument = create_valid_instrument();
+        instrument.set_chord_degrees(-10.0);
+        assert_populate(&mut instrument);
+    }
+
+    #[test]
+    fn recover_after_wavetable_was_set_above_range() {
+        let mut instrument = create_valid_instrument();
+        instrument.set_wavetable(10.0);
+        assert_populate(&mut instrument);
+    }
+
+    #[test]
+    fn recover_after_wavetable_was_set_below_range() {
+        let mut instrument = create_valid_instrument();
+        instrument.set_wavetable(-10.0);
+        assert_populate(&mut instrument);
+    }
+
+    #[test]
+    fn recover_after_detune_was_set_above_range() {
+        let mut instrument = create_valid_instrument();
+        instrument.set_detune(10.0);
+        assert_populate(&mut instrument);
+    }
+
+    #[test]
+    fn recover_after_detune_was_set_below_range() {
+        let mut instrument = create_valid_instrument();
+        instrument.set_detune(-10.0);
+        assert_populate(&mut instrument);
     }
 }
