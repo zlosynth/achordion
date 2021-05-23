@@ -9,6 +9,8 @@ interface is the one between the hardware and software.
 * Finally starting using Semantic Versioning.
 * Compensate perceived amplitudes, making sure that combination of less
   oscillators sound as loud as many.
+* Added support for silenced chord degrees, allowing for subset of voices to
+  sound and build smaller chords/intervals.
 
 ## 7123cbb, revision 2-3
 

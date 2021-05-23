@@ -31,6 +31,11 @@ pub fn build(
             "Only basic intervals are implemented"
         );
 
+        if *degree == 0 {
+            notes[i] = None;
+            continue;
+        }
+
         let target = progression_start + *degree as usize - 1;
 
         let x = if target > 6 {
@@ -76,5 +81,14 @@ mod tests {
         assert_eq!(notes[0], Some(Note::G9));
         assert_eq!(notes[1], None);
         assert_eq!(notes[2], None);
+    }
+
+    #[test]
+    fn build_chord_with_disabled_degree() {
+        let notes = build(Ionian, Note::C3, Note::C4, [1, 0, 5]);
+
+        assert_eq!(notes[0], Some(Note::C4));
+        assert_eq!(notes[1], None);
+        assert_eq!(notes[2], Some(Note::G4));
     }
 }
