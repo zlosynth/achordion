@@ -7,7 +7,9 @@ use crate::quantizer;
 use crate::scales;
 use crate::wavetable::Wavetable;
 
-const CHORDS: [[i8; 3]; 22] = [
+const DEGREES: usize = 3;
+
+const CHORDS: [[i8; DEGREES]; 22] = [
     [1, 0, 0],
     [1, 2, 0],
     [1, 3, 0],
@@ -32,7 +34,7 @@ const CHORDS: [[i8; 3]; 22] = [
     [-6, 1, 5],
 ];
 
-const DETUNES: [[DetuneConfig; 3]; 4] = [
+const DETUNES: [[DetuneConfig; DEGREES]; 4] = [
     [
         DetuneConfig::Disabled,
         DetuneConfig::Disabled,
@@ -55,14 +57,12 @@ const DETUNES: [[DetuneConfig; 3]; 4] = [
     ],
 ];
 
-const DEGREES_IN_INSTRUMENT: usize = 3;
-
 pub struct Instrument<'a> {
     scale_root: Note,
     scale_mode: scales::diatonic::Mode,
     chord_root: f32,
-    chord_degrees: [i8; 3],
-    degrees: [Degree<'a>; DEGREES_IN_INSTRUMENT],
+    chord_degrees: [i8; DEGREES],
+    degrees: [Degree<'a>; DEGREES],
 }
 
 impl<'a> Instrument<'a> {
@@ -145,7 +145,7 @@ impl<'a> Instrument<'a> {
         // This should make changes between different numbers of oscillators
         // less noticable.
         let perceived_amplitude = {
-            let max_amplitude = (DEGREES_IN_INSTRUMENT * OSCILLATORS_IN_DEGREE) as f32;
+            let max_amplitude = (DEGREES * OSCILLATORS_IN_DEGREE) as f32;
             let total_amplitude = self.degrees.iter().fold(0.0, |a, d| a + d.amplitude());
             (total_amplitude + max_amplitude) / 2.0
         };
