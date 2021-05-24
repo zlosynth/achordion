@@ -9,7 +9,7 @@ use crate::wavetable::Wavetable;
 
 const DEGREES: usize = 4;
 
-const CHORDS: [[i8; DEGREES]; 22] = [
+const CHORDS: [[i8; DEGREES]; 24] = [
     [1, 0, 0, 0],
     [1, 2, 0, 0],
     [1, 3, 0, 0],
@@ -32,6 +32,8 @@ const CHORDS: [[i8; DEGREES]; 22] = [
     [1, 3, 5, 0],
     [-4, 1, 3, 0],
     [-6, 1, 5, 0],
+    [1, 3, 5, 7],
+    [1, 5, 7, 10],
 ];
 
 const DETUNES: [[DetuneConfig; DEGREES]; 4] = [
