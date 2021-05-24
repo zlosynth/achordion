@@ -7,31 +7,31 @@ use crate::quantizer;
 use crate::scales;
 use crate::wavetable::Wavetable;
 
-const DEGREES: usize = 3;
+const DEGREES: usize = 4;
 
 const CHORDS: [[i8; DEGREES]; 22] = [
-    [1, 0, 0],
-    [1, 2, 0],
-    [1, 3, 0],
-    [1, 4, 0],
-    [1, 5, 0],
-    [1, 6, 0],
-    [1, 7, 0],
-    [1, 3, 5],
-    [1, 2, 5],
-    [1, 4, 5],
-    [1, 5, 7],
-    [1, 3, 7],
-    [1, 4, 7],
-    [1, 2, 7],
-    [1, 5, 9],
-    [1, 2, 9],
-    [1, 7 + 5, 7 + 3],
-    [1, 7 + 7, 7 + 3],
-    [1, 7 + 9, 7 + 3],
-    [1, 3, 5],
-    [-4, 1, 3],
-    [-6, 1, 5],
+    [1, 0, 0, 0],
+    [1, 2, 0, 0],
+    [1, 3, 0, 0],
+    [1, 4, 0, 0],
+    [1, 5, 0, 0],
+    [1, 6, 0, 0],
+    [1, 7, 0, 0],
+    [1, 3, 5, 0],
+    [1, 2, 5, 0],
+    [1, 4, 5, 0],
+    [1, 5, 7, 0],
+    [1, 3, 7, 0],
+    [1, 4, 7, 0],
+    [1, 2, 7, 0],
+    [1, 5, 9, 0],
+    [1, 2, 9, 0],
+    [1, 7 + 5, 7 + 3, 0],
+    [1, 7 + 7, 7 + 3, 0],
+    [1, 7 + 9, 7 + 3, 0],
+    [1, 3, 5, 0],
+    [-4, 1, 3, 0],
+    [-6, 1, 5, 0],
 ];
 
 const DETUNES: [[DetuneConfig; DEGREES]; 4] = [
@@ -39,18 +39,22 @@ const DETUNES: [[DetuneConfig; DEGREES]; 4] = [
         DetuneConfig::Disabled,
         DetuneConfig::Disabled,
         DetuneConfig::Disabled,
+        DetuneConfig::Disabled,
     ],
     [
         DetuneConfig::SingleSide(0.5, 0.5 + 0.01),
         DetuneConfig::Disabled,
         DetuneConfig::Disabled,
+        DetuneConfig::Disabled,
     ],
     [
         DetuneConfig::SingleSide(0.5, 0.5 + 0.01),
         DetuneConfig::SingleSide(0.5, 0.5 + 0.01),
         DetuneConfig::SingleSide(0.5, 0.5 + 0.01),
+        DetuneConfig::SingleSide(0.5, 0.5 + 0.01),
     ],
     [
+        DetuneConfig::BothSides(1.0, 1.01),
         DetuneConfig::BothSides(1.0, 1.01),
         DetuneConfig::BothSides(1.0, 1.01),
         DetuneConfig::BothSides(1.0, 1.01),
@@ -73,6 +77,7 @@ impl<'a> Instrument<'a> {
             chord_root: 0.0,
             chord_degrees: CHORDS[0],
             degrees: [
+                Degree::new(wavetables, sample_rate),
                 Degree::new(wavetables, sample_rate),
                 Degree::new(wavetables, sample_rate),
                 Degree::new(wavetables, sample_rate),
