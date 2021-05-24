@@ -165,8 +165,8 @@ impl<'a> Instrument<'a> {
             quantizer::diatonic::quantize(self.scale_mode, self.scale_root, self.chord_root);
 
         let chord_notes = chords::diatonic::build(
-            self.scale_mode,
             self.scale_root,
+            self.scale_mode,
             chord_root_note,
             self.chord_degrees,
         );
