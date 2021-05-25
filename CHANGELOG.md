@@ -12,6 +12,8 @@ interface is the one between the hardware and software.
 * Added support for silenced chord degrees, allowing for subset of voices to
   sound and build smaller chords/intervals.
 * Added support for chord degrees spanning multiple upwards octaves.
+* Added support for inverted chords.
+* Added support for seventh chords.
 
 ## 7123cbb, revision 2-3
 
