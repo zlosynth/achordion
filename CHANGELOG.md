@@ -6,6 +6,8 @@ backwards compatibility.
 
 ## Unreleased
 
+## 0.3.0
+
 * Finally starting using Semantic Versioning.
 * Compensate perceived amplitudes, making sure that combination of less
   oscillators sound as loud as many.
@@ -14,6 +16,7 @@ backwards compatibility.
 * Added support for chord degrees spanning multiple upwards octaves.
 * Added support for inverted chords.
 * Added support for seventh chords.
+* Defined versioning and compatibility policies.
 
 ## 7123cbb, revision 2-3
 
