@@ -6,6 +6,9 @@ backwards compatibility.
 
 ## Unreleased
 
+* Detune sections now respond logarithmically, this allows for finer control in
+  lower values.
+
 ## 0.3.0
 
 * Finally starting using Semantic Versioning.

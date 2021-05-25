@@ -18,3 +18,4 @@ mod note;
 mod oscillator;
 mod quantizer;
 mod scales;
+mod taper;

@@ -5,6 +5,7 @@ use crate::note::Note;
 use crate::oscillator::Oscillator;
 use crate::quantizer;
 use crate::scales;
+use crate::taper;
 use crate::wavetable::Wavetable;
 
 const DEGREES: usize = 4;
@@ -44,16 +45,16 @@ const DETUNES: [[DetuneConfig; DEGREES]; 4] = [
         DetuneConfig::Disabled,
     ],
     [
-        DetuneConfig::SingleSide(0.5, 0.5 + 0.01),
+        DetuneConfig::SingleSide(0.5, 0.5 + 0.02),
         DetuneConfig::Disabled,
         DetuneConfig::Disabled,
         DetuneConfig::Disabled,
     ],
     [
-        DetuneConfig::SingleSide(0.5, 0.5 + 0.01),
-        DetuneConfig::SingleSide(0.5, 0.5 + 0.01),
-        DetuneConfig::SingleSide(0.5, 0.5 + 0.01),
-        DetuneConfig::SingleSide(0.5, 0.5 + 0.01),
+        DetuneConfig::SingleSide(0.5, 0.5 + 0.02),
+        DetuneConfig::SingleSide(0.5, 0.5 + 0.02),
+        DetuneConfig::SingleSide(0.5, 0.5 + 0.02),
+        DetuneConfig::SingleSide(0.5, 0.5 + 0.02),
     ],
     [
         DetuneConfig::BothSides(1.0, 1.01),
@@ -136,7 +137,7 @@ impl<'a> Instrument<'a> {
         let index = ((detune * DETUNES.len() as f32) as usize).min(DETUNES.len() - 1);
 
         let section = 1.0 / DETUNES.len() as f32;
-        let phase = (detune % section) / section;
+        let phase = taper::log((detune % section) / section);
 
         for (i, degree) in self.degrees.iter_mut().enumerate() {
             degree.set_detune(DETUNES[index][i], phase)
