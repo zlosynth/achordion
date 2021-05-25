@@ -2,7 +2,7 @@
 # It is not intended for manual editing.
 [[package]]
 name = "achordion-eurorack"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "achordion-lib",
  "cortex-m 0.7.2",
@@ -20,7 +20,7 @@ dependencies = [
 
 [[package]]
 name = "achordion-lib"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "heapless",
  "micromath",
