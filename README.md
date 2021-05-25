@@ -45,3 +45,8 @@ them open.
 
 Read the [CHANGELOG.md](CHANGELOG.md) to learn about changes introduced in each
 release and revision.
+
+# Versioning
+
+See [VERSIONING.md](VERSIONING.md) to find detailed information about versioning
+of the project and compatability between its software and hardware.

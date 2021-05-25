@@ -1,8 +1,8 @@
 # Changelog
 
-All notable changes to this project will be documented in this file. The project
-adheres to [Semantic Versioning](https://semver.org/), where the versioned
-interface is the one between the hardware and software.
+All notable changes to this project will be documented in this file. See
+[VERSIONING.md](VERSIONING.md) for more information about versioning and
+backwards compatibility.
 
 ## Unreleased
 
