@@ -9,7 +9,7 @@ backwards compatibility.
 * Detune sections now respond logarithmically, this allows for finer control in
   lower values.
 
-## 0.3.0
+## 0.2.0
 
 * Finally starting using Semantic Versioning.
 * Compensate perceived amplitudes, making sure that combination of less
