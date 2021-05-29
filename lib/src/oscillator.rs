@@ -8,11 +8,11 @@ pub struct Oscillator<'a> {
     pub wavetable: f32,
     pub phase: f32,
     sample_rate: f32,
-    wavetables: &'a [&'a Wavetable<'a>],
+    wavetables: &'a [Wavetable<'a>],
 }
 
 impl<'a> Oscillator<'a> {
-    pub fn new(wavetables: &'a [&'a Wavetable], sample_rate: u32) -> Self {
+    pub fn new(wavetables: &'a [Wavetable], sample_rate: u32) -> Self {
         assert!(!wavetables.is_empty());
         Self {
             frequency: 0.0,
@@ -63,8 +63,7 @@ mod tests {
     const SAMPLE_RATE: u32 = 8;
 
     lazy_static! {
-        static ref WAVETABLE: Wavetable<'static> = Wavetable::new(&FACTORS, SAMPLE_RATE);
-        static ref WAVETABLES: [&'static Wavetable<'static>; 1] = [&WAVETABLE];
+        static ref WAVETABLES: [Wavetable<'static>; 1] = [Wavetable::new(&FACTORS, SAMPLE_RATE)];
     }
 
     #[test]

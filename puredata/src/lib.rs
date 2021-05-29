@@ -17,28 +17,20 @@ use std::os::raw::{c_int, c_void};
 
 use achordion_lib::instrument::Instrument;
 use achordion_lib::waveform;
-use achordion_lib::wavetable::Wavetable;
+use achordion_lib::wavetable::{Bank, Wavetable};
 
 static mut CLASS: Option<*mut pd_sys::_class> = None;
 
 lazy_static! {
-    static ref SINE: Wavetable<'static> = {
+    static ref BANK_A: Bank<'static, 4> = {
         let sample_rate = unsafe { pd_sys::sys_getsr() as u32 };
-        Wavetable::new(&waveform::sine::SINE_FACTORS, sample_rate)
+        Bank::new([
+            Wavetable::new(&waveform::sine::SINE_FACTORS, sample_rate),
+            Wavetable::new(&waveform::triangle::TRIANGLE_FACTORS, sample_rate),
+            Wavetable::new(&waveform::pulse::PULSE_50_FACTORS, sample_rate),
+            Wavetable::new(&waveform::saw::SAW_FACTORS, sample_rate),
+        ])
     };
-    static ref TRIANGLE: Wavetable<'static> = {
-        let sample_rate = unsafe { pd_sys::sys_getsr() as u32 };
-        Wavetable::new(&waveform::triangle::TRIANGLE_FACTORS, sample_rate)
-    };
-    static ref PULSE: Wavetable<'static> = {
-        let sample_rate = unsafe { pd_sys::sys_getsr() as u32 };
-        Wavetable::new(&waveform::pulse::PULSE_50_FACTORS, sample_rate)
-    };
-    static ref SAW: Wavetable<'static> = {
-        let sample_rate = unsafe { pd_sys::sys_getsr() as u32 };
-        Wavetable::new(&waveform::saw::SAW_FACTORS, sample_rate)
-    };
-    static ref WAVETABLES: [&'static Wavetable<'static>; 4] = [&SINE, &TRIANGLE, &PULSE, &SAW];
 }
 
 #[repr(C)]
@@ -93,7 +85,7 @@ unsafe extern "C" fn new() -> *mut c_void {
     let class = pd_sys::pd_new(CLASS.unwrap()) as *mut Class;
 
     let sample_rate = pd_sys::sys_getsr() as u32;
-    let instrument = Instrument::new(&WAVETABLES[..], sample_rate);
+    let instrument = Instrument::new(&BANK_A.wavetables[..], sample_rate);
 
     (*class).instrument = instrument;
 

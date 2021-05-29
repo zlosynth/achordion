@@ -10,9 +10,8 @@ use achordion_lib::wavetable::Wavetable;
 const SAMPLE_RATE: u32 = 44_100;
 
 lazy_static! {
-    static ref WAVETABLE: Wavetable<'static> =
-        Wavetable::new(&waveform::saw::SAW_FACTORS, SAMPLE_RATE);
-    static ref WAVETABLES: [&'static Wavetable<'static>; 1] = [&WAVETABLE];
+    static ref WAVETABLES: [Wavetable<'static>; 1] =
+        [Wavetable::new(&waveform::saw::SAW_FACTORS, SAMPLE_RATE)];
 }
 
 fn criterion_benchmark(c: &mut Criterion) {

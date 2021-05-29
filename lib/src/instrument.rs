@@ -73,7 +73,7 @@ pub struct Instrument<'a> {
 }
 
 impl<'a> Instrument<'a> {
-    pub fn new(wavetables: &'a [&'a Wavetable], sample_rate: u32) -> Self {
+    pub fn new(wavetables: &'a [Wavetable], sample_rate: u32) -> Self {
         Self {
             scale_root: Note::C1,
             scale_mode: scales::diatonic::Ionian,
@@ -199,7 +199,7 @@ struct Degree<'a> {
 }
 
 impl<'a> Degree<'a> {
-    pub fn new(wavetables: &'a [&'a Wavetable], sample_rate: u32) -> Self {
+    pub fn new(wavetables: &'a [Wavetable], sample_rate: u32) -> Self {
         Self {
             frequency: 0.0,
             detune_config: DetuneConfig::Disabled,
@@ -304,9 +304,8 @@ mod tests {
     const SAMPLE_RATE: u32 = 44_100;
 
     lazy_static! {
-        static ref WAVETABLE: Wavetable<'static> =
-            Wavetable::new(&waveform::saw::SAW_FACTORS, SAMPLE_RATE);
-        static ref WAVETABLES: [&'static Wavetable<'static>; 1] = [&WAVETABLE];
+        static ref WAVETABLES: [Wavetable<'static>; 1] =
+            [Wavetable::new(&waveform::saw::SAW_FACTORS, SAMPLE_RATE)];
     }
 
     #[test]
