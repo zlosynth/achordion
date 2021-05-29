@@ -53,7 +53,7 @@ use stm32_i2s_v12x::{MasterClock, MasterConfig, Polarity};
 
 use achordion_lib::instrument::Instrument;
 use achordion_lib::waveform;
-use achordion_lib::wavetable::{Bank, Wavetable};
+use achordion_lib::wavetable::Wavetable;
 
 use crate::cs43l22::Cs43L22;
 use crate::hal::prelude::*;
@@ -77,14 +77,12 @@ const BUFFER_SIZE: usize = 64 * 2;
 static mut STEREO_BUFFER: [u16; BUFFER_SIZE * 2] = [16384; BUFFER_SIZE * 2];
 
 lazy_static! {
-    static ref BANK_A: Bank<'static, 4> = {
-        Bank::new([
-            Wavetable::new(&waveform::sine::SINE_FACTORS, SAMPLE_RATE),
-            Wavetable::new(&waveform::triangle::TRIANGLE_FACTORS, SAMPLE_RATE),
-            Wavetable::new(&waveform::pulse::PULSE_50_FACTORS, SAMPLE_RATE),
-            Wavetable::new(&waveform::saw::SAW_FACTORS, SAMPLE_RATE),
-        ])
-    };
+    static ref WAVETABLES: [Wavetable<'static>; 4] = [
+        Wavetable::new(&waveform::sine::SINE_FACTORS, SAMPLE_RATE),
+        Wavetable::new(&waveform::triangle::TRIANGLE_FACTORS, SAMPLE_RATE),
+        Wavetable::new(&waveform::pulse::PULSE_50_FACTORS, SAMPLE_RATE),
+        Wavetable::new(&waveform::saw::SAW_FACTORS, SAMPLE_RATE),
+    ];
 }
 
 #[app(device = stm32f4xx_hal::pac, peripherals = true, monotonic = rtic::cyccnt::CYCCNT)]
@@ -244,7 +242,7 @@ const APP: () = {
         };
 
         // The main instrument used to fill in the circular buffer.
-        let instrument = Instrument::new(&BANK_A.wavetables[..], SAMPLE_RATE);
+        let instrument = Instrument::new(&WAVETABLES[..], SAMPLE_RATE);
 
         init::LateResources {
             stream,
