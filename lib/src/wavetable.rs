@@ -3,6 +3,16 @@ use micromath::F32Ext;
 
 const EQULIBRIUM: [u16; 1] = [16384];
 
+pub struct Bank<'a, const N: usize> {
+    pub wavetables: [Wavetable<'a>; N],
+}
+
+impl<'a, const N: usize> Bank<'a, N> {
+    pub fn new(wavetables: [Wavetable<'a>; N]) -> Self {
+        Self { wavetables }
+    }
+}
+
 pub struct Wavetable<'a> {
     sample_rate: u32,
     factors: &'a [&'a [u16]],
