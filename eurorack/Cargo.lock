@@ -14,8 +14,6 @@ dependencies = [
  "stm32_i2s_v12x",
  "stm32f4xx-hal",
  "typenum",
- "usb-device",
- "usbd-midi",
 ]
 
 [[package]]

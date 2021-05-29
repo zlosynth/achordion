@@ -19,16 +19,11 @@ typenum = "1"
 lazy_static = { version = "1.4", features = [ "spin_no_std" ] }
 achordion-lib = { path = "../lib" }
 stm32_i2s_v12x = "0.2"
-usb-device = "0.2.5"
 
 [dependencies.stm32f4xx-hal]
 features = ["stm32f407", "rt", "i2s", "usb_fs"]
 git = "https://github.com/stm32-rs/stm32f4xx-hal"
 rev = "7ccd36028c474617c052c7a45c57b379c7bdf1a2"
-
-[dependencies.usbd-midi]
-git = "https://github.com/btrepp/usbd-midi"
-rev = "49484f0b157c61818149fe6ef17ea5183dddef04"
 
 [[bin]]
 name = "achordion-eurorack"
