@@ -11,7 +11,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "achordion-pd"
+name = "achordion-puredata"
 version = "0.2.0"
 dependencies = [
  "achordion-lib",
