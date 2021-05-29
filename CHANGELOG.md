@@ -10,6 +10,8 @@ backwards compatibility.
   lower values.
 * Added pulse waveforms of variable width.
 * Support multiple wavetable banks.
+* Label button and probe pins on the PCB.
+* Switch to Daisy Seed, STM32H7.
 
 ## 0.2.0
 
