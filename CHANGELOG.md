@@ -8,6 +8,7 @@ backwards compatibility.
 
 * Detune sections now respond logarithmically, this allows for finer control in
   lower values.
+* Added pulse waveforms of variable width.
 
 ## 0.2.0
 

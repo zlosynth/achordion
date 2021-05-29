@@ -19,34 +19,42 @@ pub fn generate_module(directory: &Path) {
     let path = directory.join(format!("{}.rs", NAME));
     let mut module = std::fs::File::create(&path).unwrap();
 
-    let oversampled = pulse(0.5);
-
-    macro_rules! dump {
-        ( $factor:expr, $cutoff:expr, $undersampler:expr ) => {
-            let wavetable = $undersampler(processing::filtered(&oversampled, $cutoff));
-            builder::dump_wavetable(&mut module, NAME, $factor, &wavetable);
+    for width in 1..19 {
+        let pulse_width = width as f32 / 20.0;
+        let name = {
+            let pulse_width_format = format!("{:.2}", pulse_width.fract()).replacen("0.", "", 1);
+            format!("{}_{}", NAME, pulse_width_format)
         };
+
+        let oversampled = pulse(pulse_width);
+
+        macro_rules! dump {
+            ( $factor:expr, $cutoff:expr, $undersampler:expr ) => {
+                let wavetable = $undersampler(processing::filtered(&oversampled, $cutoff));
+                builder::dump_wavetable(&mut module, &name, $factor, &wavetable);
+            };
+        }
+
+        dump!(1024, 512.0, processing::undersampled_1024);
+        dump!(512, 256.0, processing::undersampled_512);
+        dump!(256, 128.0, processing::undersampled_256);
+        dump!(128, 64.0, processing::undersampled_128);
+        dump!(64, 32.0, processing::undersampled_64);
+        dump!(32, 16.0, processing::undersampled_64);
+        dump!(16, 8.0, processing::undersampled_64);
+        dump!(8, 4.0, processing::undersampled_64);
+        dump!(4, 2.0, processing::undersampled_64);
+        dump!(2, 1.0, processing::undersampled_64);
+
+        let wavetable = processing::undersampled_64(sine::sine());
+        builder::dump_wavetable(&mut module, &name, 1, &wavetable);
+
+        builder::dump_factor_list(
+            &mut module,
+            &name,
+            &[1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024],
+        );
     }
-
-    dump!(1024, 512.0, processing::undersampled_1024);
-    dump!(512, 256.0, processing::undersampled_512);
-    dump!(256, 128.0, processing::undersampled_256);
-    dump!(128, 64.0, processing::undersampled_128);
-    dump!(64, 32.0, processing::undersampled_64);
-    dump!(32, 16.0, processing::undersampled_64);
-    dump!(16, 8.0, processing::undersampled_64);
-    dump!(8, 4.0, processing::undersampled_64);
-    dump!(4, 2.0, processing::undersampled_64);
-    dump!(2, 1.0, processing::undersampled_64);
-
-    let wavetable = processing::undersampled_64(sine::sine());
-    builder::dump_wavetable(&mut module, NAME, 1, &wavetable);
-
-    builder::dump_factor_list(
-        &mut module,
-        NAME,
-        &[1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024],
-    );
 
     rustfmt::format(path.to_str().unwrap());
 }

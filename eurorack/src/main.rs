@@ -82,7 +82,7 @@ lazy_static! {
     static ref TRIANGLE: Wavetable<'static> =
         Wavetable::new(&waveform::triangle::TRIANGLE_FACTORS, SAMPLE_RATE);
     static ref PULSE: Wavetable<'static> =
-        Wavetable::new(&waveform::pulse::PULSE_FACTORS, SAMPLE_RATE);
+        Wavetable::new(&waveform::pulse::PULSE_50_FACTORS, SAMPLE_RATE);
     static ref SAW: Wavetable<'static> = Wavetable::new(&waveform::saw::SAW_FACTORS, SAMPLE_RATE);
     static ref WAVETABLES: [&'static Wavetable<'static>; 4] = [&SINE, &TRIANGLE, &PULSE, &SAW];
 }
