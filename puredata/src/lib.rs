@@ -27,32 +27,33 @@ lazy_static! {
         [
             Wavetable::new(&waveform::sine::SINE_FACTORS, sample_rate),
             Wavetable::new(&waveform::triangle::TRIANGLE_FACTORS, sample_rate),
-            Wavetable::new(&waveform::pulse::PULSE_50_FACTORS, sample_rate),
+            Wavetable::new(&waveform::pulse::PULSE_500_FACTORS, sample_rate),
             Wavetable::new(&waveform::saw::SAW_FACTORS, sample_rate),
         ]
     };
-    static ref BANK_B: [Wavetable<'static>; 19] = {
+    static ref BANK_B: [Wavetable<'static>; 20] = {
         let sample_rate = unsafe { pd_sys::sys_getsr() as u32 };
         [
-            Wavetable::new(&waveform::pulse::PULSE_05_FACTORS, sample_rate),
-            Wavetable::new(&waveform::pulse::PULSE_10_FACTORS, sample_rate),
-            Wavetable::new(&waveform::pulse::PULSE_15_FACTORS, sample_rate),
-            Wavetable::new(&waveform::pulse::PULSE_20_FACTORS, sample_rate),
-            Wavetable::new(&waveform::pulse::PULSE_25_FACTORS, sample_rate),
-            Wavetable::new(&waveform::pulse::PULSE_30_FACTORS, sample_rate),
-            Wavetable::new(&waveform::pulse::PULSE_35_FACTORS, sample_rate),
-            Wavetable::new(&waveform::pulse::PULSE_40_FACTORS, sample_rate),
-            Wavetable::new(&waveform::pulse::PULSE_45_FACTORS, sample_rate),
-            Wavetable::new(&waveform::pulse::PULSE_50_FACTORS, sample_rate),
-            Wavetable::new(&waveform::pulse::PULSE_55_FACTORS, sample_rate),
-            Wavetable::new(&waveform::pulse::PULSE_60_FACTORS, sample_rate),
-            Wavetable::new(&waveform::pulse::PULSE_65_FACTORS, sample_rate),
-            Wavetable::new(&waveform::pulse::PULSE_70_FACTORS, sample_rate),
-            Wavetable::new(&waveform::pulse::PULSE_75_FACTORS, sample_rate),
-            Wavetable::new(&waveform::pulse::PULSE_80_FACTORS, sample_rate),
-            Wavetable::new(&waveform::pulse::PULSE_85_FACTORS, sample_rate),
-            Wavetable::new(&waveform::pulse::PULSE_90_FACTORS, sample_rate),
-            Wavetable::new(&waveform::pulse::PULSE_95_FACTORS, sample_rate),
+            Wavetable::new(&waveform::pulse::PULSE_025_FACTORS, sample_rate),
+            Wavetable::new(&waveform::pulse::PULSE_050_FACTORS, sample_rate),
+            Wavetable::new(&waveform::pulse::PULSE_075_FACTORS, sample_rate),
+            Wavetable::new(&waveform::pulse::PULSE_100_FACTORS, sample_rate),
+            Wavetable::new(&waveform::pulse::PULSE_125_FACTORS, sample_rate),
+            Wavetable::new(&waveform::pulse::PULSE_150_FACTORS, sample_rate),
+            Wavetable::new(&waveform::pulse::PULSE_175_FACTORS, sample_rate),
+            Wavetable::new(&waveform::pulse::PULSE_200_FACTORS, sample_rate),
+            Wavetable::new(&waveform::pulse::PULSE_225_FACTORS, sample_rate),
+            Wavetable::new(&waveform::pulse::PULSE_250_FACTORS, sample_rate),
+            Wavetable::new(&waveform::pulse::PULSE_275_FACTORS, sample_rate),
+            Wavetable::new(&waveform::pulse::PULSE_300_FACTORS, sample_rate),
+            Wavetable::new(&waveform::pulse::PULSE_325_FACTORS, sample_rate),
+            Wavetable::new(&waveform::pulse::PULSE_350_FACTORS, sample_rate),
+            Wavetable::new(&waveform::pulse::PULSE_375_FACTORS, sample_rate),
+            Wavetable::new(&waveform::pulse::PULSE_400_FACTORS, sample_rate),
+            Wavetable::new(&waveform::pulse::PULSE_425_FACTORS, sample_rate),
+            Wavetable::new(&waveform::pulse::PULSE_450_FACTORS, sample_rate),
+            Wavetable::new(&waveform::pulse::PULSE_475_FACTORS, sample_rate),
+            Wavetable::new(&waveform::pulse::PULSE_500_FACTORS, sample_rate),
         ]
     };
     static ref WAVETABLE_BANKS: [&'static [Wavetable<'static>]; 2] = [&BANK_A[..], &BANK_B[..]];
