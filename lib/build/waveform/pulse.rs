@@ -9,7 +9,7 @@ use super::processing;
 use super::sine;
 use crate::rustfmt;
 
-const NAME: &str = "square";
+const NAME: &str = "pulse";
 
 pub fn register_in_package(module: &mut File) {
     writeln!(module, "pub mod {};", NAME).unwrap();

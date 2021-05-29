@@ -20,8 +20,8 @@ fn main() {
     waveform::triangle::register_in_package(&mut wavetable_module);
     waveform::triangle::generate_module(wavetable_package);
 
-    waveform::square::register_in_package(&mut wavetable_module);
-    waveform::square::generate_module(wavetable_package);
+    waveform::pulse::register_in_package(&mut wavetable_module);
+    waveform::pulse::generate_module(wavetable_package);
 
     rustfmt::format(wavetable_package.join("mod.rs").to_str().unwrap());
 }

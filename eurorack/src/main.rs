@@ -81,10 +81,10 @@ lazy_static! {
         Wavetable::new(&waveform::sine::SINE_FACTORS, SAMPLE_RATE);
     static ref TRIANGLE: Wavetable<'static> =
         Wavetable::new(&waveform::triangle::TRIANGLE_FACTORS, SAMPLE_RATE);
-    static ref SQUARE: Wavetable<'static> =
-        Wavetable::new(&waveform::square::SQUARE_FACTORS, SAMPLE_RATE);
+    static ref PULSE: Wavetable<'static> =
+        Wavetable::new(&waveform::pulse::PULSE_FACTORS, SAMPLE_RATE);
     static ref SAW: Wavetable<'static> = Wavetable::new(&waveform::saw::SAW_FACTORS, SAMPLE_RATE);
-    static ref WAVETABLES: [&'static Wavetable<'static>; 4] = [&SINE, &TRIANGLE, &SQUARE, &SAW];
+    static ref WAVETABLES: [&'static Wavetable<'static>; 4] = [&SINE, &TRIANGLE, &PULSE, &SAW];
 }
 
 #[app(device = stm32f4xx_hal::pac, peripherals = true, monotonic = rtic::cyccnt::CYCCNT)]

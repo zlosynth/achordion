@@ -30,15 +30,15 @@ lazy_static! {
         let sample_rate = unsafe { pd_sys::sys_getsr() as u32 };
         Wavetable::new(&waveform::triangle::TRIANGLE_FACTORS, sample_rate)
     };
-    static ref SQUARE: Wavetable<'static> = {
+    static ref PULSE: Wavetable<'static> = {
         let sample_rate = unsafe { pd_sys::sys_getsr() as u32 };
-        Wavetable::new(&waveform::square::SQUARE_FACTORS, sample_rate)
+        Wavetable::new(&waveform::pulse::PULSE_FACTORS, sample_rate)
     };
     static ref SAW: Wavetable<'static> = {
         let sample_rate = unsafe { pd_sys::sys_getsr() as u32 };
         Wavetable::new(&waveform::saw::SAW_FACTORS, sample_rate)
     };
-    static ref WAVETABLES: [&'static Wavetable<'static>; 4] = [&SINE, &TRIANGLE, &SQUARE, &SAW];
+    static ref WAVETABLES: [&'static Wavetable<'static>; 4] = [&SINE, &TRIANGLE, &PULSE, &SAW];
 }
 
 #[repr(C)]
