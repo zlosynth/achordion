@@ -73,17 +73,17 @@ pub struct Instrument<'a> {
 }
 
 impl<'a> Instrument<'a> {
-    pub fn new(wavetables: &'a [Wavetable], sample_rate: u32) -> Self {
+    pub fn new(wavetable_banks: &'a [&'a [Wavetable]], sample_rate: u32) -> Self {
         Self {
             scale_root: Note::C1,
             scale_mode: scales::diatonic::Ionian,
             chord_root: 0.0,
             chord_degrees: CHORDS[0],
             degrees: [
-                Degree::new(wavetables, sample_rate),
-                Degree::new(wavetables, sample_rate),
-                Degree::new(wavetables, sample_rate),
-                Degree::new(wavetables, sample_rate),
+                Degree::new(wavetable_banks, sample_rate),
+                Degree::new(wavetable_banks, sample_rate),
+                Degree::new(wavetable_banks, sample_rate),
+                Degree::new(wavetable_banks, sample_rate),
             ],
         }
     }
@@ -125,6 +125,12 @@ impl<'a> Instrument<'a> {
             }
         }
         self.apply_settings();
+    }
+
+    pub fn set_wavetable_bank(&mut self, wavetable_bank: f32) {
+        self.degrees
+            .iter_mut()
+            .for_each(|d| d.set_wavetable_bank(wavetable_bank));
     }
 
     pub fn set_wavetable(&mut self, wavetable: f32) {
@@ -195,18 +201,21 @@ struct Degree<'a> {
     frequency: f32,
     detune_config: DetuneConfig,
     detune_phase: f32,
+    wavetable_banks: &'a [&'a [Wavetable<'a>]],
     oscillators: [Oscillator<'a>; OSCILLATORS_IN_DEGREE],
 }
 
 impl<'a> Degree<'a> {
-    pub fn new(wavetables: &'a [Wavetable], sample_rate: u32) -> Self {
+    pub fn new(wavetable_banks: &'a [&'a [Wavetable]], sample_rate: u32) -> Self {
+        assert!(!wavetable_banks.is_empty());
         Self {
             frequency: 0.0,
             detune_config: DetuneConfig::Disabled,
             detune_phase: 0.0,
+            wavetable_banks,
             oscillators: [
-                Oscillator::new(wavetables, sample_rate),
-                Oscillator::new(wavetables, sample_rate),
+                Oscillator::new(wavetable_banks[0], sample_rate),
+                Oscillator::new(wavetable_banks[0], sample_rate),
             ],
         }
     }
@@ -262,6 +271,18 @@ impl<'a> Degree<'a> {
         }
     }
 
+    pub fn set_wavetable_bank(&mut self, wavetable_bank: f32) {
+        for i in 1..=self.wavetable_banks.len() {
+            if wavetable_bank < i as f32 / self.wavetable_banks.len() as f32 {
+                let wavetable_bank = self.wavetable_banks[i - 1];
+                self.oscillators
+                    .iter_mut()
+                    .for_each(|o| o.wavetable_bank = wavetable_bank);
+                break;
+            }
+        }
+    }
+
     pub fn set_wavetable(&mut self, wavetable: f32) {
         self.oscillators
             .iter_mut()
@@ -304,8 +325,9 @@ mod tests {
     const SAMPLE_RATE: u32 = 44_100;
 
     lazy_static! {
-        static ref WAVETABLES: [Wavetable<'static>; 1] =
+        static ref BANK_A: [Wavetable<'static>; 1] =
             [Wavetable::new(&waveform::saw::SAW_FACTORS, SAMPLE_RATE)];
+        static ref WAVETABLE_BANKS: [&'static [Wavetable<'static>]; 1] = [&BANK_A[..]];
     }
 
     #[test]
@@ -316,7 +338,7 @@ mod tests {
     }
 
     fn create_valid_instrument() -> Instrument<'static> {
-        let mut instrument = Instrument::new(&WAVETABLES[..], SAMPLE_RATE);
+        let mut instrument = Instrument::new(&WAVETABLE_BANKS[..], SAMPLE_RATE);
         instrument.set_scale_mode(0.0);
         instrument.set_scale_root(2.0);
         instrument.set_chord_root(2.5);

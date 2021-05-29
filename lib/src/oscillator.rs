@@ -7,26 +7,26 @@ pub struct Oscillator<'a> {
     pub frequency: f32,
     pub wavetable: f32,
     pub phase: f32,
+    pub wavetable_bank: &'a [Wavetable<'a>],
     sample_rate: f32,
-    wavetables: &'a [Wavetable<'a>],
 }
 
 impl<'a> Oscillator<'a> {
-    pub fn new(wavetables: &'a [Wavetable], sample_rate: u32) -> Self {
-        assert!(!wavetables.is_empty());
+    pub fn new(wavetable_bank: &'a [Wavetable], sample_rate: u32) -> Self {
+        assert!(!wavetable_bank.is_empty());
         Self {
             frequency: 0.0,
             phase: 0.0,
             sample_rate: sample_rate as f32,
             wavetable: 0.0,
-            wavetables,
+            wavetable_bank,
         }
     }
 
     pub fn populate_add(&mut self, buffer: &mut [u16], amplitude: f32) {
-        let scaled_wavetable = self.wavetable * (self.wavetables.len() - 1) as f32;
+        let scaled_wavetable = self.wavetable * (self.wavetable_bank.len() - 1) as f32;
         let wavetable_a_index = scaled_wavetable as usize;
-        let wavetable_b_index = if wavetable_a_index == self.wavetables.len() - 1 {
+        let wavetable_b_index = if wavetable_a_index == self.wavetable_bank.len() - 1 {
             wavetable_a_index
         } else {
             wavetable_a_index + 1
@@ -34,8 +34,8 @@ impl<'a> Oscillator<'a> {
 
         let xfade = scaled_wavetable - wavetable_a_index as f32;
 
-        let band_wavetable_a = self.wavetables[wavetable_a_index].band(self.frequency);
-        let band_wavetable_b = self.wavetables[wavetable_b_index].band(self.frequency);
+        let band_wavetable_a = self.wavetable_bank[wavetable_a_index].band(self.frequency);
+        let band_wavetable_b = self.wavetable_bank[wavetable_b_index].band(self.frequency);
 
         let interval_in_samples = self.frequency / self.sample_rate;
 
@@ -63,17 +63,18 @@ mod tests {
     const SAMPLE_RATE: u32 = 8;
 
     lazy_static! {
-        static ref WAVETABLES: [Wavetable<'static>; 1] = [Wavetable::new(&FACTORS, SAMPLE_RATE)];
+        static ref WAVETABLE_BANK: [Wavetable<'static>; 1] =
+            [Wavetable::new(&FACTORS, SAMPLE_RATE)];
     }
 
     #[test]
     fn initialize() {
-        let _oscillator = Oscillator::new(&WAVETABLES[..], SAMPLE_RATE);
+        let _oscillator = Oscillator::new(&WAVETABLE_BANK[..], SAMPLE_RATE);
     }
 
     #[test]
     fn populate() {
-        let mut oscillator = Oscillator::new(&WAVETABLES[..], SAMPLE_RATE);
+        let mut oscillator = Oscillator::new(&WAVETABLE_BANK[..], SAMPLE_RATE);
 
         let mut buffer = [0; 8];
         oscillator.frequency = 1.0;
@@ -88,7 +89,7 @@ mod tests {
 
     #[test]
     fn interpolation() {
-        let mut oscillator = Oscillator::new(&WAVETABLES[..], SAMPLE_RATE);
+        let mut oscillator = Oscillator::new(&WAVETABLE_BANK[..], SAMPLE_RATE);
         let mut buffer = [0; 8];
 
         oscillator.frequency = 0.5;

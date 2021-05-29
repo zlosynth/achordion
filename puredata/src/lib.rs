@@ -22,7 +22,7 @@ use achordion_lib::wavetable::Wavetable;
 static mut CLASS: Option<*mut pd_sys::_class> = None;
 
 lazy_static! {
-    static ref WAVETABLES: [Wavetable<'static>; 4] = {
+    static ref BANK_A: [Wavetable<'static>; 4] = {
         let sample_rate = unsafe { pd_sys::sys_getsr() as u32 };
         [
             Wavetable::new(&waveform::sine::SINE_FACTORS, sample_rate),
@@ -31,6 +31,31 @@ lazy_static! {
             Wavetable::new(&waveform::saw::SAW_FACTORS, sample_rate),
         ]
     };
+    static ref BANK_B: [Wavetable<'static>; 19] = {
+        let sample_rate = unsafe { pd_sys::sys_getsr() as u32 };
+        [
+            Wavetable::new(&waveform::pulse::PULSE_05_FACTORS, sample_rate),
+            Wavetable::new(&waveform::pulse::PULSE_10_FACTORS, sample_rate),
+            Wavetable::new(&waveform::pulse::PULSE_15_FACTORS, sample_rate),
+            Wavetable::new(&waveform::pulse::PULSE_20_FACTORS, sample_rate),
+            Wavetable::new(&waveform::pulse::PULSE_25_FACTORS, sample_rate),
+            Wavetable::new(&waveform::pulse::PULSE_30_FACTORS, sample_rate),
+            Wavetable::new(&waveform::pulse::PULSE_35_FACTORS, sample_rate),
+            Wavetable::new(&waveform::pulse::PULSE_40_FACTORS, sample_rate),
+            Wavetable::new(&waveform::pulse::PULSE_45_FACTORS, sample_rate),
+            Wavetable::new(&waveform::pulse::PULSE_50_FACTORS, sample_rate),
+            Wavetable::new(&waveform::pulse::PULSE_55_FACTORS, sample_rate),
+            Wavetable::new(&waveform::pulse::PULSE_60_FACTORS, sample_rate),
+            Wavetable::new(&waveform::pulse::PULSE_65_FACTORS, sample_rate),
+            Wavetable::new(&waveform::pulse::PULSE_70_FACTORS, sample_rate),
+            Wavetable::new(&waveform::pulse::PULSE_75_FACTORS, sample_rate),
+            Wavetable::new(&waveform::pulse::PULSE_80_FACTORS, sample_rate),
+            Wavetable::new(&waveform::pulse::PULSE_85_FACTORS, sample_rate),
+            Wavetable::new(&waveform::pulse::PULSE_90_FACTORS, sample_rate),
+            Wavetable::new(&waveform::pulse::PULSE_95_FACTORS, sample_rate),
+        ]
+    };
+    static ref WAVETABLE_BANKS: [&'static [Wavetable<'static>]; 2] = [&BANK_A[..], &BANK_B[..]];
 }
 
 #[repr(C)]
@@ -61,6 +86,7 @@ pub unsafe extern "C" fn achordion_tilde_setup() {
     register_float_method(class, "chord_degrees", set_chord_degrees);
     register_float_method(class, "scale_mode", set_scale_mode);
     register_float_method(class, "scale_root", set_scale_root);
+    register_float_method(class, "wavetable_bank", set_wavetable_bank);
     register_float_method(class, "wavetable", set_wavetable);
     register_float_method(class, "detune", set_detune);
 }
@@ -85,7 +111,7 @@ unsafe extern "C" fn new() -> *mut c_void {
     let class = pd_sys::pd_new(CLASS.unwrap()) as *mut Class;
 
     let sample_rate = pd_sys::sys_getsr() as u32;
-    let instrument = Instrument::new(&WAVETABLES[..], sample_rate);
+    let instrument = Instrument::new(&WAVETABLE_BANKS[..], sample_rate);
 
     (*class).instrument = instrument;
 
@@ -127,6 +153,12 @@ unsafe extern "C" fn set_scale_mode(class: *mut Class, value: pd_sys::t_float) {
 
 unsafe extern "C" fn set_scale_root(class: *mut Class, value: pd_sys::t_float) {
     (*class).instrument.set_scale_root(value.clamp(0.0, 20.0));
+}
+
+unsafe extern "C" fn set_wavetable_bank(class: *mut Class, value: pd_sys::t_float) {
+    (*class)
+        .instrument
+        .set_wavetable_bank(value.clamp(0.0, 1.0));
 }
 
 unsafe extern "C" fn set_wavetable(class: *mut Class, value: pd_sys::t_float) {

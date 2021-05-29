@@ -19,7 +19,7 @@ pub fn generate_module(directory: &Path) {
     let path = directory.join(format!("{}.rs", NAME));
     let mut module = std::fs::File::create(&path).unwrap();
 
-    for width in 1..19 {
+    for width in 1..=19 {
         let pulse_width = width as f32 / 20.0;
         let name = {
             let pulse_width_format = format!("{:.2}", pulse_width.fract()).replacen("0.", "", 1);

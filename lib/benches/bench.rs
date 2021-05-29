@@ -10,13 +10,14 @@ use achordion_lib::wavetable::Wavetable;
 const SAMPLE_RATE: u32 = 44_100;
 
 lazy_static! {
-    static ref WAVETABLES: [Wavetable<'static>; 1] =
+    static ref BANK_A: [Wavetable<'static>; 1] =
         [Wavetable::new(&waveform::saw::SAW_FACTORS, SAMPLE_RATE)];
+    static ref WAVETABLE_BANKS: [&'static [Wavetable<'static>]; 1] = [&BANK_A[..]];
 }
 
 fn criterion_benchmark(c: &mut Criterion) {
     c.bench_function("instrument", |b| {
-        let mut instrument = Instrument::new(&WAVETABLES[..], SAMPLE_RATE);
+        let mut instrument = Instrument::new(&WAVETABLE_BANKS[..], SAMPLE_RATE);
         instrument.set_chord_root(2.0);
         let mut root_buffer = [0; 64];
         let mut chord_buffer = [0; 64];
