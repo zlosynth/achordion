@@ -41,6 +41,8 @@ const APP: () = {
 
         // Initialize (enable) the monotonic timer (CYCCNT)
         cx.core.DCB.enable_trace();
+        DWT::unlock();
+        cx.core.DWT.enable_cycle_counter();
 
         // We need to configure a clock for adc_ker_ck_input. The default
         // adc_ker_ck_input is pll2_p_ck, but we will use per_ck. Here we
