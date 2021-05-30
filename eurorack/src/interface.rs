@@ -43,13 +43,11 @@ impl Interface {
     ) -> Self {
         adc1.set_resolution(adc::Resolution::SIXTEENBIT);
         adc1.set_sample_time(adc::AdcSampleTime::T_64);
+        let adc1 = adc1.enable();
 
-        // Setup button
         button.make_interrupt_source(syscfg);
         button.trigger_on_edge(exti, Edge::Rising);
         button.enable_interrupt(exti);
-
-        let adc1 = adc1.enable();
 
         Self {
             adc1,
