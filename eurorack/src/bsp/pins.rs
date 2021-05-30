@@ -1,3 +1,5 @@
+#![allow(clippy::upper_case_acronyms)]
+
 use stm32h7xx_hal as hal;
 
 pub type PinButton = hal::gpio::gpiob::PB4<hal::gpio::Alternate<hal::gpio::AF0>>;

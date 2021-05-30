@@ -10,6 +10,7 @@ dependencies = [
  "cortex-m-rtic",
  "cortex-m-semihosting",
  "lazy_static",
+ "micromath",
  "panic-halt",
  "stm32h7xx-hal",
  "typenum",
