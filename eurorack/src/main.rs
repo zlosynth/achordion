@@ -9,17 +9,23 @@ mod interface;
 
 use panic_halt as _;
 
+use cortex_m_semihosting::hprintln;
+
 use rtic::app;
 use rtic::cyccnt::U32Ext as _;
 
 use hal::adc::Adc;
 use hal::delay::DelayFromCountDownTimer;
+use hal::pac::DWT;
 use hal::prelude::*;
-use hal::rcc::rec::AdcClkSel;
+use hal::time::MegaHertz;
 use stm32h7xx_hal as hal;
 
 use crate::bsp::board::Board;
 use crate::interface::Interface;
+
+const CLOCK_RATE_MHZ: MegaHertz = MegaHertz(400);
+const HSE_CLOCK_MHZ: MegaHertz = MegaHertz(16);
 
 const CV_PERIOD: u32 = 1_000;
 
@@ -51,12 +57,11 @@ const APP: () = {
         // The maximum adc_ker_ck_input frequency is 100MHz for revision V and 36MHz
         // otherwise
         let mut ccdr = rcc
-            .sys_ck(100.mhz())
-            .per_ck(4.mhz())
+            .sys_ck(CLOCK_RATE_MHZ)
+            .use_hse(HSE_CLOCK_MHZ)
+            // PLL2, Clock for ADC
+            .pll2_p_ck(4.mhz())
             .freeze(pwrcfg, &cx.device.SYSCFG);
-
-        // Switch adc_ker_ck_input multiplexer to per_ck
-        ccdr.peripheral.kernel_adc_clk_mux(AdcClkSel::PER);
 
         let board = Board::take().unwrap();
         let pins = board.split_gpios(
