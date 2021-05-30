@@ -71,32 +71,27 @@ impl Interface {
         }
     }
 
-    // TODO: Helper converting this
     pub fn note(&self) -> f32 {
-        ((self.adc1.max_sample() as f32 - self.note_pot_buffer.read())
-            / self.adc1.max_sample() as f32)
-            * 4.0
-            + 1.0
+        transpose_adc(self.note_pot_buffer.read(), self.adc1.max_sample()) * 4.0 + 1.0
     }
 
     pub fn wavetable(&self) -> f32 {
-        (self.adc1.max_sample() as f32 - self.wavetable_pot_buffer.read())
-            / self.adc1.max_sample() as f32
+        transpose_adc(self.wavetable_pot_buffer.read(), self.adc1.max_sample())
     }
 
     pub fn wavetable_bank(&self) -> f32 {
-        (self.adc1.max_sample() as f32 - self.wavetable_bank_pot_buffer.read())
-            / self.adc1.max_sample() as f32
+        transpose_adc(
+            self.wavetable_bank_pot_buffer.read(),
+            self.adc1.max_sample(),
+        )
     }
 
     pub fn chord(&self) -> f32 {
-        (self.adc1.max_sample() as f32 - self.chord_pot_buffer.read())
-            / self.adc1.max_sample() as f32
+        transpose_adc(self.chord_pot_buffer.read(), self.adc1.max_sample())
     }
 
     pub fn detune(&self) -> f32 {
-        (self.adc1.max_sample() as f32 - self.detune_pot_buffer.read())
-            / self.adc1.max_sample() as f32
+        transpose_adc(self.detune_pot_buffer.read(), self.adc1.max_sample())
     }
 
     pub fn sample(&mut self) {
@@ -111,6 +106,10 @@ impl Interface {
         let pot4_sample = self.adc1.read(&mut self.pot4).unwrap();
         self.detune_pot_buffer.write(pot4_sample);
     }
+}
+
+fn transpose_adc(sample: f32, max_sample: u32) -> f32 {
+    (max_sample as f32 - sample) / max_sample as f32
 }
 
 struct ControlBuffer<const N: usize> {
