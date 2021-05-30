@@ -2,7 +2,7 @@
 
 use stm32h7xx_hal as hal;
 
-pub type PinButton = hal::gpio::gpiob::PB4<hal::gpio::Alternate<hal::gpio::AF0>>;
+pub type PinButton = hal::gpio::gpiob::PB4<hal::gpio::Input<hal::gpio::PullUp>>;
 pub type PinCV1 = hal::gpio::gpioc::PC1<hal::gpio::Analog>;
 pub type PinCV2 = hal::gpio::gpioa::PA6<hal::gpio::Analog>;
 pub type PinCV3 = hal::gpio::gpioc::PC0<hal::gpio::Analog>;

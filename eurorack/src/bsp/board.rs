@@ -20,7 +20,7 @@ impl Board {
         gpiod: hal::gpio::gpiod::Parts,
     ) -> Pins {
         Pins {
-            PIN_BUTTON: gpiob.pb4,
+            PIN_BUTTON: gpiob.pb4.into_pull_up_input(),
             PIN_CV1: gpioc.pc1,
             PIN_CV2: gpioa.pa6,
             PIN_CV3: gpioc.pc0,
