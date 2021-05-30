@@ -82,8 +82,6 @@ const APP: () = {
             pins.PIN_POT2,
             pins.PIN_POT3,
             pins.PIN_POT4,
-            &mut cx.device.SYSCFG,
-            &mut cx.device.EXTI,
         );
 
         cx.schedule

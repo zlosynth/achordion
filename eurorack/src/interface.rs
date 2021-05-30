@@ -2,9 +2,8 @@
 use micromath::F32Ext;
 
 use hal::adc::{self, Adc, Disabled, Enabled};
-use hal::gpio::{Edge, ExtiPin};
 use hal::hal::digital::v2::InputPin;
-use hal::pac::{ADC1, EXTI, SYSCFG};
+use hal::pac::ADC1;
 use hal::prelude::*;
 use stm32h7xx_hal as hal;
 
@@ -30,24 +29,17 @@ pub struct Interface {
 }
 
 impl Interface {
-    #[allow(clippy::too_many_arguments)]
     pub fn new(
         mut adc1: Adc<ADC1, Disabled>,
-        mut button: PinButton,
+        button: PinButton,
         pot1: PinPot1,
         pot2: PinPot2,
         pot3: PinPot3,
         pot4: PinPot4,
-        syscfg: &mut SYSCFG,
-        exti: &mut EXTI,
     ) -> Self {
         adc1.set_resolution(adc::Resolution::SIXTEENBIT);
         adc1.set_sample_time(adc::AdcSampleTime::T_64);
         let adc1 = adc1.enable();
-
-        button.make_interrupt_source(syscfg);
-        button.trigger_on_edge(exti, Edge::Rising);
-        button.enable_interrupt(exti);
 
         Self {
             adc1,
