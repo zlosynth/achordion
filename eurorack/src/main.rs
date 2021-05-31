@@ -143,7 +143,7 @@ const APP: () = {
             audio::Interface::init(&ccdr.clocks, sai1_prec, pins, ccdr.peripheral.DMA1).unwrap();
 
         let audio_interface = {
-            fn callback(fs: f32, block: &mut audio::Block) {
+            fn callback(_fs: f32, block: &mut audio::Block) {
                 let buffer: &'static mut [(f32, f32); audio::BLOCK_LENGTH] = unsafe { &mut BUFFER };
                 for (source, target) in buffer.iter().zip(block.iter_mut()) {
                     *target = *source;
