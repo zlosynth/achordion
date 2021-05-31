@@ -1,13 +1,35 @@
 #[allow(unused_imports)]
 use micromath::F32Ext;
 
+use daisy::hal;
+use daisy_bsp as daisy;
+
 use hal::adc::{self, Adc, Disabled, Enabled};
 use hal::hal::digital::v2::InputPin;
 use hal::pac::ADC1;
 use hal::prelude::*;
-use stm32h7xx_hal as hal;
 
-use crate::bsp::pins::*;
+type PinButton = hal::gpio::gpiob::PB4<hal::gpio::Input<hal::gpio::PullUp>>; // PIN 9
+type PinPot1 = hal::gpio::gpioa::PA4<hal::gpio::Analog>; // PIN 23
+type PinPot2 = hal::gpio::gpioa::PA1<hal::gpio::Analog>; // PIN 24
+type PinPot3 = hal::gpio::gpioa::PA5<hal::gpio::Analog>; // PIN 22
+type PinPot4 = hal::gpio::gpioc::PC4<hal::gpio::Analog>; // PIN 21
+
+// type PinCV1 = hal::gpio::gpioc::PC1<hal::gpio::Analog>;
+// type PinCV2 = hal::gpio::gpioa::PA6<hal::gpio::Analog>;
+// type PinCV3 = hal::gpio::gpioc::PC0<hal::gpio::Analog>;
+// type PinCV4 = hal::gpio::gpioa::PA3<hal::gpio::Analog>;
+// type PinCV5 = hal::gpio::gpiob::PB1<hal::gpio::Analog>;
+// type PinCV6 = hal::gpio::gpioa::PA7<hal::gpio::Analog>;
+// type PinLed1 = hal::gpio::gpiob::PB15<hal::gpio::Analog>;
+// type PinLed2 = hal::gpio::gpiob::PB14<hal::gpio::Analog>;
+// type PinLed3 = hal::gpio::gpiod::PD11<hal::gpio::Analog>;
+// type PinLed4 = hal::gpio::gpioa::PA0<hal::gpio::Analog>;
+// type PinLed5 = hal::gpio::gpioc::PC9<hal::gpio::Analog>;
+// type PinLed6 = hal::gpio::gpioc::PC8<hal::gpio::Analog>;
+// type PinLed7 = hal::gpio::gpiod::PD2<hal::gpio::Analog>;
+// type PinLed8 = hal::gpio::gpioc::PC12<hal::gpio::Analog>;
+// type PinProbe = hal::gpio::gpiob::PB5<hal::gpio::Analog>;
 
 pub struct Interface {
     adc1: Adc<ADC1, Enabled>,

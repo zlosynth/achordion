@@ -9,6 +9,7 @@ dependencies = [
  "cortex-m-rt",
  "cortex-m-rtic",
  "cortex-m-semihosting",
+ "daisy_bsp",
  "lazy_static",
  "micromath",
  "panic-halt",
@@ -168,6 +169,25 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6bffa6c1454368a6aa4811ae60964c38e6996d397ff8095a8b9211b1c1f749bc"
 dependencies = [
  "cortex-m 0.7.2",
+]
+
+[[package]]
+name = "cty"
+version = "0.2.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7313c0d620d0cb4dbd9d019e461a4beb501071ff46ec0ab933efb4daa76d73e3"
+
+[[package]]
+name = "daisy_bsp"
+version = "0.4.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e53af84ae1e0b2e20d47b4206d0439a211cb83ba79b570a4d3efecb833a5997f"
+dependencies = [
+ "cortex-m 0.7.2",
+ "cortex-m-rt",
+ "cortex-m-semihosting",
+ "cty",
+ "stm32h7xx-hal",
 ]
 
 [[package]]
@@ -440,6 +460,7 @@ dependencies = [
  "nb 1.0.0",
  "paste",
  "stm32h7",
+ "synopsys-usb-otg",
  "void",
 ]
 
@@ -452,6 +473,17 @@ dependencies = [
  "proc-macro2",
  "quote",
  "unicode-xid",
+]
+
+[[package]]
+name = "synopsys-usb-otg"
+version = "0.2.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d1216cb0fe29f65bfffe03c364640202eed1291d85d2f62bbadbe670106786e5"
+dependencies = [
+ "cortex-m 0.6.7",
+ "usb-device",
+ "vcell",
 ]
 
 [[package]]

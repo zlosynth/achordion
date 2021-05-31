@@ -20,6 +20,7 @@ typenum = "1"
 lazy_static = { version = "1.4", features = [ "spin_no_std" ] }
 achordion-lib = { path = "../lib" }
 micromath = "1.1"
+daisy_bsp = "0.4"
 
 [[bin]]
 name = "achordion-eurorack"
