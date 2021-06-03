@@ -189,8 +189,8 @@ fn perform(
 
         let start = chunk_index * BUFFER_LEN;
         for i in 0..BUFFER_LEN {
-            outlets[1][start + i] = buffer_root[i] as f32 / f32::powi(2.0, 15) - 1.0;
-            outlets[2][start + i] = buffer_chord[i] as f32 / f32::powi(2.0, 15) - 1.0;
+            outlets[1][start + i] = buffer_root[i] as f32 / f32::powi(2.0, 14) - 1.0;
+            outlets[2][start + i] = buffer_chord[i] as f32 / f32::powi(2.0, 14) - 1.0;
             outlets[0][start + i] = (outlets[1][start + i] + outlets[2][start + i]) / 2.0;
         }
     }
