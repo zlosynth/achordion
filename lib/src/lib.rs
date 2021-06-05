@@ -10,13 +10,13 @@ extern crate approx;
 extern crate lazy_static;
 
 pub mod instrument;
+pub mod probe;
 pub mod waveform;
 pub mod wavetable;
 
 mod chords;
 mod note;
 mod oscillator;
-mod probe;
 mod quantizer;
 mod scales;
 mod taper;

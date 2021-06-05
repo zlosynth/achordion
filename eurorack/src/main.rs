@@ -19,6 +19,7 @@ use rtic::cyccnt::U32Ext as _;
 
 use daisy::audio;
 use daisy::hal;
+use daisy::led::Led;
 use daisy_bsp as daisy;
 use hal::adc::Adc;
 use hal::delay::DelayFromCountDownTimer;
@@ -72,6 +73,7 @@ lazy_static! {
 #[app(device = stm32h7xx_hal::pac, peripherals = true, monotonic = rtic::cyccnt::CYCCNT)]
 const APP: () = {
     struct Resources {
+        led_user: daisy::led::LedUser,
         interface: Interface,
         instrument: Instrument<'static>,
     }
@@ -103,6 +105,8 @@ const APP: () = {
             cx.device.GPIOG.split(ccdr.peripheral.GPIOG),
         );
 
+        let led_user = daisy::led::LedUser::new(pins.LED_USER);
+
         let mut delay = DelayFromCountDownTimer::new(cx.device.TIM2.timer(
             10.ms(),
             ccdr.peripheral.TIM2,
@@ -121,6 +125,8 @@ const APP: () = {
             pins.SEED_PIN_24,
             pins.SEED_PIN_22,
             pins.SEED_PIN_21,
+            pins.SEED_PIN_20,
+            pins.SEED_PIN_10.into_push_pull_output(),
         );
 
         cx.schedule.control(cx.start + CV_PERIOD.cycles()).unwrap();
@@ -160,12 +166,13 @@ const APP: () = {
         let instrument = Instrument::new(&WAVETABLE_BANKS[..], SAMPLE_RATE);
 
         init::LateResources {
+            led_user,
             interface,
             instrument,
         }
     }
 
-    #[task(schedule = [control], resources = [interface, instrument])]
+    #[task(schedule = [control], resources = [interface, instrument, led_user])]
     fn control(cx: control::Context) {
         cx.resources.interface.sample();
 
@@ -176,6 +183,12 @@ const APP: () = {
         instrument.set_wavetable(interface.wavetable());
         instrument.set_chord_degrees(interface.chord());
         instrument.set_detune(interface.detune());
+
+        if interface.foo() {
+            cx.resources.led_user.on();
+        } else {
+            cx.resources.led_user.off();
+        }
 
         cx.schedule
             .control(cx.scheduled + CV_PERIOD.cycles())

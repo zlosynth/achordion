@@ -6,6 +6,9 @@ backwards compatibility.
 
 ## Unreleased
 
+* Added an internal probe detecting whether there is anything connected to CV
+  inputs.
+
 ## 0.3.0
 
 * Detune sections now respond logarithmically, this allows for finer control in
