@@ -108,7 +108,8 @@ impl Interface {
         if self.cv1_probe_detector.detected() {
             transpose_adc(self.note_pot_buffer.read(), self.adc1.max_sample()) * 4.0
         } else {
-            let octave = (transpose_adc(self.note_pot_buffer.read(), self.adc1.max_sample()) * 4.0).trunc();
+            let octave =
+                (transpose_adc(self.note_pot_buffer.read(), self.adc1.max_sample()) * 4.0).trunc();
             transpose_adc(self.voct_cv_buffer.read(), self.adc1.max_sample()) * 4.0 + octave
         }
     }
