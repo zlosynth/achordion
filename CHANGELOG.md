@@ -10,6 +10,7 @@ backwards compatibility.
   inputs.
 * Introduced variable octave offset. When V/OCT CV is connected, control the
   offset via the note pot.
+* Fix the bug where root and chord went to both channels.
 
 ## 0.3.0
 

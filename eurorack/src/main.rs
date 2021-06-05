@@ -212,8 +212,7 @@ const APP: () = {
         for i in 0..audio::BLOCK_LENGTH {
             let x1 = buffer_root[i] as f32 / f32::powi(2.0, 15) - 1.0;
             let x2 = buffer_chord[i] as f32 / f32::powi(2.0, 15) - 1.0;
-            let x = (x1 + x2) / 2.0;
-            buffer[i] = (x, x);
+            buffer[i] = (x1, x2);
         }
 
         audio_interface.handle_interrupt_dma1_str1().unwrap();
