@@ -10,10 +10,10 @@ functionality may be missing when an older version of the board is used, the
 module will remain functional.
 
 This also follows Semantic Versioning, e.g. board released under version v1.1.0
-will work fine with software of v1.3.0. However, when compatibility is broken,
-the major version will be bumped, e.g. when software requires a new button on
-the board, the major version will be bumped from v1.1.0 to v2.0.0 and the
-software will not work anymore with older releases of the board.
+will work fine with software of v1.3.0. When compatibility is broken, the major
+version will be bumped, e.g. when software requires a new button on the board,
+the major version will be bumped from v1.1.0 to v2.0.0 and the software will not
+work anymore with older releases of the board.
 
 Finally, releases with major version 0 may break any time.
 
