@@ -11,6 +11,7 @@ backwards compatibility.
 * Introduced variable octave offset. When V/OCT CV is connected, control the
   offset via the note pot.
 * Fix the bug where root and chord went to both channels.
+* Fade in amplitude when the module is powered on.
 
 ## 0.3.0
 

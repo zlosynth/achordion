@@ -80,7 +80,7 @@ const APP: () = {
     }
 
     /// Initialize all the peripherals.
-    #[init(schedule = [control])]
+    #[init(schedule = [control], spawn = [fade_in])]
     fn init(mut cx: init::Context) -> init::LateResources {
         // AN5212: Improve application performance when fetching instruction and
         // data, from both internal andexternal memories.
@@ -164,12 +164,26 @@ const APP: () = {
             AUDIO_INTERFACE = Some(audio_interface);
         }
 
-        let instrument = Instrument::new(&WAVETABLE_BANKS[..], SAMPLE_RATE);
+        let mut instrument = Instrument::new(&WAVETABLE_BANKS[..], SAMPLE_RATE);
+        instrument.set_amplitude(0.0);
+
+        cx.spawn.fade_in();
 
         init::LateResources {
             led_user,
             interface,
             instrument,
+        }
+    }
+
+    #[task(schedule = [fade_in], resources = [instrument])]
+    fn fade_in(cx: fade_in::Context) {
+        let amplitude = cx.resources.instrument.amplitude() + 0.01;
+        cx.resources.instrument.set_amplitude(amplitude.min(1.0));
+        if amplitude < 1.0 {
+            cx.schedule
+                .fade_in(cx.scheduled + 1_000_000.cycles())
+                .unwrap();
         }
     }
 
@@ -210,8 +224,8 @@ const APP: () = {
             .populate(&mut buffer_root, &mut buffer_chord);
 
         for i in 0..audio::BLOCK_LENGTH {
-            let x1 = buffer_root[i] as f32 / f32::powi(2.0, 15) - 1.0;
-            let x2 = buffer_chord[i] as f32 / f32::powi(2.0, 15) - 1.0;
+            let x1 = buffer_root[i] as f32 / f32::powi(2.0, 14) - 1.0;
+            let x2 = buffer_chord[i] as f32 / f32::powi(2.0, 14) - 1.0;
             buffer[i] = (x1, x2);
         }
 

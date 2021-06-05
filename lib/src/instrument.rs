@@ -69,6 +69,7 @@ pub struct Instrument<'a> {
     scale_mode: scales::diatonic::Mode,
     chord_root: f32,
     chord_degrees: [i8; DEGREES],
+    amplitude: f32,
     degrees: [Degree<'a>; DEGREES],
 }
 
@@ -79,6 +80,7 @@ impl<'a> Instrument<'a> {
             scale_mode: scales::diatonic::Ionian,
             chord_root: 0.0,
             chord_degrees: CHORDS[0],
+            amplitude: 1.0,
             degrees: [
                 Degree::new(wavetable_banks, sample_rate),
                 Degree::new(wavetable_banks, sample_rate),
@@ -150,6 +152,14 @@ impl<'a> Instrument<'a> {
         }
     }
 
+    pub fn amplitude(&self) -> f32 {
+        self.amplitude
+    }
+
+    pub fn set_amplitude(&mut self, amplitude: f32) {
+        self.amplitude = amplitude;
+    }
+
     pub fn populate(&mut self, buffer_root: &mut [u16], buffer_chord: &mut [u16]) {
         zero_slice(buffer_root);
         zero_slice(buffer_chord);
@@ -164,14 +174,19 @@ impl<'a> Instrument<'a> {
             (total_amplitude + max_amplitude) / 2.0
         };
 
+        let amplitude = self.amplitude;
+
         self.degrees[0].populate_add(
             buffer_root,
-            self.degrees[0].amplitude() / perceived_amplitude,
+            amplitude * self.degrees[0].amplitude() / perceived_amplitude,
         );
 
-        self.degrees[1..]
-            .iter_mut()
-            .for_each(|d| d.populate_add(buffer_chord, d.amplitude() / perceived_amplitude));
+        self.degrees[1..].iter_mut().for_each(|d| {
+            d.populate_add(
+                buffer_chord,
+                amplitude * d.amplitude() / perceived_amplitude,
+            )
+        });
     }
 
     fn apply_settings(&mut self) {

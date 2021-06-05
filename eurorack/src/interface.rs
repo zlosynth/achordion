@@ -51,13 +51,13 @@ pub struct Interface {
 
     button_clicked: bool,
 
-    note_pot_buffer: ControlBuffer<2>,
-    wavetable_pot_buffer: ControlBuffer<2>,
-    wavetable_bank_pot_buffer: ControlBuffer<2>,
-    chord_pot_buffer: ControlBuffer<2>,
-    detune_pot_buffer: ControlBuffer<2>,
+    note_pot_buffer: ControlBuffer<8>,
+    wavetable_pot_buffer: ControlBuffer<8>,
+    wavetable_bank_pot_buffer: ControlBuffer<8>,
+    chord_pot_buffer: ControlBuffer<8>,
+    detune_pot_buffer: ControlBuffer<8>,
 
-    voct_cv_buffer: ControlBuffer<2>,
+    voct_cv_buffer: ControlBuffer<8>,
 }
 
 impl Interface {
