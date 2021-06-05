@@ -48,7 +48,7 @@ impl<'a> ProbeDetector<'a> {
         self.position = (self.position + 1) % 32;
     }
 
-    pub fn connected(&self) -> bool {
+    pub fn detected(&self) -> bool {
         let sum: i32 = self.queue.iter().map(|b| if *b { 1 } else { 0 }).sum();
         if sum < self.sequence_sum - 2 || sum > self.sequence_sum + 2 {
             return false;
@@ -104,7 +104,7 @@ mod tests {
         detector.write(sequence[3]);
         detector.write(sequence[4]);
 
-        assert!(detector.connected());
+        assert!(detector.detected());
     }
 
     #[test]
@@ -118,7 +118,7 @@ mod tests {
         detector.write(sequence[1]);
         detector.write(sequence[2]);
 
-        assert!(detector.connected());
+        assert!(detector.detected());
     }
 
     #[test]
@@ -132,7 +132,7 @@ mod tests {
         detector.write(sequence[3]);
         detector.write(sequence[4]);
 
-        assert!(detector.connected());
+        assert!(detector.detected());
     }
 
     #[test]
@@ -146,7 +146,7 @@ mod tests {
         detector.write(sequence[0]);
         detector.write(!sequence[1]);
 
-        assert!(detector.connected());
+        assert!(detector.detected());
     }
 
     #[test]
@@ -162,7 +162,7 @@ mod tests {
         detector.write(sequence[5]);
         detector.write(sequence[6]);
 
-        assert!(!detector.connected());
+        assert!(!detector.detected());
     }
 
     #[test]
@@ -178,7 +178,7 @@ mod tests {
         detector.write(!sequence[0]);
         detector.write(!sequence[1]);
 
-        assert!(!detector.connected());
+        assert!(!detector.detected());
     }
 
     #[test]
@@ -191,7 +191,7 @@ mod tests {
         detector.write(false);
         detector.write(false);
 
-        assert!(!detector.connected());
+        assert!(!detector.detected());
     }
 
     #[test]
@@ -204,6 +204,6 @@ mod tests {
         detector.write(true);
         detector.write(true);
 
-        assert!(!detector.connected());
+        assert!(!detector.detected());
     }
 }

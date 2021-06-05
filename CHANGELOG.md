@@ -8,6 +8,8 @@ backwards compatibility.
 
 * Added an internal probe detecting whether there is anything connected to CV
   inputs.
+* Introduced variable octave offset. When V/OCT CV is connected, control the
+  offset via the note pot.
 
 ## 0.3.0
 

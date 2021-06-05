@@ -56,6 +56,8 @@ pub struct Interface {
     wavetable_bank_pot_buffer: ControlBuffer<2>,
     chord_pot_buffer: ControlBuffer<2>,
     detune_pot_buffer: ControlBuffer<2>,
+
+    voct_cv_buffer: ControlBuffer<2>,
 }
 
 impl Interface {
@@ -97,11 +99,18 @@ impl Interface {
             wavetable_bank_pot_buffer: ControlBuffer::new(),
             chord_pot_buffer: ControlBuffer::new(),
             detune_pot_buffer: ControlBuffer::new(),
+
+            voct_cv_buffer: ControlBuffer::new(),
         }
     }
 
     pub fn note(&self) -> f32 {
-        transpose_adc(self.note_pot_buffer.read(), self.adc1.max_sample()) * 4.0 + 1.0
+        if self.cv1_probe_detector.detected() {
+            transpose_adc(self.note_pot_buffer.read(), self.adc1.max_sample()) * 4.0
+        } else {
+            let octave = (transpose_adc(self.note_pot_buffer.read(), self.adc1.max_sample()) * 4.0).trunc();
+            transpose_adc(self.voct_cv_buffer.read(), self.adc1.max_sample()) * 4.0 + octave
+        }
     }
 
     pub fn wavetable(&self) -> f32 {
@@ -124,7 +133,7 @@ impl Interface {
     }
 
     pub fn foo(&self) -> bool {
-        self.cv1_probe_detector.connected()
+        !self.cv1_probe_detector.detected()
     }
 
     pub fn sample(&mut self) {
@@ -140,6 +149,7 @@ impl Interface {
         self.detune_pot_buffer.write(pot4_sample);
 
         let cv1_sample: u32 = self.adc1.read(&mut self.cv1).unwrap();
+        self.voct_cv_buffer.write(cv1_sample);
         let cv1_transposed = transpose_adc(cv1_sample as f32, self.adc1.max_sample());
         let cv1_on = cv1_transposed > 0.5;
         self.cv1_probe_detector.write(cv1_on);
