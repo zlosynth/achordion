@@ -16,6 +16,7 @@ pub mod wavetable;
 mod chords;
 mod note;
 mod oscillator;
+mod probe;
 mod quantizer;
 mod scales;
 mod taper;
