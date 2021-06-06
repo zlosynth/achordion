@@ -12,6 +12,7 @@ backwards compatibility.
   offset via the note pot.
 * Fix the bug where root and chord went to both channels.
 * Fade in amplitude when the module is powered on.
+* Fix an issue where full detune setting would disable detune.
 
 ## 0.3.0
 
