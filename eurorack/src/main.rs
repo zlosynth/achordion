@@ -167,7 +167,7 @@ const APP: () = {
         let mut instrument = Instrument::new(&WAVETABLE_BANKS[..], SAMPLE_RATE);
         instrument.set_amplitude(0.0);
 
-        cx.spawn.fade_in();
+        cx.spawn.fade_in().unwrap();
 
         init::LateResources {
             led_user,
