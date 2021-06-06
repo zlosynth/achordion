@@ -15,6 +15,7 @@ backwards compatibility.
 * Allowed control of the detune via CV. When connected, the detune potentiometer
   controlls the offset.
 * Allowed control of the scale mode via CV.
+* Allowed control of the scale root via CV.
 * Fixed the bug where root and chord went to both channels.
 * Introduced fade in when the module is powered on.
 * Fixed an issue where full detune setting would disable detune.
