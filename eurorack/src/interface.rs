@@ -168,15 +168,13 @@ impl Interface {
 
         let cv1_sample: u32 = self.adc1.read(&mut self.cv1).unwrap();
         self.voct_cv_buffer.write(cv1_sample);
-        let cv1_transposed = transpose_adc(cv1_sample as f32, self.adc1.max_sample());
-        let cv1_on = cv1_transposed > 0.5;
-        self.cv1_probe_detector.write(cv1_on);
+        self.cv1_probe_detector
+            .write(is_high(cv1_sample, self.adc1.max_sample()));
 
         let cv6_sample: u32 = self.adc1.read(&mut self.cv6).unwrap();
         self.wavetable_cv_buffer.write(cv6_sample);
-        let cv6_transposed = transpose_adc(cv6_sample as f32, self.adc1.max_sample());
-        let cv6_on = cv6_transposed > 0.5;
-        self.cv6_probe_detector.write(cv6_on);
+        self.cv6_probe_detector
+            .write(is_high(cv6_sample, self.adc1.max_sample()));
 
         if self.probe_generator.read() {
             self.probe.set_high().unwrap();
@@ -188,6 +186,10 @@ impl Interface {
 
 fn transpose_adc(sample: f32, max_sample: u32) -> f32 {
     (max_sample as f32 - sample) / max_sample as f32
+}
+
+fn is_high(sample: u32, max_sample: u32) -> bool {
+    transpose_adc(sample as f32, max_sample) > 0.5
 }
 
 struct ControlBuffer<const N: usize> {
