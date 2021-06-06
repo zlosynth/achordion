@@ -127,6 +127,7 @@ const APP: () = {
             pins.SEED_PIN_22,
             pins.SEED_PIN_21,
             pins.SEED_PIN_20,
+            pins.SEED_PIN_15,
             pins.SEED_PIN_16,
             pins.SEED_PIN_17,
             pins.SEED_PIN_18,
@@ -202,6 +203,7 @@ const APP: () = {
 
         cx.resources.instrument.lock(|instrument| {
             instrument.set_chord_root(interface.note());
+            instrument.set_scale_mode(interface.mode());
             instrument.set_wavetable(interface.wavetable());
             instrument.set_chord_degrees(interface.chord());
             instrument.set_detune(interface.detune());

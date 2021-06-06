@@ -17,13 +17,13 @@ type PinPot2 = hal::gpio::gpioa::PA1<hal::gpio::Analog>; // PIN 24
 type PinPot3 = hal::gpio::gpioa::PA5<hal::gpio::Analog>; // PIN 22
 type PinPot4 = hal::gpio::gpioc::PC4<hal::gpio::Analog>; // PIN 21
 type PinCv1 = hal::gpio::gpioc::PC1<hal::gpio::Analog>; // PIN 20
+type PinCv3 = hal::gpio::gpioc::PC0<hal::gpio::Analog>; // PIN 15
 type PinCv4 = hal::gpio::gpioa::PA3<hal::gpio::Analog>; // PIN 16
 type PinCv5 = hal::gpio::gpiob::PB1<hal::gpio::Analog>; // PIN 17
 type PinCv6 = hal::gpio::gpioa::PA7<hal::gpio::Analog>; // PIN 18
 type PinProbe = hal::gpio::gpiob::PB5<hal::gpio::Output<hal::gpio::PushPull>>; // PIN 10
 
 // type PinCV2 = hal::gpio::gpioa::PA6<hal::gpio::Analog>;
-// type PinCV3 = hal::gpio::gpioc::PC0<hal::gpio::Analog>;
 // type PinLed1 = hal::gpio::gpiob::PB15<hal::gpio::Analog>;
 // type PinLed2 = hal::gpio::gpiob::PB14<hal::gpio::Analog>;
 // type PinLed3 = hal::gpio::gpiod::PD11<hal::gpio::Analog>;
@@ -45,6 +45,7 @@ pub struct Interface {
 
     cv1: PinCv1,
     cv1_probe_detector: ProbeDetector<'static>,
+    cv3: PinCv3,
     cv4: PinCv4,
     cv4_probe_detector: ProbeDetector<'static>,
     cv5: PinCv5,
@@ -64,6 +65,7 @@ pub struct Interface {
     detune_pot_buffer: ControlBuffer<8>,
 
     voct_cv_buffer: ControlBuffer<8>,
+    mode_cv_buffer: ControlBuffer<8>,
     wavetable_cv_buffer: ControlBuffer<8>,
     chord_cv_buffer: ControlBuffer<8>,
     detune_cv_buffer: ControlBuffer<8>,
@@ -79,6 +81,7 @@ impl Interface {
         pot3: PinPot3,
         pot4: PinPot4,
         cv1: PinCv1,
+        cv3: PinCv3,
         cv4: PinCv4,
         cv5: PinCv5,
         cv6: PinCv6,
@@ -100,6 +103,7 @@ impl Interface {
 
             cv1,
             cv1_probe_detector: ProbeDetector::new(&PROBE_SEQUENCE),
+            cv3,
             cv4,
             cv4_probe_detector: ProbeDetector::new(&PROBE_SEQUENCE),
             cv5,
@@ -119,6 +123,7 @@ impl Interface {
             detune_pot_buffer: ControlBuffer::new(),
 
             voct_cv_buffer: ControlBuffer::new(),
+            mode_cv_buffer: ControlBuffer::new(),
             wavetable_cv_buffer: ControlBuffer::new(),
             chord_cv_buffer: ControlBuffer::new(),
             detune_cv_buffer: ControlBuffer::new(),
@@ -135,6 +140,10 @@ impl Interface {
                 (transpose_adc(self.note_pot_buffer.read(), self.adc1.max_sample()) * 3.95).trunc();
             transpose_adc(self.voct_cv_buffer.read(), self.adc1.max_sample()) * 4.0 + octave
         }
+    }
+
+    pub fn mode(&self) -> f32 {
+        transpose_adc(self.mode_cv_buffer.read(), self.adc1.max_sample())
     }
 
     pub fn wavetable(&self) -> f32 {
@@ -199,6 +208,9 @@ impl Interface {
         self.voct_cv_buffer.write(cv1_sample);
         self.cv1_probe_detector
             .write(is_high(cv1_sample, self.adc1.max_sample()));
+
+        let cv3_sample: u32 = self.adc1.read(&mut self.cv3).unwrap();
+        self.mode_cv_buffer.write(cv3_sample);
 
         let cv4_sample: u32 = self.adc1.read(&mut self.cv4).unwrap();
         self.chord_cv_buffer.write(cv4_sample);
