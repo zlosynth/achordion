@@ -180,27 +180,32 @@ const APP: () = {
     }
 
     #[task(schedule = [fade_in], resources = [instrument])]
-    fn fade_in(cx: fade_in::Context) {
-        let amplitude = cx.resources.instrument.amplitude() + 0.01;
-        cx.resources.instrument.set_amplitude(amplitude.min(1.0));
+    fn fade_in(mut cx: fade_in::Context) {
+        let mut amplitude = 0.0;
+
+        cx.resources.instrument.lock(|instrument| {
+            amplitude = instrument.amplitude() + 0.01;
+            instrument.set_amplitude(amplitude.min(1.0));
+        });
+
         if amplitude < 1.0 {
             cx.schedule
-                .fade_in(cx.scheduled + 1_000_000.cycles())
+                .fade_in(cx.scheduled + 2_000_000.cycles())
                 .unwrap();
         }
     }
 
     #[task(schedule = [control], resources = [interface, instrument, led_user])]
-    fn control(cx: control::Context) {
-        cx.resources.interface.sample();
-
-        let instrument = cx.resources.instrument;
+    fn control(mut cx: control::Context) {
         let interface = cx.resources.interface;
+        interface.sample();
 
-        instrument.set_chord_root(interface.note());
-        instrument.set_wavetable(interface.wavetable());
-        instrument.set_chord_degrees(interface.chord());
-        instrument.set_detune(interface.detune());
+        cx.resources.instrument.lock(|instrument| {
+            instrument.set_chord_root(interface.note());
+            instrument.set_wavetable(interface.wavetable());
+            instrument.set_chord_degrees(interface.chord());
+            instrument.set_detune(interface.detune());
+        });
 
         if interface.foo() {
             cx.resources.led_user.on();
@@ -213,7 +218,7 @@ const APP: () = {
             .unwrap();
     }
 
-    #[task(binds = DMA1_STR1, resources = [instrument])]
+    #[task(binds = DMA1_STR1, priority = 2, resources = [instrument])]
     fn dsp(cx: dsp::Context) {
         let audio_interface: &'static mut audio::Interface =
             unsafe { AUDIO_INTERFACE.as_mut().unwrap() };
@@ -237,5 +242,6 @@ const APP: () = {
 
     extern "C" {
         fn EXTI0();
+        fn EXTI1();
     }
 };
