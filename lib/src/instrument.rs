@@ -144,9 +144,7 @@ impl<'a> Instrument<'a> {
     pub fn set_detune(&mut self, detune: f32) {
         let index = ((detune * DETUNES.len() as f32) as usize).min(DETUNES.len() - 1);
 
-        // Set the value slightly above 1 to preven the end of the last section
-        // from wrapping to the first one.
-        let section = 1.01 / DETUNES.len() as f32;
+        let section = 1.0 / DETUNES.len() as f32;
         let phase = taper::log((detune % section) / section);
 
         for (i, degree) in self.degrees.iter_mut().enumerate() {

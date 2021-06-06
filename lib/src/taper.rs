@@ -26,7 +26,11 @@ const LOG: [f32; 21] = [
 ];
 
 pub fn log(position: f32) -> f32 {
-    debug_assert!((0.0..=1.0).contains(&position));
+    if position < 0.0 {
+        return 0.0;
+    } else if position > 1.0 {
+        return 1.0;
+    }
 
     let array_position = position * (LOG.len() - 1) as f32;
     let index_a = array_position as usize;
@@ -44,15 +48,13 @@ mod tests {
     use super::*;
 
     #[test]
-    #[should_panic]
     fn log_taper_below_zero() {
-        let _ = log(-1.0);
+        assert_relative_eq!(log(-1.0), 0.0);
     }
 
     #[test]
-    #[should_panic]
     fn log_taper_above_one() {
-        let _ = log(2.0);
+        assert_relative_eq!(log(2.0), 1.0);
     }
 
     #[test]
