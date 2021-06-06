@@ -6,13 +6,13 @@ backwards compatibility.
 
 ## Unreleased
 
-* Added an internal probe detecting whether there is anything connected to CV
-  inputs.
-* Introduced variable octave offset. When V/OCT CV is connected, control the
-  offset via the note pot.
-* Fix the bug where root and chord went to both channels.
-* Fade in amplitude when the module is powered on.
-* Fix an issue where full detune setting would disable detune.
+* Allowed control of the root note via CV. When V/OCT CV is connected, control
+  the offset via the note pot.
+* Allowed control of the wavetable position via CV. When connected, the
+  wavetable potentiometer controlls the offset.
+* Fixed the bug where root and chord went to both channels.
+* Introduced fade in when the module is powered on.
+* Fixed an issue where full detune setting would disable detune.
 
 ## 0.3.0
 
