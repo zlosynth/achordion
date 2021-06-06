@@ -18,11 +18,11 @@ type PinPot3 = hal::gpio::gpioa::PA5<hal::gpio::Analog>; // PIN 22
 type PinPot4 = hal::gpio::gpioc::PC4<hal::gpio::Analog>; // PIN 21
 type PinCv1 = hal::gpio::gpioc::PC1<hal::gpio::Analog>; // PIN 20
 type PinCv6 = hal::gpio::gpioa::PA7<hal::gpio::Analog>; // PIN 18
+type PinCv4 = hal::gpio::gpioa::PA3<hal::gpio::Analog>; // PIN 16
 type PinProbe = hal::gpio::gpiob::PB5<hal::gpio::Output<hal::gpio::PushPull>>; // PIN 10
 
 // type PinCV2 = hal::gpio::gpioa::PA6<hal::gpio::Analog>;
 // type PinCV3 = hal::gpio::gpioc::PC0<hal::gpio::Analog>;
-// type PinCV4 = hal::gpio::gpioa::PA3<hal::gpio::Analog>;
 // type PinCV5 = hal::gpio::gpiob::PB1<hal::gpio::Analog>;
 // type PinLed1 = hal::gpio::gpiob::PB15<hal::gpio::Analog>;
 // type PinLed2 = hal::gpio::gpiob::PB14<hal::gpio::Analog>;
@@ -45,6 +45,8 @@ pub struct Interface {
 
     cv1: PinCv1,
     cv1_probe_detector: ProbeDetector<'static>,
+    cv4: PinCv4,
+    cv4_probe_detector: ProbeDetector<'static>,
     cv6: PinCv6,
     cv6_probe_detector: ProbeDetector<'static>,
 
@@ -61,6 +63,7 @@ pub struct Interface {
 
     voct_cv_buffer: ControlBuffer<8>,
     wavetable_cv_buffer: ControlBuffer<8>,
+    chord_cv_buffer: ControlBuffer<8>,
 }
 
 impl Interface {
@@ -73,6 +76,7 @@ impl Interface {
         pot3: PinPot3,
         pot4: PinPot4,
         cv1: PinCv1,
+        cv4: PinCv4,
         cv6: PinCv6,
         probe: PinProbe,
     ) -> Self {
@@ -92,6 +96,8 @@ impl Interface {
 
             cv1,
             cv1_probe_detector: ProbeDetector::new(&PROBE_SEQUENCE),
+            cv4,
+            cv4_probe_detector: ProbeDetector::new(&PROBE_SEQUENCE),
             cv6,
             cv6_probe_detector: ProbeDetector::new(&PROBE_SEQUENCE),
 
@@ -108,6 +114,7 @@ impl Interface {
 
             voct_cv_buffer: ControlBuffer::new(),
             wavetable_cv_buffer: ControlBuffer::new(),
+            chord_cv_buffer: ControlBuffer::new(),
         }
     }
 
@@ -131,7 +138,7 @@ impl Interface {
             let cv =
                 transpose_adc(self.wavetable_cv_buffer.read(), self.adc1.max_sample()) * 2.0 - 1.0;
             let pot = transpose_adc(self.wavetable_pot_buffer.read(), self.adc1.max_sample());
-            (cv + pot).min(1.0).max(0.0)
+            (cv + pot).min(0.9999).max(0.0)
         }
     }
 
@@ -143,7 +150,14 @@ impl Interface {
     }
 
     pub fn chord(&self) -> f32 {
-        transpose_adc(self.chord_pot_buffer.read(), self.adc1.max_sample())
+        if self.cv4_probe_detector.detected() {
+            transpose_adc(self.chord_pot_buffer.read(), self.adc1.max_sample())
+        } else {
+            // CV is centered around zero, suited for LFO.
+            let cv = transpose_adc(self.chord_cv_buffer.read(), self.adc1.max_sample()) * 2.0 - 1.0;
+            let pot = transpose_adc(self.chord_pot_buffer.read(), self.adc1.max_sample());
+            (cv + pot).min(0.9999).max(0.0)
+        }
     }
 
     pub fn detune(&self) -> f32 {
@@ -170,6 +184,11 @@ impl Interface {
         self.voct_cv_buffer.write(cv1_sample);
         self.cv1_probe_detector
             .write(is_high(cv1_sample, self.adc1.max_sample()));
+
+        let cv4_sample: u32 = self.adc1.read(&mut self.cv4).unwrap();
+        self.chord_cv_buffer.write(cv4_sample);
+        self.cv4_probe_detector
+            .write(is_high(cv4_sample, self.adc1.max_sample()));
 
         let cv6_sample: u32 = self.adc1.read(&mut self.cv6).unwrap();
         self.wavetable_cv_buffer.write(cv6_sample);
