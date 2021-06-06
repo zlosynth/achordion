@@ -12,6 +12,8 @@ backwards compatibility.
   wavetable potentiometer controlls the offset.
 * Allowed control of the chord selection via CV. When connected, the chord
   potentiometer controlls the offset.
+* Allowed control of the detune via CV. When connected, the detune potentiometer
+  controlls the offset.
 * Fixed the bug where root and chord went to both channels.
 * Introduced fade in when the module is powered on.
 * Fixed an issue where full detune setting would disable detune.

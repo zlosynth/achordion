@@ -128,6 +128,7 @@ const APP: () = {
             pins.SEED_PIN_21,
             pins.SEED_PIN_20,
             pins.SEED_PIN_16,
+            pins.SEED_PIN_17,
             pins.SEED_PIN_18,
             pins.SEED_PIN_10.into_push_pull_output(),
         );
