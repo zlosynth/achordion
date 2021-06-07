@@ -109,7 +109,7 @@ impl Interface {
             let octave = (self.pot1.value() * 3.95).trunc();
             sample_to_voct(self.cv1.value()) + octave
         } else {
-            self.pot1.value() * 4.0
+            self.pot1.value() * 4.0 + 3.0
         }
     }
 
