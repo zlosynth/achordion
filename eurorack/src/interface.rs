@@ -39,10 +39,10 @@ pub struct Interface {
 
     button: PinButton,
 
-    pot1: PinPot1,
-    pot2: PinPot2,
-    pot3: PinPot3,
-    pot4: PinPot4,
+    pot1: Pot<PinPot1>,
+    pot2: Pot<PinPot2>,
+    pot3: Pot<PinPot3>,
+    pot4: Pot<PinPot4>,
 
     cv1: Cv<PinCv1>,
     cv2: Cv<PinCv2>,
@@ -55,12 +55,6 @@ pub struct Interface {
     probe_generator: ProbeGenerator<'static>,
 
     button_clicked: bool,
-
-    note_pot_buffer: ControlBuffer<8>,
-    wavetable_pot_buffer: ControlBuffer<8>,
-    wavetable_bank_pot_buffer: ControlBuffer<8>,
-    chord_pot_buffer: ControlBuffer<8>,
-    detune_pot_buffer: ControlBuffer<8>,
 }
 
 impl Interface {
@@ -89,10 +83,10 @@ impl Interface {
 
             button,
 
-            pot1,
-            pot2,
-            pot3,
-            pot4,
+            pot1: Pot::new(pot1),
+            pot2: Pot::new(pot2),
+            pot3: Pot::new(pot3),
+            pot4: Pot::new(pot4),
 
             cv1: Cv::new(cv1),
             cv2: Cv::new(cv2),
@@ -105,12 +99,6 @@ impl Interface {
             probe_generator: ProbeGenerator::new(&PROBE_SEQUENCE),
 
             button_clicked: false,
-
-            note_pot_buffer: ControlBuffer::new(),
-            wavetable_pot_buffer: ControlBuffer::new(),
-            wavetable_bank_pot_buffer: ControlBuffer::new(),
-            chord_pot_buffer: ControlBuffer::new(),
-            detune_pot_buffer: ControlBuffer::new(),
         }
     }
 
@@ -118,11 +106,10 @@ impl Interface {
         if self.cv1.connected() {
             // Keep the multiplier below 4, so assure that the result won't get
             // into the 5th octave when set on the edge.
-            let octave =
-                (transpose_adc(self.note_pot_buffer.read(), self.adc1.max_sample()) * 3.95).trunc();
+            let octave = (self.pot1.value() * 3.95).trunc();
             sample_to_voct(self.cv1.value()) + octave
         } else {
-            transpose_adc(self.note_pot_buffer.read(), self.adc1.max_sample()) * 4.0
+            self.pot1.value() * 4.0
         }
     }
 
@@ -138,28 +125,25 @@ impl Interface {
         if self.cv6.connected() {
             // CV is centered around zero, suited for LFO.
             let cv = self.cv6.value() * 2.0 - 1.0;
-            let pot = transpose_adc(self.wavetable_pot_buffer.read(), self.adc1.max_sample());
+            let pot = self.pot2.value();
             (cv + pot).min(0.9999).max(0.0)
         } else {
-            transpose_adc(self.wavetable_pot_buffer.read(), self.adc1.max_sample())
+            self.pot2.value()
         }
     }
 
     pub fn wavetable_bank(&self) -> f32 {
-        transpose_adc(
-            self.wavetable_bank_pot_buffer.read(),
-            self.adc1.max_sample(),
-        )
+        0.0
     }
 
     pub fn chord(&self) -> f32 {
         if self.cv4.connected() {
             // CV is centered around zero, suited for LFO.
             let cv = self.cv4.value() * 2.0 - 1.0;
-            let pot = transpose_adc(self.chord_pot_buffer.read(), self.adc1.max_sample());
+            let pot = self.pot3.value();
             (cv + pot).min(0.9999).max(0.0)
         } else {
-            transpose_adc(self.chord_pot_buffer.read(), self.adc1.max_sample())
+            self.pot3.value()
         }
     }
 
@@ -167,10 +151,10 @@ impl Interface {
         if self.cv5.connected() {
             // CV is centered around zero, suited for LFO.
             let cv = self.cv5.value() * 2.0 - 1.0;
-            let pot = transpose_adc(self.detune_pot_buffer.read(), self.adc1.max_sample());
+            let pot = self.pot4.value();
             (cv + pot).min(0.9999).max(0.0)
         } else {
-            transpose_adc(self.detune_pot_buffer.read(), self.adc1.max_sample())
+            self.pot4.value()
         }
     }
 
@@ -181,14 +165,10 @@ impl Interface {
     pub fn sample(&mut self) {
         self.button_clicked = self.button.is_high().unwrap();
 
-        let pot1_sample: u32 = self.adc1.read(&mut self.pot1).unwrap();
-        self.note_pot_buffer.write(pot1_sample as f32);
-        let pot2_sample: u32 = self.adc1.read(&mut self.pot2).unwrap();
-        self.wavetable_pot_buffer.write(pot2_sample as f32);
-        let pot3_sample: u32 = self.adc1.read(&mut self.pot3).unwrap();
-        self.chord_pot_buffer.write(pot3_sample as f32);
-        let pot4_sample: u32 = self.adc1.read(&mut self.pot4).unwrap();
-        self.detune_pot_buffer.write(pot4_sample as f32);
+        self.pot1.sample(&mut self.adc1);
+        self.pot2.sample(&mut self.adc1);
+        self.pot3.sample(&mut self.adc1);
+        self.pot4.sample(&mut self.adc1);
 
         self.cv1.sample(&mut self.adc1);
         self.cv2.sample(&mut self.adc1);
@@ -216,6 +196,30 @@ fn transpose_adc(sample: f32, max_sample: u32) -> f32 {
 
 fn is_high(sample: u32, max_sample: u32) -> bool {
     transpose_adc(sample as f32, max_sample) > 0.5
+}
+
+struct Pot<P> {
+    pin: P,
+    buffer: ControlBuffer<8>,
+}
+
+impl<P: Channel<ADC1, ID = u8>> Pot<P> {
+    pub fn new(pin: P) -> Self {
+        Self {
+            pin,
+            buffer: ControlBuffer::new(),
+        }
+    }
+
+    pub fn sample(&mut self, adc: &mut Adc<ADC1, Enabled>) {
+        let sample: u32 = adc.read(&mut self.pin).unwrap();
+        self.buffer
+            .write(transpose_adc(sample as f32, adc.max_sample()));
+    }
+
+    pub fn value(&self) -> f32 {
+        self.buffer.read()
+    }
 }
 
 struct Cv<P> {
