@@ -6,6 +6,8 @@ backwards compatibility.
 
 ## Unreleased
 
+## 0.4.0
+
 * Allowed control of all parameters through CV:
   - Root note, adhering to V/OCT. When connected, Note potentiometer controls
     octave offset.
