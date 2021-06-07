@@ -143,12 +143,12 @@ impl Interface {
             // into the 5th octave when set on the edge.
             let octave =
                 (transpose_adc(self.note_pot_buffer.read(), self.adc1.max_sample()) * 3.95).trunc();
-            transpose_adc(self.voct_cv_buffer.read(), self.adc1.max_sample()) * 4.0 + octave
+            sample_to_voct(transpose_adc(self.voct_cv_buffer.read(), self.adc1.max_sample())) + octave
         }
     }
 
     pub fn root(&self) -> f32 {
-        transpose_adc(self.root_cv_buffer.read(), self.adc1.max_sample()) * 4.0
+        sample_to_voct(transpose_adc(self.root_cv_buffer.read(), self.adc1.max_sample()))
     }
 
     pub fn mode(&self) -> f32 {
@@ -245,6 +245,11 @@ impl Interface {
             self.probe.set_low().unwrap();
         }
     }
+}
+
+fn sample_to_voct(transposed_sample: f32) -> f32 {
+    // V/OCT CV spans from -1.5 to 5.5 V.
+    transposed_sample * 7.0 + 0.5
 }
 
 fn transpose_adc(sample: f32, max_sample: u32) -> f32 {
