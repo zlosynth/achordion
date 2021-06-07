@@ -5,6 +5,7 @@ use daisy::hal;
 use daisy_bsp as daisy;
 
 use hal::adc::{self, Adc, Disabled, Enabled};
+use hal::hal::adc::Channel;
 use hal::hal::digital::v2::{InputPin, OutputPin};
 use hal::pac::ADC1;
 use hal::prelude::*;
@@ -43,16 +44,12 @@ pub struct Interface {
     pot3: PinPot3,
     pot4: PinPot4,
 
-    cv1: PinCv1,
-    cv1_probe_detector: ProbeDetector<'static>,
-    cv2: PinCv2,
-    cv3: PinCv3,
-    cv4: PinCv4,
-    cv4_probe_detector: ProbeDetector<'static>,
-    cv5: PinCv5,
-    cv5_probe_detector: ProbeDetector<'static>,
-    cv6: PinCv6,
-    cv6_probe_detector: ProbeDetector<'static>,
+    cv1: Cv<PinCv1>,
+    cv2: Cv<PinCv2>,
+    cv3: Cv<PinCv3>,
+    cv4: Cv<PinCv4>,
+    cv5: Cv<PinCv5>,
+    cv6: Cv<PinCv6>,
 
     probe: PinProbe,
     probe_generator: ProbeGenerator<'static>,
@@ -64,13 +61,6 @@ pub struct Interface {
     wavetable_bank_pot_buffer: ControlBuffer<8>,
     chord_pot_buffer: ControlBuffer<8>,
     detune_pot_buffer: ControlBuffer<8>,
-
-    voct_cv_buffer: ControlBuffer<8>,
-    root_cv_buffer: ControlBuffer<8>,
-    mode_cv_buffer: ControlBuffer<8>,
-    wavetable_cv_buffer: ControlBuffer<8>,
-    chord_cv_buffer: ControlBuffer<8>,
-    detune_cv_buffer: ControlBuffer<8>,
 }
 
 impl Interface {
@@ -104,16 +94,12 @@ impl Interface {
             pot3,
             pot4,
 
-            cv1,
-            cv1_probe_detector: ProbeDetector::new(&PROBE_SEQUENCE),
-            cv2,
-            cv3,
-            cv4,
-            cv4_probe_detector: ProbeDetector::new(&PROBE_SEQUENCE),
-            cv5,
-            cv5_probe_detector: ProbeDetector::new(&PROBE_SEQUENCE),
-            cv6,
-            cv6_probe_detector: ProbeDetector::new(&PROBE_SEQUENCE),
+            cv1: Cv::new(cv1),
+            cv2: Cv::new(cv2),
+            cv3: Cv::new(cv3),
+            cv4: Cv::new(cv4),
+            cv5: Cv::new(cv5),
+            cv6: Cv::new(cv6),
 
             probe,
             probe_generator: ProbeGenerator::new(&PROBE_SEQUENCE),
@@ -125,45 +111,37 @@ impl Interface {
             wavetable_bank_pot_buffer: ControlBuffer::new(),
             chord_pot_buffer: ControlBuffer::new(),
             detune_pot_buffer: ControlBuffer::new(),
-
-            voct_cv_buffer: ControlBuffer::new(),
-            root_cv_buffer: ControlBuffer::new(),
-            mode_cv_buffer: ControlBuffer::new(),
-            wavetable_cv_buffer: ControlBuffer::new(),
-            chord_cv_buffer: ControlBuffer::new(),
-            detune_cv_buffer: ControlBuffer::new(),
         }
     }
 
     pub fn note(&self) -> f32 {
-        if self.cv1_probe_detector.detected() {
-            transpose_adc(self.note_pot_buffer.read(), self.adc1.max_sample()) * 4.0
-        } else {
+        if self.cv1.connected() {
             // Keep the multiplier below 4, so assure that the result won't get
             // into the 5th octave when set on the edge.
             let octave =
                 (transpose_adc(self.note_pot_buffer.read(), self.adc1.max_sample()) * 3.95).trunc();
-            sample_to_voct(transpose_adc(self.voct_cv_buffer.read(), self.adc1.max_sample())) + octave
+            sample_to_voct(self.cv1.value()) + octave
+        } else {
+            transpose_adc(self.note_pot_buffer.read(), self.adc1.max_sample()) * 4.0
         }
     }
 
     pub fn root(&self) -> f32 {
-        sample_to_voct(transpose_adc(self.root_cv_buffer.read(), self.adc1.max_sample()))
+        sample_to_voct(self.cv2.value())
     }
 
     pub fn mode(&self) -> f32 {
-        transpose_adc(self.mode_cv_buffer.read(), self.adc1.max_sample())
+        self.cv3.value()
     }
 
     pub fn wavetable(&self) -> f32 {
-        if self.cv6_probe_detector.detected() {
-            transpose_adc(self.wavetable_pot_buffer.read(), self.adc1.max_sample())
-        } else {
+        if self.cv6.connected() {
             // CV is centered around zero, suited for LFO.
-            let cv =
-                transpose_adc(self.wavetable_cv_buffer.read(), self.adc1.max_sample()) * 2.0 - 1.0;
+            let cv = self.cv6.value() * 2.0 - 1.0;
             let pot = transpose_adc(self.wavetable_pot_buffer.read(), self.adc1.max_sample());
             (cv + pot).min(0.9999).max(0.0)
+        } else {
+            transpose_adc(self.wavetable_pot_buffer.read(), self.adc1.max_sample())
         }
     }
 
@@ -175,69 +153,49 @@ impl Interface {
     }
 
     pub fn chord(&self) -> f32 {
-        if self.cv4_probe_detector.detected() {
-            transpose_adc(self.chord_pot_buffer.read(), self.adc1.max_sample())
-        } else {
+        if self.cv4.connected() {
             // CV is centered around zero, suited for LFO.
-            let cv = transpose_adc(self.chord_cv_buffer.read(), self.adc1.max_sample()) * 2.0 - 1.0;
+            let cv = self.cv4.value() * 2.0 - 1.0;
             let pot = transpose_adc(self.chord_pot_buffer.read(), self.adc1.max_sample());
             (cv + pot).min(0.9999).max(0.0)
+        } else {
+            transpose_adc(self.chord_pot_buffer.read(), self.adc1.max_sample())
         }
     }
 
     pub fn detune(&self) -> f32 {
-        if self.cv5_probe_detector.detected() {
-            transpose_adc(self.detune_pot_buffer.read(), self.adc1.max_sample())
-        } else {
+        if self.cv5.connected() {
             // CV is centered around zero, suited for LFO.
-            let cv =
-                transpose_adc(self.detune_cv_buffer.read(), self.adc1.max_sample()) * 2.0 - 1.0;
+            let cv = self.cv5.value() * 2.0 - 1.0;
             let pot = transpose_adc(self.detune_pot_buffer.read(), self.adc1.max_sample());
             (cv + pot).min(0.9999).max(0.0)
+        } else {
+            transpose_adc(self.detune_pot_buffer.read(), self.adc1.max_sample())
         }
     }
 
     pub fn foo(&self) -> bool {
-        !self.cv6_probe_detector.detected()
+        self.cv6.connected()
     }
 
     pub fn sample(&mut self) {
         self.button_clicked = self.button.is_high().unwrap();
 
-        let pot1_sample = self.adc1.read(&mut self.pot1).unwrap();
-        self.note_pot_buffer.write(pot1_sample);
-        let pot2_sample = self.adc1.read(&mut self.pot2).unwrap();
-        self.wavetable_pot_buffer.write(pot2_sample);
-        let pot3_sample = self.adc1.read(&mut self.pot3).unwrap();
-        self.chord_pot_buffer.write(pot3_sample);
-        let pot4_sample = self.adc1.read(&mut self.pot4).unwrap();
-        self.detune_pot_buffer.write(pot4_sample);
+        let pot1_sample: u32 = self.adc1.read(&mut self.pot1).unwrap();
+        self.note_pot_buffer.write(pot1_sample as f32);
+        let pot2_sample: u32 = self.adc1.read(&mut self.pot2).unwrap();
+        self.wavetable_pot_buffer.write(pot2_sample as f32);
+        let pot3_sample: u32 = self.adc1.read(&mut self.pot3).unwrap();
+        self.chord_pot_buffer.write(pot3_sample as f32);
+        let pot4_sample: u32 = self.adc1.read(&mut self.pot4).unwrap();
+        self.detune_pot_buffer.write(pot4_sample as f32);
 
-        let cv1_sample: u32 = self.adc1.read(&mut self.cv1).unwrap();
-        self.voct_cv_buffer.write(cv1_sample);
-        self.cv1_probe_detector
-            .write(is_high(cv1_sample, self.adc1.max_sample()));
-
-        let cv2_sample: u32 = self.adc1.read(&mut self.cv2).unwrap();
-        self.root_cv_buffer.write(cv2_sample);
-
-        let cv3_sample: u32 = self.adc1.read(&mut self.cv3).unwrap();
-        self.mode_cv_buffer.write(cv3_sample);
-
-        let cv4_sample: u32 = self.adc1.read(&mut self.cv4).unwrap();
-        self.chord_cv_buffer.write(cv4_sample);
-        self.cv4_probe_detector
-            .write(is_high(cv4_sample, self.adc1.max_sample()));
-
-        let cv5_sample: u32 = self.adc1.read(&mut self.cv5).unwrap();
-        self.detune_cv_buffer.write(cv5_sample);
-        self.cv5_probe_detector
-            .write(is_high(cv5_sample, self.adc1.max_sample()));
-
-        let cv6_sample: u32 = self.adc1.read(&mut self.cv6).unwrap();
-        self.wavetable_cv_buffer.write(cv6_sample);
-        self.cv6_probe_detector
-            .write(is_high(cv6_sample, self.adc1.max_sample()));
+        self.cv1.sample(&mut self.adc1);
+        self.cv2.sample(&mut self.adc1);
+        self.cv3.sample(&mut self.adc1);
+        self.cv4.sample(&mut self.adc1);
+        self.cv5.sample(&mut self.adc1);
+        self.cv6.sample(&mut self.adc1);
 
         if self.probe_generator.read() {
             self.probe.set_high().unwrap();
@@ -260,6 +218,37 @@ fn is_high(sample: u32, max_sample: u32) -> bool {
     transpose_adc(sample as f32, max_sample) > 0.5
 }
 
+struct Cv<P> {
+    pin: P,
+    probe_detector: ProbeDetector<'static>,
+    buffer: ControlBuffer<8>,
+}
+
+impl<P: Channel<ADC1, ID = u8>> Cv<P> {
+    pub fn new(pin: P) -> Self {
+        Self {
+            pin,
+            probe_detector: ProbeDetector::new(&PROBE_SEQUENCE),
+            buffer: ControlBuffer::new(),
+        }
+    }
+
+    pub fn sample(&mut self, adc: &mut Adc<ADC1, Enabled>) {
+        let sample: u32 = adc.read(&mut self.pin).unwrap();
+        self.buffer
+            .write(transpose_adc(sample as f32, adc.max_sample()));
+        self.probe_detector.write(is_high(sample, adc.max_sample()));
+    }
+
+    pub fn connected(&self) -> bool {
+        !self.probe_detector.detected()
+    }
+
+    pub fn value(&self) -> f32 {
+        self.buffer.read()
+    }
+}
+
 struct ControlBuffer<const N: usize> {
     buffer: [f32; N],
     pointer: usize,
@@ -273,8 +262,8 @@ impl<const N: usize> ControlBuffer<N> {
         }
     }
 
-    pub fn write(&mut self, value: u32) {
-        self.buffer[self.pointer] = value as f32;
+    pub fn write(&mut self, value: f32) {
+        self.buffer[self.pointer] = value;
         self.pointer = (self.pointer + 1) % N;
     }
 
