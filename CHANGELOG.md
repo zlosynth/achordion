@@ -6,16 +6,15 @@ backwards compatibility.
 
 ## Unreleased
 
-* Allowed control of the root note via CV. When V/OCT CV is connected, control
-  the offset via the note pot.
-* Allowed control of the wavetable position via CV. When connected, the
-  wavetable potentiometer controlls the offset.
-* Allowed control of the chord selection via CV. When connected, the chord
-  potentiometer controlls the offset.
-* Allowed control of the detune via CV. When connected, the detune potentiometer
-  controlls the offset.
-* Allowed control of the scale mode via CV.
-* Allowed control of the scale root via CV.
+* Allowed control of all parameters through CV:
+  - Root note, adhering to V/OCT. When connected, Note potentiometer controls
+    octave offset.
+  - Wavetable position. When connected, Wavetable potentiometer controls the
+    offset.
+  - Chord. When connected, Chord potentiometer controls the offset.
+  - Detune. When connected, Detune potentiometer controls the offset.
+  - Scale mode.
+  - Scale root note, adhering to V/OCT.
 * Fixed the bug where root and chord went to both channels.
 * Introduced fade in when the module is powered on.
 * Fixed an issue where full detune setting would disable detune.
