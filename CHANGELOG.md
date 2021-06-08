@@ -8,6 +8,7 @@ backwards compatibility.
 
 * Allow control of wavetable bank through Wavetable pot while holding the
   button.
+* Remove support for 4 degrees of chords. It draws too much resources.
 
 ## 0.4.0
 
