@@ -200,7 +200,7 @@ const APP: () = {
     #[task(schedule = [control], resources = [interface, instrument, led_user])]
     fn control(mut cx: control::Context) {
         let interface = cx.resources.interface;
-        interface.sample();
+        interface.update();
 
         cx.resources.instrument.lock(|instrument| {
             instrument.set_chord_root(interface.note());

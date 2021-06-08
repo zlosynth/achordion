@@ -54,6 +54,19 @@ pub struct Interface {
 
     probe: PinProbe,
     probe_generator: ProbeGenerator<'static>,
+
+    parameters: Parameters,
+}
+
+#[derive(Default)]
+struct Parameters {
+    pub note: f32,
+    pub wavetable: f32,
+    pub bank: f32,
+    pub chord: f32,
+    pub detune: f32,
+    pub scale_root: f32,
+    pub scale_mode: f32,
 }
 
 impl Interface {
@@ -96,70 +109,49 @@ impl Interface {
 
             probe,
             probe_generator: ProbeGenerator::new(&PROBE_SEQUENCE),
+
+            parameters: Parameters::default(),
         }
     }
 
     pub fn note(&self) -> f32 {
-        if self.cv1.connected() {
-            // Keep the multiplier below 4, so assure that the result won't get
-            // into the 5th octave when set on the edge.
-            let octave = (self.pot1.value() * 3.95).trunc();
-            sample_to_voct(self.cv1.value()) + octave
-        } else {
-            self.pot1.value() * 4.0 + 3.0
-        }
-    }
-
-    pub fn root(&self) -> f32 {
-        sample_to_voct(self.cv2.value())
-    }
-
-    pub fn mode(&self) -> f32 {
-        self.cv3.value()
+        self.parameters.note
     }
 
     pub fn wavetable(&self) -> f32 {
-        if self.cv6.connected() {
-            // CV is centered around zero, suited for LFO.
-            let cv = self.cv6.value() * 2.0 - 1.0;
-            let pot = self.pot2.value();
-            (cv + pot).min(0.9999).max(0.0)
-        } else {
-            self.pot2.value()
-        }
-    }
-
-    pub fn wavetable_bank(&self) -> f32 {
-        0.0
+        self.parameters.wavetable
     }
 
     pub fn chord(&self) -> f32 {
-        if self.cv4.connected() {
-            // CV is centered around zero, suited for LFO.
-            let cv = self.cv4.value() * 2.0 - 1.0;
-            let pot = self.pot3.value();
-            (cv + pot).min(0.9999).max(0.0)
-        } else {
-            self.pot3.value()
-        }
+        self.parameters.chord
     }
 
     pub fn detune(&self) -> f32 {
-        if self.cv5.connected() {
-            // CV is centered around zero, suited for LFO.
-            let cv = self.cv5.value() * 2.0 - 1.0;
-            let pot = self.pot4.value();
-            (cv + pot).min(0.9999).max(0.0)
-        } else {
-            self.pot4.value()
-        }
+        self.parameters.detune
+    }
+
+    pub fn root(&self) -> f32 {
+        self.parameters.scale_root
+    }
+
+    pub fn mode(&self) -> f32 {
+        self.parameters.scale_mode
+    }
+
+    pub fn wavetable_bank(&self) -> f32 {
+        self.parameters.bank
     }
 
     pub fn foo(&self) -> bool {
-        self.cv6.connected()
+        self.button.active()
     }
 
-    pub fn sample(&mut self) {
+    pub fn update(&mut self) {
+        self.sample();
+        self.reconcile();
+    }
+
+    fn sample(&mut self) {
         self.pot1.sample(&mut self.adc1);
         self.pot2.sample(&mut self.adc1);
         self.pot3.sample(&mut self.adc1);
@@ -177,6 +169,68 @@ impl Interface {
         } else {
             self.probe.set_low().unwrap();
         }
+    }
+
+    fn reconcile(&mut self) {
+        self.reconcile_note();
+        self.reconcile_wavetable();
+        self.reconcile_chord();
+        self.reconcile_detune();
+        self.reconcile_scale_root();
+        self.reconcile_scale_mode();
+    }
+
+    fn reconcile_note(&mut self) {
+        self.parameters.note = if self.cv1.connected() {
+            // Keep the multiplier below 4, so assure that the result won't get
+            // into the 5th octave when set on the edge.
+            let octave_offset = (self.pot1.value() * 3.95).trunc();
+            let note = sample_to_voct(self.cv1.value());
+            note + octave_offset
+        } else {
+            self.pot1.value() * 4.0 + 3.0
+        };
+    }
+
+    fn reconcile_wavetable(&mut self) {
+        self.parameters.wavetable = if self.cv6.connected() {
+            // CV is centered around zero, suited for LFO.
+            let wavetable = self.cv6.value() * 2.0 - 1.0;
+            let offset = self.pot2.value();
+            (wavetable + offset).min(0.9999).max(0.0)
+        } else {
+            self.pot2.value()
+        };
+    }
+
+    fn reconcile_chord(&mut self) {
+        self.parameters.chord = if self.cv4.connected() {
+            // CV is centered around zero, suited for LFO.
+            let chord = self.cv4.value() * 2.0 - 1.0;
+            let offset = self.pot3.value();
+            (chord + offset).min(0.9999).max(0.0)
+        } else {
+            self.pot3.value()
+        };
+    }
+
+    fn reconcile_detune(&mut self) {
+        self.parameters.detune = if self.cv5.connected() {
+            // CV is centered around zero, suited for LFO.
+            let detune = self.cv5.value() * 2.0 - 1.0;
+            let offset = self.pot4.value();
+            (detune + offset).min(0.9999).max(0.0)
+        } else {
+            self.pot4.value()
+        };
+    }
+
+    fn reconcile_scale_root(&mut self) {
+        self.parameters.scale_root = sample_to_voct(self.cv2.value());
+    }
+
+    fn reconcile_scale_mode(&mut self) {
+        self.parameters.scale_mode = self.cv3.value();
     }
 }
 
@@ -205,7 +259,7 @@ impl<P: InputPin> Button<P> {
 
     #[allow(dead_code)]
     pub fn active(&self) -> bool {
-        self.pin.is_high().ok().unwrap()
+        self.pin.is_low().ok().unwrap()
     }
 }
 
