@@ -143,7 +143,7 @@ impl Interface {
     }
 
     pub fn foo(&self) -> bool {
-        self.button.active()
+        self.pot1.active()
     }
 
     pub fn update(&mut self) {
@@ -265,25 +265,32 @@ impl<P: InputPin> Button<P> {
 
 struct Pot<P> {
     pin: P,
-    buffer: ControlBuffer<8>,
+    position_filter: ControlBuffer<8>,
+    movement_detector: ControlBuffer<124>,
 }
 
 impl<P: Channel<ADC1, ID = u8>> Pot<P> {
     pub fn new(pin: P) -> Self {
         Self {
             pin,
-            buffer: ControlBuffer::new(),
+            position_filter: ControlBuffer::new(),
+            movement_detector: ControlBuffer::new(),
         }
     }
 
     pub fn sample(&mut self, adc: &mut Adc<ADC1, Enabled>) {
         let sample: u32 = adc.read(&mut self.pin).unwrap();
-        self.buffer
-            .write(transpose_adc(sample as f32, adc.max_sample()));
+        let transposed_sample = transpose_adc(sample as f32, adc.max_sample());
+        self.position_filter.write(transposed_sample);
+        self.movement_detector.write(transposed_sample);
     }
 
     pub fn value(&self) -> f32 {
-        self.buffer.read()
+        self.position_filter.read()
+    }
+
+    pub fn active(&self) -> bool {
+        self.movement_detector.traveled() > 0.005
     }
 }
 
@@ -341,5 +348,9 @@ impl<const N: usize> ControlBuffer<N> {
         sum / N as f32
     }
 
-    // TODO: Delta from the oldest to the newest, to detect movement
+    pub fn traveled(&self) -> f32 {
+        let newest = (self.pointer - 1).rem_euclid(N);
+        let oldest = self.pointer;
+        (self.buffer[newest] - self.buffer[oldest]).abs()
+    }
 }
