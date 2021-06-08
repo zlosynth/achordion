@@ -56,6 +56,8 @@ pub struct Interface {
     probe_generator: ProbeGenerator<'static>,
 
     parameters: Parameters,
+
+    last_wavetable_pot_reading: f32,
 }
 
 #[derive(Default)]
@@ -111,6 +113,8 @@ impl Interface {
             probe_generator: ProbeGenerator::new(&PROBE_SEQUENCE),
 
             parameters: Parameters::default(),
+
+            last_wavetable_pot_reading: 0.0,
         }
     }
 
@@ -193,13 +197,20 @@ impl Interface {
     }
 
     fn reconcile_wavetable(&mut self) {
+        let pot = if self.button.active() {
+            self.last_wavetable_pot_reading
+        } else {
+            self.last_wavetable_pot_reading = self.pot2.value();
+            self.last_wavetable_pot_reading
+        };
+
         self.parameters.wavetable = if self.cv6.connected() {
             // CV is centered around zero, suited for LFO.
             let wavetable = self.cv6.value() * 2.0 - 1.0;
-            let offset = self.pot2.value();
+            let offset = pot;
             (wavetable + offset).min(0.9999).max(0.0)
         } else {
-            self.pot2.value()
+            pot
         };
     }
 
