@@ -46,29 +46,30 @@ lazy_static! {
         Wavetable::new(&waveform::saw::SAW_FACTORS, SAMPLE_RATE),
     ];
     // static ref BANK_B: [Wavetable<'static>; 20] = [
-    //     Wavetable::new(&waveform::pulse::PULSE_025_FACTORS, SAMPLE_RATE),
-    //     Wavetable::new(&waveform::pulse::PULSE_050_FACTORS, SAMPLE_RATE),
-    //     Wavetable::new(&waveform::pulse::PULSE_075_FACTORS, SAMPLE_RATE),
-    //     Wavetable::new(&waveform::pulse::PULSE_100_FACTORS, SAMPLE_RATE),
-    //     Wavetable::new(&waveform::pulse::PULSE_125_FACTORS, SAMPLE_RATE),
-    //     Wavetable::new(&waveform::pulse::PULSE_150_FACTORS, SAMPLE_RATE),
-    //     Wavetable::new(&waveform::pulse::PULSE_175_FACTORS, SAMPLE_RATE),
-    //     Wavetable::new(&waveform::pulse::PULSE_200_FACTORS, SAMPLE_RATE),
-    //     Wavetable::new(&waveform::pulse::PULSE_225_FACTORS, SAMPLE_RATE),
-    //     Wavetable::new(&waveform::pulse::PULSE_250_FACTORS, SAMPLE_RATE),
-    //     Wavetable::new(&waveform::pulse::PULSE_275_FACTORS, SAMPLE_RATE),
-    //     Wavetable::new(&waveform::pulse::PULSE_300_FACTORS, SAMPLE_RATE),
-    //     Wavetable::new(&waveform::pulse::PULSE_325_FACTORS, SAMPLE_RATE),
-    //     Wavetable::new(&waveform::pulse::PULSE_350_FACTORS, SAMPLE_RATE),
-    //     Wavetable::new(&waveform::pulse::PULSE_375_FACTORS, SAMPLE_RATE),
-    //     Wavetable::new(&waveform::pulse::PULSE_400_FACTORS, SAMPLE_RATE),
-    //     Wavetable::new(&waveform::pulse::PULSE_425_FACTORS, SAMPLE_RATE),
-    //     Wavetable::new(&waveform::pulse::PULSE_450_FACTORS, SAMPLE_RATE),
-    //     Wavetable::new(&waveform::pulse::PULSE_475_FACTORS, SAMPLE_RATE),
-    //     Wavetable::new(&waveform::pulse::PULSE_500_FACTORS, SAMPLE_RATE),
-    // ];
-    // static ref WAVETABLE_BANKS: [&'static [Wavetable<'static>]; 2] = [&BANK_A[..], &BANK_B[..]];
-    static ref WAVETABLE_BANKS: [&'static [Wavetable<'static>]; 1] = [&BANK_A[..]];
+    static ref BANK_B: [Wavetable<'static>; 10] = [
+        Wavetable::new(&waveform::pulse::PULSE_025_FACTORS, SAMPLE_RATE),
+        // Wavetable::new(&waveform::pulse::PULSE_050_FACTORS, SAMPLE_RATE),
+        Wavetable::new(&waveform::pulse::PULSE_075_FACTORS, SAMPLE_RATE),
+        // Wavetable::new(&waveform::pulse::PULSE_100_FACTORS, SAMPLE_RATE),
+        Wavetable::new(&waveform::pulse::PULSE_125_FACTORS, SAMPLE_RATE),
+        // Wavetable::new(&waveform::pulse::PULSE_150_FACTORS, SAMPLE_RATE),
+        Wavetable::new(&waveform::pulse::PULSE_175_FACTORS, SAMPLE_RATE),
+        // Wavetable::new(&waveform::pulse::PULSE_200_FACTORS, SAMPLE_RATE),
+        Wavetable::new(&waveform::pulse::PULSE_225_FACTORS, SAMPLE_RATE),
+        // Wavetable::new(&waveform::pulse::PULSE_250_FACTORS, SAMPLE_RATE),
+        Wavetable::new(&waveform::pulse::PULSE_275_FACTORS, SAMPLE_RATE),
+        // Wavetable::new(&waveform::pulse::PULSE_300_FACTORS, SAMPLE_RATE),
+        Wavetable::new(&waveform::pulse::PULSE_325_FACTORS, SAMPLE_RATE),
+        // Wavetable::new(&waveform::pulse::PULSE_350_FACTORS, SAMPLE_RATE),
+        Wavetable::new(&waveform::pulse::PULSE_375_FACTORS, SAMPLE_RATE),
+        // Wavetable::new(&waveform::pulse::PULSE_400_FACTORS, SAMPLE_RATE),
+        Wavetable::new(&waveform::pulse::PULSE_425_FACTORS, SAMPLE_RATE),
+        // Wavetable::new(&waveform::pulse::PULSE_450_FACTORS, SAMPLE_RATE),
+        // Wavetable::new(&waveform::pulse::PULSE_475_FACTORS, SAMPLE_RATE),
+        Wavetable::new(&waveform::pulse::PULSE_500_FACTORS, SAMPLE_RATE),
+    ];
+    static ref WAVETABLE_BANKS: [&'static [Wavetable<'static>]; 2] = [&BANK_A[..], &BANK_B[..]];
+    // static ref WAVETABLE_BANKS: [&'static [Wavetable<'static>]; 1] = [&BANK_A[..]];
 }
 
 #[app(device = stm32h7xx_hal::pac, peripherals = true, monotonic = rtic::cyccnt::CYCCNT)]
@@ -207,6 +208,7 @@ const APP: () = {
             instrument.set_scale_root(interface.root());
             instrument.set_scale_mode(interface.mode());
             instrument.set_wavetable(interface.wavetable());
+            instrument.set_wavetable_bank(interface.wavetable_bank());
             instrument.set_chord_degrees(interface.chord());
             instrument.set_detune(interface.detune());
         });

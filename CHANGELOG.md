@@ -6,6 +6,9 @@ backwards compatibility.
 
 ## Unreleased
 
+* Allow control of wavetable bank through Wavetable pot while holding the
+  button.
+
 ## 0.4.0
 
 * Allowed control of all parameters through CV:

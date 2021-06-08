@@ -178,6 +178,7 @@ impl Interface {
     fn reconcile(&mut self) {
         self.reconcile_note();
         self.reconcile_wavetable();
+        self.reconcile_wavetable_bank();
         self.reconcile_chord();
         self.reconcile_detune();
         self.reconcile_scale_root();
@@ -211,6 +212,12 @@ impl Interface {
             (wavetable + offset).min(0.9999).max(0.0)
         } else {
             pot
+        };
+    }
+
+    fn reconcile_wavetable_bank(&mut self) {
+        if self.button.active() && self.pot2.active() {
+            self.parameters.bank = self.pot2.value();
         };
     }
 
