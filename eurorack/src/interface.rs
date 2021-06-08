@@ -37,7 +37,8 @@ type PinProbe = hal::gpio::gpiob::PB5<hal::gpio::Output<hal::gpio::PushPull>>; /
 pub struct Interface {
     adc1: Adc<ADC1, Enabled>,
 
-    button: PinButton,
+    #[allow(dead_code)]
+    button: Button<PinButton>,
 
     pot1: Pot<PinPot1>,
     pot2: Pot<PinPot2>,
@@ -53,8 +54,6 @@ pub struct Interface {
 
     probe: PinProbe,
     probe_generator: ProbeGenerator<'static>,
-
-    button_clicked: bool,
 }
 
 impl Interface {
@@ -81,7 +80,7 @@ impl Interface {
         Self {
             adc1,
 
-            button,
+            button: Button::new(button),
 
             pot1: Pot::new(pot1),
             pot2: Pot::new(pot2),
@@ -97,8 +96,6 @@ impl Interface {
 
             probe,
             probe_generator: ProbeGenerator::new(&PROBE_SEQUENCE),
-
-            button_clicked: false,
         }
     }
 
@@ -163,8 +160,6 @@ impl Interface {
     }
 
     pub fn sample(&mut self) {
-        self.button_clicked = self.button.is_high().unwrap();
-
         self.pot1.sample(&mut self.adc1);
         self.pot2.sample(&mut self.adc1);
         self.pot3.sample(&mut self.adc1);
@@ -196,6 +191,22 @@ fn transpose_adc(sample: f32, max_sample: u32) -> f32 {
 
 fn is_high(sample: u32, max_sample: u32) -> bool {
     transpose_adc(sample as f32, max_sample) > 0.5
+}
+
+#[allow(dead_code)]
+struct Button<P> {
+    pin: P,
+}
+
+impl<P: InputPin> Button<P> {
+    pub fn new(pin: P) -> Self {
+        Self { pin }
+    }
+
+    #[allow(dead_code)]
+    pub fn active(&self) -> bool {
+        self.pin.is_high().ok().unwrap()
+    }
 }
 
 struct Pot<P> {
