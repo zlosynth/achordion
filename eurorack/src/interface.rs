@@ -60,6 +60,8 @@ pub struct Interface {
     last_note_pot_reading: f32,
     last_wavetable_pot_reading: f32,
     last_scale_root_pot_reading: f32,
+    last_chord_pot_reading: f32,
+    last_scale_mode_pot_reading: f32,
 }
 
 #[derive(Default)]
@@ -116,9 +118,13 @@ impl Interface {
 
             parameters: Parameters::default(),
 
+            // These values are used to cache the last read value while the pot
+            // is in its alternative mode (depending on the button state).
             last_note_pot_reading: 0.0,
             last_wavetable_pot_reading: 0.0,
             last_scale_root_pot_reading: 0.0,
+            last_chord_pot_reading: 0.0,
+            last_scale_mode_pot_reading: 0.0,
         }
     }
 
@@ -138,16 +144,16 @@ impl Interface {
         self.parameters.detune
     }
 
-    pub fn mode(&self) -> f32 {
-        self.parameters.scale_mode
-    }
-
     pub fn wavetable_bank(&self) -> f32 {
         self.parameters.bank
     }
 
     pub fn scale_root(&self) -> f32 {
         self.parameters.scale_root
+    }
+
+    pub fn scale_mode(&self) -> f32 {
+        self.parameters.scale_mode
     }
 
     pub fn update(&mut self) {
@@ -229,13 +235,20 @@ impl Interface {
     }
 
     fn reconcile_chord(&mut self) {
+        let pot = if self.button.active() {
+            self.last_chord_pot_reading
+        } else {
+            self.last_chord_pot_reading = self.pot3.value();
+            self.last_chord_pot_reading
+        };
+
         self.parameters.chord = if self.cv4.connected() {
             // CV is centered around zero, suited for LFO.
             let chord = self.cv4.value() * 2.0 - 1.0;
-            let offset = self.pot3.value();
+            let offset = pot;
             (chord + offset).min(0.9999).max(0.0)
         } else {
-            self.pot3.value()
+            pot
         };
     }
 
@@ -268,7 +281,20 @@ impl Interface {
     }
 
     fn reconcile_scale_mode(&mut self) {
-        self.parameters.scale_mode = self.cv3.value();
+        let pot = if self.button.active() && self.pot3.active() {
+            self.last_scale_mode_pot_reading = self.pot3.value();
+            self.last_scale_mode_pot_reading
+        } else {
+            self.last_scale_mode_pot_reading
+        };
+
+        let cv = if self.cv3.connected() {
+            self.cv3.value() * 2.0 - 1.0
+        } else {
+            0.0
+        };
+
+        self.parameters.scale_mode = cv + pot;
     }
 }
 

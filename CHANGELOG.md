@@ -10,6 +10,8 @@ backwards compatibility.
   button.
 * Allow control of scale root through Note pot while holding the button. This
   value will be combined with the Tonic CV in case it is connected.
+* Allow control of scale mode through Chord pot while holding the button. This
+  value will be combined with the Mode CV in case it is connected.
 * Remove support for 4 degrees of chords. It draws too much resources.
 
 ## 0.4.0
