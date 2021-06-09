@@ -19,7 +19,6 @@ use rtic::cyccnt::U32Ext as _;
 
 use daisy::audio;
 use daisy::hal;
-use daisy::led::Led;
 use daisy_bsp as daisy;
 use hal::adc::Adc;
 use hal::delay::DelayFromCountDownTimer;
@@ -212,12 +211,6 @@ const APP: () = {
             instrument.set_chord_degrees(interface.chord());
             instrument.set_detune(interface.detune());
         });
-
-        if interface.foo() {
-            cx.resources.led_user.on();
-        } else {
-            cx.resources.led_user.off();
-        }
 
         cx.schedule
             .control(cx.scheduled + CV_PERIOD.cycles())

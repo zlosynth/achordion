@@ -150,10 +150,6 @@ impl Interface {
         self.parameters.scale_root
     }
 
-    pub fn foo(&self) -> bool {
-        self.pot1.active()
-    }
-
     pub fn update(&mut self) {
         self.sample();
         self.reconcile();
