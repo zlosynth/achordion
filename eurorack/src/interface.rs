@@ -37,7 +37,6 @@ type PinProbe = hal::gpio::gpiob::PB5<hal::gpio::Output<hal::gpio::PushPull>>; /
 pub struct Interface {
     adc1: Adc<ADC1, Enabled>,
 
-    #[allow(dead_code)]
     button: Button<PinButton>,
 
     pot1: Pot<PinPot1>,
@@ -311,7 +310,6 @@ fn is_high(sample: u32, max_sample: u32) -> bool {
     transpose_adc(sample as f32, max_sample) > 0.5
 }
 
-#[allow(dead_code)]
 struct Button<P> {
     pin: P,
 }
@@ -321,7 +319,6 @@ impl<P: InputPin> Button<P> {
         Self { pin }
     }
 
-    #[allow(dead_code)]
     pub fn active(&self) -> bool {
         self.pin.is_low().ok().unwrap()
     }
