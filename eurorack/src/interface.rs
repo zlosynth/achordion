@@ -51,8 +51,7 @@ pub struct Interface {
     cv5: Cv<PinCv5>,
     cv6: Cv<PinCv6>,
 
-    probe: PinProbe,
-    probe_generator: ProbeGenerator<'static>,
+    probe: Probe<PinProbe>,
 
     parameters: Parameters,
 
@@ -112,8 +111,7 @@ impl Interface {
             cv5: Cv::new(cv5),
             cv6: Cv::new(cv6),
 
-            probe,
-            probe_generator: ProbeGenerator::new(&PROBE_SEQUENCE),
+            probe: Probe::new(probe),
 
             parameters: Parameters::default(),
 
@@ -173,11 +171,7 @@ impl Interface {
         self.cv5.sample(&mut self.adc1);
         self.cv6.sample(&mut self.adc1);
 
-        if self.probe_generator.read() {
-            self.probe.set_high().unwrap();
-        } else {
-            self.probe.set_low().unwrap();
-        }
+        self.probe.tick();
     }
 
     fn reconcile(&mut self) {
@@ -383,6 +377,29 @@ impl<P: Channel<ADC1, ID = u8>> Cv<P> {
 
     pub fn value(&self) -> f32 {
         self.buffer.read()
+    }
+}
+
+struct Probe<P> {
+    pin: P,
+    generator: ProbeGenerator<'static>,
+}
+
+impl<P: OutputPin> Probe<P> {
+    pub fn new(pin: P) -> Self {
+        Self {
+            pin,
+
+            generator: ProbeGenerator::new(&PROBE_SEQUENCE),
+        }
+    }
+
+    pub fn tick(&mut self) {
+        if self.generator.read() {
+            self.pin.set_high().ok().unwrap();
+        } else {
+            self.pin.set_low().ok().unwrap();
+        }
     }
 }
 
