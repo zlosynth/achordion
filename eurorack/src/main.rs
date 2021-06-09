@@ -205,7 +205,7 @@ const APP: () = {
 
         cx.resources.instrument.lock(|instrument| {
             instrument.set_chord_root(interface.note());
-            instrument.set_scale_root(interface.root());
+            instrument.set_scale_root(interface.scale_root());
             instrument.set_scale_mode(interface.mode());
             instrument.set_wavetable(interface.wavetable());
             instrument.set_wavetable_bank(interface.wavetable_bank());

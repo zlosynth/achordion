@@ -57,7 +57,9 @@ pub struct Interface {
 
     parameters: Parameters,
 
+    last_note_pot_reading: f32,
     last_wavetable_pot_reading: f32,
+    last_scale_root_pot_reading: f32,
 }
 
 #[derive(Default)]
@@ -114,7 +116,9 @@ impl Interface {
 
             parameters: Parameters::default(),
 
+            last_note_pot_reading: 0.0,
             last_wavetable_pot_reading: 0.0,
+            last_scale_root_pot_reading: 0.0,
         }
     }
 
@@ -134,16 +138,16 @@ impl Interface {
         self.parameters.detune
     }
 
-    pub fn root(&self) -> f32 {
-        self.parameters.scale_root
-    }
-
     pub fn mode(&self) -> f32 {
         self.parameters.scale_mode
     }
 
     pub fn wavetable_bank(&self) -> f32 {
         self.parameters.bank
+    }
+
+    pub fn scale_root(&self) -> f32 {
+        self.parameters.scale_root
     }
 
     pub fn foo(&self) -> bool {
@@ -186,14 +190,21 @@ impl Interface {
     }
 
     fn reconcile_note(&mut self) {
+        let pot = if self.button.active() {
+            self.last_note_pot_reading
+        } else {
+            self.last_note_pot_reading = self.pot1.value();
+            self.last_note_pot_reading
+        };
+
         self.parameters.note = if self.cv1.connected() {
             // Keep the multiplier below 4, so assure that the result won't get
             // into the 5th octave when set on the edge.
-            let octave_offset = (self.pot1.value() * 3.95).trunc();
+            let octave_offset = (pot * 3.95).trunc();
             let note = sample_to_voct(self.cv1.value());
             note + octave_offset
         } else {
-            self.pot1.value() * 4.0 + 3.0
+            pot * 4.0 + 3.0
         };
     }
 
@@ -244,7 +255,20 @@ impl Interface {
     }
 
     fn reconcile_scale_root(&mut self) {
-        self.parameters.scale_root = sample_to_voct(self.cv2.value());
+        let pot = if self.button.active() && self.pot1.active() {
+            self.last_scale_root_pot_reading = self.pot1.value();
+            self.last_scale_root_pot_reading
+        } else {
+            self.last_scale_root_pot_reading
+        };
+
+        let cv = if self.cv2.connected() {
+            sample_to_voct(self.cv2.value())
+        } else {
+            0.0
+        };
+
+        self.parameters.scale_root = cv + pot;
     }
 
     fn reconcile_scale_mode(&mut self) {

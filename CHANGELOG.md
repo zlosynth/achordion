@@ -8,6 +8,8 @@ backwards compatibility.
 
 * Allow control of wavetable bank through Wavetable pot while holding the
   button.
+* Allow control of scale root through Note pot while holding the button. This
+  value will be combined with the Tonic CV in case it is connected.
 * Remove support for 4 degrees of chords. It draws too much resources.
 
 ## 0.4.0
