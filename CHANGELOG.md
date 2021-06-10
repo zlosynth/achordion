@@ -6,6 +6,8 @@ backwards compatibility.
 
 ## Unreleased
 
+## 0.5.0
+
 * Allow control of wavetable bank through Wavetable pot while holding the
   button.
 * Allow control of scale root through Note pot while holding the button. This
