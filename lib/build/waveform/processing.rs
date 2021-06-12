@@ -45,20 +45,28 @@ pub fn filtered(
     wavetable
 }
 
+pub fn scale<const N: usize>(data: &[f32]) -> [f32; N] {
+    let mut scaled = [0.0; N];
+    for (i, x) in scaled.iter_mut().enumerate() {
+        let position = i as f32 / N as f32;
+        let index = position * data.len() as f32;
+
+        let index_a = index as usize;
+        let index_b = (index_a + 1).min(data.len() - 1);
+
+        let a = data[index_a];
+        let delta_to_b = data[index_b] - a;
+
+        *x = a + delta_to_b * index.fract();
+    }
+
+    scaled
+}
+
 macro_rules! fn_undersampled {
     ( $func_name:ident, $target_size:expr ) => {
         pub fn $func_name(data: [f32; OVERSAMPLED_LENGTH]) -> [f32; $target_size] {
-            assert!(data.len() >= $target_size);
-            assert!(data.len() % $target_size == 0);
-
-            let ratio = data.len() / $target_size;
-
-            let mut undersampled_data = [0.0; $target_size];
-            for i in 0..$target_size {
-                undersampled_data[i] = data[i * ratio];
-            }
-
-            undersampled_data
+            scale(&data)
         }
     };
 }
