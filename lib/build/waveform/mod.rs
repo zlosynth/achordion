@@ -1,3 +1,4 @@
+pub mod brass;
 mod builder;
 mod consts;
 mod processing;

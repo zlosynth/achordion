@@ -56,7 +56,12 @@ lazy_static! {
             Wavetable::new(&waveform::pulse::PULSE_500_FACTORS, sample_rate),
         ]
     };
-    static ref WAVETABLE_BANKS: [&'static [Wavetable<'static>]; 2] = [&BANK_A[..], &BANK_B[..]];
+    static ref BANK_C: [Wavetable<'static>; 1] = {
+        let sample_rate = unsafe { pd_sys::sys_getsr() as u32 };
+        [Wavetable::new(&waveform::brass::BRASS_FACTORS, sample_rate)]
+    };
+    static ref WAVETABLE_BANKS: [&'static [Wavetable<'static>]; 3] =
+        [&BANK_A[..], &BANK_B[..], &BANK_C[..]];
 }
 
 #[repr(C)]
