@@ -19,7 +19,7 @@ pub fn generate_module(directory: &Path) {
     let path = directory.join(format!("{}.rs", NAME));
     let mut module = std::fs::File::create(&path).unwrap();
 
-    let wavetable = processing::undersampled_1024(sine::sine());
+    let wavetable = processing::scale::<1024>(&sine::sine());
     builder::dump_wavetable(&mut module, NAME, 1, &wavetable);
     builder::dump_factor_list(&mut module, NAME, &[1]);
     rustfmt::format(path.to_str().unwrap());

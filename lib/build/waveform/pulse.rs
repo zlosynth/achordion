@@ -29,24 +29,25 @@ pub fn generate_module(directory: &Path) {
         let oversampled = pulse(pulse_width);
 
         macro_rules! dump {
-            ( $factor:expr, $cutoff:expr, $undersampler:expr ) => {
-                let wavetable = $undersampler(processing::filtered(&oversampled, $cutoff));
+            ( $factor:expr, $cutoff:expr, $len:expr ) => {
+                let wavetable =
+                    processing::scale::<$len>(&processing::filtered(&oversampled, $cutoff));
                 builder::dump_wavetable(&mut module, &name, $factor, &wavetable);
             };
         }
 
-        dump!(1024, 512.0, processing::undersampled_1024);
-        dump!(512, 256.0, processing::undersampled_512);
-        dump!(256, 128.0, processing::undersampled_256);
-        dump!(128, 64.0, processing::undersampled_128);
-        dump!(64, 32.0, processing::undersampled_64);
-        dump!(32, 16.0, processing::undersampled_64);
-        dump!(16, 8.0, processing::undersampled_64);
-        dump!(8, 4.0, processing::undersampled_64);
-        dump!(4, 2.0, processing::undersampled_64);
-        dump!(2, 1.0, processing::undersampled_64);
+        dump!(1024, 512.0, 1024);
+        dump!(512, 256.0, 512);
+        dump!(256, 128.0, 256);
+        dump!(128, 64.0, 128);
+        dump!(64, 32.0, 64);
+        dump!(32, 16.0, 64);
+        dump!(16, 8.0, 64);
+        dump!(8, 4.0, 64);
+        dump!(4, 2.0, 64);
+        dump!(2, 1.0, 64);
 
-        let wavetable = processing::undersampled_64(sine::sine());
+        let wavetable = processing::scale::<64>(&sine::sine());
         builder::dump_wavetable(&mut module, &name, 1, &wavetable);
 
         builder::dump_factor_list(

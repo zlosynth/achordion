@@ -62,17 +62,3 @@ pub fn scale<const N: usize>(data: &[f32]) -> [f32; N] {
 
     scaled
 }
-
-macro_rules! fn_undersampled {
-    ( $func_name:ident, $target_size:expr ) => {
-        pub fn $func_name(data: [f32; OVERSAMPLED_LENGTH]) -> [f32; $target_size] {
-            scale(&data)
-        }
-    };
-}
-
-fn_undersampled!(undersampled_1024, 1024);
-fn_undersampled!(undersampled_512, 512);
-fn_undersampled!(undersampled_256, 256);
-fn_undersampled!(undersampled_128, 128);
-fn_undersampled!(undersampled_64, 64);
