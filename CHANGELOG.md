@@ -6,6 +6,8 @@ backwards compatibility.
 
 ## Unreleased
 
+* Added tooling supporting generation of wavetables from raw audio.
+* Added a wavetable bank with trumpet samples.
 ## 0.5.0
 
 * Allow control of wavetable bank through Wavetable pot while holding the
