@@ -27,9 +27,9 @@ lazy_static! {
         [
             Wavetable::new(&waveform::sine::SINE_FACTORS, sample_rate),
             Wavetable::new(&waveform::triangle::TRIANGLE_FACTORS, sample_rate),
+            Wavetable::new(&waveform::sinc::SINC_FACTORS, sample_rate),
             Wavetable::new(&waveform::pulse::PULSE_500_FACTORS, sample_rate),
             Wavetable::new(&waveform::saw::SAW_FACTORS, sample_rate),
-            Wavetable::new(&waveform::sinc::SINC_FACTORS, sample_rate),
         ]
     };
     static ref BANK_B: [Wavetable<'static>; 20] = {
