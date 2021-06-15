@@ -1,5 +1,5 @@
 use std::fs::File;
-use std::io::{Read, Write};
+use std::io::Write;
 use std::path::Path;
 
 use super::builder;
@@ -8,31 +8,44 @@ use super::processing;
 use super::sine;
 use crate::rustfmt;
 
-const NAME: &str = "brass";
+const NAME: &str = "akwf";
 
 pub fn register_in_package(module: &mut File) {
     writeln!(module, "pub mod {};", NAME).unwrap();
 }
 
+// TODO: Single prefix per each category
 pub fn generate_module(directory: &Path) {
     let path = directory.join(format!("{}.rs", NAME));
     let mut module = std::fs::File::create(&path).unwrap();
 
-    for (i, source) in ["brass_a.raw", "brass_b.raw", "brass_c.raw", "brass_d.raw"]
-        .iter()
-        .enumerate()
-    {
-        let name = format!("{}_{}", NAME, i);
+    generate_bank(
+        "fm",
+        &[
+            "AKWF_fmsynth_0041.wav",
+            "AKWF_fmsynth_0042.wav",
+            "AKWF_fmsynth_0022.wav",
+            "AKWF_fmsynth_0086.wav",
+            "AKWF_fmsynth_0008.wav",
+            "AKWF_fmsynth_0026.wav",
+        ],
+        &mut module,
+    );
+
+    rustfmt::format(path.to_str().unwrap());
+}
+
+fn generate_bank(name: &str, sources: &[&str], module: &mut File) {
+    for (i, source) in sources.iter().enumerate() {
+        let name = format!("{}_{}", name, i);
 
         let oversampled = {
-            let mut raw_waveform = File::open(format!("build/waveform/{}", source))
-                .unwrap()
-                .bytes();
+            let mut raw_waveform =
+                File::open(format!("build/waveform/sources/{}", source)).unwrap();
+            let (_, data) = wav::read(&mut raw_waveform).unwrap();
             let mut waveform = Vec::new();
-            while let Some(a) = raw_waveform.next() {
-                let b = raw_waveform.next().unwrap();
-                let c = i16::from_ne_bytes([a.unwrap(), b.unwrap()]);
-                waveform.push(c as f32 / f32::powi(2.0, 15));
+            for x in data.as_sixteen().unwrap() {
+                waveform.push(*x as f32 / f32::powi(2.0, 15));
             }
             processing::scale::<OVERSAMPLED_LENGTH>(&waveform)
         };
@@ -41,7 +54,7 @@ pub fn generate_module(directory: &Path) {
             ( $factor:expr, $cutoff:expr, $len:expr ) => {
                 let wavetable =
                     processing::scale::<$len>(&processing::filtered(&oversampled, $cutoff));
-                builder::dump_wavetable(&mut module, &name, $factor, &wavetable);
+                builder::dump_wavetable(module, &name, $factor, &wavetable);
             };
         }
 
@@ -57,14 +70,12 @@ pub fn generate_module(directory: &Path) {
         dump!(2, 1.0, 64);
 
         let wavetable = processing::scale::<64>(&sine::sine());
-        builder::dump_wavetable(&mut module, &name, 1, &wavetable);
+        builder::dump_wavetable(module, &name, 1, &wavetable);
 
         builder::dump_factor_list(
-            &mut module,
+            module,
             &name,
             &[1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024],
         );
     }
-
-    rustfmt::format(path.to_str().unwrap());
 }

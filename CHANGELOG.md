@@ -7,8 +7,8 @@ backwards compatibility.
 ## Unreleased
 
 * Added tooling supporting generation of wavetables from raw audio.
-* Added a wavetable bank with trumpet samples.
 * Added sinc waveform into the default bank.
+* Add FM wavetable bank. Only to pure data for now.
 
 ## 0.5.0
 

@@ -26,8 +26,8 @@ fn main() {
     waveform::pulse::register_in_package(&mut wavetable_module);
     waveform::pulse::generate_module(wavetable_package);
 
-    waveform::brass::register_in_package(&mut wavetable_module);
-    waveform::brass::generate_module(wavetable_package);
+    waveform::akwf::register_in_package(&mut wavetable_module);
+    waveform::akwf::generate_module(wavetable_package);
 
     rustfmt::format(wavetable_package.join("mod.rs").to_str().unwrap());
 }

@@ -14,6 +14,9 @@ build = "build/main.rs"
 heapless = "0.6"
 micromath = "1.1"
 
+[build-dependencies]
+wav = "1"
+
 [build-dependencies.sirena]
 git = "https://github.com/zlosynth/sirena"
 rev = "52ebc6c0e82804a3aced22d04effb04af6cd2646"
