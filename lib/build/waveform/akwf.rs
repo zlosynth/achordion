@@ -14,7 +14,6 @@ pub fn register_in_package(module: &mut File) {
     writeln!(module, "pub mod {};", NAME).unwrap();
 }
 
-// TODO: Single prefix per each category
 pub fn generate_module(directory: &Path) {
     let path = directory.join(format!("{}.rs", NAME));
     let mut module = std::fs::File::create(&path).unwrap();
@@ -29,6 +28,12 @@ pub fn generate_module(directory: &Path) {
             "AKWF_fmsynth_0008.wav",
             "AKWF_fmsynth_0026.wav",
         ],
+        &mut module,
+    );
+
+    generate_bank(
+        "eguitar",
+        &["AKWF_eguitar_0021.wav", "AKWF_eguitar_0011.wav"],
         &mut module,
     );
 
