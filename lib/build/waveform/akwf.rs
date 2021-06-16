@@ -37,6 +37,19 @@ pub fn generate_module(directory: &Path) {
         &mut module,
     );
 
+
+    generate_bank(
+        "distorted",
+        &[
+            "AKWF_distorted_0016.wav",
+            "AKWF_distorted_0021.wav",
+            "AKWF_distorted_0043.wav",
+            "AKWF_distorted_0006.wav",
+            "AKWF_distorted_0033.wav",
+        ],
+        &mut module,
+    );
+
     rustfmt::format(path.to_str().unwrap());
 }
 
