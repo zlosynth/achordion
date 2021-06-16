@@ -37,7 +37,6 @@ pub fn generate_module(directory: &Path) {
         &mut module,
     );
 
-
     generate_bank(
         "distorted",
         &[

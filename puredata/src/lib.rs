@@ -85,8 +85,13 @@ lazy_static! {
             Wavetable::new(&waveform::akwf::DISTORTED_4_FACTORS, sample_rate),
         ]
     };
-    static ref WAVETABLE_BANKS: [&'static [Wavetable<'static>]; 5] =
-        [&BANK_A[..], &BANK_B[..], &BANK_C[..], &BANK_D[..], &BANK_E[..]];
+    static ref WAVETABLE_BANKS: [&'static [Wavetable<'static>]; 5] = [
+        &BANK_A[..],
+        &BANK_B[..],
+        &BANK_C[..],
+        &BANK_D[..],
+        &BANK_E[..]
+    ];
 }
 
 #[repr(C)]
