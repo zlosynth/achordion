@@ -62,6 +62,17 @@ pub fn generate_module(directory: &Path) {
         &mut module,
     );
 
+    generate_bank(
+        "oscchip",
+        &[
+            "AKWF_oscchip_0097.wav",
+            "AKWF_oscchip_0002.wav",
+            "AKWF_oscchip_0009.wav",
+            "AKWF_oscchip_0010.wav",
+        ],
+        &mut module,
+    );
+
     rustfmt::format(path.to_str().unwrap());
 }
 
