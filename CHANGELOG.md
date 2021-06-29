@@ -11,6 +11,7 @@ backwards compatibility.
 * Add FM wavetable bank. Only to pure data for now.
 * Add electric guitar wavetable bank. Only to pure data for now.
 * Add distorted wavetable bank. Only to pure data for now.
+* Add granular wavetable bank. Only to pure data for now.
 
 ## 0.5.0
 

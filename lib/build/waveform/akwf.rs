@@ -49,6 +49,19 @@ pub fn generate_module(directory: &Path) {
         &mut module,
     );
 
+    generate_bank(
+        "granular",
+        &[
+            "AKWF_granular_0022.wav",
+            "AKWF_granular_0010.wav",
+            "AKWF_granular_0033.wav",
+            "AKWF_granular_0014.wav",
+            "AKWF_granular_0005.wav",
+            "AKWF_granular_0003.wav",
+        ],
+        &mut module,
+    );
+
     rustfmt::format(path.to_str().unwrap());
 }
 
