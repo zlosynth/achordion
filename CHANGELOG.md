@@ -13,6 +13,7 @@ backwards compatibility.
 * Added distorted wavetable bank. Only to pure data for now.
 * Added granular wavetable bank. Only to pure data for now.
 * Added sampled oscillator chip wavetable bank. Only to pure data for now.
+* Lowered LPF on wavetables to make the lower end thicker.
 
 ## 0.5.0
 
