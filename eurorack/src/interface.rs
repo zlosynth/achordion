@@ -185,12 +185,10 @@ impl Interface {
     }
 
     fn reconcile_note(&mut self) {
-        let pot = if self.button.active() {
-            self.last_note_pot_reading
-        } else {
+        if !self.button.active() {
             self.last_note_pot_reading = self.pot1.value();
-            self.last_note_pot_reading
         };
+        let pot = self.last_note_pot_reading;
 
         self.parameters.note = if self.cv1.connected() {
             // Keep the multiplier below 4, so assure that the result won't get
@@ -204,12 +202,10 @@ impl Interface {
     }
 
     fn reconcile_wavetable(&mut self) {
-        let pot = if self.button.active() {
-            self.last_wavetable_pot_reading
-        } else {
+        if !self.button.active() {
             self.last_wavetable_pot_reading = self.pot2.value();
-            self.last_wavetable_pot_reading
-        };
+        }
+        let pot = self.last_wavetable_pot_reading;
 
         self.parameters.wavetable = if self.cv6.connected() {
             // CV is centered around zero, suited for LFO.
@@ -228,12 +224,10 @@ impl Interface {
     }
 
     fn reconcile_chord(&mut self) {
-        let pot = if self.button.active() {
-            self.last_chord_pot_reading
-        } else {
+        if !self.button.active() {
             self.last_chord_pot_reading = self.pot3.value();
-            self.last_chord_pot_reading
         };
+        let pot = self.last_chord_pot_reading;
 
         self.parameters.chord = if self.cv4.connected() {
             // CV is centered around zero, suited for LFO.
@@ -257,12 +251,10 @@ impl Interface {
     }
 
     fn reconcile_scale_root(&mut self) {
-        let pot = if self.button.active() && self.pot1.active() {
+        if !(self.button.active() && self.pot1.active()) {
             self.last_scale_root_pot_reading = self.pot1.value();
-            self.last_scale_root_pot_reading
-        } else {
-            self.last_scale_root_pot_reading
-        };
+        }
+        let pot = self.last_scale_root_pot_reading;
 
         let cv = if self.cv2.connected() {
             sample_to_voct(self.cv2.value())
@@ -274,12 +266,10 @@ impl Interface {
     }
 
     fn reconcile_scale_mode(&mut self) {
-        let pot = if self.button.active() && self.pot3.active() {
+        if !(self.button.active() && self.pot3.active()) {
             self.last_scale_mode_pot_reading = self.pot3.value();
-            self.last_scale_mode_pot_reading
-        } else {
-            self.last_scale_mode_pot_reading
-        };
+        }
+        let pot = self.last_scale_mode_pot_reading;
 
         let cv = if self.cv3.connected() {
             self.cv3.value() * 2.0 - 1.0
