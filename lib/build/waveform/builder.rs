@@ -17,7 +17,6 @@ pub fn dump_wavetable(module: &mut File, name: &str, factor: usize, wavetable: &
         .iter()
         .copied()
         .map(processing::to_u16)
-        .map(processing::to_15bit)
         .for_each(|x| {
             write!(module, "{}, ", x).unwrap();
         });

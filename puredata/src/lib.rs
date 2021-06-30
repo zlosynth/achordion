@@ -223,8 +223,8 @@ fn perform(
     const BUFFER_LEN: usize = 32;
     assert!(outlets[0].len() % BUFFER_LEN == 0);
 
-    let mut buffer_root = [0; BUFFER_LEN];
-    let mut buffer_chord = [0; BUFFER_LEN];
+    let mut buffer_root = [0.0; BUFFER_LEN];
+    let mut buffer_chord = [0.0; BUFFER_LEN];
 
     for chunk_index in 0..outlets[0].len() / BUFFER_LEN {
         class
@@ -233,8 +233,8 @@ fn perform(
 
         let start = chunk_index * BUFFER_LEN;
         for i in 0..BUFFER_LEN {
-            outlets[1][start + i] = buffer_root[i] as f32 / f32::powi(2.0, 14) - 1.0;
-            outlets[2][start + i] = buffer_chord[i] as f32 / f32::powi(2.0, 14) - 1.0;
+            outlets[1][start + i] = buffer_root[i];
+            outlets[2][start + i] = buffer_chord[i];
             outlets[0][start + i] = (outlets[1][start + i] + outlets[2][start + i]) / 2.0;
         }
     }

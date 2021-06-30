@@ -223,17 +223,15 @@ const APP: () = {
             unsafe { AUDIO_INTERFACE.as_mut().unwrap() };
         let buffer: &'static mut [(f32, f32); audio::BLOCK_LENGTH] = unsafe { &mut BUFFER };
 
-        let mut buffer_root = [0; audio::BLOCK_LENGTH];
-        let mut buffer_chord = [0; audio::BLOCK_LENGTH];
+        let mut buffer_root = [0.0; audio::BLOCK_LENGTH];
+        let mut buffer_chord = [0.0; audio::BLOCK_LENGTH];
 
         cx.resources
             .instrument
             .populate(&mut buffer_root, &mut buffer_chord);
 
         for i in 0..audio::BLOCK_LENGTH {
-            let x1 = buffer_root[i] as f32 / f32::powi(2.0, 14) - 1.0;
-            let x2 = buffer_chord[i] as f32 / f32::powi(2.0, 14) - 1.0;
-            buffer[i] = (x1, x2);
+            buffer[i] = (buffer_root[i], buffer_chord[i]);
         }
 
         audio_interface.handle_interrupt_dma1_str1().unwrap();

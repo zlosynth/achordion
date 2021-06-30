@@ -65,14 +65,16 @@ impl<'a> BandWavetable<'a> {
         Self { lower, higher, mix }
     }
 
-    pub fn read(&self, phase: f32) -> u16 {
+    pub fn read(&self, phase: f32) -> f32 {
         let a = {
             let position = phase * self.lower.len() as f32;
-            linear_interpolation(self.lower, position)
+            let raw_value = linear_interpolation(self.lower, position);
+            convert_to_f32(raw_value)
         };
         let b = {
             let position = phase * self.higher.len() as f32;
-            linear_interpolation(self.higher, position)
+            let raw_value = linear_interpolation(self.higher, position);
+            convert_to_f32(raw_value)
         };
 
         linear_xfade(a, b, self.mix)
@@ -93,10 +95,13 @@ fn linear_interpolation(data: &[u16], position: f32) -> u16 {
     (value as f32 + delta_to_next as f32 * remainder) as u16
 }
 
-fn linear_xfade(a: u16, b: u16, mix: f32) -> u16 {
-    debug_assert!((0.0..=1.0).contains(&mix));
+fn convert_to_f32(value: u16) -> f32 {
+    value as f32 / f32::powi(2.0, 15) - 1.0
+}
 
-    (a as f32 * (1.0 - mix) + b as f32 * mix) as u16
+fn linear_xfade(a: f32, b: f32, mix: f32) -> f32 {
+    debug_assert!((0.0..=1.0).contains(&mix));
+    a * (1.0 - mix) + b * mix
 }
 
 #[cfg(test)]
@@ -138,33 +143,40 @@ mod tests {
 
     #[test]
     fn linear_xfade_even() {
-        assert_eq!(linear_xfade(8, 4, 0.5), 6);
+        assert_eq!(linear_xfade(8.0, 4.0, 0.5), 6.0);
     }
 
     #[test]
     fn linear_xfade_uneven() {
-        assert_eq!(linear_xfade(10, 20, 0.2), 12);
+        assert_eq!(linear_xfade(10.0, 20.0, 0.2), 12.0);
     }
 
     #[test]
     fn linear_xfade_left_side() {
-        assert_eq!(linear_xfade(8, 4, 0.0), 8);
+        assert_eq!(linear_xfade(8.0, 4.0, 0.0), 8.0);
     }
 
     #[test]
     fn linear_xfade_right_side() {
-        assert_eq!(linear_xfade(8, 4, 1.0), 4);
+        assert_eq!(linear_xfade(8.0, 4.0, 1.0), 4.0);
     }
 
     #[test]
     #[should_panic]
     fn linear_xfade_panics_on_x_below_zero() {
-        linear_xfade(8, 4, -1.0);
+        linear_xfade(8.0, 4.0, -1.0);
     }
 
     #[test]
     #[should_panic]
     fn linear_xfade_panics_on_x_above_one() {
-        linear_xfade(8, 4, 2.0);
+        linear_xfade(8.0, 4.0, 2.0);
+    }
+
+    #[test]
+    fn convert_u16_to_f32() {
+        assert_relative_eq!(convert_to_f32(0), -1.0, epsilon = 0.001);
+        assert_relative_eq!(convert_to_f32(u16::MAX / 2), 0.0, epsilon = 0.001);
+        assert_relative_eq!(convert_to_f32(u16::MAX), 1.0, epsilon = 0.001);
     }
 }

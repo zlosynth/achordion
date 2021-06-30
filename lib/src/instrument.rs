@@ -153,7 +153,7 @@ impl<'a> Instrument<'a> {
         self.amplitude = amplitude;
     }
 
-    pub fn populate(&mut self, buffer_root: &mut [u16], buffer_chord: &mut [u16]) {
+    pub fn populate(&mut self, buffer_root: &mut [f32], buffer_chord: &mut [f32]) {
         zero_slice(buffer_root);
         zero_slice(buffer_chord);
 
@@ -297,7 +297,7 @@ impl<'a> Degree<'a> {
             .for_each(|o| o.wavetable = wavetable);
     }
 
-    pub fn populate_add(&mut self, buffer: &mut [u16], amplitude: f32) {
+    pub fn populate_add(&mut self, buffer: &mut [f32], amplitude: f32) {
         match self.detune_config {
             DetuneConfig::Disabled => {
                 self.oscillators[0].populate_add(buffer, amplitude);
@@ -318,7 +318,7 @@ enum DetuneConfig {
     BothSides(f32, f32),
 }
 
-fn zero_slice(slice: &mut [u16]) {
+fn zero_slice(slice: &mut [f32]) {
     unsafe {
         let p = slice.as_mut_ptr();
         ptr::write_bytes(p, 0, slice.len());
@@ -340,9 +340,9 @@ mod tests {
 
     #[test]
     fn replace_slice_contents_with_zeros() {
-        let mut slice = [1, 2, 3];
+        let mut slice = [1.0, 2.0, 3.0];
         zero_slice(&mut slice);
-        assert_eq!(slice, [0, 0, 0]);
+        assert_eq!(slice, [0.0, 0.0, 0.0]);
     }
 
     fn create_valid_instrument() -> Instrument<'static> {
@@ -357,12 +357,12 @@ mod tests {
     }
 
     fn assert_populate(instrument: &mut Instrument) {
-        let mut root_buffer = [0; 64];
-        let mut chord_buffer = [0; 64];
+        let mut root_buffer = [0.0; 64];
+        let mut chord_buffer = [0.0; 64];
         instrument.populate(&mut root_buffer, &mut chord_buffer);
 
-        assert!(root_buffer[0] > 0);
-        assert!(chord_buffer[0] > 0);
+        assert!(root_buffer[0].abs() > 0.00001);
+        assert!(chord_buffer[0].abs() > 0.00001);
     }
 
     #[test]
@@ -453,5 +453,58 @@ mod tests {
         let mut instrument = create_valid_instrument();
         instrument.set_detune(-10.0);
         assert_populate(&mut instrument);
+    }
+
+    fn assert_centered_around_zero(data: &[f32]) {
+        let min = data.iter().fold(f32::MAX, |a, b| a.min(*b));
+        let max = data.iter().fold(f32::MIN, |a, b| a.max(*b));
+        let center = (min + max) / 2.0;
+        let delta = center.abs() / 1.0;
+        assert!(
+            delta < 0.05,
+            "Delta {} % is bigger than allowed",
+            delta * 100.0
+        );
+    }
+
+    #[test]
+    fn output_centered_around_zero_simple() {
+        let mut instrument = create_valid_instrument();
+        instrument.set_chord_root(2.5);
+
+        let mut root_buffer = [0.0; 1024];
+        let mut chord_buffer = [0.0; 1024];
+        instrument.populate(&mut root_buffer, &mut chord_buffer);
+
+        assert_centered_around_zero(&root_buffer);
+        assert_centered_around_zero(&chord_buffer);
+    }
+
+    #[test]
+    fn output_centered_around_zero_with_detune() {
+        let mut instrument = create_valid_instrument();
+        instrument.set_chord_root(2.5);
+        instrument.set_detune(1.0);
+
+        let mut root_buffer = [0.0; 1024];
+        let mut chord_buffer = [0.0; 1024];
+        instrument.populate(&mut root_buffer, &mut chord_buffer);
+
+        assert_centered_around_zero(&root_buffer);
+        assert_centered_around_zero(&chord_buffer);
+    }
+
+    #[test]
+    fn output_centered_around_zero_with_chord() {
+        let mut instrument = create_valid_instrument();
+        instrument.set_chord_root(2.5);
+        instrument.set_chord_degrees(1.0);
+
+        let mut root_buffer = [0.0; 1024];
+        let mut chord_buffer = [0.0; 1024];
+        instrument.populate(&mut root_buffer, &mut chord_buffer);
+
+        assert_centered_around_zero(&root_buffer);
+        assert_centered_around_zero(&chord_buffer);
     }
 }
