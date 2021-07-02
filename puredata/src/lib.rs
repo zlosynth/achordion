@@ -101,7 +101,18 @@ lazy_static! {
             Wavetable::new(&waveform::akwf::STRINGBOX_3_FACTORS, sample_rate),
         ]
     };
-    static ref WAVETABLE_BANKS: [&'static [Wavetable<'static>]; 8] = [
+    static ref BANK_I: [Wavetable<'static>; 6] = {
+        let sample_rate = unsafe { pd_sys::sys_getsr() as u32 };
+        [
+            Wavetable::new(&waveform::akwf::FLUTE_0_FACTORS, sample_rate),
+            Wavetable::new(&waveform::akwf::FLUTE_1_FACTORS, sample_rate),
+            Wavetable::new(&waveform::akwf::FLUTE_2_FACTORS, sample_rate),
+            Wavetable::new(&waveform::akwf::FLUTE_3_FACTORS, sample_rate),
+            Wavetable::new(&waveform::akwf::FLUTE_4_FACTORS, sample_rate),
+            Wavetable::new(&waveform::akwf::FLUTE_5_FACTORS, sample_rate),
+        ]
+    };
+    static ref WAVETABLE_BANKS: [&'static [Wavetable<'static>]; 9] = [
         &BANK_A[..],
         &BANK_B[..],
         &BANK_C[..],
@@ -109,7 +120,8 @@ lazy_static! {
         &BANK_E[..],
         &BANK_F[..],
         &BANK_G[..],
-        &BANK_H[..]
+        &BANK_H[..],
+        &BANK_I[..]
     ];
 }
 

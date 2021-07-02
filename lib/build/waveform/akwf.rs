@@ -84,6 +84,19 @@ pub fn generate_module(directory: &Path) {
         &mut module,
     );
 
+    generate_bank(
+        "flute",
+        &[
+            "AKWF_flute_0008.wav",
+            "AKWF_flute_0009.wav",
+            "AKWF_flute_0011.wav",
+            "AKWF_flute_0015.wav",
+            "AKWF_flute_0003.wav",
+            "AKWF_flute_0004.wav",
+        ],
+        &mut module,
+    );
+
     rustfmt::format(path.to_str().unwrap());
 }
 
