@@ -34,9 +34,7 @@ jobs:
       - name: Check formatting
         run: make check-format
       - name: Check clippy
-        run: make check-clippy
-      - name: Check clippy
-        run: make check-clippy
+        run: make clippy
       - name: Check compilation
         run: make check
       - name: Run tests

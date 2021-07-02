@@ -13,17 +13,11 @@ format:
 	cd lib && cargo fmt --all
 	cd puredata && cargo fmt --all
 
-.PHONY: check-clippy
-check-clippy:
+.PHONY: clippy
+clippy:
 	cd eurorack && cargo clippy --all -- -D warnings
 	cd lib && cargo clippy --all -- -D warnings
 	cd puredata && cargo clippy --all -- -D warnings
-
-.PHONY: clippy
-clippy:
-	cd eurorack && cargo clippy --all
-	cd lib && cargo clippy --all
-	cd puredata && cargo clippy --all
 
 .PHONY: check
 check:
