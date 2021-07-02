@@ -15,6 +15,7 @@ backwards compatibility.
 * Added sampled oscillator chip wavetable bank. Only to pure data for now.
 * Lowered LPF on wavetables to make the lower end thicker.
 * Use floats for audio buffers instead of u16.
+* Replace pulse wavetable in eurorack with FM and osc. chip.
 
 ## 0.5.0
 
