@@ -357,12 +357,12 @@ mod tests {
     }
 
     fn assert_populate(instrument: &mut Instrument) {
-        let mut root_buffer = [0.0; 64];
-        let mut chord_buffer = [0.0; 64];
+        let mut root_buffer = [-10.0; 64];
+        let mut chord_buffer = [-10.0; 64];
         instrument.populate(&mut root_buffer, &mut chord_buffer);
 
-        assert!(root_buffer[0].abs() > 0.00001);
-        assert!(chord_buffer[0].abs() > 0.00001);
+        assert!(root_buffer[0].abs() <= 1.0);
+        assert!(chord_buffer[0].abs() <= 1.0);
     }
 
     #[test]
