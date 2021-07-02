@@ -73,6 +73,17 @@ pub fn generate_module(directory: &Path) {
         &mut module,
     );
 
+    generate_bank(
+        "stringbox",
+        &[
+            "AKWF_cheeze_0001.wav",
+            "AKWF_cheeze_0003.wav",
+            "AKWF_cheeze_0005.wav",
+            "AKWF_cheeze_0006.wav",
+        ],
+        &mut module,
+    );
+
     rustfmt::format(path.to_str().unwrap());
 }
 
