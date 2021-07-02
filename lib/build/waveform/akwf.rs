@@ -97,6 +97,18 @@ pub fn generate_module(directory: &Path) {
         &mut module,
     );
 
+    generate_bank(
+        "oboe",
+        &[
+            "AKWF_oboe_0008.wav",
+            "AKWF_oboe_0001.wav",
+            "AKWF_oboe_0005.wav",
+            "AKWF_oboe_0003.wav",
+            "AKWF_oboe_0013.wav",
+        ],
+        &mut module,
+    );
+
     rustfmt::format(path.to_str().unwrap());
 }
 
