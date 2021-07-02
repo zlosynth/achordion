@@ -251,7 +251,7 @@ impl Interface {
     }
 
     fn reconcile_scale_root(&mut self) {
-        if !(self.button.active() && self.pot1.active()) {
+        if self.button.active() && self.pot1.active() {
             self.last_scale_root_pot_reading = self.pot1.value();
         }
         let pot = self.last_scale_root_pot_reading;
@@ -266,7 +266,7 @@ impl Interface {
     }
 
     fn reconcile_scale_mode(&mut self) {
-        if !(self.button.active() && self.pot3.active()) {
+        if self.button.active() && self.pot3.active() {
             self.last_scale_mode_pot_reading = self.pot3.value();
         }
         let pot = self.last_scale_mode_pot_reading;
