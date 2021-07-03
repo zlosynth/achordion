@@ -125,6 +125,22 @@ pub fn generate_module(directory: &Path) {
         &mut module,
     );
 
+    generate_bank(
+        "soft",
+        &[
+            "AKWF_violin_0014.wav",
+            "AKWF_violin_0011.wav",
+            "AKWF_violin_0012.wav",
+            "AKWF_violin_0003.wav",
+            "AKWF_violin_0008.wav",
+            "AKWF_violin_0007.wav",
+            "AKWF_violin_0001.wav",
+            "AKWF_violin_0009.wav",
+            "AKWF_violin_0002.wav",
+        ],
+        &mut module,
+    );
+
     rustfmt::format(path.to_str().unwrap());
 }
 

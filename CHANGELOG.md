@@ -20,6 +20,7 @@ backwards compatibility.
 * Use floats for audio buffers instead of u16.
 * Remove pulse wavetable bank.
 * Add a bank compiled of FM, distorted and sampled wavetables.
+* Add a bank compiled of soft wavetables.
 
 ## 0.5.0
 

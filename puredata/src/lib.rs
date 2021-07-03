@@ -137,7 +137,17 @@ lazy_static! {
             Wavetable::new(&waveform::harsh::HARSH_8_FACTORS, sample_rate),
         ]
     };
-    static ref WAVETABLE_BANKS: [&'static [Wavetable<'static>]; 11] = [
+    static ref BANK_L: [Wavetable<'static>; 5] = {
+        let sample_rate = unsafe { pd_sys::sys_getsr() as u32 };
+        [
+            Wavetable::new(&waveform::soft::SOFT_0_FACTORS, sample_rate),
+            Wavetable::new(&waveform::soft::SOFT_1_FACTORS, sample_rate),
+            Wavetable::new(&waveform::soft::SOFT_2_FACTORS, sample_rate),
+            Wavetable::new(&waveform::soft::SOFT_3_FACTORS, sample_rate),
+            Wavetable::new(&waveform::soft::SOFT_4_FACTORS, sample_rate),
+        ]
+    };
+    static ref WAVETABLE_BANKS: [&'static [Wavetable<'static>]; 12] = [
         &BANK_A[..],
         &BANK_B[..],
         &BANK_C[..],
@@ -149,6 +159,7 @@ lazy_static! {
         &BANK_I[..],
         &BANK_J[..],
         &BANK_K[..],
+        &BANK_L[..],
     ];
 }
 
