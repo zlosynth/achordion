@@ -1,7 +1,5 @@
 use sirena::state_variable_filter::{LowPass, StateVariableFilter};
 
-use super::consts::OVERSAMPLED_LENGTH;
-
 pub fn to_u16(x: f32) -> u16 {
     ((x + 1.0) * f32::powi(2.0, 15)) as u16
 }
@@ -20,13 +18,10 @@ fn normalization_ratio(data: &[f32]) -> f32 {
     1.0 / max_delta
 }
 
-pub fn filtered(
-    wavetable: &[f32; OVERSAMPLED_LENGTH],
-    frequency: f32,
-) -> [f32; OVERSAMPLED_LENGTH] {
+pub fn filtered<const N: usize>(wavetable: &[f32; N], frequency: f32) -> [f32; N] {
     let mut wavetable = *wavetable;
 
-    let mut filter = StateVariableFilter::new((OVERSAMPLED_LENGTH * 2) as u32);
+    let mut filter = StateVariableFilter::new((N * 2) as u32);
     filter
         .set_bandform(LowPass)
         .set_frequency(frequency)
