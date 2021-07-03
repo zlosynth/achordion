@@ -11,9 +11,6 @@ fn main() {
     let wavetable_package = Path::new("src/waveform");
     let mut wavetable_module = File::create(wavetable_package.join("mod.rs")).unwrap();
 
-    waveform::sine::register_in_package(&mut wavetable_module);
-    waveform::sine::generate_module(wavetable_package);
-
     waveform::akwf::register_in_package(&mut wavetable_module);
     waveform::akwf::generate_module(wavetable_package);
 
