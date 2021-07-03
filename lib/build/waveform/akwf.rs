@@ -125,6 +125,17 @@ pub fn generate_module(directory: &Path) {
         &mut module,
     );
 
+    generate_bank(
+        "perfect",
+        &[
+            "AKWF_tri.wav",
+            "AKWF_sin.wav",
+            "AKWF_squ.wav",
+            "AKWF_saw.wav",
+        ],
+        &mut module,
+    );
+
     rustfmt::format(path.to_str().unwrap());
 }
 

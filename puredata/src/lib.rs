@@ -22,14 +22,13 @@ use achordion_lib::wavetable::Wavetable;
 static mut CLASS: Option<*mut pd_sys::_class> = None;
 
 lazy_static! {
-    static ref BANK_A: [Wavetable<'static>; 5] = {
+    static ref BANK_A: [Wavetable<'static>; 4] = {
         let sample_rate = unsafe { pd_sys::sys_getsr() as u32 };
         [
-            Wavetable::new(&waveform::sine::SINE_FACTORS, sample_rate),
-            Wavetable::new(&waveform::triangle::TRIANGLE_FACTORS, sample_rate),
-            Wavetable::new(&waveform::sinc::SINC_FACTORS, sample_rate),
-            Wavetable::new(&waveform::pulse::PULSE_500_FACTORS, sample_rate),
-            Wavetable::new(&waveform::saw::SAW_FACTORS, sample_rate),
+            Wavetable::new(&waveform::akwf::PERFECT_0_FACTORS, sample_rate),
+            Wavetable::new(&waveform::akwf::PERFECT_1_FACTORS, sample_rate),
+            Wavetable::new(&waveform::akwf::PERFECT_2_FACTORS, sample_rate),
+            Wavetable::new(&waveform::akwf::PERFECT_3_FACTORS, sample_rate),
         ]
     };
     static ref BANK_B: [Wavetable<'static>; 7] = {
