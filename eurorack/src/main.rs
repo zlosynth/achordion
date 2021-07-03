@@ -45,15 +45,15 @@ lazy_static! {
         Wavetable::new(&waveform::perfect::PERFECT_3_FACTORS, SAMPLE_RATE),
     ];
     static ref BANK_B: [Wavetable<'static>; 9] = [
-        Wavetable::new(&waveform::akwf::FM_0_FACTORS, SAMPLE_RATE),
-        Wavetable::new(&waveform::akwf::FM_1_FACTORS, SAMPLE_RATE),
-        Wavetable::new(&waveform::akwf::FM_2_FACTORS, SAMPLE_RATE),
-        Wavetable::new(&waveform::akwf::FM_3_FACTORS, SAMPLE_RATE),
-        Wavetable::new(&waveform::akwf::DISTORTED_2_FACTORS, SAMPLE_RATE),
-        Wavetable::new(&waveform::akwf::OSCCHIP_3_FACTORS, SAMPLE_RATE),
-        Wavetable::new(&waveform::akwf::OSCCHIP_2_FACTORS, SAMPLE_RATE),
-        Wavetable::new(&waveform::akwf::EGUITAR_1_FACTORS, SAMPLE_RATE),
-        Wavetable::new(&waveform::akwf::EGUITAR_0_FACTORS, SAMPLE_RATE),
+        Wavetable::new(&waveform::harsh::HARSH_0_FACTORS, SAMPLE_RATE),
+        Wavetable::new(&waveform::harsh::HARSH_1_FACTORS, SAMPLE_RATE),
+        Wavetable::new(&waveform::harsh::HARSH_2_FACTORS, SAMPLE_RATE),
+        Wavetable::new(&waveform::harsh::HARSH_3_FACTORS, SAMPLE_RATE),
+        Wavetable::new(&waveform::harsh::HARSH_4_FACTORS, SAMPLE_RATE),
+        Wavetable::new(&waveform::harsh::HARSH_5_FACTORS, SAMPLE_RATE),
+        Wavetable::new(&waveform::harsh::HARSH_6_FACTORS, SAMPLE_RATE),
+        Wavetable::new(&waveform::harsh::HARSH_7_FACTORS, SAMPLE_RATE),
+        Wavetable::new(&waveform::harsh::HARSH_8_FACTORS, SAMPLE_RATE),
     ];
     static ref WAVETABLE_BANKS: [&'static [Wavetable<'static>]; 2] = [&BANK_A[..], &BANK_B[..]];
 }
