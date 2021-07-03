@@ -44,22 +44,18 @@ lazy_static! {
         Wavetable::new(&waveform::akwf::PERFECT_2_FACTORS, SAMPLE_RATE),
         Wavetable::new(&waveform::akwf::PERFECT_3_FACTORS, SAMPLE_RATE),
     ];
-    static ref BANK_B: [Wavetable<'static>; 6] = [
+    static ref BANK_B: [Wavetable<'static>; 9] = [
         Wavetable::new(&waveform::akwf::FM_0_FACTORS, SAMPLE_RATE),
         Wavetable::new(&waveform::akwf::FM_1_FACTORS, SAMPLE_RATE),
         Wavetable::new(&waveform::akwf::FM_2_FACTORS, SAMPLE_RATE),
         Wavetable::new(&waveform::akwf::FM_3_FACTORS, SAMPLE_RATE),
-        Wavetable::new(&waveform::akwf::FM_4_FACTORS, SAMPLE_RATE),
-        Wavetable::new(&waveform::akwf::FM_5_FACTORS, SAMPLE_RATE),
-    ];
-    static ref BANK_C: [Wavetable<'static>; 4] = [
-        Wavetable::new(&waveform::akwf::OSCCHIP_0_FACTORS, SAMPLE_RATE),
-        Wavetable::new(&waveform::akwf::OSCCHIP_1_FACTORS, SAMPLE_RATE),
-        Wavetable::new(&waveform::akwf::OSCCHIP_2_FACTORS, SAMPLE_RATE),
+        Wavetable::new(&waveform::akwf::DISTORTED_2_FACTORS, SAMPLE_RATE),
         Wavetable::new(&waveform::akwf::OSCCHIP_3_FACTORS, SAMPLE_RATE),
+        Wavetable::new(&waveform::akwf::OSCCHIP_2_FACTORS, SAMPLE_RATE),
+        Wavetable::new(&waveform::akwf::EGUITAR_1_FACTORS, SAMPLE_RATE),
+        Wavetable::new(&waveform::akwf::EGUITAR_0_FACTORS, SAMPLE_RATE),
     ];
-    static ref WAVETABLE_BANKS: [&'static [Wavetable<'static>]; 3] =
-        [&BANK_A[..], &BANK_B[..], &BANK_C[..]];
+    static ref WAVETABLE_BANKS: [&'static [Wavetable<'static>]; 2] = [&BANK_A[..], &BANK_B[..]];
 }
 
 #[app(device = stm32h7xx_hal::pac, peripherals = true, monotonic = rtic::cyccnt::CYCCNT)]
