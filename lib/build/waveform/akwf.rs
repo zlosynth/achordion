@@ -4,11 +4,11 @@ use std::io::Write;
 use std::path::Path;
 
 use super::builder;
-use super::consts::OVERSAMPLED_LENGTH;
 use super::processing;
 use crate::rustfmt;
 
 const NAME: &str = "akwf";
+const OVERSAMPLED_LENGTH: usize = 1024 * 4;
 
 pub fn register_in_package(module: &mut File) {
     writeln!(module, "pub mod {};", NAME).unwrap();
