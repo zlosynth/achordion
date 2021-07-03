@@ -1,3 +1,4 @@
-pub mod akwf;
+pub mod generator;
+
 mod processing;
 mod saving;

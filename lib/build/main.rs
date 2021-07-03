@@ -11,8 +11,8 @@ fn main() {
     let wavetable_package = Path::new("src/waveform");
     let mut wavetable_module = File::create(wavetable_package.join("mod.rs")).unwrap();
 
-    waveform::akwf::register_in_package(&mut wavetable_module);
-    waveform::akwf::generate_module(wavetable_package);
+    waveform::generator::register_in_package(&mut wavetable_module);
+    waveform::generator::generate_module(wavetable_package);
 
     rustfmt::format(wavetable_package.join("mod.rs").to_str().unwrap());
 }
