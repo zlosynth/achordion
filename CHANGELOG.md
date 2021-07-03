@@ -7,15 +7,6 @@ backwards compatibility.
 ## Unreleased
 
 * Added tooling supporting generation of wavetables from raw audio.
-* Added FM wavetable bank. Only to pure data for now.
-* Added electric guitar wavetable bank. Only to pure data for now.
-* Added distorted wavetable bank. Only to pure data for now.
-* Added granular wavetable bank. Only to pure data for now.
-* Added sampled oscillator chip wavetable bank. Only to pure data for now.
-* Added string box wavetable bank. Only to pure data for now.
-* Added flute wavetable bank. Only to pure data for now.
-* Added oboe wavetable bank. Only to pure data for now.
-* Added violin wavetable bank. Only to pure data for now.
 * Lowered LPF on wavetables to make the lower end thicker.
 * Use floats for audio buffers instead of u16.
 * Remove pulse wavetable bank.

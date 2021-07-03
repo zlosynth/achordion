@@ -38,13 +38,13 @@ static mut BUFFER: [(f32, f32); audio::BLOCK_LENGTH] = [(0.0, 0.0); audio::BLOCK
 const SAMPLE_RATE: u32 = audio::FS.0;
 
 lazy_static! {
-    static ref BANK_A: [Wavetable<'static>; 4] = [
+    static ref BANK_PERFECT: [Wavetable<'static>; 4] = [
         Wavetable::new(&waveform::perfect::PERFECT_0_FACTORS, SAMPLE_RATE),
         Wavetable::new(&waveform::perfect::PERFECT_1_FACTORS, SAMPLE_RATE),
         Wavetable::new(&waveform::perfect::PERFECT_2_FACTORS, SAMPLE_RATE),
         Wavetable::new(&waveform::perfect::PERFECT_3_FACTORS, SAMPLE_RATE),
     ];
-    static ref BANK_B: [Wavetable<'static>; 9] = [
+    static ref BANK_HARSH: [Wavetable<'static>; 9] = [
         Wavetable::new(&waveform::harsh::HARSH_0_FACTORS, SAMPLE_RATE),
         Wavetable::new(&waveform::harsh::HARSH_1_FACTORS, SAMPLE_RATE),
         Wavetable::new(&waveform::harsh::HARSH_2_FACTORS, SAMPLE_RATE),
@@ -55,7 +55,15 @@ lazy_static! {
         Wavetable::new(&waveform::harsh::HARSH_7_FACTORS, SAMPLE_RATE),
         Wavetable::new(&waveform::harsh::HARSH_8_FACTORS, SAMPLE_RATE),
     ];
-    static ref WAVETABLE_BANKS: [&'static [Wavetable<'static>]; 2] = [&BANK_A[..], &BANK_B[..]];
+    static ref BANK_SOFT: [Wavetable<'static>; 5] = [
+        Wavetable::new(&waveform::soft::SOFT_0_FACTORS, SAMPLE_RATE),
+        Wavetable::new(&waveform::soft::SOFT_1_FACTORS, SAMPLE_RATE),
+        Wavetable::new(&waveform::soft::SOFT_2_FACTORS, SAMPLE_RATE),
+        Wavetable::new(&waveform::soft::SOFT_3_FACTORS, SAMPLE_RATE),
+        Wavetable::new(&waveform::soft::SOFT_4_FACTORS, SAMPLE_RATE),
+    ];
+    static ref WAVETABLE_BANKS: [&'static [Wavetable<'static>]; 3] =
+        [&BANK_PERFECT[..], &BANK_HARSH[..], &BANK_SOFT[..]];
 }
 
 #[app(device = stm32h7xx_hal::pac, peripherals = true, monotonic = rtic::cyccnt::CYCCNT)]
