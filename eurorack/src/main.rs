@@ -226,7 +226,7 @@ const APP: () = {
             .populate(&mut buffer_root, &mut buffer_chord);
 
         for i in 0..audio::BLOCK_LENGTH {
-            buffer[i] = (buffer_root[i], buffer_chord[i]);
+            buffer[i] = (buffer_root[i] * 0.9, buffer_chord[i] * 0.9);
         }
 
         audio_interface.handle_interrupt_dma1_str1().unwrap();
