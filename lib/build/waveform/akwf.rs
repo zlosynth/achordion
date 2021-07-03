@@ -3,8 +3,8 @@ use std::fs::File;
 use std::io::Write;
 use std::path::Path;
 
-use super::builder;
 use super::processing;
+use super::saving;
 use crate::rustfmt;
 
 const NAME: &str = "akwf";
@@ -158,7 +158,7 @@ fn generate_bank(name: &str, sources: &[&str], module: &mut File) {
             ( $factor:expr, $cutoff:expr, $len:expr ) => {
                 let wavetable =
                     processing::scale::<$len>(&processing::filtered(&oversampled, $cutoff));
-                builder::dump_wavetable(module, &name, $factor, &wavetable);
+                saving::dump_wavetable(module, &name, $factor, &wavetable);
             };
         }
 
@@ -174,9 +174,9 @@ fn generate_bank(name: &str, sources: &[&str], module: &mut File) {
         dump!(2, 1.0, 64);
 
         let wavetable = processing::scale::<64>(&sine());
-        builder::dump_wavetable(module, &name, 1, &wavetable);
+        saving::dump_wavetable(module, &name, 1, &wavetable);
 
-        builder::dump_factor_list(
+        saving::dump_factor_list(
             module,
             &name,
             &[1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024],
