@@ -334,7 +334,7 @@ mod tests {
 
     lazy_static! {
         static ref BANK_A: [Wavetable<'static>; 1] = [Wavetable::new(
-            &waveform::akwf::PERFECT_3_FACTORS,
+            &waveform::perfect::PERFECT_3_FACTORS,
             SAMPLE_RATE
         )];
         static ref WAVETABLE_BANKS: [&'static [Wavetable<'static>]; 1] = [&BANK_A[..]];

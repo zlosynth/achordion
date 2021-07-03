@@ -125,21 +125,10 @@ pub fn generate_module(directory: &Path) {
         &mut module,
     );
 
-    generate_bank(
-        "perfect",
-        &[
-            "AKWF_tri.wav",
-            "AKWF_sin.wav",
-            "AKWF_squ.wav",
-            "AKWF_saw.wav",
-        ],
-        &mut module,
-    );
-
     rustfmt::format(path.to_str().unwrap());
 }
 
-fn generate_bank(name: &str, sources: &[&str], module: &mut File) {
+pub fn generate_bank(name: &str, sources: &[&str], module: &mut File) {
     for (i, source) in sources.iter().enumerate() {
         let name = format!("{}_{}", name, i);
 

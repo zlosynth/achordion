@@ -15,5 +15,7 @@ fn main() {
     banks::generator::register_in_package(&mut wavetable_module);
     banks::generator::generate_module(wavetable_package);
 
+    banks::perfect::register(&mut wavetable_module, wavetable_package);
+
     rustfmt::format(wavetable_package.join("mod.rs").to_str().unwrap());
 }

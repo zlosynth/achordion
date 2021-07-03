@@ -25,10 +25,10 @@ lazy_static! {
     static ref BANK_A: [Wavetable<'static>; 4] = {
         let sample_rate = unsafe { pd_sys::sys_getsr() as u32 };
         [
-            Wavetable::new(&waveform::akwf::PERFECT_0_FACTORS, sample_rate),
-            Wavetable::new(&waveform::akwf::PERFECT_1_FACTORS, sample_rate),
-            Wavetable::new(&waveform::akwf::PERFECT_2_FACTORS, sample_rate),
-            Wavetable::new(&waveform::akwf::PERFECT_3_FACTORS, sample_rate),
+            Wavetable::new(&waveform::perfect::PERFECT_0_FACTORS, sample_rate),
+            Wavetable::new(&waveform::perfect::PERFECT_1_FACTORS, sample_rate),
+            Wavetable::new(&waveform::perfect::PERFECT_2_FACTORS, sample_rate),
+            Wavetable::new(&waveform::perfect::PERFECT_3_FACTORS, sample_rate),
         ]
     };
     static ref BANK_B: [Wavetable<'static>; 6] = {

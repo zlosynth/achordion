@@ -39,10 +39,10 @@ const SAMPLE_RATE: u32 = audio::FS.0;
 
 lazy_static! {
     static ref BANK_A: [Wavetable<'static>; 4] = [
-        Wavetable::new(&waveform::akwf::PERFECT_0_FACTORS, SAMPLE_RATE),
-        Wavetable::new(&waveform::akwf::PERFECT_1_FACTORS, SAMPLE_RATE),
-        Wavetable::new(&waveform::akwf::PERFECT_2_FACTORS, SAMPLE_RATE),
-        Wavetable::new(&waveform::akwf::PERFECT_3_FACTORS, SAMPLE_RATE),
+        Wavetable::new(&waveform::perfect::PERFECT_0_FACTORS, SAMPLE_RATE),
+        Wavetable::new(&waveform::perfect::PERFECT_1_FACTORS, SAMPLE_RATE),
+        Wavetable::new(&waveform::perfect::PERFECT_2_FACTORS, SAMPLE_RATE),
+        Wavetable::new(&waveform::perfect::PERFECT_3_FACTORS, SAMPLE_RATE),
     ];
     static ref BANK_B: [Wavetable<'static>; 9] = [
         Wavetable::new(&waveform::akwf::FM_0_FACTORS, SAMPLE_RATE),
