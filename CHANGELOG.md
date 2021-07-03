@@ -7,7 +7,6 @@ backwards compatibility.
 ## Unreleased
 
 * Added tooling supporting generation of wavetables from raw audio.
-* Added sinc waveform into the default bank.
 * Added FM wavetable bank. Only to pure data for now.
 * Added electric guitar wavetable bank. Only to pure data for now.
 * Added distorted wavetable bank. Only to pure data for now.
@@ -20,6 +19,7 @@ backwards compatibility.
 * Lowered LPF on wavetables to make the lower end thicker.
 * Use floats for audio buffers instead of u16.
 * Replace pulse wavetable in eurorack with FM and osc. chip.
+* Remove pulse wavetable bank.
 
 ## 0.5.0
 

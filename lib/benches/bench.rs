@@ -10,8 +10,10 @@ use achordion_lib::wavetable::Wavetable;
 const SAMPLE_RATE: u32 = 44_100;
 
 lazy_static! {
-    static ref BANK_A: [Wavetable<'static>; 1] =
-        [Wavetable::new(&waveform::saw::SAW_FACTORS, SAMPLE_RATE)];
+    static ref BANK_A: [Wavetable<'static>; 1] = [Wavetable::new(
+        &waveform::akwf::PERFECT_3_FACTORS,
+        SAMPLE_RATE
+    )];
     static ref WAVETABLE_BANKS: [&'static [Wavetable<'static>]; 1] = [&BANK_A[..]];
 }
 
