@@ -7,10 +7,10 @@ use crate::rustfmt;
 
 const NAME: &str = "perfect";
 
-pub fn register(module: &mut File, directory: &Path) {
+pub fn register(module: &mut File, package: &Path) {
     writeln!(module, "pub mod {};", NAME).unwrap();
 
-    let path = directory.join(format!("{}.rs", NAME));
+    let path = package.join(format!("{}.rs", NAME));
     let mut module = std::fs::File::create(&path).unwrap();
 
     generator::generate_bank(
