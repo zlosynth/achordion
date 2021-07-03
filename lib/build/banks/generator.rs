@@ -144,8 +144,7 @@ fn generate_bank(name: &str, sources: &[&str], module: &mut File) {
         let name = format!("{}_{}", name, i);
 
         let oversampled = {
-            let mut raw_waveform =
-                File::open(format!("build/waveform/sources/{}", source)).unwrap();
+            let mut raw_waveform = File::open(format!("build/banks/sources/{}", source)).unwrap();
             let (_, data) = wav::read(&mut raw_waveform).unwrap();
             let mut waveform = Vec::new();
             for x in data.as_sixteen().unwrap() {
