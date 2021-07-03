@@ -1,3 +1,4 @@
+use core::f32::consts::PI;
 use std::fs::File;
 use std::io::Write;
 use std::path::Path;
@@ -5,7 +6,6 @@ use std::path::Path;
 use super::builder;
 use super::consts::OVERSAMPLED_LENGTH;
 use super::processing;
-use super::sine;
 use crate::rustfmt;
 
 const NAME: &str = "akwf";
@@ -173,7 +173,7 @@ fn generate_bank(name: &str, sources: &[&str], module: &mut File) {
         dump!(4, 2.0, 64);
         dump!(2, 1.0, 64);
 
-        let wavetable = processing::scale::<64>(&sine::sine());
+        let wavetable = processing::scale::<64>(&sine());
         builder::dump_wavetable(module, &name, 1, &wavetable);
 
         builder::dump_factor_list(
@@ -182,4 +182,12 @@ fn generate_bank(name: &str, sources: &[&str], module: &mut File) {
             &[1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024],
         );
     }
+}
+
+fn sine() -> [f32; OVERSAMPLED_LENGTH] {
+    let mut wavetable = [0.0; OVERSAMPLED_LENGTH];
+    for (i, x) in wavetable.iter_mut().enumerate() {
+        *x = f32::sin(i as f32 / (OVERSAMPLED_LENGTH as f32) * 2.0 * PI);
+    }
+    wavetable
 }
