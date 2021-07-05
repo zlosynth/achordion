@@ -6,6 +6,8 @@ backwards compatibility.
 
 ## Unreleased
 
+## 0.6.0
+
 * Added tooling supporting generation of wavetables from raw audio.
 * Lowered LPF on wavetables to make the lower end thicker.
 * Use floats for audio buffers instead of u16.

@@ -2,7 +2,7 @@
 authors = ["Petr Horáček <hrck@protonmail.com>"]
 edition = "2018"
 name = "achordion-puredata"
-version = "0.5.0" # hack/release.sh
+version = "0.6.0" # hack/release.sh
 license = "GPL-3.0-or-later"
 description = "Pure Data external is meant for simple testing of the module without a need to flash it to the real thing"
 repository = "https://github.com/zlosynth/achordion"
