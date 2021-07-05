@@ -19,8 +19,12 @@ pub fn register(module: &mut File, package: &Path) {
             "AKWF_granular_0033.wav",
             "AKWF_granular_0022.wav",
             "AKWF_flute_0009.wav",
-            "AKWF_violin_0012.wav",
+            "AKWF_fmsynth_0117.wav",
+            "AKWF_fmsynth_0121.wav",
+            "AKWF_fmsynth_0118.wav",
+            "AKWF_fmsynth_0054.wav",
             "AKWF_violin_0003.wav",
+            "AKWF_violin_0012.wav",
         ],
         &mut module,
     );
