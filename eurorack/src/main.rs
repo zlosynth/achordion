@@ -44,7 +44,7 @@ lazy_static! {
         Wavetable::new(&waveform::perfect::PERFECT_2_FACTORS, SAMPLE_RATE),
         Wavetable::new(&waveform::perfect::PERFECT_3_FACTORS, SAMPLE_RATE),
     ];
-    static ref BANK_HARSH: [Wavetable<'static>; 9] = [
+    static ref BANK_HARSH: [Wavetable<'static>; 7] = [
         Wavetable::new(&waveform::harsh::HARSH_0_FACTORS, SAMPLE_RATE),
         Wavetable::new(&waveform::harsh::HARSH_1_FACTORS, SAMPLE_RATE),
         Wavetable::new(&waveform::harsh::HARSH_2_FACTORS, SAMPLE_RATE),
@@ -52,10 +52,8 @@ lazy_static! {
         Wavetable::new(&waveform::harsh::HARSH_4_FACTORS, SAMPLE_RATE),
         Wavetable::new(&waveform::harsh::HARSH_5_FACTORS, SAMPLE_RATE),
         Wavetable::new(&waveform::harsh::HARSH_6_FACTORS, SAMPLE_RATE),
-        Wavetable::new(&waveform::harsh::HARSH_7_FACTORS, SAMPLE_RATE),
-        Wavetable::new(&waveform::harsh::HARSH_8_FACTORS, SAMPLE_RATE),
     ];
-    static ref BANK_SOFT: [Wavetable<'static>; 9] = [
+    static ref BANK_SOFT: [Wavetable<'static>; 10] = [
         Wavetable::new(&waveform::soft::SOFT_0_FACTORS, SAMPLE_RATE),
         Wavetable::new(&waveform::soft::SOFT_1_FACTORS, SAMPLE_RATE),
         Wavetable::new(&waveform::soft::SOFT_2_FACTORS, SAMPLE_RATE),
@@ -65,6 +63,7 @@ lazy_static! {
         Wavetable::new(&waveform::soft::SOFT_6_FACTORS, SAMPLE_RATE),
         Wavetable::new(&waveform::soft::SOFT_7_FACTORS, SAMPLE_RATE),
         Wavetable::new(&waveform::soft::SOFT_8_FACTORS, SAMPLE_RATE),
+        Wavetable::new(&waveform::soft::SOFT_9_FACTORS, SAMPLE_RATE),
     ];
     static ref WAVETABLE_BANKS: [&'static [Wavetable<'static>]; 3] =
         [&BANK_PERFECT[..], &BANK_HARSH[..], &BANK_SOFT[..]];
