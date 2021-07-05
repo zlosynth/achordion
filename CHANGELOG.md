@@ -12,6 +12,7 @@ backwards compatibility.
 * Remove pulse wavetable bank.
 * Add a bank compiled of FM, distorted and sampled wavetables.
 * Add a bank compiled of soft wavetables.
+* Add a bank of vocal wavetables.
 
 ## 0.5.0
 
