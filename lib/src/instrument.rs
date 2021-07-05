@@ -196,8 +196,9 @@ impl<'a> Instrument<'a> {
         for (i, degree) in self.degrees.iter_mut().enumerate() {
             if let Some(note) = chord_notes[i] {
                 degree.set_frequency(note.to_freq_f32());
+                degree.enable();
             } else {
-                degree.set_frequency(0.0);
+                degree.disable();
             }
         }
     }
@@ -211,6 +212,7 @@ struct Degree<'a> {
     detune_phase: f32,
     wavetable_banks: &'a [&'a [Wavetable<'a>]],
     oscillators: [Oscillator<'a>; OSCILLATORS_IN_DEGREE],
+    enabled: bool,
 }
 
 impl<'a> Degree<'a> {
@@ -225,6 +227,7 @@ impl<'a> Degree<'a> {
                 Oscillator::new(wavetable_banks[0], sample_rate),
                 Oscillator::new(wavetable_banks[0], sample_rate),
             ],
+            enabled: true,
         }
     }
 
@@ -244,6 +247,14 @@ impl<'a> Degree<'a> {
         self.detune_config = detune_config;
         self.detune_phase = detune_phase;
         self.apply_settings();
+    }
+
+    pub fn enable(&mut self) {
+        self.enabled = true;
+    }
+
+    pub fn disable(&mut self) {
+        self.enabled = false;
     }
 
     fn apply_settings(&mut self) {
@@ -298,6 +309,10 @@ impl<'a> Degree<'a> {
     }
 
     pub fn populate_add(&mut self, buffer: &mut [f32], amplitude: f32) {
+        if !self.enabled {
+            return;
+        }
+
         match self.detune_config {
             DetuneConfig::Disabled => {
                 self.oscillators[0].populate_add(buffer, amplitude);
@@ -334,7 +349,7 @@ mod tests {
 
     lazy_static! {
         static ref BANK_A: [Wavetable<'static>; 1] = [Wavetable::new(
-            &waveform::perfect::PERFECT_3_FACTORS,
+            &waveform::perfect::PERFECT_2_FACTORS,
             SAMPLE_RATE
         )];
         static ref WAVETABLE_BANKS: [&'static [Wavetable<'static>]; 1] = [&BANK_A[..]];
@@ -473,6 +488,7 @@ mod tests {
     fn output_centered_around_zero_simple() {
         let mut instrument = create_valid_instrument();
         instrument.set_chord_root(2.5);
+        instrument.set_chord_degrees(0.0);
 
         let mut root_buffer = [0.0; 1024];
         let mut chord_buffer = [0.0; 1024];
@@ -486,6 +502,7 @@ mod tests {
     fn output_centered_around_zero_with_detune() {
         let mut instrument = create_valid_instrument();
         instrument.set_chord_root(2.5);
+        instrument.set_chord_degrees(0.0);
         instrument.set_detune(1.0);
 
         let mut root_buffer = [0.0; 1024];
