@@ -137,6 +137,14 @@ const APP: () = {
             pins.SEED_PIN_17,
             pins.SEED_PIN_18,
             pins.SEED_PIN_10.into_push_pull_output(),
+            pins.SEED_PIN_30.into_push_pull_output(),
+            pins.SEED_PIN_29.into_push_pull_output(),
+            pins.SEED_PIN_26.into_push_pull_output(),
+            pins.SEED_PIN_25.into_push_pull_output(),
+            pins.SEED_PIN_3.into_push_pull_output(),
+            pins.SEED_PIN_4.into_push_pull_output(),
+            pins.SEED_PIN_5.into_push_pull_output(),
+            pins.SEED_PIN_6.into_push_pull_output(),
         );
 
         cx.schedule.control(cx.start + CV_PERIOD.cycles()).unwrap();

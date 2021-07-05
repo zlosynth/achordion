@@ -24,16 +24,16 @@ type PinCv4 = hal::gpio::gpioa::PA3<hal::gpio::Analog>; // PIN 16
 type PinCv5 = hal::gpio::gpiob::PB1<hal::gpio::Analog>; // PIN 17
 type PinCv6 = hal::gpio::gpioa::PA7<hal::gpio::Analog>; // PIN 18
 type PinProbe = hal::gpio::gpiob::PB5<hal::gpio::Output<hal::gpio::PushPull>>; // PIN 10
+type PinLed1 = hal::gpio::gpiob::PB15<hal::gpio::Output<hal::gpio::PushPull>>; // PIN 30
+type PinLed2 = hal::gpio::gpiob::PB14<hal::gpio::Output<hal::gpio::PushPull>>; // PIN 29
+type PinLed3 = hal::gpio::gpiod::PD11<hal::gpio::Output<hal::gpio::PushPull>>; // PIN 26
+type PinLed4 = hal::gpio::gpioa::PA0<hal::gpio::Output<hal::gpio::PushPull>>; // PIN 25
+type PinLed5 = hal::gpio::gpioc::PC9<hal::gpio::Output<hal::gpio::PushPull>>; // PIN 3
+type PinLed6 = hal::gpio::gpioc::PC8<hal::gpio::Output<hal::gpio::PushPull>>; // PIN 4
+type PinLed7 = hal::gpio::gpiod::PD2<hal::gpio::Output<hal::gpio::PushPull>>; // PIN 5
+type PinLed8 = hal::gpio::gpioc::PC12<hal::gpio::Output<hal::gpio::PushPull>>; // PIN 6
 
-// type PinLed1 = hal::gpio::gpiob::PB15<hal::gpio::Analog>;
-// type PinLed2 = hal::gpio::gpiob::PB14<hal::gpio::Analog>;
-// type PinLed3 = hal::gpio::gpiod::PD11<hal::gpio::Analog>;
-// type PinLed4 = hal::gpio::gpioa::PA0<hal::gpio::Analog>;
-// type PinLed5 = hal::gpio::gpioc::PC9<hal::gpio::Analog>;
-// type PinLed6 = hal::gpio::gpioc::PC8<hal::gpio::Analog>;
-// type PinLed7 = hal::gpio::gpiod::PD2<hal::gpio::Analog>;
-// type PinLed8 = hal::gpio::gpioc::PC12<hal::gpio::Analog>;
-
+#[allow(dead_code)]
 pub struct Interface {
     adc1: Adc<ADC1, Enabled>,
 
@@ -52,6 +52,15 @@ pub struct Interface {
     cv6: Cv<PinCv6>,
 
     probe: Probe<PinProbe>,
+
+    led1: Led<PinLed1>,
+    led2: Led<PinLed2>,
+    led3: Led<PinLed3>,
+    led4: Led<PinLed4>,
+    led5: Led<PinLed5>,
+    led6: Led<PinLed6>,
+    led7: Led<PinLed7>,
+    led8: Led<PinLed8>,
 
     parameters: Parameters,
 
@@ -89,6 +98,14 @@ impl Interface {
         cv5: PinCv5,
         cv6: PinCv6,
         probe: PinProbe,
+        led1: PinLed1,
+        led2: PinLed2,
+        led3: PinLed3,
+        led4: PinLed4,
+        led5: PinLed5,
+        led6: PinLed6,
+        led7: PinLed7,
+        led8: PinLed8,
     ) -> Self {
         adc1.set_resolution(adc::Resolution::SIXTEENBIT);
         adc1.set_sample_time(adc::AdcSampleTime::T_64);
@@ -112,6 +129,15 @@ impl Interface {
             cv6: Cv::new(cv6),
 
             probe: Probe::new(probe),
+
+            led1: Led::new(led1),
+            led2: Led::new(led2),
+            led3: Led::new(led3),
+            led4: Led::new(led4),
+            led5: Led::new(led5),
+            led6: Led::new(led6),
+            led7: Led::new(led7),
+            led8: Led::new(led8),
 
             parameters: Parameters::default(),
 
@@ -390,6 +416,26 @@ impl<P: OutputPin> Probe<P> {
         } else {
             self.pin.set_low().ok().unwrap();
         }
+    }
+}
+
+struct Led<P> {
+    pin: P,
+}
+
+impl<P: OutputPin> Led<P> {
+    pub fn new(pin: P) -> Self {
+        Self { pin }
+    }
+
+    #[allow(dead_code)]
+    pub fn set_high(&mut self) {
+        self.pin.set_high().ok().unwrap();
+    }
+
+    #[allow(dead_code)]
+    pub fn set_low(&mut self) {
+        self.pin.set_low().ok().unwrap();
     }
 }
 
