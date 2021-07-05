@@ -6,6 +6,8 @@ backwards compatibility.
 
 ## Unreleased
 
+* Fix equilibrium of wavetables with depth of 16 bits.
+
 ## 0.6.0
 
 * Added tooling supporting generation of wavetables from raw audio.
