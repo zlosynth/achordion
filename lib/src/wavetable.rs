@@ -1,7 +1,7 @@
 #[allow(unused_imports)]
 use micromath::F32Ext;
 
-const EQULIBRIUM: [u16; 1] = [32768];
+const EQULIBRIUM: [u16; 1] = [2 << 14];
 
 pub struct Wavetable<'a> {
     sample_rate: u32,
