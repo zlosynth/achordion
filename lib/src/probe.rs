@@ -4,7 +4,6 @@ pub const PROBE_SEQUENCE: [bool; 32] = [
     false, false, false, true,
 ];
 
-// TODO: Pass the sequence to this
 pub struct ProbeGenerator<'a> {
     sequence: &'a [bool],
     position: usize,
@@ -25,7 +24,6 @@ impl<'a> ProbeGenerator<'a> {
     }
 }
 
-// TODO: Replace 32 by len of the sequence
 pub struct ProbeDetector<'a> {
     sequence: &'a [bool],
     sequence_sum: i32,
