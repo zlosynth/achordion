@@ -1,6 +1,7 @@
 use core::ptr;
 
 use crate::chords;
+use crate::detune::DetuneConfig;
 use crate::note::Note;
 use crate::oscillator::Oscillator;
 use crate::quantizer;
@@ -324,13 +325,6 @@ impl<'a> Degree<'a> {
             }
         }
     }
-}
-
-#[derive(Clone, Copy, PartialEq)]
-enum DetuneConfig {
-    Disabled,
-    SingleSide(f32, f32),
-    BothSides(f32, f32),
 }
 
 fn zero_slice(slice: &mut [f32]) {

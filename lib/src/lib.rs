@@ -15,6 +15,7 @@ pub mod waveform;
 pub mod wavetable;
 
 mod chords;
+mod detune;
 mod note;
 mod oscillator;
 mod quantizer;
