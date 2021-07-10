@@ -79,7 +79,6 @@ lazy_static! {
 #[app(device = stm32h7xx_hal::pac, peripherals = true, monotonic = rtic::cyccnt::CYCCNT)]
 const APP: () = {
     struct Resources {
-        led_user: daisy::led::LedUser,
         interface: Interface,
         instrument: Instrument<'static>,
     }
@@ -110,8 +109,6 @@ const APP: () = {
             cx.device.GPIOF.split(ccdr.peripheral.GPIOF),
             cx.device.GPIOG.split(ccdr.peripheral.GPIOG),
         );
-
-        let led_user = daisy::led::LedUser::new(pins.LED_USER);
 
         let mut delay = DelayFromCountDownTimer::new(cx.device.TIM2.timer(
             10.ms(),
@@ -188,7 +185,6 @@ const APP: () = {
         cx.spawn.fade_in().unwrap();
 
         init::LateResources {
-            led_user,
             interface,
             instrument,
         }
@@ -210,7 +206,7 @@ const APP: () = {
         }
     }
 
-    #[task(schedule = [control], resources = [interface, instrument, led_user])]
+    #[task(schedule = [control], resources = [interface, instrument])]
     fn control(mut cx: control::Context) {
         static mut IDLE: u32 = u32::MAX;
 
