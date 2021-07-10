@@ -7,6 +7,7 @@ backwards compatibility.
 ## Unreleased
 
 * Fix equilibrium of wavetables with depth of 16 bits.
+* Visualize selected chord on module's display.
 
 ## 0.6.0
 

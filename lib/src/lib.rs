@@ -9,6 +9,7 @@ extern crate approx;
 #[macro_use]
 extern crate lazy_static;
 
+pub mod display;
 pub mod instrument;
 pub mod probe;
 pub mod waveform;

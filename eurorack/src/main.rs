@@ -25,6 +25,7 @@ use hal::delay::DelayFromCountDownTimer;
 use hal::pac::DWT;
 use hal::prelude::*;
 
+use achordion_lib::display;
 use achordion_lib::instrument::Instrument;
 use achordion_lib::waveform;
 use achordion_lib::wavetable::Wavetable;
@@ -123,7 +124,7 @@ const APP: () = {
             ccdr.peripheral.ADC12,
             &ccdr.clocks,
         );
-        let interface = Interface::new(
+        let mut interface = Interface::new(
             adc1,
             pins.SEED_PIN_9.into_pull_up_input(),
             pins.SEED_PIN_23,
@@ -184,6 +185,10 @@ const APP: () = {
         let mut instrument = Instrument::new(&WAVETABLE_BANKS[..], SAMPLE_RATE);
         instrument.set_amplitude(0.0);
 
+        interface.set_display(display::reduce(display::Action::SetChord(
+            instrument.chord_degrees(),
+        )));
+
         cx.spawn.fade_in().unwrap();
 
         init::LateResources {
@@ -220,7 +225,9 @@ const APP: () = {
             instrument.set_scale_mode(interface.scale_mode());
             instrument.set_wavetable(interface.wavetable());
             instrument.set_wavetable_bank(interface.wavetable_bank());
-            instrument.set_chord_degrees(interface.chord());
+            if let Some(new_degrees) = instrument.set_chord_degrees(interface.chord()) {
+                interface.set_display(display::reduce(display::Action::SetChord(new_degrees)));
+            }
             instrument.set_detune(interface.detune());
         });
 

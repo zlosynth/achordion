@@ -10,6 +10,7 @@ use hal::hal::digital::v2::{InputPin, OutputPin};
 use hal::pac::ADC1;
 use hal::prelude::*;
 
+use achordion_lib::display::State as DisplayState;
 use achordion_lib::probe::{ProbeDetector, ProbeGenerator, PROBE_SEQUENCE};
 
 type PinButton = hal::gpio::gpiob::PB4<hal::gpio::Input<hal::gpio::PullUp>>; // PIN 9
@@ -305,6 +306,17 @@ impl Interface {
 
         self.parameters.scale_mode = cv + pot;
     }
+
+    pub fn set_display(&mut self, display_state: DisplayState) {
+        self.led4.set(display_state.led1);
+        self.led8.set(display_state.led2);
+        self.led3.set(display_state.led3);
+        self.led7.set(display_state.led4);
+        self.led2.set(display_state.led5);
+        self.led6.set(display_state.led6);
+        self.led1.set(display_state.led7);
+        self.led5.set(display_state.led_sharp);
+    }
 }
 
 fn sample_to_voct(transposed_sample: f32) -> f32 {
@@ -428,14 +440,12 @@ impl<P: OutputPin> Led<P> {
         Self { pin }
     }
 
-    #[allow(dead_code)]
-    pub fn set_high(&mut self) {
-        self.pin.set_high().ok().unwrap();
-    }
-
-    #[allow(dead_code)]
-    pub fn set_low(&mut self) {
-        self.pin.set_low().ok().unwrap();
+    pub fn set(&mut self, high: bool) {
+        if high {
+            self.pin.set_high().ok().unwrap();
+        } else {
+            self.pin.set_low().ok().unwrap();
+        }
     }
 }
 

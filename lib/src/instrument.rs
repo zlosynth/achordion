@@ -113,7 +113,9 @@ impl<'a> Instrument<'a> {
         self.apply_settings();
     }
 
-    pub fn set_chord_degrees(&mut self, chord_degrees: f32) {
+    pub fn set_chord_degrees(&mut self, chord_degrees: f32) -> Option<[i8; DEGREES]> {
+        let original = self.chord_degrees;
+
         for i in 1..=CHORDS.len() {
             if chord_degrees < i as f32 / CHORDS.len() as f32 {
                 self.chord_degrees = CHORDS[i - 1];
@@ -121,6 +123,18 @@ impl<'a> Instrument<'a> {
             }
         }
         self.apply_settings();
+
+        let updated = self.chord_degrees;
+
+        if original != updated {
+            Some(updated)
+        } else {
+            None
+        }
+    }
+
+    pub fn chord_degrees(&self) -> [i8; DEGREES] {
+        self.chord_degrees
     }
 
     pub fn set_wavetable_bank(&mut self, wavetable_bank: f32) {
@@ -519,5 +533,30 @@ mod tests {
 
         assert_centered_around_zero(&root_buffer);
         assert_centered_around_zero(&chord_buffer);
+    }
+
+    #[test]
+    fn change_chord_degrees() {
+        let mut instrument = create_valid_instrument();
+        instrument.set_chord_degrees(0.0);
+
+        let new_degrees = instrument.set_chord_degrees(0.5);
+        assert!(new_degrees.is_some());
+
+        let new_degrees = instrument.set_chord_degrees(0.5);
+        assert!(new_degrees.is_none());
+    }
+
+    #[test]
+    fn get_chord_degrees() {
+        let mut instrument = create_valid_instrument();
+
+        instrument.set_chord_degrees(0.0);
+        let old_degrees = instrument.chord_degrees();
+
+        instrument.set_chord_degrees(0.5);
+        let new_degrees = instrument.chord_degrees();
+
+        assert!(old_degrees != new_degrees);
     }
 }
