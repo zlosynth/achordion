@@ -25,7 +25,7 @@ use hal::delay::DelayFromCountDownTimer;
 use hal::pac::DWT;
 use hal::prelude::*;
 
-use achordion_lib::display;
+use achordion_lib::display::{self, Action as DisplayAction};
 use achordion_lib::instrument::Instrument;
 use achordion_lib::waveform;
 use achordion_lib::wavetable::Wavetable;
@@ -214,22 +214,30 @@ const APP: () = {
         }
     }
 
-    #[task(schedule = [control], resources = [interface, instrument, led_user])]
+    #[task(schedule = [control], spawn = [update_display], resources = [interface, instrument, led_user])]
     fn control(mut cx: control::Context) {
         let interface = cx.resources.interface;
         interface.update();
 
+        let mut action = None;
+
         cx.resources.instrument.lock(|instrument| {
             instrument.set_chord_root(interface.note());
-            instrument.set_scale_root(interface.scale_root());
+            if let Some(new_scale_root) = instrument.set_scale_root(interface.scale_root()) {
+                action = Some(DisplayAction::SetScaleRoot(new_scale_root));
+            }
             instrument.set_scale_mode(interface.scale_mode());
             instrument.set_wavetable(interface.wavetable());
             instrument.set_wavetable_bank(interface.wavetable_bank());
             if let Some(new_degrees) = instrument.set_chord_degrees(interface.chord()) {
-                interface.set_display(display::reduce(display::Action::SetChord(new_degrees)));
+                action = Some(DisplayAction::SetChord(new_degrees));
             }
             instrument.set_detune(interface.detune());
         });
+
+        if let Some(action) = action {
+            cx.spawn.update_display(action).ok().unwrap();
+        }
 
         cx.schedule
             .control(cx.scheduled + CV_PERIOD.cycles())
@@ -254,6 +262,12 @@ const APP: () = {
         }
 
         audio_interface.handle_interrupt_dma1_str1().unwrap();
+    }
+
+    #[task(resources = [interface])]
+    fn update_display(cx: update_display::Context, action: DisplayAction) {
+        let interface = cx.resources.interface;
+        interface.set_display(display::reduce(action));
     }
 
     extern "C" {

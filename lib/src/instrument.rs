@@ -103,9 +103,18 @@ impl<'a> Instrument<'a> {
         self.apply_settings();
     }
 
-    pub fn set_scale_root(&mut self, scale_root: f32) {
+    pub fn set_scale_root(&mut self, scale_root: f32) -> Option<Note> {
+        let original = self.scale_root;
+
         self.scale_root = quantizer::chromatic::quantize(scale_root);
         self.apply_settings();
+
+        let updated = self.scale_root;
+        if original != updated {
+            Some(updated)
+        } else {
+            None
+        }
     }
 
     pub fn set_chord_root(&mut self, chord_root: f32) {
@@ -558,5 +567,17 @@ mod tests {
         let new_degrees = instrument.chord_degrees();
 
         assert!(old_degrees != new_degrees);
+    }
+
+    #[test]
+    fn change_scale_root() {
+        let mut instrument = create_valid_instrument();
+        instrument.set_scale_root(1.0);
+
+        let new_degrees = instrument.set_scale_root(1.0 + 2.0 / 12.0);
+        assert!(new_degrees.is_some());
+
+        let new_degrees = instrument.set_scale_root(1.0 + 2.0 / 12.0);
+        assert!(new_degrees.is_none());
     }
 }

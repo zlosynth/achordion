@@ -1,5 +1,9 @@
+use crate::note::Note;
+
+#[derive(Clone, Copy)]
 pub enum Action {
     SetChord([i8; 3]),
+    SetScaleRoot(Note),
 }
 
 #[derive(Default, Clone, Copy, PartialEq, Debug)]
@@ -47,6 +51,7 @@ impl From<State> for [bool; 8] {
 pub fn reduce(action: Action) -> State {
     match action {
         Action::SetChord(chord) => reduce_set_chord(chord),
+        Action::SetScaleRoot(root) => reduce_set_scale_root(root),
     }
 }
 
@@ -63,6 +68,58 @@ fn reduce_set_chord(chord: [i8; 3]) -> State {
         let index = total_index.rem_euclid(7);
 
         state_array[index as usize] = true;
+    }
+
+    state_array.into()
+}
+
+fn reduce_set_scale_root(root: Note) -> State {
+    let mut state_array = [false; 8];
+
+    let relative_root = root.to_midi_id() % 12;
+    match relative_root {
+        0 => {
+            state_array[0] = true;
+        }
+        1 => {
+            state_array[0] = true;
+            state_array[7] = true;
+        }
+        2 => {
+            state_array[1] = true;
+        }
+        3 => {
+            state_array[1] = true;
+            state_array[7] = true;
+        }
+        4 => {
+            state_array[2] = true;
+        }
+        5 => {
+            state_array[3] = true;
+        }
+        6 => {
+            state_array[3] = true;
+            state_array[7] = true;
+        }
+        7 => {
+            state_array[4] = true;
+        }
+        8 => {
+            state_array[4] = true;
+            state_array[7] = true;
+        }
+        9 => {
+            state_array[5] = true;
+        }
+        10 => {
+            state_array[5] = true;
+            state_array[7] = true;
+        }
+        11 => {
+            state_array[6] = true;
+        }
+        _ => unreachable!(),
     }
 
     state_array.into()
@@ -245,6 +302,222 @@ mod tests {
                 led5: false,
                 led6: false,
                 led7: false,
+                led_sharp: false,
+            }
+        )
+    }
+
+    #[test]
+    fn reduce_scale_root_c() {
+        let state = reduce(Action::SetScaleRoot(Note::C3));
+        assert_eq!(
+            state,
+            State {
+                led1: true,
+                led2: false,
+                led3: false,
+                led4: false,
+                led5: false,
+                led6: false,
+                led7: false,
+                led_sharp: false,
+            }
+        )
+    }
+
+    #[test]
+    fn reduce_scale_root_c_sharp() {
+        let state = reduce(Action::SetScaleRoot(Note::CSharp3));
+        assert_eq!(
+            state,
+            State {
+                led1: true,
+                led2: false,
+                led3: false,
+                led4: false,
+                led5: false,
+                led6: false,
+                led7: false,
+                led_sharp: true,
+            }
+        )
+    }
+
+    #[test]
+    fn reduce_scale_root_d() {
+        let state = reduce(Action::SetScaleRoot(Note::D3));
+        assert_eq!(
+            state,
+            State {
+                led1: false,
+                led2: true,
+                led3: false,
+                led4: false,
+                led5: false,
+                led6: false,
+                led7: false,
+                led_sharp: false,
+            }
+        )
+    }
+
+    #[test]
+    fn reduce_scale_root_d_sharp() {
+        let state = reduce(Action::SetScaleRoot(Note::DSharp3));
+        assert_eq!(
+            state,
+            State {
+                led1: false,
+                led2: true,
+                led3: false,
+                led4: false,
+                led5: false,
+                led6: false,
+                led7: false,
+                led_sharp: true,
+            }
+        )
+    }
+
+    #[test]
+    fn reduce_scale_root_e() {
+        let state = reduce(Action::SetScaleRoot(Note::E3));
+        assert_eq!(
+            state,
+            State {
+                led1: false,
+                led2: false,
+                led3: true,
+                led4: false,
+                led5: false,
+                led6: false,
+                led7: false,
+                led_sharp: false,
+            }
+        )
+    }
+
+    #[test]
+    fn reduce_scale_root_f() {
+        let state = reduce(Action::SetScaleRoot(Note::F3));
+        assert_eq!(
+            state,
+            State {
+                led1: false,
+                led2: false,
+                led3: false,
+                led4: true,
+                led5: false,
+                led6: false,
+                led7: false,
+                led_sharp: false,
+            }
+        )
+    }
+
+    #[test]
+    fn reduce_scale_root_f_sharp() {
+        let state = reduce(Action::SetScaleRoot(Note::FSharp3));
+        assert_eq!(
+            state,
+            State {
+                led1: false,
+                led2: false,
+                led3: false,
+                led4: true,
+                led5: false,
+                led6: false,
+                led7: false,
+                led_sharp: true,
+            }
+        )
+    }
+
+    #[test]
+    fn reduce_scale_root_g() {
+        let state = reduce(Action::SetScaleRoot(Note::G3));
+        assert_eq!(
+            state,
+            State {
+                led1: false,
+                led2: false,
+                led3: false,
+                led4: false,
+                led5: true,
+                led6: false,
+                led7: false,
+                led_sharp: false,
+            }
+        )
+    }
+
+    #[test]
+    fn reduce_scale_root_g_sharp() {
+        let state = reduce(Action::SetScaleRoot(Note::GSharp3));
+        assert_eq!(
+            state,
+            State {
+                led1: false,
+                led2: false,
+                led3: false,
+                led4: false,
+                led5: true,
+                led6: false,
+                led7: false,
+                led_sharp: true,
+            }
+        )
+    }
+
+    #[test]
+    fn reduce_scale_root_a() {
+        let state = reduce(Action::SetScaleRoot(Note::A3));
+        assert_eq!(
+            state,
+            State {
+                led1: false,
+                led2: false,
+                led3: false,
+                led4: false,
+                led5: false,
+                led6: true,
+                led7: false,
+                led_sharp: false,
+            }
+        )
+    }
+
+    #[test]
+    fn reduce_scale_root_a_sharp() {
+        let state = reduce(Action::SetScaleRoot(Note::ASharp3));
+        assert_eq!(
+            state,
+            State {
+                led1: false,
+                led2: false,
+                led3: false,
+                led4: false,
+                led5: false,
+                led6: true,
+                led7: false,
+                led_sharp: true,
+            }
+        )
+    }
+
+    #[test]
+    fn reduce_scale_root_b() {
+        let state = reduce(Action::SetScaleRoot(Note::B3));
+        assert_eq!(
+            state,
+            State {
+                led1: false,
+                led2: false,
+                led3: false,
+                led4: false,
+                led5: false,
+                led6: false,
+                led7: true,
                 led_sharp: false,
             }
         )
