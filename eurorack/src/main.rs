@@ -220,7 +220,9 @@ const APP: () = {
             if let Some(new_scale_root) = instrument.set_scale_root(interface.scale_root()) {
                 action = Some(DisplayAction::SetScaleRoot(new_scale_root));
             }
-            instrument.set_scale_mode(interface.scale_mode());
+            if let Some(new_scale_mode) = instrument.set_scale_mode(interface.scale_mode()) {
+                action = Some(DisplayAction::SetScaleMode(new_scale_mode));
+            }
             instrument.set_wavetable(interface.wavetable());
             instrument.set_wavetable_bank(interface.wavetable_bank());
             if let Some(new_degrees) = instrument.set_chord_degrees(interface.chord()) {

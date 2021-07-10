@@ -84,7 +84,9 @@ impl<'a> Instrument<'a> {
         }
     }
 
-    pub fn set_scale_mode(&mut self, scale_mode: f32) {
+    pub fn set_scale_mode(&mut self, scale_mode: f32) -> Option<scales::diatonic::Mode> {
+        let original = self.scale_mode;
+
         self.scale_mode = if scale_mode < 1.0 / 7.0 {
             scales::diatonic::Ionian
         } else if scale_mode < 2.0 / 7.0 {
@@ -101,6 +103,13 @@ impl<'a> Instrument<'a> {
             scales::diatonic::Locrian
         };
         self.apply_settings();
+
+        let updated = self.scale_mode;
+        if original != updated {
+            Some(updated)
+        } else {
+            None
+        }
     }
 
     pub fn set_scale_root(&mut self, scale_root: f32) -> Option<Note> {
@@ -578,6 +587,18 @@ mod tests {
         assert!(new_degrees.is_some());
 
         let new_degrees = instrument.set_scale_root(1.0 + 2.0 / 12.0);
+        assert!(new_degrees.is_none());
+    }
+
+    #[test]
+    fn change_scale_mode() {
+        let mut instrument = create_valid_instrument();
+        instrument.set_scale_mode(0.0);
+
+        let new_degrees = instrument.set_scale_mode(0.5);
+        assert!(new_degrees.is_some());
+
+        let new_degrees = instrument.set_scale_mode(0.5);
         assert!(new_degrees.is_none());
     }
 }

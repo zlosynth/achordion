@@ -1,9 +1,11 @@
 use crate::note::Note;
+use crate::scales::diatonic::Mode;
 
 #[derive(Clone, Copy)]
 pub enum Action {
     SetChord([i8; 3]),
     SetScaleRoot(Note),
+    SetScaleMode(Mode),
 }
 
 #[derive(Default, Clone, Copy, PartialEq, Debug)]
@@ -52,6 +54,7 @@ pub fn reduce(action: Action) -> State {
     match action {
         Action::SetChord(chord) => reduce_set_chord(chord),
         Action::SetScaleRoot(root) => reduce_set_scale_root(root),
+        Action::SetScaleMode(mode) => reduce_set_scale_mode(mode),
     }
 }
 
@@ -122,6 +125,12 @@ fn reduce_set_scale_root(root: Note) -> State {
         _ => unreachable!(),
     }
 
+    state_array.into()
+}
+
+fn reduce_set_scale_mode(mode: Mode) -> State {
+    let mut state_array = [false; 8];
+    state_array[mode as usize] = true;
     state_array.into()
 }
 
@@ -508,6 +517,132 @@ mod tests {
     #[test]
     fn reduce_scale_root_b() {
         let state = reduce(Action::SetScaleRoot(Note::B3));
+        assert_eq!(
+            state,
+            State {
+                led1: false,
+                led2: false,
+                led3: false,
+                led4: false,
+                led5: false,
+                led6: false,
+                led7: true,
+                led_sharp: false,
+            }
+        )
+    }
+
+    #[test]
+    fn reduce_scale_mode_ionian() {
+        let state = reduce(Action::SetScaleMode(Mode::Ionian));
+        assert_eq!(
+            state,
+            State {
+                led1: true,
+                led2: false,
+                led3: false,
+                led4: false,
+                led5: false,
+                led6: false,
+                led7: false,
+                led_sharp: false,
+            }
+        )
+    }
+
+    #[test]
+    fn reduce_scale_mode_dorian() {
+        let state = reduce(Action::SetScaleMode(Mode::Dorian));
+        assert_eq!(
+            state,
+            State {
+                led1: false,
+                led2: true,
+                led3: false,
+                led4: false,
+                led5: false,
+                led6: false,
+                led7: false,
+                led_sharp: false,
+            }
+        )
+    }
+
+    #[test]
+    fn reduce_scale_mode_phrygian() {
+        let state = reduce(Action::SetScaleMode(Mode::Phrygian));
+        assert_eq!(
+            state,
+            State {
+                led1: false,
+                led2: false,
+                led3: true,
+                led4: false,
+                led5: false,
+                led6: false,
+                led7: false,
+                led_sharp: false,
+            }
+        )
+    }
+
+    #[test]
+    fn reduce_scale_mode_lydian() {
+        let state = reduce(Action::SetScaleMode(Mode::Lydian));
+        assert_eq!(
+            state,
+            State {
+                led1: false,
+                led2: false,
+                led3: false,
+                led4: true,
+                led5: false,
+                led6: false,
+                led7: false,
+                led_sharp: false,
+            }
+        )
+    }
+
+    #[test]
+    fn reduce_scale_mode_mixolydian() {
+        let state = reduce(Action::SetScaleMode(Mode::Mixolydian));
+        assert_eq!(
+            state,
+            State {
+                led1: false,
+                led2: false,
+                led3: false,
+                led4: false,
+                led5: true,
+                led6: false,
+                led7: false,
+                led_sharp: false,
+            }
+        )
+    }
+
+    #[test]
+    fn reduce_scale_mode_aeolian() {
+        let state = reduce(Action::SetScaleMode(Mode::Aeolian));
+        assert_eq!(
+            state,
+            State {
+                led1: false,
+                led2: false,
+                led3: false,
+                led4: false,
+                led5: false,
+                led6: true,
+                led7: false,
+                led_sharp: false,
+            }
+        )
+    }
+
+    #[test]
+    fn reduce_scale_mode_locrian() {
+        let state = reduce(Action::SetScaleMode(Mode::Locrian));
         assert_eq!(
             state,
             State {
