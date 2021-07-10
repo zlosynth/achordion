@@ -34,7 +34,6 @@ type PinLed6 = hal::gpio::gpioc::PC8<hal::gpio::Output<hal::gpio::PushPull>>; //
 type PinLed7 = hal::gpio::gpiod::PD2<hal::gpio::Output<hal::gpio::PushPull>>; // PIN 5
 type PinLed8 = hal::gpio::gpioc::PC12<hal::gpio::Output<hal::gpio::PushPull>>; // PIN 6
 
-#[allow(dead_code)]
 pub struct Interface {
     adc1: Adc<ADC1, Enabled>,
 
