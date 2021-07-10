@@ -85,7 +85,7 @@ const APP: () = {
     }
 
     /// Initialize all the peripherals.
-    #[init(schedule = [control], spawn = [fade_in, reset_display])]
+    #[init(schedule = [control], spawn = [fade_in])]
     fn init(mut cx: init::Context) -> init::LateResources {
         // AN5212: Improve application performance when fetching instruction and
         // data, from both internal andexternal memories.
@@ -185,7 +185,6 @@ const APP: () = {
         let mut instrument = Instrument::new(&WAVETABLE_BANKS[..], SAMPLE_RATE);
         instrument.set_amplitude(0.0);
 
-        cx.spawn.reset_display().unwrap();
         cx.spawn.fade_in().unwrap();
 
         init::LateResources {
@@ -211,8 +210,10 @@ const APP: () = {
         }
     }
 
-    #[task(schedule = [control], spawn = [update_display], resources = [interface, instrument, led_user])]
+    #[task(schedule = [control], resources = [interface, instrument, led_user])]
     fn control(mut cx: control::Context) {
+        static mut IDLE: u32 = u32::MAX;
+
         let interface = cx.resources.interface;
         interface.update();
 
@@ -232,8 +233,27 @@ const APP: () = {
             instrument.set_detune(interface.detune());
         });
 
+        if interface.active() {
+            *IDLE = 0;
+        } else {
+            *IDLE += 1;
+        }
+
         if let Some(action) = action {
-            cx.spawn.update_display(action).ok().unwrap();
+            interface.set_display(display::reduce(action));
+        }
+
+        if *IDLE > 300 {
+            *IDLE = 0;
+
+            let mut chord_degrees = None;
+            cx.resources.instrument.lock(|instrument| {
+                chord_degrees = Some(instrument.chord_degrees());
+            });
+
+            interface.set_display(display::reduce(display::Action::SetChord(
+                chord_degrees.unwrap(),
+            )));
         }
 
         cx.schedule
@@ -259,29 +279,6 @@ const APP: () = {
         }
 
         audio_interface.handle_interrupt_dma1_str1().unwrap();
-    }
-
-    #[task(schedule = [reset_display], resources = [interface])]
-    fn update_display(cx: update_display::Context, action: DisplayAction) {
-        let interface = cx.resources.interface;
-        interface.set_display(display::reduce(action));
-        let _ = cx
-            .schedule
-            .reset_display(cx.scheduled + 500_000_000.cycles());
-    }
-
-    #[task(resources = [instrument, interface])]
-    fn reset_display(mut cx: reset_display::Context) {
-        let interface = cx.resources.interface;
-
-        let mut chord_degrees = None;
-        cx.resources.instrument.lock(|instrument| {
-            chord_degrees = Some(instrument.chord_degrees());
-        });
-
-        interface.set_display(display::reduce(display::Action::SetChord(
-            chord_degrees.unwrap(),
-        )));
     }
 
     extern "C" {

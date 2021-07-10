@@ -180,6 +180,14 @@ impl Interface {
         self.parameters.scale_mode
     }
 
+    pub fn active(&self) -> bool {
+        self.button.active()
+            || self.pot1.active()
+            || self.pot2.active()
+            || self.pot3.active()
+            || self.pot4.active()
+    }
+
     pub fn update(&mut self) {
         self.sample();
         self.reconcile();
