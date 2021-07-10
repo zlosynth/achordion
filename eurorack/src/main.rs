@@ -85,7 +85,7 @@ const APP: () = {
     }
 
     /// Initialize all the peripherals.
-    #[init(schedule = [control], spawn = [fade_in])]
+    #[init(schedule = [control], spawn = [fade_in, reset_display])]
     fn init(mut cx: init::Context) -> init::LateResources {
         // AN5212: Improve application performance when fetching instruction and
         // data, from both internal andexternal memories.
@@ -124,7 +124,7 @@ const APP: () = {
             ccdr.peripheral.ADC12,
             &ccdr.clocks,
         );
-        let mut interface = Interface::new(
+        let interface = Interface::new(
             adc1,
             pins.SEED_PIN_9.into_pull_up_input(),
             pins.SEED_PIN_23,
@@ -185,10 +185,7 @@ const APP: () = {
         let mut instrument = Instrument::new(&WAVETABLE_BANKS[..], SAMPLE_RATE);
         instrument.set_amplitude(0.0);
 
-        interface.set_display(display::reduce(display::Action::SetChord(
-            instrument.chord_degrees(),
-        )));
-
+        cx.spawn.reset_display().unwrap();
         cx.spawn.fade_in().unwrap();
 
         init::LateResources {
@@ -264,10 +261,27 @@ const APP: () = {
         audio_interface.handle_interrupt_dma1_str1().unwrap();
     }
 
-    #[task(resources = [interface])]
+    #[task(schedule = [reset_display], resources = [interface])]
     fn update_display(cx: update_display::Context, action: DisplayAction) {
         let interface = cx.resources.interface;
         interface.set_display(display::reduce(action));
+        let _ = cx
+            .schedule
+            .reset_display(cx.scheduled + 500_000_000.cycles());
+    }
+
+    #[task(resources = [instrument, interface])]
+    fn reset_display(mut cx: reset_display::Context) {
+        let interface = cx.resources.interface;
+
+        let mut chord_degrees = None;
+        cx.resources.instrument.lock(|instrument| {
+            chord_degrees = Some(instrument.chord_degrees());
+        });
+
+        interface.set_display(display::reduce(display::Action::SetChord(
+            chord_degrees.unwrap(),
+        )));
     }
 
     extern "C" {
