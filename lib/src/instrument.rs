@@ -131,6 +131,10 @@ impl<'a> Instrument<'a> {
         }
     }
 
+    pub fn scale_root(&self) -> Note {
+        self.scale_root
+    }
+
     pub fn set_chord_root(&mut self, chord_root: f32) -> Option<u8> {
         let original = self.chord_root_degree;
 
@@ -736,5 +740,18 @@ mod tests {
         let new_wavetable = instrument.wavetable();
 
         assert!(old_wavetable != new_wavetable);
+    }
+
+    #[test]
+    fn get_scale_root() {
+        let mut instrument = create_valid_instrument();
+
+        instrument.set_scale_root(1.0);
+        let old_root = instrument.scale_root();
+
+        instrument.set_scale_root(1.0 + 5.0 / 12.0);
+        let new_root = instrument.scale_root();
+
+        assert!(old_root != new_root);
     }
 }

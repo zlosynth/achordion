@@ -231,6 +231,9 @@ const APP: () = {
             } else if interface.note_pot_active() {
                 let chord_root_degree = instrument.chord_root_degree();
                 Some(DisplayAction::SetChordRootDegree(chord_root_degree))
+            } else if interface.scale_root_pot_active() {
+                let scale_root = instrument.scale_root();
+                Some(DisplayAction::SetScaleRoot(scale_root))
             } else if interface.wavetable_pot_active() {
                 let wavetable = instrument.wavetable();
                 Some(DisplayAction::SetWavetable(wavetable))
