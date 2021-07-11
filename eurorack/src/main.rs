@@ -220,7 +220,7 @@ const APP: () = {
             let new_chord_root_degree = instrument.set_chord_root(interface.note());
             let new_scale_root = instrument.set_scale_root(interface.scale_root());
             let new_scale_mode = instrument.set_scale_mode(interface.scale_mode());
-            instrument.set_wavetable(interface.wavetable());
+            let new_wavetable = instrument.set_wavetable(interface.wavetable());
             let new_wavetable_bank = instrument.set_wavetable_bank(interface.wavetable_bank());
             let new_degrees = instrument.set_chord_degrees(interface.chord());
             instrument.set_detune(interface.detune());
@@ -228,6 +228,9 @@ const APP: () = {
             action = if interface.wavetable_bank_pot_active() {
                 let wavetable_bank = instrument.wavetable_bank();
                 Some(DisplayAction::SetWavetableBank(wavetable_bank))
+            } else if interface.wavetable_pot_active() {
+                let wavetable = instrument.wavetable();
+                Some(DisplayAction::SetWavetable(wavetable))
             } else if let Some(new_degrees) = new_degrees {
                 Some(DisplayAction::SetChord(new_degrees))
             } else if let Some(new_chord_root_degree) = new_chord_root_degree {
@@ -238,6 +241,8 @@ const APP: () = {
                 Some(DisplayAction::SetScaleMode(new_scale_mode))
             } else if let Some(new_wavetable_bank) = new_wavetable_bank {
                 Some(DisplayAction::SetWavetableBank(new_wavetable_bank))
+            } else if let Some(new_wavetable) = new_wavetable {
+                Some(DisplayAction::SetWavetable(new_wavetable))
             } else {
                 None
             };

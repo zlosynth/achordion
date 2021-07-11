@@ -8,6 +8,7 @@ pub enum Action {
     SetScaleMode(Mode),
     SetChordRootDegree(u8),
     SetWavetableBank(usize),
+    SetWavetable(f32),
 }
 
 #[derive(Default, Clone, Copy, PartialEq, Debug)]
@@ -59,6 +60,7 @@ pub fn reduce(action: Action) -> State {
         Action::SetScaleMode(mode) => reduce_set_scale_mode(mode),
         Action::SetChordRootDegree(degree) => reduce_set_chord_root_degree(degree),
         Action::SetWavetableBank(bank_index) => reduce_set_wavetable_bank(bank_index),
+        Action::SetWavetable(wavetable_phase) => reduce_set_wavetable(wavetable_phase),
     }
 }
 
@@ -153,6 +155,17 @@ fn reduce_set_wavetable_bank(bank_index: usize) -> State {
         state_array[bank_index * 2] = true;
         state_array[bank_index * 2 + 1] = true;
     }
+
+    state_array.into()
+}
+
+fn reduce_set_wavetable(phase: f32) -> State {
+    debug_assert!((0.0..=1.0).contains(&phase));
+
+    let mut state_array = [false; 8];
+
+    let index = (phase * 7.999) as usize;
+    state_array[index] = true;
 
     state_array.into()
 }
@@ -877,5 +890,59 @@ mod tests {
                 led_sharp: true,
             }
         )
+    }
+
+    #[test]
+    fn reduce_wavetable_low() {
+        let state = reduce(Action::SetWavetable(0.0));
+        assert_eq!(
+            state,
+            State {
+                led1: true,
+                led2: false,
+                led3: false,
+                led4: false,
+                led5: false,
+                led6: false,
+                led7: false,
+                led_sharp: false,
+            }
+        );
+    }
+
+    #[test]
+    fn reduce_wavetable_medium() {
+        let state = reduce(Action::SetWavetable(2.5 / 8.0));
+        assert_eq!(
+            state,
+            State {
+                led1: false,
+                led2: false,
+                led3: true,
+                led4: false,
+                led5: false,
+                led6: false,
+                led7: false,
+                led_sharp: false,
+            }
+        );
+    }
+
+    #[test]
+    fn reduce_wavetable_high() {
+        let state = reduce(Action::SetWavetable(1.0));
+        assert_eq!(
+            state,
+            State {
+                led1: false,
+                led2: false,
+                led3: false,
+                led4: false,
+                led5: false,
+                led6: false,
+                led7: false,
+                led_sharp: true,
+            }
+        );
     }
 }

@@ -1,5 +1,8 @@
 use core::ptr;
 
+#[allow(unused_imports)]
+use micromath::F32Ext;
+
 use crate::chords;
 use crate::detune::DetuneConfig;
 use crate::note::Note;
@@ -178,10 +181,24 @@ impl<'a> Instrument<'a> {
         self.degrees[0].wavetable_bank()
     }
 
-    pub fn set_wavetable(&mut self, wavetable: f32) {
+    pub fn set_wavetable(&mut self, wavetable: f32) -> Option<f32> {
+        let original = self.wavetable();
+
         self.degrees
             .iter_mut()
             .for_each(|d| d.set_wavetable(wavetable));
+
+        let updated = self.wavetable();
+
+        if (original - updated).abs() > 0.001 {
+            Some(updated)
+        } else {
+            None
+        }
+    }
+
+    pub fn wavetable(&self) -> f32 {
+        self.degrees[0].wavetable()
     }
 
     pub fn set_detune(&mut self, detune: f32) {
@@ -375,6 +392,10 @@ impl<'a> Degree<'a> {
         self.oscillators
             .iter_mut()
             .for_each(|o| o.wavetable = wavetable);
+    }
+
+    pub fn wavetable(&self) -> f32 {
+        self.oscillators[0].wavetable
     }
 
     pub fn populate_add(&mut self, buffer: &mut [f32], amplitude: f32) {
@@ -619,11 +640,11 @@ mod tests {
         let mut instrument = create_valid_instrument();
         instrument.set_scale_root(1.0);
 
-        let new_degrees = instrument.set_scale_root(1.0 + 2.0 / 12.0);
-        assert!(new_degrees.is_some());
+        let new_root = instrument.set_scale_root(1.0 + 2.0 / 12.0);
+        assert!(new_root.is_some());
 
-        let new_degrees = instrument.set_scale_root(1.0 + 2.0 / 12.0);
-        assert!(new_degrees.is_none());
+        let new_root = instrument.set_scale_root(1.0 + 2.0 / 12.0);
+        assert!(new_root.is_none());
     }
 
     #[test]
@@ -631,11 +652,11 @@ mod tests {
         let mut instrument = create_valid_instrument();
         instrument.set_scale_mode(0.0);
 
-        let new_degrees = instrument.set_scale_mode(0.5);
-        assert!(new_degrees.is_some());
+        let new_mode = instrument.set_scale_mode(0.5);
+        assert!(new_mode.is_some());
 
-        let new_degrees = instrument.set_scale_mode(0.5);
-        assert!(new_degrees.is_none());
+        let new_mode = instrument.set_scale_mode(0.5);
+        assert!(new_mode.is_none());
     }
 
     #[test]
@@ -643,11 +664,11 @@ mod tests {
         let mut instrument = create_valid_instrument();
         instrument.set_chord_root(1.0);
 
-        let new_degrees = instrument.set_chord_root(1.0 + 2.0 / 12.0);
-        assert!(new_degrees.is_some());
+        let new_root = instrument.set_chord_root(1.0 + 2.0 / 12.0);
+        assert!(new_root.is_some());
 
-        let new_degrees = instrument.set_chord_root(1.0 + 2.0 / 12.0);
-        assert!(new_degrees.is_none());
+        let new_root = instrument.set_chord_root(1.0 + 2.0 / 12.0);
+        assert!(new_root.is_none());
     }
 
     #[test]
@@ -655,10 +676,48 @@ mod tests {
         let mut instrument = create_valid_instrument();
         instrument.set_wavetable_bank(0.0);
 
-        let new_degrees = instrument.set_wavetable_bank(0.9);
-        assert!(new_degrees.is_some());
+        let new_bank = instrument.set_wavetable_bank(0.9);
+        assert!(new_bank.is_some());
 
-        let new_degrees = instrument.set_wavetable_bank(0.9);
-        assert!(new_degrees.is_none());
+        let new_bank = instrument.set_wavetable_bank(0.9);
+        assert!(new_bank.is_none());
+    }
+
+    #[test]
+    fn get_wavetable_bank() {
+        let mut instrument = create_valid_instrument();
+
+        instrument.set_wavetable_bank(0.0);
+        let old_bank = instrument.wavetable_bank();
+
+        instrument.set_wavetable_bank(0.9);
+        let new_bank = instrument.wavetable_bank();
+
+        assert!(old_bank != new_bank);
+    }
+
+    #[test]
+    fn change_wavetable() {
+        let mut instrument = create_valid_instrument();
+        instrument.set_wavetable(0.0);
+
+        let new_wavetable = instrument.set_wavetable(0.9);
+        assert!(new_wavetable.is_some());
+
+        let new_wavetable = instrument.set_wavetable(0.9);
+        assert!(new_wavetable.is_none());
+    }
+
+    #[test]
+    fn get_wavetable() {
+        let mut instrument = create_valid_instrument();
+
+        instrument.set_wavetable(0.0);
+        let old_wavetable = instrument.wavetable();
+
+        instrument.set_wavetable(0.9);
+        let new_wavetable = instrument.wavetable();
+
+        assert!(old_wavetable != new_wavetable);
     }
 }

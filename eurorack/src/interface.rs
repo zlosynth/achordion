@@ -191,6 +191,10 @@ impl Interface {
         self.button.active() && self.pot2.active()
     }
 
+    pub fn wavetable_pot_active(&self) -> bool {
+        !self.button.active() && self.pot2.active()
+    }
+
     pub fn update(&mut self) {
         self.sample();
         self.reconcile();
