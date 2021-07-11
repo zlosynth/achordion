@@ -207,6 +207,10 @@ impl Interface {
         self.button.active() && self.pot3.active()
     }
 
+    pub fn chord_pot_active(&self) -> bool {
+        !self.button.active() && self.pot3.active()
+    }
+
     pub fn update(&mut self) {
         self.sample();
         self.reconcile();

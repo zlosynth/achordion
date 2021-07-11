@@ -225,7 +225,10 @@ const APP: () = {
             let new_degrees = instrument.set_chord_degrees(interface.chord());
             instrument.set_detune(interface.detune());
 
-            action = if interface.wavetable_bank_pot_active() {
+            action = if interface.chord_pot_active() {
+                let chord_degrees = instrument.chord_degrees();
+                Some(DisplayAction::SetChord(chord_degrees))
+            } else if interface.wavetable_bank_pot_active() {
                 let wavetable_bank = instrument.wavetable_bank();
                 Some(DisplayAction::SetWavetableBank(wavetable_bank))
             } else if interface.note_pot_active() {
