@@ -145,6 +145,10 @@ impl<'a> Instrument<'a> {
         }
     }
 
+    pub fn chord_root_degree(&self) -> u8 {
+        self.chord_root_degree
+    }
+
     pub fn set_chord_degrees(&mut self, chord_degrees: f32) -> Option<[i8; DEGREES]> {
         let original = self.chord_degrees;
 
@@ -669,6 +673,19 @@ mod tests {
 
         let new_root = instrument.set_chord_root(1.0 + 2.0 / 12.0);
         assert!(new_root.is_none());
+    }
+
+    #[test]
+    fn get_chord_root_degree() {
+        let mut instrument = create_valid_instrument();
+
+        instrument.set_chord_root(1.0);
+        let old_degree = instrument.chord_root_degree();
+
+        instrument.set_chord_root(1.0 + 2.0 / 12.0);
+        let new_degree = instrument.chord_root_degree();
+
+        assert!(old_degree != new_degree);
     }
 
     #[test]

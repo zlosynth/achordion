@@ -195,6 +195,10 @@ impl Interface {
         !self.button.active() && self.pot2.active()
     }
 
+    pub fn note_pot_active(&self) -> bool {
+        !self.button.active() && self.pot1.active()
+    }
+
     pub fn update(&mut self) {
         self.sample();
         self.reconcile();

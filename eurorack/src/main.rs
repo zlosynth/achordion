@@ -228,6 +228,9 @@ const APP: () = {
             action = if interface.wavetable_bank_pot_active() {
                 let wavetable_bank = instrument.wavetable_bank();
                 Some(DisplayAction::SetWavetableBank(wavetable_bank))
+            } else if interface.note_pot_active() {
+                let chord_root_degree = instrument.chord_root_degree();
+                Some(DisplayAction::SetChordRootDegree(chord_root_degree))
             } else if interface.wavetable_pot_active() {
                 let wavetable = instrument.wavetable();
                 Some(DisplayAction::SetWavetable(wavetable))
