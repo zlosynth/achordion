@@ -6,6 +6,7 @@ pub enum Action {
     SetChord([i8; 3]),
     SetScaleRoot(Note),
     SetScaleMode(Mode),
+    SetChordRootDegree(u8),
 }
 
 #[derive(Default, Clone, Copy, PartialEq, Debug)]
@@ -55,6 +56,7 @@ pub fn reduce(action: Action) -> State {
         Action::SetChord(chord) => reduce_set_chord(chord),
         Action::SetScaleRoot(root) => reduce_set_scale_root(root),
         Action::SetScaleMode(mode) => reduce_set_scale_mode(mode),
+        Action::SetChordRootDegree(degree) => reduce_set_chord_root_degree(degree),
     }
 }
 
@@ -131,6 +133,12 @@ fn reduce_set_scale_root(root: Note) -> State {
 fn reduce_set_scale_mode(mode: Mode) -> State {
     let mut state_array = [false; 8];
     state_array[mode as usize] = true;
+    state_array.into()
+}
+
+fn reduce_set_chord_root_degree(degree: u8) -> State {
+    let mut state_array = [false; 8];
+    state_array[(degree - 1) as usize] = true;
     state_array.into()
 }
 
@@ -643,6 +651,132 @@ mod tests {
     #[test]
     fn reduce_scale_mode_locrian() {
         let state = reduce(Action::SetScaleMode(Mode::Locrian));
+        assert_eq!(
+            state,
+            State {
+                led1: false,
+                led2: false,
+                led3: false,
+                led4: false,
+                led5: false,
+                led6: false,
+                led7: true,
+                led_sharp: false,
+            }
+        )
+    }
+
+    #[test]
+    fn reduce_chord_root_degree_1() {
+        let state = reduce(Action::SetChordRootDegree(1));
+        assert_eq!(
+            state,
+            State {
+                led1: true,
+                led2: false,
+                led3: false,
+                led4: false,
+                led5: false,
+                led6: false,
+                led7: false,
+                led_sharp: false,
+            }
+        )
+    }
+
+    #[test]
+    fn reduce_chord_root_degree_2() {
+        let state = reduce(Action::SetChordRootDegree(2));
+        assert_eq!(
+            state,
+            State {
+                led1: false,
+                led2: true,
+                led3: false,
+                led4: false,
+                led5: false,
+                led6: false,
+                led7: false,
+                led_sharp: false,
+            }
+        )
+    }
+
+    #[test]
+    fn reduce_chord_root_degree_3() {
+        let state = reduce(Action::SetChordRootDegree(3));
+        assert_eq!(
+            state,
+            State {
+                led1: false,
+                led2: false,
+                led3: true,
+                led4: false,
+                led5: false,
+                led6: false,
+                led7: false,
+                led_sharp: false,
+            }
+        )
+    }
+
+    #[test]
+    fn reduce_chord_root_degree_4() {
+        let state = reduce(Action::SetChordRootDegree(4));
+        assert_eq!(
+            state,
+            State {
+                led1: false,
+                led2: false,
+                led3: false,
+                led4: true,
+                led5: false,
+                led6: false,
+                led7: false,
+                led_sharp: false,
+            }
+        )
+    }
+
+    #[test]
+    fn reduce_chord_root_degree_5() {
+        let state = reduce(Action::SetChordRootDegree(5));
+        assert_eq!(
+            state,
+            State {
+                led1: false,
+                led2: false,
+                led3: false,
+                led4: false,
+                led5: true,
+                led6: false,
+                led7: false,
+                led_sharp: false,
+            }
+        )
+    }
+
+    #[test]
+    fn reduce_chord_root_degree_6() {
+        let state = reduce(Action::SetChordRootDegree(6));
+        assert_eq!(
+            state,
+            State {
+                led1: false,
+                led2: false,
+                led3: false,
+                led4: false,
+                led5: false,
+                led6: true,
+                led7: false,
+                led_sharp: false,
+            }
+        )
+    }
+
+    #[test]
+    fn reduce_chord_root_degree_7() {
+        let state = reduce(Action::SetChordRootDegree(7));
         assert_eq!(
             state,
             State {

@@ -9,7 +9,8 @@ backwards compatibility.
 * Fix equilibrium of wavetables with depth of 16 bits.
 * Visualize selected chord on module's display.
 * Visualize selected scale root on module's display.
-* Visualize selected scale mdoe on module's display.
+* Visualize selected scale mode on module's display.
+* Visualize selected chord root on module's display.
 
 ## 0.6.0
 

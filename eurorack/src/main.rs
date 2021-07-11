@@ -216,7 +216,9 @@ const APP: () = {
         let mut action = None;
 
         cx.resources.instrument.lock(|instrument| {
-            instrument.set_chord_root(interface.note());
+            if let Some(new_chord_root_degree) = instrument.set_chord_root(interface.note()) {
+                action = Some(DisplayAction::SetChordRootDegree(new_chord_root_degree));
+            }
             if let Some(new_scale_root) = instrument.set_scale_root(interface.scale_root()) {
                 action = Some(DisplayAction::SetScaleRoot(new_scale_root));
             }

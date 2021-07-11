@@ -63,6 +63,7 @@ pub struct Instrument<'a> {
     scale_root: Note,
     scale_mode: scales::diatonic::Mode,
     chord_root: f32,
+    chord_root_degree: u8,
     chord_degrees: [i8; DEGREES],
     amplitude: f32,
     degrees: [Degree<'a>; DEGREES],
@@ -74,6 +75,7 @@ impl<'a> Instrument<'a> {
             scale_root: Note::C1,
             scale_mode: scales::diatonic::Ionian,
             chord_root: 0.0,
+            chord_root_degree: 1,
             chord_degrees: CHORDS[0],
             amplitude: 1.0,
             degrees: [
@@ -126,9 +128,18 @@ impl<'a> Instrument<'a> {
         }
     }
 
-    pub fn set_chord_root(&mut self, chord_root: f32) {
+    pub fn set_chord_root(&mut self, chord_root: f32) -> Option<u8> {
+        let original = self.chord_root_degree;
+
         self.chord_root = chord_root;
         self.apply_settings();
+
+        let updated = self.chord_root_degree;
+        if original != updated {
+            Some(updated)
+        } else {
+            None
+        }
     }
 
     pub fn set_chord_degrees(&mut self, chord_degrees: f32) -> Option<[i8; DEGREES]> {
@@ -216,8 +227,9 @@ impl<'a> Instrument<'a> {
     }
 
     fn apply_settings(&mut self) {
-        let chord_root_note =
+        let (chord_root_note, chord_root_degree) =
             quantizer::diatonic::quantize(self.scale_mode, self.scale_root, self.chord_root);
+        self.chord_root_degree = chord_root_degree;
 
         let chord_notes = chords::diatonic::build(
             self.scale_root,
@@ -599,6 +611,18 @@ mod tests {
         assert!(new_degrees.is_some());
 
         let new_degrees = instrument.set_scale_mode(0.5);
+        assert!(new_degrees.is_none());
+    }
+
+    #[test]
+    fn change_chord_root() {
+        let mut instrument = create_valid_instrument();
+        instrument.set_chord_root(1.0);
+
+        let new_degrees = instrument.set_chord_root(1.0 + 2.0 / 12.0);
+        assert!(new_degrees.is_some());
+
+        let new_degrees = instrument.set_chord_root(1.0 + 2.0 / 12.0);
         assert!(new_degrees.is_none());
     }
 }
