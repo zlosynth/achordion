@@ -7,6 +7,7 @@ pub enum Action {
     SetScaleRoot(Note),
     SetScaleMode(Mode),
     SetChordRootDegree(u8),
+    SetWavetableBank(usize),
 }
 
 #[derive(Default, Clone, Copy, PartialEq, Debug)]
@@ -57,6 +58,7 @@ pub fn reduce(action: Action) -> State {
         Action::SetScaleRoot(root) => reduce_set_scale_root(root),
         Action::SetScaleMode(mode) => reduce_set_scale_mode(mode),
         Action::SetChordRootDegree(degree) => reduce_set_chord_root_degree(degree),
+        Action::SetWavetableBank(bank_index) => reduce_set_wavetable_bank(bank_index),
     }
 }
 
@@ -139,6 +141,19 @@ fn reduce_set_scale_mode(mode: Mode) -> State {
 fn reduce_set_chord_root_degree(degree: u8) -> State {
     let mut state_array = [false; 8];
     state_array[(degree - 1) as usize] = true;
+    state_array.into()
+}
+
+fn reduce_set_wavetable_bank(bank_index: usize) -> State {
+    debug_assert!(bank_index < 4);
+
+    let mut state_array = [false; 8];
+
+    if bank_index < 4 {
+        state_array[bank_index * 2] = true;
+        state_array[bank_index * 2 + 1] = true;
+    }
+
     state_array.into()
 }
 
@@ -788,6 +803,78 @@ mod tests {
                 led6: false,
                 led7: true,
                 led_sharp: false,
+            }
+        )
+    }
+
+    #[test]
+    fn reduce_wavetable_bank_0() {
+        let state = reduce(Action::SetWavetableBank(0));
+        assert_eq!(
+            state,
+            State {
+                led1: true,
+                led2: true,
+                led3: false,
+                led4: false,
+                led5: false,
+                led6: false,
+                led7: false,
+                led_sharp: false,
+            }
+        )
+    }
+
+    #[test]
+    fn reduce_wavetable_bank_1() {
+        let state = reduce(Action::SetWavetableBank(1));
+        assert_eq!(
+            state,
+            State {
+                led1: false,
+                led2: false,
+                led3: true,
+                led4: true,
+                led5: false,
+                led6: false,
+                led7: false,
+                led_sharp: false,
+            }
+        )
+    }
+
+    #[test]
+    fn reduce_wavetable_bank_2() {
+        let state = reduce(Action::SetWavetableBank(2));
+        assert_eq!(
+            state,
+            State {
+                led1: false,
+                led2: false,
+                led3: false,
+                led4: false,
+                led5: true,
+                led6: true,
+                led7: false,
+                led_sharp: false,
+            }
+        )
+    }
+
+    #[test]
+    fn reduce_wavetable_bank_3() {
+        let state = reduce(Action::SetWavetableBank(3));
+        assert_eq!(
+            state,
+            State {
+                led1: false,
+                led2: false,
+                led3: false,
+                led4: false,
+                led5: false,
+                led6: false,
+                led7: true,
+                led_sharp: true,
             }
         )
     }

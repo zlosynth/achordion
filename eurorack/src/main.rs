@@ -226,7 +226,11 @@ const APP: () = {
                 action = Some(DisplayAction::SetScaleMode(new_scale_mode));
             }
             instrument.set_wavetable(interface.wavetable());
-            instrument.set_wavetable_bank(interface.wavetable_bank());
+            if let Some(new_wavetable_bank) =
+                instrument.set_wavetable_bank(interface.wavetable_bank())
+            {
+                action = Some(DisplayAction::SetWavetableBank(new_wavetable_bank));
+            }
             if let Some(new_degrees) = instrument.set_chord_degrees(interface.chord()) {
                 action = Some(DisplayAction::SetChord(new_degrees));
             }

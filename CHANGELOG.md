@@ -11,6 +11,7 @@ backwards compatibility.
 * Visualize selected scale root on module's display.
 * Visualize selected scale mode on module's display.
 * Visualize selected chord root on module's display.
+* Visualize selected wavetable bank on module's display.
 
 ## 0.6.0
 

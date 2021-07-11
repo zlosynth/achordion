@@ -166,10 +166,12 @@ impl<'a> Instrument<'a> {
         self.chord_degrees
     }
 
-    pub fn set_wavetable_bank(&mut self, wavetable_bank: f32) {
-        self.degrees
-            .iter_mut()
-            .for_each(|d| d.set_wavetable_bank(wavetable_bank));
+    pub fn set_wavetable_bank(&mut self, wavetable_bank: f32) -> Option<usize> {
+        let update = self.degrees[0].set_wavetable_bank(wavetable_bank);
+        self.degrees[1..].iter_mut().for_each(|d| {
+            d.set_wavetable_bank(wavetable_bank);
+        });
+        update
     }
 
     pub fn set_wavetable(&mut self, wavetable: f32) {
@@ -256,6 +258,7 @@ struct Degree<'a> {
     detune_config: DetuneConfig,
     detune_phase: f32,
     wavetable_banks: &'a [&'a [Wavetable<'a>]],
+    selected_wavetable_bank: usize,
     oscillators: [Oscillator<'a>; OSCILLATORS_IN_DEGREE],
     enabled: bool,
 }
@@ -268,6 +271,7 @@ impl<'a> Degree<'a> {
             detune_config: DetuneConfig::Disabled,
             detune_phase: 0.0,
             wavetable_banks,
+            selected_wavetable_bank: 0,
             oscillators: [
                 Oscillator::new(wavetable_banks[0], sample_rate),
                 Oscillator::new(wavetable_banks[0], sample_rate),
@@ -335,15 +339,27 @@ impl<'a> Degree<'a> {
         }
     }
 
-    pub fn set_wavetable_bank(&mut self, wavetable_bank: f32) {
+    pub fn set_wavetable_bank(&mut self, wavetable_bank: f32) -> Option<usize> {
+        let original = self.selected_wavetable_bank;
+
         for i in 1..=self.wavetable_banks.len() {
             if wavetable_bank < i as f32 / self.wavetable_banks.len() as f32 {
-                let wavetable_bank = self.wavetable_banks[i - 1];
-                self.oscillators
-                    .iter_mut()
-                    .for_each(|o| o.wavetable_bank = wavetable_bank);
+                self.selected_wavetable_bank = i - 1;
                 break;
             }
+        }
+
+        let wavetable_bank = self.wavetable_banks[self.selected_wavetable_bank];
+        self.oscillators
+            .iter_mut()
+            .for_each(|o| o.wavetable_bank = wavetable_bank);
+
+        let updated = self.selected_wavetable_bank;
+
+        if original != updated {
+            Some(updated)
+        } else {
+            None
         }
     }
 
@@ -390,7 +406,7 @@ mod tests {
             &waveform::perfect::PERFECT_2_FACTORS,
             SAMPLE_RATE
         )];
-        static ref WAVETABLE_BANKS: [&'static [Wavetable<'static>]; 1] = [&BANK_A[..]];
+        static ref WAVETABLE_BANKS: [&'static [Wavetable<'static>]; 2] = [&BANK_A[..], &BANK_A[..]];
     }
 
     #[test]
@@ -623,6 +639,18 @@ mod tests {
         assert!(new_degrees.is_some());
 
         let new_degrees = instrument.set_chord_root(1.0 + 2.0 / 12.0);
+        assert!(new_degrees.is_none());
+    }
+
+    #[test]
+    fn change_wavetable_bank() {
+        let mut instrument = create_valid_instrument();
+        instrument.set_wavetable_bank(0.0);
+
+        let new_degrees = instrument.set_wavetable_bank(0.9);
+        assert!(new_degrees.is_some());
+
+        let new_degrees = instrument.set_wavetable_bank(0.9);
         assert!(new_degrees.is_none());
     }
 }
