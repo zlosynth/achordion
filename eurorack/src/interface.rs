@@ -203,6 +203,10 @@ impl Interface {
         self.button.active() && self.pot1.active()
     }
 
+    pub fn scale_mode_pot_active(&self) -> bool {
+        self.button.active() && self.pot3.active()
+    }
+
     pub fn update(&mut self) {
         self.sample();
         self.reconcile();
@@ -316,7 +320,7 @@ impl Interface {
     }
 
     fn reconcile_scale_mode(&mut self) {
-        if self.button.active() && self.pot3.active() {
+        if self.scale_mode_pot_active() {
             self.last_scale_mode_pot_reading = self.pot3.value();
         }
         let pot = self.last_scale_mode_pot_reading;

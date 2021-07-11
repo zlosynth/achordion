@@ -234,6 +234,9 @@ const APP: () = {
             } else if interface.scale_root_pot_active() {
                 let scale_root = instrument.scale_root();
                 Some(DisplayAction::SetScaleRoot(scale_root))
+            } else if interface.scale_mode_pot_active() {
+                let scale_mode = instrument.scale_mode();
+                Some(DisplayAction::SetScaleMode(scale_mode))
             } else if interface.wavetable_pot_active() {
                 let wavetable = instrument.wavetable();
                 Some(DisplayAction::SetWavetable(wavetable))

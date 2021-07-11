@@ -117,6 +117,10 @@ impl<'a> Instrument<'a> {
         }
     }
 
+    pub fn scale_mode(&self) -> scales::diatonic::Mode {
+        self.scale_mode
+    }
+
     pub fn set_scale_root(&mut self, scale_root: f32) -> Option<Note> {
         let original = self.scale_root;
 
@@ -656,6 +660,19 @@ mod tests {
     }
 
     #[test]
+    fn get_scale_root() {
+        let mut instrument = create_valid_instrument();
+
+        instrument.set_scale_root(1.0);
+        let old_root = instrument.scale_root();
+
+        instrument.set_scale_root(1.0 + 5.0 / 12.0);
+        let new_root = instrument.scale_root();
+
+        assert!(old_root != new_root);
+    }
+
+    #[test]
     fn change_scale_mode() {
         let mut instrument = create_valid_instrument();
         instrument.set_scale_mode(0.0);
@@ -665,6 +682,19 @@ mod tests {
 
         let new_mode = instrument.set_scale_mode(0.5);
         assert!(new_mode.is_none());
+    }
+
+    #[test]
+    fn get_scale_mode() {
+        let mut instrument = create_valid_instrument();
+
+        instrument.set_scale_mode(0.0);
+        let old_mode = instrument.scale_mode();
+
+        instrument.set_scale_mode(0.5);
+        let new_mode = instrument.scale_mode();
+
+        assert!(old_mode != new_mode);
     }
 
     #[test]
@@ -740,18 +770,5 @@ mod tests {
         let new_wavetable = instrument.wavetable();
 
         assert!(old_wavetable != new_wavetable);
-    }
-
-    #[test]
-    fn get_scale_root() {
-        let mut instrument = create_valid_instrument();
-
-        instrument.set_scale_root(1.0);
-        let old_root = instrument.scale_root();
-
-        instrument.set_scale_root(1.0 + 5.0 / 12.0);
-        let new_root = instrument.scale_root();
-
-        assert!(old_root != new_root);
     }
 }
