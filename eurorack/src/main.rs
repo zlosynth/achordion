@@ -3,6 +3,7 @@
 #![allow(unknown_lints)]
 #![allow(clippy::inconsistent_struct_constructor)]
 #![allow(clippy::new_without_default)]
+#![allow(clippy::manual_map)]
 
 mod interface;
 
@@ -216,25 +217,30 @@ const APP: () = {
         let mut action = None;
 
         cx.resources.instrument.lock(|instrument| {
-            if let Some(new_chord_root_degree) = instrument.set_chord_root(interface.note()) {
-                action = Some(DisplayAction::SetChordRootDegree(new_chord_root_degree));
-            }
-            if let Some(new_scale_root) = instrument.set_scale_root(interface.scale_root()) {
-                action = Some(DisplayAction::SetScaleRoot(new_scale_root));
-            }
-            if let Some(new_scale_mode) = instrument.set_scale_mode(interface.scale_mode()) {
-                action = Some(DisplayAction::SetScaleMode(new_scale_mode));
-            }
+            let new_chord_root_degree = instrument.set_chord_root(interface.note());
+            let new_scale_root = instrument.set_scale_root(interface.scale_root());
+            let new_scale_mode = instrument.set_scale_mode(interface.scale_mode());
             instrument.set_wavetable(interface.wavetable());
-            if let Some(new_wavetable_bank) =
-                instrument.set_wavetable_bank(interface.wavetable_bank())
-            {
-                action = Some(DisplayAction::SetWavetableBank(new_wavetable_bank));
-            }
-            if let Some(new_degrees) = instrument.set_chord_degrees(interface.chord()) {
-                action = Some(DisplayAction::SetChord(new_degrees));
-            }
+            let new_wavetable_bank = instrument.set_wavetable_bank(interface.wavetable_bank());
+            let new_degrees = instrument.set_chord_degrees(interface.chord());
             instrument.set_detune(interface.detune());
+
+            action = if interface.wavetable_bank_pot_active() {
+                let wavetable_bank = instrument.wavetable_bank();
+                Some(DisplayAction::SetWavetableBank(wavetable_bank))
+            } else if let Some(new_degrees) = new_degrees {
+                Some(DisplayAction::SetChord(new_degrees))
+            } else if let Some(new_chord_root_degree) = new_chord_root_degree {
+                Some(DisplayAction::SetChordRootDegree(new_chord_root_degree))
+            } else if let Some(new_scale_root) = new_scale_root {
+                Some(DisplayAction::SetScaleRoot(new_scale_root))
+            } else if let Some(new_scale_mode) = new_scale_mode {
+                Some(DisplayAction::SetScaleMode(new_scale_mode))
+            } else if let Some(new_wavetable_bank) = new_wavetable_bank {
+                Some(DisplayAction::SetWavetableBank(new_wavetable_bank))
+            } else {
+                None
+            };
         });
 
         if interface.active() {

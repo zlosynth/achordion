@@ -174,6 +174,10 @@ impl<'a> Instrument<'a> {
         update
     }
 
+    pub fn wavetable_bank(&self) -> usize {
+        self.degrees[0].wavetable_bank()
+    }
+
     pub fn set_wavetable(&mut self, wavetable: f32) {
         self.degrees
             .iter_mut()
@@ -361,6 +365,10 @@ impl<'a> Degree<'a> {
         } else {
             None
         }
+    }
+
+    pub fn wavetable_bank(&self) -> usize {
+        self.selected_wavetable_bank
     }
 
     pub fn set_wavetable(&mut self, wavetable: f32) {

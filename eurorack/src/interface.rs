@@ -187,6 +187,10 @@ impl Interface {
             || self.pot4.active()
     }
 
+    pub fn wavetable_bank_pot_active(&self) -> bool {
+        self.button.active() && self.pot2.active()
+    }
+
     pub fn update(&mut self) {
         self.sample();
         self.reconcile();
@@ -252,7 +256,7 @@ impl Interface {
     }
 
     fn reconcile_wavetable_bank(&mut self) {
-        if self.button.active() && self.pot2.active() {
+        if self.wavetable_bank_pot_active() {
             self.parameters.bank = self.pot2.value();
         };
     }
