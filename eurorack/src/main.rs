@@ -223,7 +223,7 @@ const APP: () = {
             let new_wavetable = instrument.set_wavetable(interface.wavetable());
             let new_wavetable_bank = instrument.set_wavetable_bank(interface.wavetable_bank());
             let new_degrees = instrument.set_chord_degrees(interface.chord());
-            instrument.set_detune(interface.detune());
+            let new_detune = instrument.set_detune(interface.detune());
 
             action = if interface.chord_pot_active() {
                 let chord_degrees = instrument.chord_degrees();
@@ -243,6 +243,9 @@ const APP: () = {
             } else if interface.wavetable_pot_active() {
                 let wavetable = instrument.wavetable();
                 Some(DisplayAction::SetWavetable(wavetable))
+            } else if interface.detune_pot_active() {
+                let (detune_index, detune_phase) = instrument.detune();
+                Some(DisplayAction::SetDetune(detune_index, detune_phase))
             } else if let Some(new_degrees) = new_degrees {
                 Some(DisplayAction::SetChord(new_degrees))
             } else if let Some(new_chord_root_degree) = new_chord_root_degree {
@@ -255,6 +258,8 @@ const APP: () = {
                 Some(DisplayAction::SetWavetableBank(new_wavetable_bank))
             } else if let Some(new_wavetable) = new_wavetable {
                 Some(DisplayAction::SetWavetable(new_wavetable))
+            } else if let Some((new_detune_index, new_detune_phase)) = new_detune {
+                Some(DisplayAction::SetDetune(new_detune_index, new_detune_phase))
             } else {
                 None
             };

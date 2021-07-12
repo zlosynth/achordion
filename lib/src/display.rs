@@ -9,6 +9,7 @@ pub enum Action {
     SetChordRootDegree(u8),
     SetWavetableBank(usize),
     SetWavetable(f32),
+    SetDetune(usize, f32),
 }
 
 #[derive(Default, Clone, Copy, PartialEq, Debug)]
@@ -61,6 +62,7 @@ pub fn reduce(action: Action) -> State {
         Action::SetChordRootDegree(degree) => reduce_set_chord_root_degree(degree),
         Action::SetWavetableBank(bank_index) => reduce_set_wavetable_bank(bank_index),
         Action::SetWavetable(wavetable_phase) => reduce_set_wavetable(wavetable_phase),
+        Action::SetDetune(index, phase) => reduce_set_detune(index, phase),
     }
 }
 
@@ -166,6 +168,18 @@ fn reduce_set_wavetable(phase: f32) -> State {
 
     let index = (phase * 7.999) as usize;
     state_array[index] = true;
+
+    state_array.into()
+}
+
+fn reduce_set_detune(index: usize, phase: f32) -> State {
+    debug_assert!(index < 4);
+    debug_assert!((0.0..=1.0).contains(&phase));
+
+    let mut state_array = [false; 8];
+
+    state_array[index * 2] = true;
+    state_array[(phase * 3.999) as usize * 2 + 1] = true;
 
     state_array.into()
 }
@@ -935,6 +949,132 @@ mod tests {
             state,
             State {
                 led1: false,
+                led2: false,
+                led3: false,
+                led4: false,
+                led5: false,
+                led6: false,
+                led7: false,
+                led_sharp: true,
+            }
+        );
+    }
+
+    #[test]
+    fn reduce_detune_index_0() {
+        let state = reduce(Action::SetDetune(0, 0.0));
+        assert_eq!(
+            state,
+            State {
+                led1: true,
+                led2: true,
+                led3: false,
+                led4: false,
+                led5: false,
+                led6: false,
+                led7: false,
+                led_sharp: false,
+            }
+        );
+    }
+
+    #[test]
+    fn reduce_detune_index_1() {
+        let state = reduce(Action::SetDetune(1, 0.0));
+        assert_eq!(
+            state,
+            State {
+                led1: false,
+                led2: true,
+                led3: true,
+                led4: false,
+                led5: false,
+                led6: false,
+                led7: false,
+                led_sharp: false,
+            }
+        );
+    }
+
+    #[test]
+    fn reduce_detune_index_2() {
+        let state = reduce(Action::SetDetune(2, 0.0));
+        assert_eq!(
+            state,
+            State {
+                led1: false,
+                led2: true,
+                led3: false,
+                led4: false,
+                led5: true,
+                led6: false,
+                led7: false,
+                led_sharp: false,
+            }
+        );
+    }
+
+    #[test]
+    fn reduce_detune_index_3() {
+        let state = reduce(Action::SetDetune(3, 0.0));
+        assert_eq!(
+            state,
+            State {
+                led1: false,
+                led2: true,
+                led3: false,
+                led4: false,
+                led5: false,
+                led6: false,
+                led7: true,
+                led_sharp: false,
+            }
+        );
+    }
+
+    #[test]
+    fn reduce_detune_phase_low() {
+        let state = reduce(Action::SetDetune(0, 0.5 / 4.0));
+        assert_eq!(
+            state,
+            State {
+                led1: true,
+                led2: true,
+                led3: false,
+                led4: false,
+                led5: false,
+                led6: false,
+                led7: false,
+                led_sharp: false,
+            }
+        );
+    }
+
+    #[test]
+    fn reduce_detune_phase_middle() {
+        let state = reduce(Action::SetDetune(0, 1.5 / 4.0));
+        assert_eq!(
+            state,
+            State {
+                led1: true,
+                led2: false,
+                led3: false,
+                led4: true,
+                led5: false,
+                led6: false,
+                led7: false,
+                led_sharp: false,
+            }
+        );
+    }
+
+    #[test]
+    fn reduce_detune_phase_high() {
+        let state = reduce(Action::SetDetune(0, 3.5 / 4.0));
+        assert_eq!(
+            state,
+            State {
+                led1: true,
                 led2: false,
                 led3: false,
                 led4: false,

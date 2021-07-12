@@ -13,6 +13,7 @@ backwards compatibility.
 * Visualize selected chord root on module's display.
 * Visualize selected wavetable bank on module's display.
 * Visualize selected wavetable on module's display.
+* Visualize selected detune on module's display.
 
 ## 0.6.0
 

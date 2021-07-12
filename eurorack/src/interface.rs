@@ -211,6 +211,10 @@ impl Interface {
         !self.button.active() && self.pot3.active()
     }
 
+    pub fn detune_pot_active(&self) -> bool {
+        self.pot4.active()
+    }
+
     pub fn update(&mut self) {
         self.sample();
         self.reconcile();

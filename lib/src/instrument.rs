@@ -68,6 +68,7 @@ pub struct Instrument<'a> {
     chord_root: f32,
     chord_root_degree: u8,
     chord_degrees: [i8; DEGREES],
+    selected_detune_index: usize,
     amplitude: f32,
     degrees: [Degree<'a>; DEGREES],
 }
@@ -80,6 +81,7 @@ impl<'a> Instrument<'a> {
             chord_root: 0.0,
             chord_root_degree: 1,
             chord_degrees: CHORDS[0],
+            selected_detune_index: 0,
             amplitude: 1.0,
             degrees: [
                 Degree::new(wavetable_banks, sample_rate),
@@ -213,8 +215,11 @@ impl<'a> Instrument<'a> {
         self.degrees[0].wavetable()
     }
 
-    pub fn set_detune(&mut self, detune: f32) {
+    pub fn set_detune(&mut self, detune: f32) -> Option<(usize, f32)> {
+        let original = self.detune();
+
         let index = ((detune * DETUNES.len() as f32) as usize).min(DETUNES.len() - 1);
+        self.selected_detune_index = index;
 
         let section = 1.0 / DETUNES.len() as f32;
         let phase = taper::log((detune % section) / section);
@@ -222,6 +227,21 @@ impl<'a> Instrument<'a> {
         for (i, degree) in self.degrees.iter_mut().enumerate() {
             degree.set_detune(DETUNES[index][i], phase)
         }
+
+        let updated = self.detune();
+
+        if original != updated {
+            Some(updated)
+        } else {
+            None
+        }
+    }
+
+    pub fn detune(&self) -> (usize, f32) {
+        let index = self.selected_detune_index;
+        let phase = self.degrees[0].detune_phase;
+
+        (index, phase)
     }
 
     pub fn amplitude(&self) -> f32 {
@@ -770,5 +790,43 @@ mod tests {
         let new_wavetable = instrument.wavetable();
 
         assert!(old_wavetable != new_wavetable);
+    }
+
+    #[test]
+    fn change_detune() {
+        let mut instrument = create_valid_instrument();
+        instrument.set_detune(0.0);
+
+        let new_detune = instrument.set_detune(0.9);
+        assert!(new_detune.is_some());
+
+        let new_detune = instrument.set_detune(0.9);
+        assert!(new_detune.is_none());
+    }
+
+    #[test]
+    fn get_detune_index() {
+        let mut instrument = create_valid_instrument();
+
+        instrument.set_detune(0.0);
+        let (old_detune_index, _) = instrument.detune();
+
+        instrument.set_detune(0.9);
+        let (new_detune_index, _) = instrument.detune();
+
+        assert!(old_detune_index != new_detune_index);
+    }
+
+    #[test]
+    fn get_detune_phase() {
+        let mut instrument = create_valid_instrument();
+
+        instrument.set_detune(0.0);
+        let (_, old_detune_phase) = instrument.detune();
+
+        instrument.set_detune(0.9);
+        let (_, new_detune_phase) = instrument.detune();
+
+        assert!(old_detune_phase != new_detune_phase);
     }
 }
