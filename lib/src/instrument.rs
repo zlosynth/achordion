@@ -204,7 +204,7 @@ impl<'a> Instrument<'a> {
 
         let updated = self.wavetable();
 
-        if (original - updated).abs() > 0.001 {
+        if (original - updated).abs() > 0.01 {
             Some(updated)
         } else {
             None
@@ -230,7 +230,7 @@ impl<'a> Instrument<'a> {
 
         let updated = self.detune();
 
-        if original != updated {
+        if original.0 != updated.0 || (original.1 - updated.1).abs() > 0.01 {
             Some(updated)
         } else {
             None
