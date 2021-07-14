@@ -263,6 +263,14 @@ const APP: () = {
             } else {
                 None
             };
+
+            // XXX: Temporary for testing
+            let amplitude = if interface.amplitude() > 0.5 {
+                0.2
+            } else {
+                0.0
+            };
+            instrument.set_amplitude(amplitude);
         });
 
         if interface.active() {

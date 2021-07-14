@@ -80,6 +80,9 @@ struct Parameters {
     pub detune: f32,
     pub scale_root: f32,
     pub scale_mode: f32,
+
+    // XXX: Temporary, for testing
+    pub amplitude: f32,
 }
 
 impl Interface {
@@ -244,6 +247,9 @@ impl Interface {
         self.reconcile_detune();
         self.reconcile_scale_root();
         self.reconcile_scale_mode();
+
+        // XXX: Temporary for testing
+        self.reconcile_amplitude();
     }
 
     fn reconcile_note(&mut self) {
@@ -333,13 +339,29 @@ impl Interface {
         }
         let pot = self.last_scale_mode_pot_reading;
 
-        let cv = if self.cv3.connected() {
-            self.cv3.value() * 2.0 - 1.0
-        } else {
-            0.0
-        };
+        // XXX: CV control is disable, so it can be used as VCA for testing
+        let cv = 0.0;
+        // let cv = if self.cv3.connected() {
+        //     self.cv3.value() * 2.0 - 1.0
+        // } else {
+        //     0.0
+        // };
 
         self.parameters.scale_mode = cv + pot;
+    }
+
+    // XXX: Temporary for testing
+    fn reconcile_amplitude(&mut self) {
+        self.parameters.amplitude = if self.cv3.connected() {
+            self.cv3.value()
+        } else {
+            1.0
+        };
+    }
+
+    // XXX: Temporary for testing
+    pub fn amplitude(&self) -> f32 {
+        self.parameters.amplitude
     }
 
     pub fn set_display(&mut self, display_state: DisplayState) {
