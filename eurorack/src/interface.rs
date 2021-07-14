@@ -261,7 +261,7 @@ impl Interface {
         self.parameters.note = if self.cv1.connected() {
             // Keep the multiplier below 4, so assure that the result won't get
             // into the 5th octave when set on the edge.
-            let octave_offset = (pot * 3.95).trunc();
+            let octave_offset = (pot * 3.95).trunc() - 2.0;
             let note = sample_to_voct(self.cv1.value());
             note + octave_offset
         } else {
