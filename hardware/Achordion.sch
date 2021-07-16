@@ -15,36 +15,6 @@ Comment4 ""
 $EndDescr
 $Comp
 L Amplifier_Operational:TL072 U6
-U 1 1 61919A01
-P 12975 7875
-F 0 "U6" H 13125 7750 50  0000 C CNN
-F 1 "TL072" H 13150 8000 50  0000 C CNN
-F 2 "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm" H 12975 7875 50  0001 C CNN
-F 3 "http://www.ti.com/lit/ds/symlink/tl071.pdf" H 12975 7875 50  0001 C CNN
-F 4 "" H 12975 7875 50  0001 C CNN "LCSC Part #"
-F 5 "C163525" H 12975 7875 50  0001 C CNN "LCSC"
-F 6 "TL072CD" H 12975 7875 50  0001 C CNN "Mfr Part Number"
-F 7 "1" H 12975 7875 50  0001 C CNN "Order Qty"
-	1    12975 7875
-	1    0    0    1   
-$EndComp
-$Comp
-L Amplifier_Operational:TL072 U6
-U 2 1 6191B0CB
-P 13550 9400
-F 0 "U6" H 13700 9275 50  0000 C CNN
-F 1 "TL072" H 13725 9550 50  0000 C CNN
-F 2 "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm" H 13550 9400 50  0001 C CNN
-F 3 "http://www.ti.com/lit/ds/symlink/tl071.pdf" H 13550 9400 50  0001 C CNN
-F 4 "" H 13550 9400 50  0001 C CNN "LCSC Part #"
-F 5 "C163525" H 13550 9400 50  0001 C CNN "LCSC"
-F 6 "TL072CD" H 13550 9400 50  0001 C CNN "Mfr Part Number"
-F 7 "1" H 13550 9400 50  0001 C CNN "Order Qty"
-	2    13550 9400
-	1    0    0    1   
-$EndComp
-$Comp
-L Amplifier_Operational:TL072 U6
 U 3 1 6191D5F8
 P 15225 8425
 F 0 "U6" H 14925 8450 50  0000 L CNN
@@ -136,40 +106,6 @@ Connection ~ 15325 8425
 Wire Wire Line
 	15325 8425 15325 8350
 $Comp
-L Device:R_Small R10
-U 1 1 61A3948C
-P 13575 7875
-F 0 "R10" V 13650 7875 50  0000 C CNN
-F 1 "1k" V 13500 7875 50  0000 C CNN
-F 2 "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder" H 13575 7875 50  0001 C CNN
-F 3 "~" H 13575 7875 50  0001 C CNN
-F 4 "" H 13575 7875 50  0001 C CNN "LCSC Part #"
-F 5 "C21190" H 13575 7875 50  0001 C CNN "LCSC"
-F 6 "1" H 13575 7875 50  0001 C CNN "Order Qty"
-F 7 "CR0603-FX-1001ELF" H 13575 7875 50  0001 C CNN "Mfr Part Number"
-	1    13575 7875
-	0    -1   -1   0   
-$EndComp
-Wire Wire Line
-	13275 7875 13375 7875
-$Comp
-L power:GND #PWR053
-U 1 1 619FCCB3
-P 13700 8025
-F 0 "#PWR053" H 13700 7775 50  0001 C CNN
-F 1 "GND" H 13705 7852 50  0000 C CNN
-F 2 "" H 13700 8025 50  0001 C CNN
-F 3 "" H 13700 8025 50  0001 C CNN
-	1    13700 8025
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	13775 7975 13700 7975
-Wire Wire Line
-	13700 7975 13700 8025
-Wire Wire Line
-	13675 7875 13775 7875
-$Comp
 L Device:R_Small R9
 U 1 1 61B4569E
 P 12975 7525
@@ -186,9 +122,6 @@ F 7 "CR0603-FX-4702ELF" H 12975 7525 50  0001 C CNN "Mfr Part Number"
 $EndComp
 Wire Wire Line
 	13375 7525 13075 7525
-Connection ~ 13375 7875
-Wire Wire Line
-	13375 7875 13475 7875
 $Comp
 L Device:C_Small C36
 U 1 1 61B7484D
@@ -208,9 +141,6 @@ Wire Wire Line
 	13075 7200 13375 7200
 Wire Wire Line
 	13375 7200 13375 7525
-Connection ~ 13375 7525
-Wire Wire Line
-	13375 7525 13375 7875
 $Comp
 L Device:R_Small R8
 U 1 1 61BA548D
@@ -322,8 +252,6 @@ F 7 "CR0603-FX-1001ELF" H 14150 9400 50  0001 C CNN "Mfr Part Number"
 	1    14150 9400
 	0    -1   -1   0   
 $EndComp
-Wire Wire Line
-	13850 9400 13950 9400
 $Comp
 L power:GND #PWR056
 U 1 1 61CD621F
@@ -341,48 +269,8 @@ Wire Wire Line
 	14275 9500 14275 9550
 Wire Wire Line
 	14250 9400 14350 9400
-$Comp
-L Device:R_Small R13
-U 1 1 61CD6228
-P 13550 9050
-F 0 "R13" V 13625 9050 50  0000 C CNN
-F 1 "47k" V 13475 9050 50  0000 C CNN
-F 2 "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder" H 13550 9050 50  0001 C CNN
-F 3 "~" H 13550 9050 50  0001 C CNN
-F 4 "" H 13550 9050 50  0001 C CNN "LCSC Part #"
-F 5 "C25819" H 13550 9050 50  0001 C CNN "LCSC"
-F 6 "1" H 13550 9050 50  0001 C CNN "Order Qty"
-F 7 "CR0603-FX-4702ELF" H 13550 9050 50  0001 C CNN "Mfr Part Number"
-	1    13550 9050
-	0    -1   -1   0   
-$EndComp
-Wire Wire Line
-	13950 9050 13650 9050
-Connection ~ 13950 9400
 Wire Wire Line
 	13950 9400 14050 9400
-$Comp
-L Device:C_Small C38
-U 1 1 61CD6231
-P 13550 8725
-F 0 "C38" V 13425 8675 50  0000 L CNN
-F 1 "18p" V 13675 8650 50  0000 L CNN
-F 2 "Capacitor_SMD:C_0603_1608Metric_Pad1.08x0.95mm_HandSolder" H 13550 8725 50  0001 C CNN
-F 3 "~" H 13550 8725 50  0001 C CNN
-F 4 "" H 13550 8725 50  0001 C CNN "LCSC Part #"
-F 5 "C1647" H 13550 8725 50  0001 C CNN "LCSC"
-F 6 "1" H 13550 8725 50  0001 C CNN "Order Qty"
-F 7 "CL10C180JB81PNC" H 13550 8725 50  0001 C CNN "Mfr Part Number"
-	1    13550 8725
-	0    1    1    0   
-$EndComp
-Wire Wire Line
-	13650 8725 13950 8725
-Wire Wire Line
-	13950 8725 13950 9050
-Connection ~ 13950 9050
-Wire Wire Line
-	13950 9050 13950 9400
 $Comp
 L Device:R_Small R12
 U 1 1 61CD623B
@@ -398,35 +286,6 @@ F 7 "CR0603-JW-682ELF" H 12950 9300 50  0001 C CNN "Mfr Part Number"
 	1    12950 9300
 	0    -1   -1   0   
 $EndComp
-Wire Wire Line
-	13050 9300 13150 9300
-Wire Wire Line
-	13150 9300 13150 9050
-Wire Wire Line
-	13150 9050 13450 9050
-Connection ~ 13150 9300
-Wire Wire Line
-	13150 9300 13250 9300
-Wire Wire Line
-	13450 8725 13150 8725
-Wire Wire Line
-	13150 8725 13150 8875
-Connection ~ 13150 9050
-$Comp
-L power:GND #PWR055
-U 1 1 61CD6249
-P 13175 9550
-F 0 "#PWR055" H 13175 9300 50  0001 C CNN
-F 1 "GND" H 13180 9377 50  0000 C CNN
-F 2 "" H 13175 9550 50  0001 C CNN
-F 3 "" H 13175 9550 50  0001 C CNN
-	1    13175 9550
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	13175 9550 13175 9500
-Wire Wire Line
-	13175 9500 13250 9500
 $Comp
 L power:GND #PWR054
 U 1 1 61CD6257
@@ -1576,44 +1435,6 @@ Wire Wire Line
 	6925 9025 6925 9075
 Wire Wire Line
 	6925 9075 7025 9075
-Text GLabel 7025 4825 2    50   Output ~ 0
-LED7
-Text GLabel 7025 4925 2    50   Output ~ 0
-LED8
-Text GLabel 7025 4025 2    50   Input ~ 0
-BUTTON
-Text GLabel 5025 3825 0    50   Input ~ 0
-CV6
-Text GLabel 5025 3925 0    50   Input ~ 0
-CV2
-Text GLabel 5025 3625 0    50   Input ~ 0
-CV4
-Text GLabel 5025 3525 0    50   Input ~ 0
-CV3
-Text GLabel 5025 3725 0    50   Input ~ 0
-CV5
-Text GLabel 5025 4025 0    50   Input ~ 0
-CV1
-Text GLabel 5025 4125 0    50   Input ~ 0
-POT4
-Text GLabel 5025 4225 0    50   Input ~ 0
-POT3
-Text GLabel 5025 4525 0    50   Input ~ 0
-POT2
-Text GLabel 5025 4325 0    50   Input ~ 0
-POT1
-Text GLabel 7025 4425 2    50   Output ~ 0
-LED6
-Text GLabel 7025 4525 2    50   Output ~ 0
-LED5
-Text GLabel 5025 4625 0    50   Output ~ 0
-LED4
-Text GLabel 5025 4725 0    50   Output ~ 0
-LED3
-Text GLabel 7025 2625 2    50   Output ~ 0
-LED2
-Text GLabel 7025 2725 2    50   Output ~ 0
-LED1
 Wire Notes Line
 	11075 500  11075 11225
 Wire Notes Line
@@ -2276,98 +2097,8 @@ F 7 "1" H 14700 2800 50  0001 C CNN "Order Qty"
 $EndComp
 Wire Notes Line
 	11075 3600 16050 3600
-Text GLabel 5025 3325 0    50   Output ~ 0
-DAC2
-Text GLabel 5025 3225 0    50   Output ~ 0
-DAC1
-$Comp
-L power:GND #PWR0101
-U 1 1 60C73389
-P 6025 5225
-F 0 "#PWR0101" H 6025 4975 50  0001 C CNN
-F 1 "GND" H 6030 5052 50  0000 C CNN
-F 2 "" H 6025 5225 50  0001 C CNN
-F 3 "" H 6025 5225 50  0001 C CNN
-	1    6025 5225
-	1    0    0    -1  
-$EndComp
-$Comp
-L power:+3.3V #PWR0104
-U 1 1 60CA02C2
-P 5025 2625
-F 0 "#PWR0104" H 5025 2475 50  0001 C CNN
-F 1 "+3.3V" V 5040 2753 50  0000 L CNN
-F 2 "" H 5025 2625 50  0001 C CNN
-F 3 "" H 5025 2625 50  0001 C CNN
-	1    5025 2625
-	0    -1   -1   0   
-$EndComp
-$Comp
-L power:+3.3VA #PWR0105
-U 1 1 60CA15EB
-P 5025 2825
-F 0 "#PWR0105" H 5025 2675 50  0001 C CNN
-F 1 "+3.3VA" V 5040 2952 50  0000 L CNN
-F 2 "" H 5025 2825 50  0001 C CNN
-F 3 "" H 5025 2825 50  0001 C CNN
-	1    5025 2825
-	0    -1   -1   0   
-$EndComp
-$Comp
-L power:VCC #PWR0106
-U 1 1 60C79816
-P 4950 2475
-F 0 "#PWR0106" H 4950 2325 50  0001 C CNN
-F 1 "VCC" H 4965 2648 50  0000 C CNN
-F 2 "" H 4950 2475 50  0001 C CNN
-F 3 "" H 4950 2475 50  0001 C CNN
-	1    4950 2475
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	4950 2525 5025 2525
-Wire Wire Line
-	4950 2475 4950 2525
-$Comp
-L power:GND #PWR0107
-U 1 1 60CF0FAE
-P 4450 2975
-F 0 "#PWR0107" H 4450 2725 50  0001 C CNN
-F 1 "GND" H 4455 2802 50  0000 C CNN
-F 2 "" H 4450 2975 50  0001 C CNN
-F 3 "" H 4450 2975 50  0001 C CNN
-	1    4450 2975
-	1    0    0    -1  
-$EndComp
 Text Notes 500  625  0    79   ~ 0
 Core
-$Comp
-L DaisySeed:DaisySeed_Rev4 A1
-U 1 1 6093AAFE
-P 6025 3725
-F 0 "A1" H 6025 5190 50  0000 C CNN
-F 1 "DaisySeed_Rev4" H 6025 5099 50  0000 C CNN
-F 2 "Socket_DaisySeed:DaisySeed" H 6025 2375 50  0001 C CNN
-F 3 "https://github.com/electro-smith/DaisyWiki/wiki" H 6425 2525 50  0001 C CNN
-F 4 "M20-7822046" H 6025 3725 50  0001 C CNN "Mfr Part Number"
-F 5 "2" H 6025 3725 50  0001 C CNN "Order Qty"
-	1    6025 3725
-	1    0    0    -1  
-$EndComp
-NoConn ~ 5025 3025
-NoConn ~ 5025 3125
-Wire Wire Line
-	5025 2925 4450 2925
-Wire Wire Line
-	4450 2925 4450 2975
-NoConn ~ 7025 2525
-NoConn ~ 7025 3025
-NoConn ~ 7025 3425
-NoConn ~ 7025 3525
-NoConn ~ 7025 4625
-NoConn ~ 7025 4725
-NoConn ~ 5025 4825
-NoConn ~ 5025 4925
 $Comp
 L Device:R_Small R41
 U 1 1 63BED79C
@@ -2534,8 +2265,6 @@ Wire Wire Line
 Wire Wire Line
 	10550 8075 10550 8325
 Connection ~ 10550 8325
-NoConn ~ 7025 3825
-NoConn ~ 7025 3925
 $Comp
 L Connector:AudioJack2_SwitchT J5
 U 1 1 61312282
@@ -2545,17 +2274,6 @@ F 1 "Jack" H 14370 9424 50  0000 R CNN
 F 2 "Connector_Audio:Jack_3.5mm_QingPu_WQP-PJ398SM_Vertical_CircularHoles" H 14550 9400 50  0001 C CNN
 F 3 "~" H 14550 9400 50  0001 C CNN
 	1    14550 9400
-	-1   0    0    1   
-$EndComp
-$Comp
-L Connector:AudioJack2_SwitchT J4
-U 1 1 6132E1F7
-P 13975 7875
-F 0 "J4" H 13795 7808 50  0000 R CNN
-F 1 "Jack" H 13795 7899 50  0000 R CNN
-F 2 "Connector_Audio:Jack_3.5mm_QingPu_WQP-PJ398SM_Vertical_CircularHoles" H 13975 7875 50  0001 C CNN
-F 3 "~" H 13975 7875 50  0001 C CNN
-	1    13975 7875
 	-1   0    0    1   
 $EndComp
 $Comp
@@ -2595,9 +2313,6 @@ F 3 "~" H 1125 7925 50  0001 C CNN
 	1    1125 7925
 	1    0    0    1   
 $EndComp
-NoConn ~ 7025 3125
-Text GLabel 7025 4125 2    50   Output ~ 0
-PROBE
 $Comp
 L Diode:BAT54S D11
 U 1 1 616C07A4
@@ -2932,20 +2647,11 @@ Connection ~ 12575 7350
 Wire Wire Line
 	12575 7350 12575 7525
 Wire Wire Line
-	13075 8875 13150 8875
-Connection ~ 13150 8875
-Wire Wire Line
-	13150 8875 13150 9050
-Wire Wire Line
 	14275 9300 14350 9300
 Wire Wire Line
 	14450 8350 14450 7450
 Wire Wire Line
 	14450 7450 13700 7450
-Wire Wire Line
-	13700 7450 13700 7775
-Wire Wire Line
-	13700 7775 13775 7775
 Wire Wire Line
 	12875 8875 12800 8875
 Wire Wire Line
@@ -2953,11 +2659,7 @@ Wire Wire Line
 Wire Wire Line
 	11225 7350 11225 8500
 Wire Wire Line
-	11225 8500 14275 8500
-Wire Wire Line
 	14275 8500 14275 9300
-Wire Wire Line
-	14450 8350 12800 8350
 Wire Wire Line
 	12800 8350 12800 8875
 Connection ~ 8075 9250
@@ -3056,5 +2758,303 @@ F 6 "MCP6002-I/SN" H 7725 10750 50  0001 C CNN "Mfr Part Number"
 F 7 "1" H 7725 10750 50  0001 C CNN "Order Qty"
 	3    7725 10750
 	0    1    1    0   
+$EndComp
+Connection ~ 13950 9050
+Wire Wire Line
+	13950 9050 13950 9400
+Wire Wire Line
+	13950 8725 13950 9050
+Connection ~ 13950 9400
+Connection ~ 13375 7525
+Wire Wire Line
+	14450 8350 12800 8350
+Wire Wire Line
+	11225 8500 14275 8500
+Wire Wire Line
+	13700 7775 13775 7775
+Wire Wire Line
+	13700 7450 13700 7775
+Wire Wire Line
+	13150 8875 13150 9050
+Connection ~ 13150 8875
+Wire Wire Line
+	13075 8875 13150 8875
+$Comp
+L Connector:AudioJack2_SwitchT J4
+U 1 1 6132E1F7
+P 13975 7875
+F 0 "J4" H 13795 7808 50  0000 R CNN
+F 1 "Jack" H 13795 7899 50  0000 R CNN
+F 2 "Connector_Audio:Jack_3.5mm_QingPu_WQP-PJ398SM_Vertical_CircularHoles" H 13975 7875 50  0001 C CNN
+F 3 "~" H 13975 7875 50  0001 C CNN
+	1    13975 7875
+	-1   0    0    1   
+$EndComp
+Wire Wire Line
+	13175 9500 13250 9500
+Wire Wire Line
+	13175 9550 13175 9500
+$Comp
+L power:GND #PWR055
+U 1 1 61CD6249
+P 13175 9550
+F 0 "#PWR055" H 13175 9300 50  0001 C CNN
+F 1 "GND" H 13180 9377 50  0000 C CNN
+F 2 "" H 13175 9550 50  0001 C CNN
+F 3 "" H 13175 9550 50  0001 C CNN
+	1    13175 9550
+	1    0    0    -1  
+$EndComp
+Connection ~ 13150 9050
+Wire Wire Line
+	13150 8725 13150 8875
+Wire Wire Line
+	13450 8725 13150 8725
+Wire Wire Line
+	13150 9300 13250 9300
+Connection ~ 13150 9300
+Wire Wire Line
+	13150 9050 13450 9050
+Wire Wire Line
+	13150 9300 13150 9050
+Wire Wire Line
+	13050 9300 13150 9300
+Wire Wire Line
+	13650 8725 13950 8725
+$Comp
+L Device:C_Small C38
+U 1 1 61CD6231
+P 13550 8725
+F 0 "C38" V 13425 8675 50  0000 L CNN
+F 1 "18p" V 13675 8650 50  0000 L CNN
+F 2 "Capacitor_SMD:C_0603_1608Metric_Pad1.08x0.95mm_HandSolder" H 13550 8725 50  0001 C CNN
+F 3 "~" H 13550 8725 50  0001 C CNN
+F 4 "" H 13550 8725 50  0001 C CNN "LCSC Part #"
+F 5 "C1647" H 13550 8725 50  0001 C CNN "LCSC"
+F 6 "1" H 13550 8725 50  0001 C CNN "Order Qty"
+F 7 "CL10C180JB81PNC" H 13550 8725 50  0001 C CNN "Mfr Part Number"
+	1    13550 8725
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	13950 9050 13650 9050
+$Comp
+L Device:R_Small R13
+U 1 1 61CD6228
+P 13550 9050
+F 0 "R13" V 13625 9050 50  0000 C CNN
+F 1 "47k" V 13475 9050 50  0000 C CNN
+F 2 "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder" H 13550 9050 50  0001 C CNN
+F 3 "~" H 13550 9050 50  0001 C CNN
+F 4 "" H 13550 9050 50  0001 C CNN "LCSC Part #"
+F 5 "C25819" H 13550 9050 50  0001 C CNN "LCSC"
+F 6 "1" H 13550 9050 50  0001 C CNN "Order Qty"
+F 7 "CR0603-FX-4702ELF" H 13550 9050 50  0001 C CNN "Mfr Part Number"
+	1    13550 9050
+	0    -1   -1   0   
+$EndComp
+Wire Wire Line
+	13850 9400 13950 9400
+Wire Wire Line
+	13375 7525 13375 7875
+Wire Wire Line
+	13375 7875 13475 7875
+Connection ~ 13375 7875
+Wire Wire Line
+	13675 7875 13775 7875
+Wire Wire Line
+	13700 7975 13700 8025
+Wire Wire Line
+	13775 7975 13700 7975
+$Comp
+L power:GND #PWR053
+U 1 1 619FCCB3
+P 13700 8025
+F 0 "#PWR053" H 13700 7775 50  0001 C CNN
+F 1 "GND" H 13705 7852 50  0000 C CNN
+F 2 "" H 13700 8025 50  0001 C CNN
+F 3 "" H 13700 8025 50  0001 C CNN
+	1    13700 8025
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	13275 7875 13375 7875
+$Comp
+L Device:R_Small R10
+U 1 1 61A3948C
+P 13575 7875
+F 0 "R10" V 13650 7875 50  0000 C CNN
+F 1 "1k" V 13500 7875 50  0000 C CNN
+F 2 "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder" H 13575 7875 50  0001 C CNN
+F 3 "~" H 13575 7875 50  0001 C CNN
+F 4 "" H 13575 7875 50  0001 C CNN "LCSC Part #"
+F 5 "C21190" H 13575 7875 50  0001 C CNN "LCSC"
+F 6 "1" H 13575 7875 50  0001 C CNN "Order Qty"
+F 7 "CR0603-FX-1001ELF" H 13575 7875 50  0001 C CNN "Mfr Part Number"
+	1    13575 7875
+	0    -1   -1   0   
+$EndComp
+$Comp
+L Amplifier_Operational:TL072 U6
+U 2 1 6191B0CB
+P 13550 9400
+F 0 "U6" H 13700 9275 50  0000 C CNN
+F 1 "TL072" H 13725 9550 50  0000 C CNN
+F 2 "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm" H 13550 9400 50  0001 C CNN
+F 3 "http://www.ti.com/lit/ds/symlink/tl071.pdf" H 13550 9400 50  0001 C CNN
+F 4 "" H 13550 9400 50  0001 C CNN "LCSC Part #"
+F 5 "C163525" H 13550 9400 50  0001 C CNN "LCSC"
+F 6 "TL072CD" H 13550 9400 50  0001 C CNN "Mfr Part Number"
+F 7 "1" H 13550 9400 50  0001 C CNN "Order Qty"
+	2    13550 9400
+	1    0    0    1   
+$EndComp
+$Comp
+L Amplifier_Operational:TL072 U6
+U 1 1 61919A01
+P 12975 7875
+F 0 "U6" H 13125 7750 50  0000 C CNN
+F 1 "TL072" H 13150 8000 50  0000 C CNN
+F 2 "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm" H 12975 7875 50  0001 C CNN
+F 3 "http://www.ti.com/lit/ds/symlink/tl071.pdf" H 12975 7875 50  0001 C CNN
+F 4 "" H 12975 7875 50  0001 C CNN "LCSC Part #"
+F 5 "C163525" H 12975 7875 50  0001 C CNN "LCSC"
+F 6 "TL072CD" H 12975 7875 50  0001 C CNN "Mfr Part Number"
+F 7 "1" H 12975 7875 50  0001 C CNN "Order Qty"
+	1    12975 7875
+	1    0    0    1   
+$EndComp
+NoConn ~ 5025 4925
+NoConn ~ 5025 4825
+Wire Wire Line
+	4450 2925 4450 2975
+Wire Wire Line
+	5025 2925 4450 2925
+NoConn ~ 5025 3125
+NoConn ~ 5025 3025
+$Comp
+L power:GND #PWR0107
+U 1 1 60CF0FAE
+P 4450 2975
+F 0 "#PWR0107" H 4450 2725 50  0001 C CNN
+F 1 "GND" H 4455 2802 50  0000 C CNN
+F 2 "" H 4450 2975 50  0001 C CNN
+F 3 "" H 4450 2975 50  0001 C CNN
+	1    4450 2975
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	4950 2475 4950 2525
+Wire Wire Line
+	4950 2525 5025 2525
+$Comp
+L power:VCC #PWR0106
+U 1 1 60C79816
+P 4950 2475
+F 0 "#PWR0106" H 4950 2325 50  0001 C CNN
+F 1 "VCC" H 4965 2648 50  0000 C CNN
+F 2 "" H 4950 2475 50  0001 C CNN
+F 3 "" H 4950 2475 50  0001 C CNN
+	1    4950 2475
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:+3.3VA #PWR0105
+U 1 1 60CA15EB
+P 5025 2825
+F 0 "#PWR0105" H 5025 2675 50  0001 C CNN
+F 1 "+3.3VA" V 5040 2952 50  0000 L CNN
+F 2 "" H 5025 2825 50  0001 C CNN
+F 3 "" H 5025 2825 50  0001 C CNN
+	1    5025 2825
+	0    -1   -1   0   
+$EndComp
+$Comp
+L power:+3.3V #PWR0104
+U 1 1 60CA02C2
+P 5025 2625
+F 0 "#PWR0104" H 5025 2475 50  0001 C CNN
+F 1 "+3.3V" V 5040 2753 50  0000 L CNN
+F 2 "" H 5025 2625 50  0001 C CNN
+F 3 "" H 5025 2625 50  0001 C CNN
+	1    5025 2625
+	0    -1   -1   0   
+$EndComp
+Text GLabel 5025 3225 0    50   Output ~ 0
+DAC1
+Text GLabel 5025 3325 0    50   Output ~ 0
+DAC2
+Text GLabel 5025 4725 0    50   Output ~ 0
+LED3
+Text GLabel 5025 4625 0    50   Output ~ 0
+LED4
+Text GLabel 5025 4325 0    50   Input ~ 0
+POT1
+Text GLabel 5025 4525 0    50   Input ~ 0
+POT2
+Text GLabel 5025 4225 0    50   Input ~ 0
+POT3
+Text GLabel 5025 4125 0    50   Input ~ 0
+POT4
+Text GLabel 5025 4025 0    50   Input ~ 0
+CV1
+Text GLabel 5025 3725 0    50   Input ~ 0
+CV5
+Text GLabel 5025 3525 0    50   Input ~ 0
+CV3
+Text GLabel 5025 3625 0    50   Input ~ 0
+CV4
+Text GLabel 5025 3925 0    50   Input ~ 0
+CV2
+Text GLabel 5025 3825 0    50   Input ~ 0
+CV6
+$Comp
+L power:GND #PWR0101
+U 1 1 60C73389
+P 6025 5225
+F 0 "#PWR0101" H 6025 4975 50  0001 C CNN
+F 1 "GND" H 6030 5052 50  0000 C CNN
+F 2 "" H 6025 5225 50  0001 C CNN
+F 3 "" H 6025 5225 50  0001 C CNN
+	1    6025 5225
+	1    0    0    -1  
+$EndComp
+Text GLabel 7025 4825 2    50   Output ~ 0
+LED7
+NoConn ~ 7025 3925
+NoConn ~ 7025 3825
+NoConn ~ 7025 4725
+NoConn ~ 7025 4625
+NoConn ~ 7025 3525
+NoConn ~ 7025 3425
+Text GLabel 7025 4525 2    50   Output ~ 0
+LED5
+Text GLabel 7025 4425 2    50   Output ~ 0
+LED6
+Text GLabel 7025 4925 2    50   Output ~ 0
+LED8
+Text GLabel 7025 4125 2    50   Output ~ 0
+PROBE
+Text GLabel 7025 4025 2    50   Input ~ 0
+BUTTON
+NoConn ~ 7025 3125
+NoConn ~ 7025 3025
+Text GLabel 7025 2725 2    50   Output ~ 0
+LED1
+Text GLabel 7025 2625 2    50   Output ~ 0
+LED2
+NoConn ~ 7025 2525
+$Comp
+L DaisySeed:Device_Audio_Electrosmith_Daisy_Seed_Rev4 A1
+U 1 1 6093AAFE
+P 6025 3725
+F 0 "A1" H 6025 5190 50  0000 C CNN
+F 1 "DaisySeed_Rev4" H 6025 5099 50  0000 C CNN
+F 2 "Socket_DaisySeed:DaisySeed" H 6025 2375 50  0001 C CNN
+F 3 "https://github.com/electro-smith/DaisyWiki/wiki" H 6425 2525 50  0001 C CNN
+F 4 "M20-7822046" H 6025 3725 50  0001 C CNN "Mfr Part Number"
+F 5 "2" H 6025 3725 50  0001 C CNN "Order Qty"
+	1    6025 3725
+	1    0    0    -1  
 $EndComp
 $EndSCHEMATC

@@ -1,0 +1,8 @@
+EESchema-DOCLIB  Version 2.0
+#
+$CMP Device_Audio_Electrosmith_Daisy_Seed_Rev4
+D An embedded platform for music
+F https://github.com/electro-smith/DaisyWiki/wiki
+$ENDCMP
+#
+#End Doc Library
