@@ -209,60 +209,42 @@ const APP: () = {
 
     #[task(schedule = [control], resources = [interface, instrument])]
     fn control(mut cx: control::Context) {
-        static mut IDLE: u32 = u32::MAX;
+        static mut ACTIVITY: Option<Activity> = None;
+        if ACTIVITY.is_none() {
+            *ACTIVITY = Some(Activity::new());
+        }
+        let activity = ACTIVITY.as_mut().unwrap();
 
         let interface = cx.resources.interface;
         interface.update();
 
-        let mut action = None;
-
         cx.resources.instrument.lock(|instrument| {
-            let new_chord_root_degree = instrument.set_chord_root(interface.note());
-            let new_scale_root = instrument.set_scale_root(interface.scale_root());
-            let new_scale_mode = instrument.set_scale_mode(interface.scale_mode());
-            let new_wavetable = instrument.set_wavetable(interface.wavetable());
-            let new_wavetable_bank = instrument.set_wavetable_bank(interface.wavetable_bank());
-            let new_degrees = instrument.set_chord_degrees(interface.chord());
-            let new_detune = instrument.set_detune(interface.detune());
+            let any_action = reconcile_all_changes(interface, instrument);
+            let pot_action = reconcile_pot_activity(interface, instrument);
 
-            action = if interface.chord_pot_active() {
-                let chord_degrees = instrument.chord_degrees();
-                Some(DisplayAction::SetChord(chord_degrees))
-            } else if interface.wavetable_bank_pot_active() {
-                let wavetable_bank = instrument.wavetable_bank();
-                Some(DisplayAction::SetWavetableBank(wavetable_bank))
-            } else if interface.note_pot_active() {
-                let chord_root_degree = instrument.chord_root_degree();
-                Some(DisplayAction::SetChordRootDegree(chord_root_degree))
-            } else if interface.scale_root_pot_active() {
-                let scale_root = instrument.scale_root();
-                Some(DisplayAction::SetScaleRoot(scale_root))
-            } else if interface.scale_mode_pot_active() {
-                let scale_mode = instrument.scale_mode();
-                Some(DisplayAction::SetScaleMode(scale_mode))
-            } else if interface.wavetable_pot_active() {
-                let wavetable = instrument.wavetable();
-                Some(DisplayAction::SetWavetable(wavetable))
-            } else if interface.detune_pot_active() {
-                let (detune_index, detune_phase) = instrument.detune();
-                Some(DisplayAction::SetDetune(detune_index, detune_phase))
-            } else if let Some(new_degrees) = new_degrees {
-                Some(DisplayAction::SetChord(new_degrees))
-            } else if let Some(new_chord_root_degree) = new_chord_root_degree {
-                Some(DisplayAction::SetChordRootDegree(new_chord_root_degree))
-            } else if let Some(new_scale_root) = new_scale_root {
-                Some(DisplayAction::SetScaleRoot(new_scale_root))
-            } else if let Some(new_scale_mode) = new_scale_mode {
-                Some(DisplayAction::SetScaleMode(new_scale_mode))
-            } else if let Some(new_wavetable_bank) = new_wavetable_bank {
-                Some(DisplayAction::SetWavetableBank(new_wavetable_bank))
-            } else if let Some(new_wavetable) = new_wavetable {
-                Some(DisplayAction::SetWavetable(new_wavetable))
-            } else if let Some((new_detune_index, new_detune_phase)) = new_detune {
-                Some(DisplayAction::SetDetune(new_detune_index, new_detune_phase))
+            if interface.active() {
+                activity.reset_pots();
+                activity.reset_cv();
             } else {
-                None
-            };
+                activity.tick_all();
+            }
+
+            // 1. If there is any pot activity, prioritize showing it.
+            // 2. If pots are idle and there is a change caused through CV,
+            //    display that.
+            // 3. If all activity is idle, display the default page.
+            if let Some(action) = pot_action {
+                interface.set_display(display::reduce(action));
+            } else if let (Some(action), true) = (any_action, activity.idle_pots()) {
+                // Reset only once shown, so it can never bling quickly through
+                // pot to CV to default.
+                activity.reset_cv();
+                interface.set_display(display::reduce(action));
+            } else if activity.idle_cv() && activity.idle_cv() {
+                interface.set_display(display::reduce(display::Action::SetChord(
+                    instrument.chord_degrees(),
+                )));
+            }
 
             // XXX: Temporary for testing
             let amplitude = if interface.amplitude() > 0.5 {
@@ -272,29 +254,6 @@ const APP: () = {
             };
             instrument.set_amplitude(amplitude);
         });
-
-        if interface.active() {
-            *IDLE = 0;
-        } else {
-            *IDLE += 1;
-        }
-
-        if let Some(action) = action {
-            interface.set_display(display::reduce(action));
-        }
-
-        if *IDLE > 300 {
-            *IDLE = 0;
-
-            let mut chord_degrees = None;
-            cx.resources.instrument.lock(|instrument| {
-                chord_degrees = Some(instrument.chord_degrees());
-            });
-
-            interface.set_display(display::reduce(display::Action::SetChord(
-                chord_degrees.unwrap(),
-            )));
-        }
 
         cx.schedule
             .control(cx.scheduled + CV_PERIOD.cycles())
@@ -326,3 +285,102 @@ const APP: () = {
         fn EXTI1();
     }
 };
+
+fn reconcile_all_changes(
+    interface: &mut Interface,
+    instrument: &mut Instrument,
+) -> Option<DisplayAction> {
+    let new_chord_root_degree = instrument.set_chord_root(interface.note());
+    let new_scale_root = instrument.set_scale_root(interface.scale_root());
+    let new_scale_mode = instrument.set_scale_mode(interface.scale_mode());
+    let new_wavetable = instrument.set_wavetable(interface.wavetable());
+    let new_wavetable_bank = instrument.set_wavetable_bank(interface.wavetable_bank());
+    let new_degrees = instrument.set_chord_degrees(interface.chord());
+    let new_detune = instrument.set_detune(interface.detune());
+
+    if let Some(new_degrees) = new_degrees {
+        Some(DisplayAction::SetChord(new_degrees))
+    } else if let Some(new_chord_root_degree) = new_chord_root_degree {
+        Some(DisplayAction::SetChordRootDegree(new_chord_root_degree))
+    } else if let Some(new_scale_root) = new_scale_root {
+        Some(DisplayAction::SetScaleRoot(new_scale_root))
+    } else if let Some(new_scale_mode) = new_scale_mode {
+        Some(DisplayAction::SetScaleMode(new_scale_mode))
+    } else if let Some(new_wavetable_bank) = new_wavetable_bank {
+        Some(DisplayAction::SetWavetableBank(new_wavetable_bank))
+    } else if let Some(new_wavetable) = new_wavetable {
+        Some(DisplayAction::SetWavetable(new_wavetable))
+    } else if let Some((new_detune_index, new_detune_phase)) = new_detune {
+        Some(DisplayAction::SetDetune(new_detune_index, new_detune_phase))
+    } else {
+        None
+    }
+}
+
+fn reconcile_pot_activity(
+    interface: &mut Interface,
+    instrument: &mut Instrument,
+) -> Option<DisplayAction> {
+    if interface.chord_pot_active() {
+        let chord_degrees = instrument.chord_degrees();
+        Some(DisplayAction::SetChord(chord_degrees))
+    } else if interface.wavetable_bank_pot_active() {
+        let wavetable_bank = instrument.wavetable_bank();
+        Some(DisplayAction::SetWavetableBank(wavetable_bank))
+    } else if interface.note_pot_active() {
+        let chord_root_degree = instrument.chord_root_degree();
+        Some(DisplayAction::SetChordRootDegree(chord_root_degree))
+    } else if interface.scale_root_pot_active() {
+        let scale_root = instrument.scale_root();
+        Some(DisplayAction::SetScaleRoot(scale_root))
+    } else if interface.scale_mode_pot_active() {
+        let scale_mode = instrument.scale_mode();
+        Some(DisplayAction::SetScaleMode(scale_mode))
+    } else if interface.wavetable_pot_active() {
+        let wavetable = instrument.wavetable();
+        Some(DisplayAction::SetWavetable(wavetable))
+    } else if interface.detune_pot_active() {
+        let (detune_index, detune_phase) = instrument.detune();
+        Some(DisplayAction::SetDetune(detune_index, detune_phase))
+    } else {
+        None
+    }
+}
+
+struct Activity {
+    pot_idle: u32,
+    cv_idle: u32,
+}
+
+impl Activity {
+    const MAX_IDLE_POT: u32 = 300;
+    const MAX_IDLE_CV: u32 = 600;
+
+    pub fn new() -> Self {
+        Self {
+            pot_idle: u32::MAX,
+            cv_idle: u32::MAX,
+        }
+    }
+
+    pub fn reset_pots(&mut self) {
+        self.pot_idle = 0;
+    }
+
+    pub fn reset_cv(&mut self) {
+        self.cv_idle = 0;
+    }
+
+    pub fn tick_all(&mut self) {
+        self.pot_idle += 1;
+        self.cv_idle += 1;
+    }
+
+    pub fn idle_pots(&self) -> bool {
+        self.pot_idle > Self::MAX_IDLE_POT
+    }
+
+    pub fn idle_cv(&self) -> bool {
+        self.cv_idle > Self::MAX_IDLE_CV
+    }
+}
