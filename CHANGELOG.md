@@ -6,15 +6,11 @@ backwards compatibility.
 
 ## Unreleased
 
-* Fix equilibrium of wavetables with depth of 16 bits.
-* Visualize selected chord on module's display.
-* Visualize selected scale root on module's display.
-* Visualize selected scale mode on module's display.
-* Visualize selected chord root on module's display.
-* Visualize selected wavetable bank on module's display.
-* Visualize selected wavetable on module's display.
-* Visualize selected detune on module's display.
+## 0.7.0
+
+* Visualize changes in settings on the display, both from pots and CV.
 * Allow to offset Note CV to negative to compensate for high voltage input.
+* Fix equilibrium of wavetables with depth of 16 bits.
 
 ## 0.6.0
 
