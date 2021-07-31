@@ -173,7 +173,7 @@ const APP: () = {
                 }
             }
 
-            audio_interface.start(callback).unwrap()
+            audio_interface.spawn(callback).unwrap()
         };
 
         unsafe {

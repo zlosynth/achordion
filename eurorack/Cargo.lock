@@ -15,7 +15,7 @@ dependencies = [
  "lazy_static",
  "micromath",
  "panic-halt",
- "stm32h7xx-hal",
+ "stm32h7xx-hal 0.9.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "typenum",
 ]
 
@@ -182,14 +182,13 @@ checksum = "7313c0d620d0cb4dbd9d019e461a4beb501071ff46ec0ab933efb4daa76d73e3"
 [[package]]
 name = "daisy_bsp"
 version = "0.4.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e53af84ae1e0b2e20d47b4206d0439a211cb83ba79b570a4d3efecb833a5997f"
+source = "git+https://github.com/phoracek/daisy_bsp?rev=76b195eb441005eac33033e6ad3de1f024ec4940#76b195eb441005eac33033e6ad3de1f024ec4940"
 dependencies = [
  "cortex-m 0.7.2",
  "cortex-m-rt",
  "cortex-m-semihosting",
  "cty",
- "stm32h7xx-hal",
+ "stm32h7xx-hal 0.9.0 (git+https://github.com/richardeoin/stm32h7xx-hal?rev=01aa7528ce9b58911082ea9bd412c9d4a83c53e6)",
 ]
 
 [[package]]
@@ -426,6 +425,23 @@ name = "stm32h7xx-hal"
 version = "0.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "67034b80041bc33a48df1c1c435b6ae3bb18c35e42aa7e702ce8363b96793398"
+dependencies = [
+ "bare-metal 1.0.0",
+ "cast",
+ "cortex-m 0.7.2",
+ "cortex-m-rt",
+ "embedded-dma",
+ "embedded-hal",
+ "nb 1.0.0",
+ "paste",
+ "stm32h7",
+ "void",
+]
+
+[[package]]
+name = "stm32h7xx-hal"
+version = "0.9.0"
+source = "git+https://github.com/richardeoin/stm32h7xx-hal?rev=01aa7528ce9b58911082ea9bd412c9d4a83c53e6#01aa7528ce9b58911082ea9bd412c9d4a83c53e6"
 dependencies = [
  "bare-metal 1.0.0",
  "cast",
