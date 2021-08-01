@@ -42,7 +42,7 @@ static mut BUFFER: [(f32, f32); audio::BLOCK_LENGTH] = [(0.0, 0.0); audio::BLOCK
 const SAMPLE_RATE: u32 = audio::FS.0;
 
 static mut FLASH: Option<Flash> = None;
-const STORE_ADDRESS: u32 = 0x00;
+const STORE_ADDRESSES: [u32; 2] = [0x0000, 0x1000];
 
 lazy_static! {
     static ref BANK_PERFECT: [Wavetable<'static>; 4] = [
@@ -125,13 +125,14 @@ const APP: () = {
 
         let initial_parameters = {
             let mut store_buffer = [0; Store::SIZE];
-            flash.read(STORE_ADDRESS, &mut store_buffer);
 
-            if let Ok(store) = Store::from_bytes(store_buffer) {
-                store.parameters()
-            } else {
-                Parameters::default()
+            let mut stores = [None; STORE_ADDRESSES.len()];
+            for (i, address) in STORE_ADDRESSES.iter().enumerate() {
+                flash.read(*address, &mut store_buffer);
+                stores[i] = Store::from_bytes(store_buffer).ok();
             }
+
+            get_initial_parameters(stores)
         };
 
         unsafe {
@@ -294,7 +295,10 @@ const APP: () = {
     fn store_parameters(cx: store_parameters::Context, version: u16) {
         let flash = unsafe { FLASH.as_mut().unwrap() };
         let data = Store::new(cx.resources.interface.parameters(), version).to_bytes();
-        flash.write(STORE_ADDRESS, &data);
+        flash.write(
+            STORE_ADDRESSES[version as usize % STORE_ADDRESSES.len()],
+            &data,
+        );
 
         cx.schedule
             .store_parameters(cx.scheduled + 480_000_000.cycles(), version.wrapping_add(1))
@@ -423,5 +427,25 @@ impl Activity {
 
     pub fn idle_cv(&self) -> bool {
         self.cv_idle > Self::MAX_IDLE_CV
+    }
+}
+
+fn get_initial_parameters<const L: usize>(stores: [Option<Store>; L]) -> Parameters {
+    let mut latest_store: Option<Store> = None;
+
+    for store in stores.iter().flatten() {
+        if let Some(latest) = latest_store {
+            if store.version() > latest.version() {
+                latest_store = Some(*store);
+            }
+        } else {
+            latest_store = Some(*store);
+        }
+    }
+
+    if let Some(latest) = latest_store {
+        latest.parameters()
+    } else {
+        Parameters::default()
     }
 }
