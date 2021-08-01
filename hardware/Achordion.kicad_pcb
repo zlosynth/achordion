@@ -4292,7 +4292,7 @@
   (gr_circle (center 150.941001 144.49) (end 152.452002 144.49) (layer Edge.Cuts) (width 0.1) (tstamp 6087296F))
   (gr_circle (center 162.726001 144.48) (end 164.237002 144.48) (layer Edge.Cuts) (width 0.1) (tstamp 6087296F))
   (gr_circle (center 139.236001 129.55) (end 140.747002 129.55) (layer Edge.Cuts) (width 0.1) (tstamp 608E6343))
-  (gr_text "board v0.8.0" (at 157.24 42.79) (layer F.SilkS)
+  (gr_text "board v0.8.1" (at 157.24 42.79) (layer F.SilkS)
     (effects (font (size 1 1) (thickness 0.15)) (justify left))
   )
   (gr_text -12 (at 149.875 42.575) (layer F.SilkS) (tstamp 6085E906)

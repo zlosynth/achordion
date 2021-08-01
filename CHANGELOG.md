@@ -6,6 +6,10 @@ backwards compatibility.
 
 ## Unreleased
 
+## 0.8.1
+
+* Fix dependency set on a daisy_bsp fork.
+
 ## 0.8.0
 
 * Persist dialed settings between restarts.

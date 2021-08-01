@@ -2,7 +2,7 @@
 authors = ["Petr Horáček <hrck@protonmail.com>"]
 edition = "2018"
 name = "achordion-eurorack"
-version = "0.8.0" # hack/release.sh
+version = "0.8.1" # hack/release.sh
 license = "GPL-3.0-or-later"
 description = "Chord-crafting quantizing wavetable oscillator module for Eurorack."
 repository = "https://github.com/zlosynth/achordion"
