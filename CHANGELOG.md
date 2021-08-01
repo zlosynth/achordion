@@ -6,6 +6,8 @@ backwards compatibility.
 
 ## Unreleased
 
+* Persist dialed settings between restarts.
+
 ## 0.7.0
 
 * Visualize changes in settings on the display, both from pots and CV.

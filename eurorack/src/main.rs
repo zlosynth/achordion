@@ -19,6 +19,7 @@ use rtic::app;
 use rtic::cyccnt::U32Ext as _;
 
 use daisy::audio;
+use daisy::flash::Flash;
 use daisy::hal;
 use daisy_bsp as daisy;
 use hal::adc::Adc;
@@ -28,6 +29,7 @@ use hal::prelude::*;
 
 use achordion_lib::display::{self, Action as DisplayAction};
 use achordion_lib::instrument::Instrument;
+use achordion_lib::store::{Parameters, Store};
 use achordion_lib::waveform;
 use achordion_lib::wavetable::Wavetable;
 
@@ -38,6 +40,9 @@ const CV_PERIOD: u32 = 1_000_000;
 static mut AUDIO_INTERFACE: Option<audio::Interface> = None;
 static mut BUFFER: [(f32, f32); audio::BLOCK_LENGTH] = [(0.0, 0.0); audio::BLOCK_LENGTH];
 const SAMPLE_RATE: u32 = audio::FS.0;
+
+static mut FLASH: Option<Flash> = None;
+const STORE_ADDRESS: u32 = 0x00;
 
 lazy_static! {
     static ref BANK_PERFECT: [Wavetable<'static>; 4] = [
@@ -85,7 +90,7 @@ const APP: () = {
     }
 
     /// Initialize all the peripherals.
-    #[init(schedule = [control], spawn = [fade_in])]
+    #[init(schedule = [control], spawn = [fade_in, store_parameters])]
     fn init(mut cx: init::Context) -> init::LateResources {
         // AN5212: Improve application performance when fetching instruction and
         // data, from both internal andexternal memories.
@@ -110,6 +115,30 @@ const APP: () = {
             cx.device.GPIOF.split(ccdr.peripheral.GPIOF),
             cx.device.GPIOG.split(ccdr.peripheral.GPIOG),
         );
+
+        let mut flash = daisy::flash::Flash::new(
+            &ccdr.clocks,
+            cx.device.QUADSPI,
+            ccdr.peripheral.QSPI,
+            pins.FMC,
+        );
+
+        let initial_parameters = {
+            let mut store_buffer = [0; Store::SIZE];
+            flash.read(STORE_ADDRESS, &mut store_buffer);
+
+            if let Ok(store) = Store::from_bytes(store_buffer) {
+                store.parameters()
+            } else {
+                Parameters::default()
+            }
+        };
+
+        unsafe {
+            FLASH = Some(flash);
+        }
+
+        cx.spawn.store_parameters(0).unwrap();
 
         let mut delay = DelayFromCountDownTimer::new(cx.device.TIM2.timer(
             10.ms(),
@@ -144,6 +173,7 @@ const APP: () = {
             pins.SEED_PIN_4.into_push_pull_output(),
             pins.SEED_PIN_5.into_push_pull_output(),
             pins.SEED_PIN_6.into_push_pull_output(),
+            initial_parameters,
         );
 
         cx.schedule.control(cx.start + CV_PERIOD.cycles()).unwrap();
@@ -257,6 +287,17 @@ const APP: () = {
 
         cx.schedule
             .control(cx.scheduled + CV_PERIOD.cycles())
+            .unwrap();
+    }
+
+    #[task(schedule = [store_parameters], resources = [interface])]
+    fn store_parameters(cx: store_parameters::Context, version: u16) {
+        let flash = unsafe { FLASH.as_mut().unwrap() };
+        let data = Store::new(cx.resources.interface.parameters(), version).to_bytes();
+        flash.write(STORE_ADDRESS, &data);
+
+        cx.schedule
+            .store_parameters(cx.scheduled + 480_000_000.cycles(), version.wrapping_add(1))
             .unwrap();
     }
 

@@ -13,6 +13,9 @@ build = "build/main.rs"
 [dependencies]
 heapless = "0.6"
 micromath = "1.1"
+crc = "2"
+field-offset = "0.3"
+lazy_static = { version = "1.4", features = [ "spin_no_std" ] }
 
 [build-dependencies]
 wav = "1"
@@ -25,7 +28,6 @@ default-features = false
 [dev-dependencies]
 approx = "0.4"
 criterion = "0.3"
-lazy_static = { version = "1.4", features = [ "spin_no_std" ] }
 
 [[bench]]
 name = "bench"

@@ -12,6 +12,7 @@ use hal::prelude::*;
 
 use achordion_lib::display::State as DisplayState;
 use achordion_lib::probe::{ProbeDetector, ProbeGenerator, PROBE_SEQUENCE};
+use achordion_lib::store::Parameters;
 
 type PinButton = hal::gpio::gpiob::PB4<hal::gpio::Input<hal::gpio::PullUp>>; // PIN 9
 type PinPot1 = hal::gpio::gpioa::PA4<hal::gpio::Analog>; // PIN 23
@@ -71,20 +72,6 @@ pub struct Interface {
     last_scale_mode_pot_reading: f32,
 }
 
-#[derive(Default)]
-struct Parameters {
-    pub note: f32,
-    pub wavetable: f32,
-    pub bank: f32,
-    pub chord: f32,
-    pub detune: f32,
-    pub scale_root: f32,
-    pub scale_mode: f32,
-
-    // XXX: Temporary, for testing
-    pub amplitude: f32,
-}
-
 impl Interface {
     #[allow(clippy::too_many_arguments)]
     pub fn new(
@@ -109,6 +96,7 @@ impl Interface {
         led6: PinLed6,
         led7: PinLed7,
         led8: PinLed8,
+        parameters: Parameters,
     ) -> Self {
         adc1.set_resolution(adc::Resolution::SIXTEENBIT);
         adc1.set_sample_time(adc::AdcSampleTime::T_64);
@@ -142,7 +130,7 @@ impl Interface {
             led7: Led::new(led7),
             led8: Led::new(led8),
 
-            parameters: Parameters::default(),
+            parameters,
 
             // These values are used to cache the last read value while the pot
             // is in its alternative mode (depending on the button state).
@@ -152,6 +140,10 @@ impl Interface {
             last_chord_pot_reading: 0.0,
             last_scale_mode_pot_reading: 0.0,
         }
+    }
+
+    pub fn parameters(&self) -> Parameters {
+        self.parameters
     }
 
     pub fn note(&self) -> f32 {
