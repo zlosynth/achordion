@@ -7,6 +7,7 @@ backwards compatibility.
 ## Unreleased
 
 * Remove component labels from the silkscreen.
+* Add graphics to front and back of the PCB.
 
 ## 0.8.1
 
