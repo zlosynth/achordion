@@ -6,6 +6,8 @@ backwards compatibility.
 
 ## Unreleased
 
+* Remove component labels from the silkscreen.
+
 ## 0.8.1
 
 * Fix dependency set on a daisy_bsp fork.
