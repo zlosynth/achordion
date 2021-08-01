@@ -6,6 +6,8 @@ backwards compatibility.
 
 ## Unreleased
 
+## 0.8.0
+
 * Persist dialed settings between restarts.
 
 ## 0.7.0
