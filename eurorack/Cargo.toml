@@ -23,7 +23,7 @@ micromath = "1.1"
 
 [dependencies.daisy_bsp]
 git = "https://github.com/phoracek/daisy_bsp"
-rev = "76b195eb441005eac33033e6ad3de1f024ec4940"
+rev = "28de2f59c49b4597e1d205b1dc78b8891e95d425"
 
 [[bin]]
 name = "achordion-eurorack"
