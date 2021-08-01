@@ -8,6 +8,7 @@ backwards compatibility.
 
 * Remove component labels from the silkscreen.
 * Add graphics to front and back of the PCB.
+* Widen tracks on the PCB.
 
 ## 0.8.1
 
