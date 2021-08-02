@@ -327,7 +327,6 @@ const APP: () = {
 
     extern "C" {
         fn EXTI0();
-        fn EXTI1();
     }
 };
 
