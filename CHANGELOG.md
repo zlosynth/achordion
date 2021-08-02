@@ -82,7 +82,7 @@ backwards compatibility.
 * Added support for seventh chords.
 * Defined versioning and compatibility policies.
 
-## 7123cbb, revision 2-3
+## 7123cbb, revision 3
 
 * Increased size of pads on the PCB for easier hand soldering.
 
