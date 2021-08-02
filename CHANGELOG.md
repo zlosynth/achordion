@@ -10,6 +10,7 @@ backwards compatibility.
 * Add graphics to front and back of the PCB.
 * Widen tracks on the PCB.
 * Replace decoupling capacitor on DAC with LPF.
+* Introduce ferrite beads to filter the power input.
 
 ## 0.8.1
 
