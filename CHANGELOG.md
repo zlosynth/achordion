@@ -9,6 +9,7 @@ backwards compatibility.
 * Remove component labels from the silkscreen.
 * Add graphics to front and back of the PCB.
 * Widen tracks on the PCB.
+* Replace decoupling capacitor on DAC with LPF.
 
 ## 0.8.1
 
