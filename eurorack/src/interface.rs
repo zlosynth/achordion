@@ -5,14 +5,12 @@ use daisy::hal;
 use daisy_bsp as daisy;
 
 use hal::adc::{self, Adc, Disabled, Enabled};
-use hal::hal::adc::Channel;
-use hal::hal::digital::v2::{InputPin, OutputPin};
 use hal::pac::ADC1;
-use hal::prelude::*;
 
 use achordion_lib::display::State as DisplayState;
-use achordion_lib::probe::{ProbeDetector, ProbeGenerator, PROBE_SEQUENCE};
 use achordion_lib::store::Parameters;
+
+use crate::system::peripherals::{button::Button, cv::Cv, led::Led, pot::Pot, probe::Probe};
 
 type PinButton = hal::gpio::gpiob::PB4<hal::gpio::Input<hal::gpio::PullUp>>; // PIN 9
 type PinPot1 = hal::gpio::gpioa::PA4<hal::gpio::Analog>; // PIN 23
@@ -371,159 +369,4 @@ impl Interface {
 fn sample_to_voct(transposed_sample: f32) -> f32 {
     // V/OCT CV spans from -1.5 to 5.5 V.
     transposed_sample * 7.0 + 0.5
-}
-
-fn transpose_adc(sample: f32, max_sample: u32) -> f32 {
-    (max_sample as f32 - sample) / max_sample as f32
-}
-
-fn is_high(sample: u32, max_sample: u32) -> bool {
-    transpose_adc(sample as f32, max_sample) > 0.5
-}
-
-struct Button<P> {
-    pin: P,
-}
-
-impl<P: InputPin> Button<P> {
-    pub fn new(pin: P) -> Self {
-        Self { pin }
-    }
-
-    pub fn active(&self) -> bool {
-        self.pin.is_low().ok().unwrap()
-    }
-}
-
-struct Pot<P> {
-    pin: P,
-    position_filter: ControlBuffer<8>,
-    movement_detector: ControlBuffer<124>,
-}
-
-impl<P: Channel<ADC1, ID = u8>> Pot<P> {
-    pub fn new(pin: P) -> Self {
-        Self {
-            pin,
-            position_filter: ControlBuffer::new(),
-            movement_detector: ControlBuffer::new(),
-        }
-    }
-
-    pub fn sample(&mut self, adc: &mut Adc<ADC1, Enabled>) {
-        let sample: u32 = adc.read(&mut self.pin).unwrap();
-        let transposed_sample = transpose_adc(sample as f32, adc.max_sample());
-        self.position_filter.write(transposed_sample);
-        self.movement_detector.write(transposed_sample);
-    }
-
-    pub fn value(&self) -> f32 {
-        self.position_filter.read()
-    }
-
-    pub fn active(&self) -> bool {
-        self.movement_detector.traveled() > 0.005
-    }
-}
-
-struct Cv<P> {
-    pin: P,
-    probe_detector: ProbeDetector<'static>,
-    buffer: ControlBuffer<8>,
-}
-
-impl<P: Channel<ADC1, ID = u8>> Cv<P> {
-    pub fn new(pin: P) -> Self {
-        Self {
-            pin,
-            probe_detector: ProbeDetector::new(&PROBE_SEQUENCE),
-            buffer: ControlBuffer::new(),
-        }
-    }
-
-    pub fn sample(&mut self, adc: &mut Adc<ADC1, Enabled>) {
-        let sample: u32 = adc.read(&mut self.pin).unwrap();
-        self.buffer
-            .write(transpose_adc(sample as f32, adc.max_sample()));
-        self.probe_detector.write(is_high(sample, adc.max_sample()));
-    }
-
-    pub fn connected(&self) -> bool {
-        !self.probe_detector.detected()
-    }
-
-    pub fn value(&self) -> f32 {
-        self.buffer.read()
-    }
-}
-
-struct Probe<P> {
-    pin: P,
-    generator: ProbeGenerator<'static>,
-}
-
-impl<P: OutputPin> Probe<P> {
-    pub fn new(pin: P) -> Self {
-        Self {
-            pin,
-
-            generator: ProbeGenerator::new(&PROBE_SEQUENCE),
-        }
-    }
-
-    pub fn tick(&mut self) {
-        if self.generator.read() {
-            self.pin.set_high().ok().unwrap();
-        } else {
-            self.pin.set_low().ok().unwrap();
-        }
-    }
-}
-
-struct Led<P> {
-    pin: P,
-}
-
-impl<P: OutputPin> Led<P> {
-    pub fn new(pin: P) -> Self {
-        Self { pin }
-    }
-
-    pub fn set(&mut self, high: bool) {
-        if high {
-            self.pin.set_high().ok().unwrap();
-        } else {
-            self.pin.set_low().ok().unwrap();
-        }
-    }
-}
-
-struct ControlBuffer<const N: usize> {
-    buffer: [f32; N],
-    pointer: usize,
-}
-
-impl<const N: usize> ControlBuffer<N> {
-    pub fn new() -> Self {
-        Self {
-            buffer: [0.0; N],
-            pointer: 0,
-        }
-    }
-
-    pub fn write(&mut self, value: f32) {
-        self.buffer[self.pointer] = value;
-        self.pointer = (self.pointer + 1) % N;
-    }
-
-    pub fn read(&self) -> f32 {
-        let sum: f32 = self.buffer.iter().sum();
-        sum / N as f32
-    }
-
-    pub fn traveled(&self) -> f32 {
-        let newest = (self.pointer - 1).rem_euclid(N);
-        let oldest = self.pointer;
-        (self.buffer[newest] - self.buffer[oldest]).abs()
-    }
 }

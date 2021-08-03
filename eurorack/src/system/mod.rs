@@ -3,11 +3,14 @@
 // TODO: Define abstraction for system initialization
 // TODO: Define abstraction for peripherals
 
+pub mod peripherals;
+
 use rtic::Peripherals as CorePeripherals;
+
+pub use daisy::hal;
 
 use daisy::audio;
 use daisy::flash::Flash;
-use daisy::hal;
 use daisy::pac;
 use daisy::pac::Peripherals as DevicePeripherals;
 use daisy_bsp as daisy;
