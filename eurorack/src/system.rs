@@ -50,14 +50,8 @@ pub struct Pins {
 
 impl System<'_> {
     pub fn init(mut cp: CorePeripherals, dp: DevicePeripherals) -> Self {
-        // AN5212: Improve application performance when fetching instruction and
-        // data, from both internal andexternal memories.
-        cp.SCB.enable_icache();
-
-        // Initialize (enable) the monotonic timer (CYCCNT)
-        cp.DCB.enable_trace();
-        DWT::unlock();
-        cp.DWT.enable_cycle_counter();
+        enable_cache(&mut cp);
+        initialize_timers(&mut cp);
 
         let board = daisy::Board::take().unwrap();
 
@@ -131,4 +125,17 @@ impl System<'_> {
             pins, // TODO: Create a special struct with remaining pins
         }
     }
+}
+
+/// AN5212: Improve application performance when fetching instruction and
+/// data, from both internal andexternal memories.
+fn enable_cache(cp: &mut CorePeripherals) {
+    cp.SCB.enable_icache();
+}
+
+/// Initialize (enable) the monotonic timer (CYCCNT)
+fn initialize_timers(cp: &mut CorePeripherals) {
+    cp.DCB.enable_trace();
+    DWT::unlock();
+    cp.DWT.enable_cycle_counter();
 }
