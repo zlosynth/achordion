@@ -6,6 +6,7 @@
 #![allow(clippy::manual_map)]
 
 mod interface;
+mod system;
 
 #[macro_use]
 extern crate lazy_static;
@@ -20,12 +21,7 @@ use rtic::cyccnt::U32Ext as _;
 
 use daisy::audio;
 use daisy::flash::Flash;
-use daisy::hal;
 use daisy_bsp as daisy;
-use hal::adc::Adc;
-use hal::delay::DelayFromCountDownTimer;
-use hal::pac::DWT;
-use hal::prelude::*;
 
 use achordion_lib::display::{self, Action as DisplayAction};
 use achordion_lib::instrument::Instrument;
@@ -34,6 +30,7 @@ use achordion_lib::waveform;
 use achordion_lib::wavetable::Wavetable;
 
 use crate::interface::Interface;
+use crate::system::System;
 
 const CV_PERIOD: u32 = 1_000_000;
 
@@ -91,37 +88,10 @@ const APP: () = {
 
     /// Initialize all the peripherals.
     #[init(schedule = [control], spawn = [fade_in, store_parameters])]
-    fn init(mut cx: init::Context) -> init::LateResources {
-        // AN5212: Improve application performance when fetching instruction and
-        // data, from both internal andexternal memories.
-        cx.core.SCB.enable_icache();
+    fn init(cx: init::Context) -> init::LateResources {
+        let system = System::init(cx.core, cx.device);
 
-        // Initialize (enable) the monotonic timer (CYCCNT)
-        cx.core.DCB.enable_trace();
-        DWT::unlock();
-        cx.core.DWT.enable_cycle_counter();
-
-        let board = daisy::Board::take().unwrap();
-
-        let rcc = cx.device.RCC.constrain().pll2_p_ck(4.mhz());
-        let ccdr = board.freeze_clocks(cx.device.PWR.constrain(), rcc, &cx.device.SYSCFG);
-
-        let pins = board.split_gpios(
-            cx.device.GPIOA.split(ccdr.peripheral.GPIOA),
-            cx.device.GPIOB.split(ccdr.peripheral.GPIOB),
-            cx.device.GPIOC.split(ccdr.peripheral.GPIOC),
-            cx.device.GPIOD.split(ccdr.peripheral.GPIOD),
-            cx.device.GPIOE.split(ccdr.peripheral.GPIOE),
-            cx.device.GPIOF.split(ccdr.peripheral.GPIOF),
-            cx.device.GPIOG.split(ccdr.peripheral.GPIOG),
-        );
-
-        let mut flash = daisy::flash::Flash::new(
-            &ccdr.clocks,
-            cx.device.QUADSPI,
-            ccdr.peripheral.QSPI,
-            pins.FMC,
-        );
+        let mut flash = system.flash;
 
         let initial_parameters = {
             let mut store_buffer = [0; Store::SIZE];
@@ -140,61 +110,34 @@ const APP: () = {
         }
 
         cx.spawn.store_parameters(0).unwrap();
-
-        let mut delay = DelayFromCountDownTimer::new(cx.device.TIM2.timer(
-            10.ms(),
-            ccdr.peripheral.TIM2,
-            &ccdr.clocks,
-        ));
-        let adc1 = Adc::adc1(
-            cx.device.ADC1,
-            &mut delay,
-            ccdr.peripheral.ADC12,
-            &ccdr.clocks,
-        );
         let interface = Interface::new(
-            adc1,
-            pins.SEED_PIN_9.into_pull_up_input(),
-            pins.SEED_PIN_23,
-            pins.SEED_PIN_24,
-            pins.SEED_PIN_22,
-            pins.SEED_PIN_21,
-            pins.SEED_PIN_20,
-            pins.SEED_PIN_19,
-            pins.SEED_PIN_15,
-            pins.SEED_PIN_16,
-            pins.SEED_PIN_17,
-            pins.SEED_PIN_18,
-            pins.SEED_PIN_10.into_push_pull_output(),
-            pins.SEED_PIN_30.into_push_pull_output(),
-            pins.SEED_PIN_29.into_push_pull_output(),
-            pins.SEED_PIN_26.into_push_pull_output(),
-            pins.SEED_PIN_25.into_push_pull_output(),
-            pins.SEED_PIN_3.into_push_pull_output(),
-            pins.SEED_PIN_4.into_push_pull_output(),
-            pins.SEED_PIN_5.into_push_pull_output(),
-            pins.SEED_PIN_6.into_push_pull_output(),
+            system.adc,
+            system.pins.SEED_PIN_9.into_pull_up_input(),
+            system.pins.SEED_PIN_23,
+            system.pins.SEED_PIN_24,
+            system.pins.SEED_PIN_22,
+            system.pins.SEED_PIN_21,
+            system.pins.SEED_PIN_20,
+            system.pins.SEED_PIN_19,
+            system.pins.SEED_PIN_15,
+            system.pins.SEED_PIN_16,
+            system.pins.SEED_PIN_17,
+            system.pins.SEED_PIN_18,
+            system.pins.SEED_PIN_10.into_push_pull_output(),
+            system.pins.SEED_PIN_30.into_push_pull_output(),
+            system.pins.SEED_PIN_29.into_push_pull_output(),
+            system.pins.SEED_PIN_26.into_push_pull_output(),
+            system.pins.SEED_PIN_25.into_push_pull_output(),
+            system.pins.SEED_PIN_3.into_push_pull_output(),
+            system.pins.SEED_PIN_4.into_push_pull_output(),
+            system.pins.SEED_PIN_5.into_push_pull_output(),
+            system.pins.SEED_PIN_6.into_push_pull_output(),
             initial_parameters,
         );
 
         cx.schedule.control(cx.start + CV_PERIOD.cycles()).unwrap();
 
-        let pins = (
-            pins.AK4556.PDN.into_push_pull_output(),
-            pins.AK4556.MCLK_A.into_alternate_af6(),
-            pins.AK4556.SCK_A.into_alternate_af6(),
-            pins.AK4556.FS_A.into_alternate_af6(),
-            pins.AK4556.SD_A.into_alternate_af6(),
-            pins.AK4556.SD_B.into_alternate_af6(),
-        );
-
-        let sai1_prec = ccdr
-            .peripheral
-            .SAI1
-            .kernel_clk_mux(hal::rcc::rec::Sai1ClkSel::PLL3_P);
-
-        let audio_interface =
-            audio::Interface::init(&ccdr.clocks, sai1_prec, pins, ccdr.peripheral.DMA1).unwrap();
+        let audio_interface = system.audio;
 
         let audio_interface = {
             fn callback(_fs: f32, block: &mut audio::Block) {
