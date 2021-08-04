@@ -11,6 +11,8 @@ backwards compatibility.
 * Widen tracks on the PCB.
 * Replace decoupling capacitor on DAC with LPF.
 * Introduce ferrite beads to filter the power input.
+* Major refactoring of the eurorack codebase, introducing new hardware
+  abstractions.
 
 ## 0.8.1
 
