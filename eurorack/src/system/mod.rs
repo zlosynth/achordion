@@ -1,53 +1,88 @@
-// TODO: This is mean to abstract any hardware lib that may be used
-// TODO: And also hides the board itself
-// TODO: Define abstraction for system initialization
-// TODO: Define abstraction for peripherals
+pub mod audio;
+pub mod button;
+pub mod cv;
+pub mod flash;
+pub mod led;
+pub mod pot;
+pub mod probe;
 
+mod control_buffer;
 mod hal;
-pub mod peripherals;
 
-use rtic::Peripherals as CorePeripherals;
-
-use daisy::audio;
-use daisy::flash::Flash;
-use daisy::pac;
-use daisy::pac::Peripherals as DevicePeripherals;
-use daisy_bsp as daisy;
-use hal::adc::Adc;
+use hal::adc::{Adc, AdcSampleTime, Enabled, Resolution};
 use hal::delay::DelayFromCountDownTimer;
+use hal::gpio;
+use hal::pac::Peripherals as DevicePeripherals;
+use hal::pac::ADC1;
 use hal::pac::DWT;
 use hal::prelude::*;
+use rtic::Peripherals as CorePeripherals;
+
+use audio::Audio;
+use button::Button as ButtonWrapper;
+use cv::Cv;
+use flash::Flash;
+use led::Led;
+use pot::Pot;
+use probe::Probe as ProbeWrapper;
+
+pub type Button = ButtonWrapper<gpio::gpiob::PB4<gpio::Input<gpio::PullUp>>>; // PIN 9
+pub type Pot1 = Pot<gpio::gpioa::PA4<gpio::Analog>>; // PIN 23
+pub type Pot2 = Pot<gpio::gpioa::PA1<gpio::Analog>>; // PIN 24
+pub type Pot3 = Pot<gpio::gpioa::PA5<gpio::Analog>>; // PIN 22
+pub type Pot4 = Pot<gpio::gpioc::PC4<gpio::Analog>>; // PIN 21
+pub type Cv1 = Cv<gpio::gpioc::PC1<gpio::Analog>>; // PIN 20
+pub type Cv2 = Cv<gpio::gpioa::PA6<gpio::Analog>>; // PIN 19
+pub type Cv3 = Cv<gpio::gpioc::PC0<gpio::Analog>>; // PIN 15
+pub type Cv4 = Cv<gpio::gpioa::PA3<gpio::Analog>>; // PIN 16
+pub type Cv5 = Cv<gpio::gpiob::PB1<gpio::Analog>>; // PIN 17
+pub type Cv6 = Cv<gpio::gpioa::PA7<gpio::Analog>>; // PIN 18
+pub type Probe = ProbeWrapper<gpio::gpiob::PB5<gpio::Output<gpio::PushPull>>>; // PIN 10
+pub type Led1 = Led<gpio::gpiob::PB15<gpio::Output<gpio::PushPull>>>; // PIN 30
+pub type Led2 = Led<gpio::gpiob::PB14<gpio::Output<gpio::PushPull>>>; // PIN 29
+pub type Led3 = Led<gpio::gpiod::PD11<gpio::Output<gpio::PushPull>>>; // PIN 26
+pub type Led4 = Led<gpio::gpioa::PA0<gpio::Output<gpio::PushPull>>>; // PIN 25
+pub type Led5 = Led<gpio::gpioc::PC9<gpio::Output<gpio::PushPull>>>; // PIN 3
+pub type Led6 = Led<gpio::gpioc::PC8<gpio::Output<gpio::PushPull>>>; // PIN 4
+pub type Led7 = Led<gpio::gpiod::PD2<gpio::Output<gpio::PushPull>>>; // PIN 5
+pub type Led8 = Led<gpio::gpioc::PC12<gpio::Output<gpio::PushPull>>>; // PIN 6
 
 pub struct System<'a> {
-    pub adc: hal::adc::Adc<pac::ADC1, hal::adc::Disabled>,
-    pub audio: audio::Interface<'a>,
+    pub adc: Adc<ADC1, Enabled>,
+    pub cvs: Cvs,
+    pub pots: Pots,
+    pub button: Button,
+    pub leds: Leds,
     pub flash: Flash,
-    pub pins: Pins,
+    pub audio: Audio<'a>,
 }
 
-// XXX: Temporary until this module returns final abstractions of peripherals
-#[allow(non_snake_case)]
-pub struct Pins {
-    pub SEED_PIN_9: hal::gpio::gpiob::PB4<hal::gpio::Alternate<hal::gpio::AF0>>,
-    pub SEED_PIN_23: hal::gpio::gpioa::PA4<hal::gpio::Analog>,
-    pub SEED_PIN_24: hal::gpio::gpioa::PA1<hal::gpio::Analog>,
-    pub SEED_PIN_22: hal::gpio::gpioa::PA5<hal::gpio::Analog>,
-    pub SEED_PIN_21: hal::gpio::gpioc::PC4<hal::gpio::Analog>,
-    pub SEED_PIN_20: hal::gpio::gpioc::PC1<hal::gpio::Analog>,
-    pub SEED_PIN_19: hal::gpio::gpioa::PA6<hal::gpio::Analog>,
-    pub SEED_PIN_15: hal::gpio::gpioc::PC0<hal::gpio::Analog>,
-    pub SEED_PIN_16: hal::gpio::gpioa::PA3<hal::gpio::Analog>,
-    pub SEED_PIN_17: hal::gpio::gpiob::PB1<hal::gpio::Analog>,
-    pub SEED_PIN_18: hal::gpio::gpioa::PA7<hal::gpio::Analog>,
-    pub SEED_PIN_10: hal::gpio::gpiob::PB5<hal::gpio::Analog>,
-    pub SEED_PIN_30: hal::gpio::gpiob::PB15<hal::gpio::Analog>,
-    pub SEED_PIN_29: hal::gpio::gpiob::PB14<hal::gpio::Analog>,
-    pub SEED_PIN_26: hal::gpio::gpiod::PD11<hal::gpio::Analog>,
-    pub SEED_PIN_25: hal::gpio::gpioa::PA0<hal::gpio::Analog>,
-    pub SEED_PIN_3: hal::gpio::gpioc::PC9<hal::gpio::Analog>,
-    pub SEED_PIN_4: hal::gpio::gpioc::PC8<hal::gpio::Analog>,
-    pub SEED_PIN_5: hal::gpio::gpiod::PD2<hal::gpio::Analog>,
-    pub SEED_PIN_6: hal::gpio::gpioc::PC12<hal::gpio::Analog>,
+pub struct Cvs {
+    pub cv1: Cv1,
+    pub cv2: Cv2,
+    pub cv3: Cv3,
+    pub cv4: Cv4,
+    pub cv5: Cv5,
+    pub cv6: Cv6,
+    pub cv_probe: Probe,
+}
+
+pub struct Pots {
+    pub pot1: Pot1,
+    pub pot2: Pot2,
+    pub pot3: Pot3,
+    pub pot4: Pot4,
+}
+
+pub struct Leds {
+    pub led1: Led1,
+    pub led2: Led2,
+    pub led3: Led3,
+    pub led4: Led4,
+    pub led5: Led5,
+    pub led6: Led6,
+    pub led7: Led7,
+    pub led8: Led8,
 }
 
 impl System<'_> {
@@ -55,10 +90,12 @@ impl System<'_> {
         enable_cache(&mut cp);
         initialize_timers(&mut cp);
 
-        let board = daisy::Board::take().unwrap();
+        let board = daisy_bsp::Board::take().unwrap();
 
-        let rcc = dp.RCC.constrain().pll2_p_ck(4.mhz());
-        let ccdr = board.freeze_clocks(dp.PWR.constrain(), rcc, &dp.SYSCFG);
+        let ccdr = {
+            let rcc = dp.RCC.constrain().pll2_p_ck(4.mhz());
+            board.freeze_clocks(dp.PWR.constrain(), rcc, &dp.SYSCFG)
+        };
 
         let pins = board.split_gpios(
             dp.GPIOA.split(ccdr.peripheral.GPIOA),
@@ -70,61 +107,76 @@ impl System<'_> {
             dp.GPIOG.split(ccdr.peripheral.GPIOG),
         );
 
-        let flash =
-            daisy::flash::Flash::new(&ccdr.clocks, dp.QUADSPI, ccdr.peripheral.QSPI, pins.FMC);
-
-        let mut delay = DelayFromCountDownTimer::new(dp.TIM2.timer(
-            10.ms(),
-            ccdr.peripheral.TIM2,
-            &ccdr.clocks,
-        ));
-        let adc = Adc::adc1(dp.ADC1, &mut delay, ccdr.peripheral.ADC12, &ccdr.clocks);
-
-        let ak_pins = (
-            pins.AK4556.PDN.into_push_pull_output(),
-            pins.AK4556.MCLK_A.into_alternate_af6(),
-            pins.AK4556.SCK_A.into_alternate_af6(),
-            pins.AK4556.FS_A.into_alternate_af6(),
-            pins.AK4556.SD_A.into_alternate_af6(),
-            pins.AK4556.SD_B.into_alternate_af6(),
-        );
-
-        let sai1_prec = ccdr
-            .peripheral
-            .SAI1
-            .kernel_clk_mux(hal::rcc::rec::Sai1ClkSel::PLL3_P);
-
-        let audio_interface =
-            audio::Interface::init(&ccdr.clocks, sai1_prec, ak_pins, ccdr.peripheral.DMA1).unwrap();
-
-        let pins = Pins {
-            SEED_PIN_9: pins.SEED_PIN_9,
-            SEED_PIN_23: pins.SEED_PIN_23,
-            SEED_PIN_24: pins.SEED_PIN_24,
-            SEED_PIN_22: pins.SEED_PIN_22,
-            SEED_PIN_21: pins.SEED_PIN_21,
-            SEED_PIN_20: pins.SEED_PIN_20,
-            SEED_PIN_19: pins.SEED_PIN_19,
-            SEED_PIN_15: pins.SEED_PIN_15,
-            SEED_PIN_16: pins.SEED_PIN_16,
-            SEED_PIN_17: pins.SEED_PIN_17,
-            SEED_PIN_18: pins.SEED_PIN_18,
-            SEED_PIN_10: pins.SEED_PIN_10,
-            SEED_PIN_30: pins.SEED_PIN_30,
-            SEED_PIN_29: pins.SEED_PIN_29,
-            SEED_PIN_26: pins.SEED_PIN_26,
-            SEED_PIN_25: pins.SEED_PIN_25,
-            SEED_PIN_3: pins.SEED_PIN_3,
-            SEED_PIN_4: pins.SEED_PIN_4,
-            SEED_PIN_5: pins.SEED_PIN_5,
-            SEED_PIN_6: pins.SEED_PIN_6,
+        let pots = Pots {
+            pot1: Pot::new(pins.SEED_PIN_23),
+            pot2: Pot::new(pins.SEED_PIN_24),
+            pot3: Pot::new(pins.SEED_PIN_22),
+            pot4: Pot::new(pins.SEED_PIN_21),
         };
 
-        Self {
+        let cvs = Cvs {
+            cv1: Cv::new(pins.SEED_PIN_20),
+            cv2: Cv::new(pins.SEED_PIN_19),
+            cv3: Cv::new(pins.SEED_PIN_15),
+            cv4: Cv::new(pins.SEED_PIN_16),
+            cv5: Cv::new(pins.SEED_PIN_17),
+            cv6: Cv::new(pins.SEED_PIN_18),
+            cv_probe: Probe::new(pins.SEED_PIN_10.into_push_pull_output()),
+        };
+
+        let button = Button::new(pins.SEED_PIN_9.into_pull_up_input());
+
+        let leds = Leds {
+            led1: Led::new(pins.SEED_PIN_30.into_push_pull_output()),
+            led2: Led::new(pins.SEED_PIN_29.into_push_pull_output()),
+            led3: Led::new(pins.SEED_PIN_26.into_push_pull_output()),
+            led4: Led::new(pins.SEED_PIN_25.into_push_pull_output()),
+            led5: Led::new(pins.SEED_PIN_3.into_push_pull_output()),
+            led6: Led::new(pins.SEED_PIN_4.into_push_pull_output()),
+            led7: Led::new(pins.SEED_PIN_5.into_push_pull_output()),
+            led8: Led::new(pins.SEED_PIN_6.into_push_pull_output()),
+        };
+
+        let adc = {
+            let mut delay = DelayFromCountDownTimer::new(dp.TIM2.timer(
+                10.ms(),
+                ccdr.peripheral.TIM2,
+                &ccdr.clocks,
+            ));
+            let mut adc = Adc::adc1(dp.ADC1, &mut delay, ccdr.peripheral.ADC12, &ccdr.clocks);
+            adc.set_resolution(Resolution::SIXTEENBIT);
+            adc.set_sample_time(AdcSampleTime::T_64);
+            adc.enable()
+        };
+
+        let flash = Flash::new(&ccdr.clocks, dp.QUADSPI, ccdr.peripheral.QSPI, pins.FMC);
+
+        let audio = {
+            let ak_pins = (
+                pins.AK4556.PDN.into_push_pull_output(),
+                pins.AK4556.MCLK_A.into_alternate_af6(),
+                pins.AK4556.SCK_A.into_alternate_af6(),
+                pins.AK4556.FS_A.into_alternate_af6(),
+                pins.AK4556.SD_A.into_alternate_af6(),
+                pins.AK4556.SD_B.into_alternate_af6(),
+            );
+
+            let sai1_prec = ccdr
+                .peripheral
+                .SAI1
+                .kernel_clk_mux(hal::rcc::rec::Sai1ClkSel::PLL3_P);
+
+            Audio::init(&ccdr.clocks, sai1_prec, ak_pins, ccdr.peripheral.DMA1).unwrap()
+        };
+
+        System {
             adc,
-            audio: audio_interface,
+            cvs,
+            pots,
+            button,
+            leds,
             flash,
-            pins, // TODO: Create a special struct with remaining pins
+            audio,
         }
     }
 }

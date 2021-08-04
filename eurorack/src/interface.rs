@@ -4,62 +4,45 @@ use micromath::F32Ext;
 use daisy::hal;
 use daisy_bsp as daisy;
 
-use hal::adc::{self, Adc, Disabled, Enabled};
+use hal::adc::{Adc, Enabled};
 use hal::pac::ADC1;
 
 use achordion_lib::display::State as DisplayState;
 use achordion_lib::store::Parameters;
 
-use crate::system::peripherals::{button::Button, cv::Cv, led::Led, pot::Pot, probe::Probe};
-
-type PinButton = hal::gpio::gpiob::PB4<hal::gpio::Input<hal::gpio::PullUp>>; // PIN 9
-type PinPot1 = hal::gpio::gpioa::PA4<hal::gpio::Analog>; // PIN 23
-type PinPot2 = hal::gpio::gpioa::PA1<hal::gpio::Analog>; // PIN 24
-type PinPot3 = hal::gpio::gpioa::PA5<hal::gpio::Analog>; // PIN 22
-type PinPot4 = hal::gpio::gpioc::PC4<hal::gpio::Analog>; // PIN 21
-type PinCv1 = hal::gpio::gpioc::PC1<hal::gpio::Analog>; // PIN 20
-type PinCv2 = hal::gpio::gpioa::PA6<hal::gpio::Analog>; // PIN 19
-type PinCv3 = hal::gpio::gpioc::PC0<hal::gpio::Analog>; // PIN 15
-type PinCv4 = hal::gpio::gpioa::PA3<hal::gpio::Analog>; // PIN 16
-type PinCv5 = hal::gpio::gpiob::PB1<hal::gpio::Analog>; // PIN 17
-type PinCv6 = hal::gpio::gpioa::PA7<hal::gpio::Analog>; // PIN 18
-type PinProbe = hal::gpio::gpiob::PB5<hal::gpio::Output<hal::gpio::PushPull>>; // PIN 10
-type PinLed1 = hal::gpio::gpiob::PB15<hal::gpio::Output<hal::gpio::PushPull>>; // PIN 30
-type PinLed2 = hal::gpio::gpiob::PB14<hal::gpio::Output<hal::gpio::PushPull>>; // PIN 29
-type PinLed3 = hal::gpio::gpiod::PD11<hal::gpio::Output<hal::gpio::PushPull>>; // PIN 26
-type PinLed4 = hal::gpio::gpioa::PA0<hal::gpio::Output<hal::gpio::PushPull>>; // PIN 25
-type PinLed5 = hal::gpio::gpioc::PC9<hal::gpio::Output<hal::gpio::PushPull>>; // PIN 3
-type PinLed6 = hal::gpio::gpioc::PC8<hal::gpio::Output<hal::gpio::PushPull>>; // PIN 4
-type PinLed7 = hal::gpio::gpiod::PD2<hal::gpio::Output<hal::gpio::PushPull>>; // PIN 5
-type PinLed8 = hal::gpio::gpioc::PC12<hal::gpio::Output<hal::gpio::PushPull>>; // PIN 6
+use crate::system::Button;
+use crate::system::Probe;
+use crate::system::{Cv1, Cv2, Cv3, Cv4, Cv5, Cv6};
+use crate::system::{Led1, Led2, Led3, Led4, Led5, Led6, Led7, Led8};
+use crate::system::{Pot1, Pot2, Pot3, Pot4};
 
 pub struct Interface {
     adc1: Adc<ADC1, Enabled>,
 
-    button: Button<PinButton>,
+    button: Button,
 
-    pot1: Pot<PinPot1>,
-    pot2: Pot<PinPot2>,
-    pot3: Pot<PinPot3>,
-    pot4: Pot<PinPot4>,
+    pot1: Pot1,
+    pot2: Pot2,
+    pot3: Pot3,
+    pot4: Pot4,
 
-    cv1: Cv<PinCv1>,
-    cv2: Cv<PinCv2>,
-    cv3: Cv<PinCv3>,
-    cv4: Cv<PinCv4>,
-    cv5: Cv<PinCv5>,
-    cv6: Cv<PinCv6>,
+    cv1: Cv1,
+    cv2: Cv2,
+    cv3: Cv3,
+    cv4: Cv4,
+    cv5: Cv5,
+    cv6: Cv6,
 
-    probe: Probe<PinProbe>,
+    probe: Probe,
 
-    led1: Led<PinLed1>,
-    led2: Led<PinLed2>,
-    led3: Led<PinLed3>,
-    led4: Led<PinLed4>,
-    led5: Led<PinLed5>,
-    led6: Led<PinLed6>,
-    led7: Led<PinLed7>,
-    led8: Led<PinLed8>,
+    led1: Led1,
+    led2: Led2,
+    led3: Led3,
+    led4: Led4,
+    led5: Led5,
+    led6: Led6,
+    led7: Led7,
+    led8: Led8,
 
     parameters: Parameters,
 
@@ -73,60 +56,55 @@ pub struct Interface {
 impl Interface {
     #[allow(clippy::too_many_arguments)]
     pub fn new(
-        mut adc1: Adc<ADC1, Disabled>,
-        button: PinButton,
-        pot1: PinPot1,
-        pot2: PinPot2,
-        pot3: PinPot3,
-        pot4: PinPot4,
-        cv1: PinCv1,
-        cv2: PinCv2,
-        cv3: PinCv3,
-        cv4: PinCv4,
-        cv5: PinCv5,
-        cv6: PinCv6,
-        probe: PinProbe,
-        led1: PinLed1,
-        led2: PinLed2,
-        led3: PinLed3,
-        led4: PinLed4,
-        led5: PinLed5,
-        led6: PinLed6,
-        led7: PinLed7,
-        led8: PinLed8,
+        adc1: Adc<ADC1, Enabled>,
+        button: Button,
+        pot1: Pot1,
+        pot2: Pot2,
+        pot3: Pot3,
+        pot4: Pot4,
+        cv1: Cv1,
+        cv2: Cv2,
+        cv3: Cv3,
+        cv4: Cv4,
+        cv5: Cv5,
+        cv6: Cv6,
+        probe: Probe,
+        led1: Led1,
+        led2: Led2,
+        led3: Led3,
+        led4: Led4,
+        led5: Led5,
+        led6: Led6,
+        led7: Led7,
+        led8: Led8,
         parameters: Parameters,
     ) -> Self {
-        adc1.set_resolution(adc::Resolution::SIXTEENBIT);
-        adc1.set_sample_time(adc::AdcSampleTime::T_64);
-        let adc1 = adc1.enable();
-
         Self {
             adc1,
+            button,
 
-            button: Button::new(button),
+            pot1,
+            pot2,
+            pot3,
+            pot4,
 
-            pot1: Pot::new(pot1),
-            pot2: Pot::new(pot2),
-            pot3: Pot::new(pot3),
-            pot4: Pot::new(pot4),
+            cv1,
+            cv2,
+            cv3,
+            cv4,
+            cv5,
+            cv6,
 
-            cv1: Cv::new(cv1),
-            cv2: Cv::new(cv2),
-            cv3: Cv::new(cv3),
-            cv4: Cv::new(cv4),
-            cv5: Cv::new(cv5),
-            cv6: Cv::new(cv6),
+            probe,
 
-            probe: Probe::new(probe),
-
-            led1: Led::new(led1),
-            led2: Led::new(led2),
-            led3: Led::new(led3),
-            led4: Led::new(led4),
-            led5: Led::new(led5),
-            led6: Led::new(led6),
-            led7: Led::new(led7),
-            led8: Led::new(led8),
+            led1,
+            led2,
+            led3,
+            led4,
+            led5,
+            led6,
+            led7,
+            led8,
 
             parameters,
 
