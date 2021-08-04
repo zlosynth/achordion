@@ -32,11 +32,11 @@ use achordion_lib::wavetable::Wavetable;
 
 use crate::controls::{Controls, ControlsConfig};
 use crate::display::{Display, DisplayConfig};
+use crate::system::audio::Audio;
 use crate::system::System;
 
 const CV_PERIOD: u32 = 1_000_000;
 
-static mut AUDIO_INTERFACE: Option<audio::Interface> = None;
 static mut BUFFER: [(f32, f32); audio::BLOCK_LENGTH] = [(0.0, 0.0); audio::BLOCK_LENGTH];
 const SAMPLE_RATE: u32 = audio::FS.0;
 
@@ -86,6 +86,7 @@ const APP: () = {
     struct Resources {
         controls: Controls,
         display: Display,
+        audio: Audio<'static>,
         instrument: Instrument<'static>,
     }
 
@@ -148,9 +149,9 @@ const APP: () = {
             .reconcile_controls(cx.start + CV_PERIOD.cycles())
             .unwrap();
 
-        let audio_interface = system.audio;
+        let audio = {
+            let audio = system.audio;
 
-        let audio_interface = {
             fn callback(_fs: f32, block: &mut audio::Block) {
                 let buffer: &'static mut [(f32, f32); audio::BLOCK_LENGTH] = unsafe { &mut BUFFER };
                 for (source, target) in buffer.iter().zip(block.iter_mut()) {
@@ -158,12 +159,8 @@ const APP: () = {
                 }
             }
 
-            audio_interface.spawn(callback).unwrap()
+            audio.spawn(callback).unwrap()
         };
-
-        unsafe {
-            AUDIO_INTERFACE = Some(audio_interface);
-        }
 
         let mut instrument = Instrument::new(&WAVETABLE_BANKS[..], SAMPLE_RATE);
         instrument.set_amplitude(0.0);
@@ -173,6 +170,7 @@ const APP: () = {
         init::LateResources {
             controls,
             display,
+            audio,
             instrument,
         }
     }
@@ -258,11 +256,11 @@ const APP: () = {
             .unwrap();
     }
 
-    #[task(binds = DMA1_STR1, priority = 2, resources = [instrument])]
+    #[task(binds = DMA1_STR1, priority = 2, resources = [audio, instrument])]
     fn dsp(cx: dsp::Context) {
-        let audio_interface: &'static mut audio::Interface =
-            unsafe { AUDIO_INTERFACE.as_mut().unwrap() };
         let buffer: &'static mut [(f32, f32); audio::BLOCK_LENGTH] = unsafe { &mut BUFFER };
+
+        let audio = cx.resources.audio;
 
         let mut buffer_root = [0.0; audio::BLOCK_LENGTH];
         let mut buffer_chord = [0.0; audio::BLOCK_LENGTH];
@@ -275,7 +273,7 @@ const APP: () = {
             buffer[i] = (buffer_root[i] * 0.9, buffer_chord[i] * 0.9);
         }
 
-        audio_interface.handle_interrupt_dma1_str1().unwrap();
+        audio.handle_interrupt_dma1_str1().unwrap();
     }
 
     extern "C" {
