@@ -17,7 +17,7 @@ use crate::system::{Led1, Led2, Led3, Led4, Led5, Led6, Led7, Led8};
 use crate::system::{Pot1, Pot2, Pot3, Pot4};
 
 pub struct Interface {
-    adc1: Adc<ADC1, Enabled>,
+    adc: Adc<ADC1, Enabled>,
 
     button: Button,
 
@@ -56,7 +56,7 @@ pub struct Interface {
 impl Interface {
     #[allow(clippy::too_many_arguments)]
     pub fn new(
-        adc1: Adc<ADC1, Enabled>,
+        adc: Adc<ADC1, Enabled>,
         button: Button,
         pot1: Pot1,
         pot2: Pot2,
@@ -80,7 +80,7 @@ impl Interface {
         parameters: Parameters,
     ) -> Self {
         Self {
-            adc1,
+            adc,
             button,
 
             pot1,
@@ -192,17 +192,17 @@ impl Interface {
     }
 
     fn sample(&mut self) {
-        self.pot1.sample(&mut self.adc1);
-        self.pot2.sample(&mut self.adc1);
-        self.pot3.sample(&mut self.adc1);
-        self.pot4.sample(&mut self.adc1);
+        self.pot1.sample(&mut self.adc);
+        self.pot2.sample(&mut self.adc);
+        self.pot3.sample(&mut self.adc);
+        self.pot4.sample(&mut self.adc);
 
-        self.cv1.sample(&mut self.adc1);
-        self.cv2.sample(&mut self.adc1);
-        self.cv3.sample(&mut self.adc1);
-        self.cv4.sample(&mut self.adc1);
-        self.cv5.sample(&mut self.adc1);
-        self.cv6.sample(&mut self.adc1);
+        self.cv1.sample(&mut self.adc);
+        self.cv2.sample(&mut self.adc);
+        self.cv3.sample(&mut self.adc);
+        self.cv4.sample(&mut self.adc);
+        self.cv5.sample(&mut self.adc);
+        self.cv6.sample(&mut self.adc);
 
         self.probe.tick();
     }
