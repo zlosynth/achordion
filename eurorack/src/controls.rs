@@ -7,16 +7,14 @@ use daisy_bsp as daisy;
 use hal::adc::{Adc, Enabled};
 use hal::pac::ADC1;
 
-use achordion_lib::display::State as DisplayState;
 use achordion_lib::store::Parameters;
 
 use crate::system::Button;
 use crate::system::Probe;
 use crate::system::{Cv1, Cv2, Cv3, Cv4, Cv5, Cv6};
-use crate::system::{Led1, Led2, Led3, Led4, Led5, Led6, Led7, Led8};
 use crate::system::{Pot1, Pot2, Pot3, Pot4};
 
-pub struct InterfaceConfig {
+pub struct ControlsConfig {
     pub adc: Adc<ADC1, Enabled>,
     pub alt_button: Button,
     pub pot_note: Pot1,
@@ -30,17 +28,9 @@ pub struct InterfaceConfig {
     pub cv_detune: Cv5,
     pub cv_wavetable: Cv6,
     pub cv_probe: Probe,
-    pub led1: Led1,
-    pub led2: Led2,
-    pub led3: Led3,
-    pub led4: Led4,
-    pub led5: Led5,
-    pub led6: Led6,
-    pub led7: Led7,
-    pub led8: Led8,
 }
 
-pub struct Interface {
+pub struct Controls {
     adc: Adc<ADC1, Enabled>,
     button: Button,
     pot1: Pot1,
@@ -54,14 +44,6 @@ pub struct Interface {
     cv5: Cv5,
     cv6: Cv6,
     probe: Probe,
-    led1: Led1,
-    led2: Led2,
-    led3: Led3,
-    led4: Led4,
-    led5: Led5,
-    led6: Led6,
-    led7: Led7,
-    led8: Led8,
 
     parameters: Parameters,
 
@@ -72,8 +54,8 @@ pub struct Interface {
     last_scale_mode_pot_reading: f32,
 }
 
-impl Interface {
-    pub fn new(config: InterfaceConfig, parameters: Parameters) -> Self {
+impl Controls {
+    pub fn new(config: ControlsConfig, parameters: Parameters) -> Self {
         Self {
             adc: config.adc,
             button: config.alt_button,
@@ -88,14 +70,6 @@ impl Interface {
             cv5: config.cv_detune,
             cv6: config.cv_wavetable,
             probe: config.cv_probe,
-            led1: config.led1,
-            led2: config.led2,
-            led3: config.led3,
-            led4: config.led4,
-            led5: config.led5,
-            led6: config.led6,
-            led7: config.led7,
-            led8: config.led8,
 
             parameters,
 
@@ -321,17 +295,6 @@ impl Interface {
     // XXX: Temporary for testing
     pub fn amplitude(&self) -> f32 {
         self.parameters.amplitude
-    }
-
-    pub fn set_display(&mut self, display_state: DisplayState) {
-        self.led4.set(display_state.led1);
-        self.led8.set(display_state.led2);
-        self.led3.set(display_state.led3);
-        self.led7.set(display_state.led4);
-        self.led2.set(display_state.led5);
-        self.led6.set(display_state.led6);
-        self.led1.set(display_state.led7);
-        self.led5.set(display_state.led_sharp);
     }
 }
 

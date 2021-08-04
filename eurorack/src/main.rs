@@ -5,7 +5,8 @@
 #![allow(clippy::new_without_default)]
 #![allow(clippy::manual_map)]
 
-mod interface;
+mod controls;
+mod display;
 mod system;
 
 #[macro_use]
@@ -23,13 +24,14 @@ use daisy::audio;
 use daisy::flash::Flash;
 use daisy_bsp as daisy;
 
-use achordion_lib::display::{self, Action as DisplayAction};
+use achordion_lib::display::{self as display_lib, Action as DisplayAction};
 use achordion_lib::instrument::Instrument;
 use achordion_lib::store::{Parameters, Store};
 use achordion_lib::waveform;
 use achordion_lib::wavetable::Wavetable;
 
-use crate::interface::{Interface, InterfaceConfig};
+use crate::controls::{Controls, ControlsConfig};
+use crate::display::{Display, DisplayConfig};
 use crate::system::System;
 
 const CV_PERIOD: u32 = 1_000_000;
@@ -82,12 +84,13 @@ lazy_static! {
 #[app(device = stm32h7xx_hal::pac, peripherals = true, monotonic = rtic::cyccnt::CYCCNT)]
 const APP: () = {
     struct Resources {
-        interface: Interface,
+        controls: Controls,
+        display: Display,
         instrument: Instrument<'static>,
     }
 
     /// Initialize all the peripherals.
-    #[init(schedule = [control], spawn = [fade_in, store_parameters])]
+    #[init(schedule = [reconcile_controls], spawn = [fade_in, store_parameters])]
     fn init(cx: init::Context) -> init::LateResources {
         let system = System::init(cx.core, cx.device);
 
@@ -111,8 +114,8 @@ const APP: () = {
 
         cx.spawn.store_parameters(0).unwrap();
 
-        let interface = Interface::new(
-            InterfaceConfig {
+        let controls = Controls::new(
+            ControlsConfig {
                 adc: system.adc,
                 alt_button: system.button,
                 pot_note: system.pots.pot1,
@@ -126,19 +129,24 @@ const APP: () = {
                 cv_detune: system.cvs.cv5,
                 cv_wavetable: system.cvs.cv6,
                 cv_probe: system.cvs.cv_probe,
-                led1: system.leds.led1,
-                led2: system.leds.led2,
-                led3: system.leds.led3,
-                led4: system.leds.led4,
-                led5: system.leds.led5,
-                led6: system.leds.led6,
-                led7: system.leds.led7,
-                led8: system.leds.led8,
             },
             initial_parameters,
         );
 
-        cx.schedule.control(cx.start + CV_PERIOD.cycles()).unwrap();
+        let display = Display::new(DisplayConfig {
+            led1: system.leds.led1,
+            led2: system.leds.led2,
+            led3: system.leds.led3,
+            led4: system.leds.led4,
+            led5: system.leds.led5,
+            led6: system.leds.led6,
+            led7: system.leds.led7,
+            led8: system.leds.led8,
+        });
+
+        cx.schedule
+            .reconcile_controls(cx.start + CV_PERIOD.cycles())
+            .unwrap();
 
         let audio_interface = system.audio;
 
@@ -163,7 +171,8 @@ const APP: () = {
         cx.spawn.fade_in().unwrap();
 
         init::LateResources {
-            interface,
+            controls,
+            display,
             instrument,
         }
     }
@@ -184,22 +193,24 @@ const APP: () = {
         }
     }
 
-    #[task(schedule = [control], resources = [interface, instrument])]
-    fn control(mut cx: control::Context) {
+    #[task(schedule = [reconcile_controls], resources = [controls, display, instrument])]
+    fn reconcile_controls(mut cx: reconcile_controls::Context) {
         static mut ACTIVITY: Option<Activity> = None;
         if ACTIVITY.is_none() {
             *ACTIVITY = Some(Activity::new());
         }
         let activity = ACTIVITY.as_mut().unwrap();
 
-        let interface = cx.resources.interface;
-        interface.update();
+        let controls = cx.resources.controls;
+        let display = cx.resources.display;
+
+        controls.update();
 
         cx.resources.instrument.lock(|instrument| {
-            let any_action = reconcile_all_changes(interface, instrument);
-            let pot_action = reconcile_pot_activity(interface, instrument);
+            let any_action = reconcile_all_changes(controls, instrument);
+            let pot_action = reconcile_pot_activity(controls, instrument);
 
-            if interface.active() {
+            if controls.active() {
                 activity.reset_pots();
                 activity.reset_cv();
             } else {
@@ -211,36 +222,32 @@ const APP: () = {
             //    display that.
             // 3. If all activity is idle, display the default page.
             if let Some(action) = pot_action {
-                interface.set_display(display::reduce(action));
+                display.set(display_lib::reduce(action));
             } else if let (Some(action), true) = (any_action, activity.idle_pots()) {
                 // Reset only once shown, so it can never bling quickly through
                 // pot to CV to default.
                 activity.reset_cv();
-                interface.set_display(display::reduce(action));
+                display.set(display_lib::reduce(action));
             } else if activity.idle_cv() && activity.idle_cv() {
-                interface.set_display(display::reduce(display::Action::SetChord(
+                display.set(display_lib::reduce(DisplayAction::SetChord(
                     instrument.chord_degrees(),
                 )));
             }
 
             // XXX: Temporary for testing
-            let amplitude = if interface.amplitude() > 0.5 {
-                0.2
-            } else {
-                0.0
-            };
+            let amplitude = if controls.amplitude() > 0.5 { 0.2 } else { 0.0 };
             instrument.set_amplitude(amplitude);
         });
 
         cx.schedule
-            .control(cx.scheduled + CV_PERIOD.cycles())
+            .reconcile_controls(cx.scheduled + CV_PERIOD.cycles())
             .unwrap();
     }
 
-    #[task(schedule = [store_parameters], resources = [interface])]
+    #[task(schedule = [store_parameters], resources = [controls])]
     fn store_parameters(cx: store_parameters::Context, version: u16) {
         let flash = unsafe { FLASH.as_mut().unwrap() };
-        let data = Store::new(cx.resources.interface.parameters(), version).to_bytes();
+        let data = Store::new(cx.resources.controls.parameters(), version).to_bytes();
         flash.write(
             STORE_ADDRESSES[version as usize % STORE_ADDRESSES.len()],
             &data,
@@ -277,16 +284,16 @@ const APP: () = {
 };
 
 fn reconcile_all_changes(
-    interface: &mut Interface,
+    controls: &mut Controls,
     instrument: &mut Instrument,
 ) -> Option<DisplayAction> {
-    let new_chord_root_degree = instrument.set_chord_root(interface.note());
-    let new_scale_root = instrument.set_scale_root(interface.scale_root());
-    let new_scale_mode = instrument.set_scale_mode(interface.scale_mode());
-    let new_wavetable = instrument.set_wavetable(interface.wavetable());
-    let new_wavetable_bank = instrument.set_wavetable_bank(interface.wavetable_bank());
-    let new_degrees = instrument.set_chord_degrees(interface.chord());
-    let new_detune = instrument.set_detune(interface.detune());
+    let new_chord_root_degree = instrument.set_chord_root(controls.note());
+    let new_scale_root = instrument.set_scale_root(controls.scale_root());
+    let new_scale_mode = instrument.set_scale_mode(controls.scale_mode());
+    let new_wavetable = instrument.set_wavetable(controls.wavetable());
+    let new_wavetable_bank = instrument.set_wavetable_bank(controls.wavetable_bank());
+    let new_degrees = instrument.set_chord_degrees(controls.chord());
+    let new_detune = instrument.set_detune(controls.detune());
 
     if let Some(new_degrees) = new_degrees {
         Some(DisplayAction::SetChord(new_degrees))
@@ -308,28 +315,28 @@ fn reconcile_all_changes(
 }
 
 fn reconcile_pot_activity(
-    interface: &mut Interface,
+    controls: &mut Controls,
     instrument: &mut Instrument,
 ) -> Option<DisplayAction> {
-    if interface.chord_pot_active() {
+    if controls.chord_pot_active() {
         let chord_degrees = instrument.chord_degrees();
         Some(DisplayAction::SetChord(chord_degrees))
-    } else if interface.wavetable_bank_pot_active() {
+    } else if controls.wavetable_bank_pot_active() {
         let wavetable_bank = instrument.wavetable_bank();
         Some(DisplayAction::SetWavetableBank(wavetable_bank))
-    } else if interface.note_pot_active() {
+    } else if controls.note_pot_active() {
         let chord_root_degree = instrument.chord_root_degree();
         Some(DisplayAction::SetChordRootDegree(chord_root_degree))
-    } else if interface.scale_root_pot_active() {
+    } else if controls.scale_root_pot_active() {
         let scale_root = instrument.scale_root();
         Some(DisplayAction::SetScaleRoot(scale_root))
-    } else if interface.scale_mode_pot_active() {
+    } else if controls.scale_mode_pot_active() {
         let scale_mode = instrument.scale_mode();
         Some(DisplayAction::SetScaleMode(scale_mode))
-    } else if interface.wavetable_pot_active() {
+    } else if controls.wavetable_pot_active() {
         let wavetable = instrument.wavetable();
         Some(DisplayAction::SetWavetable(wavetable))
-    } else if interface.detune_pot_active() {
+    } else if controls.detune_pot_active() {
         let (detune_index, detune_phase) = instrument.detune();
         Some(DisplayAction::SetDetune(detune_index, detune_phase))
     } else {
