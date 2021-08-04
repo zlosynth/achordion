@@ -29,7 +29,7 @@ use achordion_lib::store::{Parameters, Store};
 use achordion_lib::waveform;
 use achordion_lib::wavetable::Wavetable;
 
-use crate::interface::Interface;
+use crate::interface::{Interface, InterfaceConfig};
 use crate::system::System;
 
 const CV_PERIOD: u32 = 1_000_000;
@@ -110,29 +110,31 @@ const APP: () = {
         }
 
         cx.spawn.store_parameters(0).unwrap();
-        // TODO: Accept config in a struct - to keep all these named
+
         let interface = Interface::new(
-            system.adc,
-            system.button,
-            system.pots.pot1,
-            system.pots.pot2,
-            system.pots.pot3,
-            system.pots.pot4,
-            system.cvs.cv1,
-            system.cvs.cv2,
-            system.cvs.cv3,
-            system.cvs.cv4,
-            system.cvs.cv5,
-            system.cvs.cv6,
-            system.cvs.cv_probe,
-            system.leds.led1,
-            system.leds.led2,
-            system.leds.led3,
-            system.leds.led4,
-            system.leds.led5,
-            system.leds.led6,
-            system.leds.led7,
-            system.leds.led8,
+            InterfaceConfig {
+                adc: system.adc,
+                alt_button: system.button,
+                pot_note: system.pots.pot1,
+                pot_wavetable: system.pots.pot2,
+                pot_chord: system.pots.pot3,
+                pot_detune: system.pots.pot4,
+                cv_voct: system.cvs.cv1,
+                cv_scale_tonic: system.cvs.cv2,
+                cv_scale_mode: system.cvs.cv3,
+                cv_chord: system.cvs.cv4,
+                cv_detune: system.cvs.cv5,
+                cv_wavetable: system.cvs.cv6,
+                cv_probe: system.cvs.cv_probe,
+                led1: system.leds.led1,
+                led2: system.leds.led2,
+                led3: system.leds.led3,
+                led4: system.leds.led4,
+                led5: system.leds.led5,
+                led6: system.leds.led6,
+                led7: system.leds.led7,
+                led8: system.leds.led8,
+            },
             initial_parameters,
         );
 

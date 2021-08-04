@@ -16,25 +16,44 @@ use crate::system::{Cv1, Cv2, Cv3, Cv4, Cv5, Cv6};
 use crate::system::{Led1, Led2, Led3, Led4, Led5, Led6, Led7, Led8};
 use crate::system::{Pot1, Pot2, Pot3, Pot4};
 
+pub struct InterfaceConfig {
+    pub adc: Adc<ADC1, Enabled>,
+    pub alt_button: Button,
+    pub pot_note: Pot1,
+    pub pot_wavetable: Pot2,
+    pub pot_chord: Pot3,
+    pub pot_detune: Pot4,
+    pub cv_voct: Cv1,
+    pub cv_scale_tonic: Cv2,
+    pub cv_scale_mode: Cv3,
+    pub cv_chord: Cv4,
+    pub cv_detune: Cv5,
+    pub cv_wavetable: Cv6,
+    pub cv_probe: Probe,
+    pub led1: Led1,
+    pub led2: Led2,
+    pub led3: Led3,
+    pub led4: Led4,
+    pub led5: Led5,
+    pub led6: Led6,
+    pub led7: Led7,
+    pub led8: Led8,
+}
+
 pub struct Interface {
     adc: Adc<ADC1, Enabled>,
-
     button: Button,
-
     pot1: Pot1,
     pot2: Pot2,
     pot3: Pot3,
     pot4: Pot4,
-
     cv1: Cv1,
     cv2: Cv2,
     cv3: Cv3,
     cv4: Cv4,
     cv5: Cv5,
     cv6: Cv6,
-
     probe: Probe,
-
     led1: Led1,
     led2: Led2,
     led3: Led3,
@@ -54,57 +73,29 @@ pub struct Interface {
 }
 
 impl Interface {
-    #[allow(clippy::too_many_arguments)]
-    pub fn new(
-        adc: Adc<ADC1, Enabled>,
-        button: Button,
-        pot1: Pot1,
-        pot2: Pot2,
-        pot3: Pot3,
-        pot4: Pot4,
-        cv1: Cv1,
-        cv2: Cv2,
-        cv3: Cv3,
-        cv4: Cv4,
-        cv5: Cv5,
-        cv6: Cv6,
-        probe: Probe,
-        led1: Led1,
-        led2: Led2,
-        led3: Led3,
-        led4: Led4,
-        led5: Led5,
-        led6: Led6,
-        led7: Led7,
-        led8: Led8,
-        parameters: Parameters,
-    ) -> Self {
+    pub fn new(config: InterfaceConfig, parameters: Parameters) -> Self {
         Self {
-            adc,
-            button,
-
-            pot1,
-            pot2,
-            pot3,
-            pot4,
-
-            cv1,
-            cv2,
-            cv3,
-            cv4,
-            cv5,
-            cv6,
-
-            probe,
-
-            led1,
-            led2,
-            led3,
-            led4,
-            led5,
-            led6,
-            led7,
-            led8,
+            adc: config.adc,
+            button: config.alt_button,
+            pot1: config.pot_note,
+            pot2: config.pot_wavetable,
+            pot3: config.pot_chord,
+            pot4: config.pot_detune,
+            cv1: config.cv_voct,
+            cv2: config.cv_scale_tonic,
+            cv3: config.cv_scale_mode,
+            cv4: config.cv_chord,
+            cv5: config.cv_detune,
+            cv6: config.cv_wavetable,
+            probe: config.cv_probe,
+            led1: config.led1,
+            led2: config.led2,
+            led3: config.led3,
+            led4: config.led4,
+            led5: config.led5,
+            led6: config.led6,
+            led7: config.led7,
+            led8: config.led8,
 
             parameters,
 
