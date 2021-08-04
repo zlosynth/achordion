@@ -134,14 +134,14 @@ const APP: () = {
         );
 
         let display = Display::new(DisplayConfig {
-            led1: system.leds.led1,
-            led2: system.leds.led2,
+            led1: system.leds.led4,
+            led2: system.leds.led8,
             led3: system.leds.led3,
-            led4: system.leds.led4,
-            led5: system.leds.led5,
+            led4: system.leds.led7,
+            led5: system.leds.led2,
             led6: system.leds.led6,
-            led7: system.leds.led7,
-            led8: system.leds.led8,
+            led7: system.leds.led1,
+            led_sharp: system.leds.led5,
         });
 
         cx.schedule
