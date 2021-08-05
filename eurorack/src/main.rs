@@ -5,6 +5,7 @@
 #![allow(clippy::new_without_default)]
 #![allow(clippy::manual_map)]
 
+mod bank;
 mod controls;
 mod display;
 mod storage;
@@ -21,14 +22,12 @@ use micromath::F32Ext;
 use rtic::app;
 use rtic::cyccnt::U32Ext as _;
 
-use daisy::audio;
-use daisy_bsp as daisy;
+use daisy_bsp::audio;
 
 use achordion_lib::display::{self as display_lib, Action as DisplayAction};
 use achordion_lib::instrument::Instrument;
-use achordion_lib::waveform;
-use achordion_lib::wavetable::Wavetable;
 
+use crate::bank::WAVETABLE_BANKS;
 use crate::controls::{Controls, ControlsConfig};
 use crate::display::{Display, DisplayConfig};
 use crate::storage::Storage;
@@ -38,44 +37,6 @@ use crate::system::System;
 const CV_PERIOD: u32 = 1_000_000;
 
 const SAMPLE_RATE: u32 = audio::FS.0;
-
-lazy_static! {
-    static ref BANK_PERFECT: [Wavetable<'static>; 4] = [
-        Wavetable::new(&waveform::perfect::PERFECT_0_FACTORS, SAMPLE_RATE),
-        Wavetable::new(&waveform::perfect::PERFECT_1_FACTORS, SAMPLE_RATE),
-        Wavetable::new(&waveform::perfect::PERFECT_2_FACTORS, SAMPLE_RATE),
-        Wavetable::new(&waveform::perfect::PERFECT_3_FACTORS, SAMPLE_RATE),
-    ];
-    static ref BANK_HARSH: [Wavetable<'static>; 6] = [
-        Wavetable::new(&waveform::harsh::HARSH_0_FACTORS, SAMPLE_RATE),
-        Wavetable::new(&waveform::harsh::HARSH_1_FACTORS, SAMPLE_RATE),
-        Wavetable::new(&waveform::harsh::HARSH_2_FACTORS, SAMPLE_RATE),
-        Wavetable::new(&waveform::harsh::HARSH_3_FACTORS, SAMPLE_RATE),
-        Wavetable::new(&waveform::harsh::HARSH_4_FACTORS, SAMPLE_RATE),
-        Wavetable::new(&waveform::harsh::HARSH_5_FACTORS, SAMPLE_RATE),
-    ];
-    static ref BANK_SOFT: [Wavetable<'static>; 6] = [
-        Wavetable::new(&waveform::soft::SOFT_0_FACTORS, SAMPLE_RATE),
-        Wavetable::new(&waveform::soft::SOFT_1_FACTORS, SAMPLE_RATE),
-        Wavetable::new(&waveform::soft::SOFT_2_FACTORS, SAMPLE_RATE),
-        Wavetable::new(&waveform::soft::SOFT_3_FACTORS, SAMPLE_RATE),
-        Wavetable::new(&waveform::soft::SOFT_4_FACTORS, SAMPLE_RATE),
-        Wavetable::new(&waveform::soft::SOFT_5_FACTORS, SAMPLE_RATE),
-    ];
-    static ref BANK_VOCAL: [Wavetable<'static>; 5] = [
-        Wavetable::new(&waveform::vocal::VOCAL_0_FACTORS, SAMPLE_RATE),
-        Wavetable::new(&waveform::vocal::VOCAL_1_FACTORS, SAMPLE_RATE),
-        Wavetable::new(&waveform::vocal::VOCAL_2_FACTORS, SAMPLE_RATE),
-        Wavetable::new(&waveform::vocal::VOCAL_3_FACTORS, SAMPLE_RATE),
-        Wavetable::new(&waveform::vocal::VOCAL_4_FACTORS, SAMPLE_RATE),
-    ];
-    static ref WAVETABLE_BANKS: [&'static [Wavetable<'static>]; 4] = [
-        &BANK_PERFECT[..],
-        &BANK_HARSH[..],
-        &BANK_SOFT[..],
-        &BANK_VOCAL[..]
-    ];
-}
 
 #[app(device = stm32h7xx_hal::pac, peripherals = true, monotonic = rtic::cyccnt::CYCCNT)]
 const APP: () = {
