@@ -7,6 +7,7 @@
 
 mod controls;
 mod display;
+mod storage;
 mod system;
 
 #[macro_use]
@@ -21,26 +22,22 @@ use rtic::app;
 use rtic::cyccnt::U32Ext as _;
 
 use daisy::audio;
-use daisy::flash::Flash;
 use daisy_bsp as daisy;
 
 use achordion_lib::display::{self as display_lib, Action as DisplayAction};
 use achordion_lib::instrument::Instrument;
-use achordion_lib::store::{Parameters, Store};
 use achordion_lib::waveform;
 use achordion_lib::wavetable::Wavetable;
 
 use crate::controls::{Controls, ControlsConfig};
 use crate::display::{Display, DisplayConfig};
+use crate::storage::Storage;
 use crate::system::audio::Audio;
 use crate::system::System;
 
 const CV_PERIOD: u32 = 1_000_000;
 
 const SAMPLE_RATE: u32 = audio::FS.0;
-
-static mut FLASH: Option<Flash> = None;
-const STORE_ADDRESSES: [u32; 2] = [0x0000, 0x1000];
 
 lazy_static! {
     static ref BANK_PERFECT: [Wavetable<'static>; 4] = [
@@ -85,6 +82,7 @@ const APP: () = {
     struct Resources {
         controls: Controls,
         display: Display,
+        storage: Storage,
         audio: Audio<'static>,
         instrument: Instrument<'static>,
     }
@@ -94,24 +92,8 @@ const APP: () = {
     fn init(cx: init::Context) -> init::LateResources {
         let system = System::init(cx.core, cx.device);
 
-        let mut flash = system.flash;
-
-        let initial_parameters = {
-            let mut store_buffer = [0; Store::SIZE];
-
-            let mut stores = [None; STORE_ADDRESSES.len()];
-            for (i, address) in STORE_ADDRESSES.iter().enumerate() {
-                flash.read(*address, &mut store_buffer);
-                stores[i] = Store::from_bytes(store_buffer).ok();
-            }
-
-            get_initial_parameters(stores)
-        };
-
-        unsafe {
-            FLASH = Some(flash);
-        }
-
+        let mut storage = Storage::new(system.flash);
+        let initial_parameters = storage.load_parameters();
         cx.spawn.store_parameters(0).unwrap();
 
         let controls = Controls::new(
@@ -153,12 +135,12 @@ const APP: () = {
 
         let mut instrument = Instrument::new(&WAVETABLE_BANKS[..], SAMPLE_RATE);
         instrument.set_amplitude(0.0);
-
         cx.spawn.fade_in().unwrap();
 
         init::LateResources {
             controls,
             display,
+            storage,
             audio,
             instrument,
         }
@@ -231,14 +213,12 @@ const APP: () = {
             .unwrap();
     }
 
-    #[task(schedule = [store_parameters], resources = [controls])]
+    #[task(schedule = [store_parameters], resources = [storage, controls])]
     fn store_parameters(cx: store_parameters::Context, version: u16) {
-        let flash = unsafe { FLASH.as_mut().unwrap() };
-        let data = Store::new(cx.resources.controls.parameters(), version).to_bytes();
-        flash.write(
-            STORE_ADDRESSES[version as usize % STORE_ADDRESSES.len()],
-            &data,
-        );
+        let storage = cx.resources.storage;
+        let controls = cx.resources.controls;
+
+        storage.save_parameters(controls.parameters(), version);
 
         cx.schedule
             .store_parameters(cx.scheduled + 480_000_000.cycles(), version.wrapping_add(1))
@@ -364,25 +344,5 @@ impl Activity {
 
     pub fn idle_cv(&self) -> bool {
         self.cv_idle > Self::MAX_IDLE_CV
-    }
-}
-
-fn get_initial_parameters<const L: usize>(stores: [Option<Store>; L]) -> Parameters {
-    let mut latest_store: Option<Store> = None;
-
-    for store in stores.iter().flatten() {
-        if let Some(latest) = latest_store {
-            if store.version() > latest.version() {
-                latest_store = Some(*store);
-            }
-        } else {
-            latest_store = Some(*store);
-        }
-    }
-
-    if let Some(latest) = latest_store {
-        latest.parameters()
-    } else {
-        Parameters::default()
     }
 }
