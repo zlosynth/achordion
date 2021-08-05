@@ -37,7 +37,6 @@ use crate::system::System;
 
 const CV_PERIOD: u32 = 1_000_000;
 
-static mut BUFFER: [(f32, f32); audio::BLOCK_LENGTH] = [(0.0, 0.0); audio::BLOCK_LENGTH];
 const SAMPLE_RATE: u32 = audio::FS.0;
 
 static mut FLASH: Option<Flash> = None;
@@ -149,18 +148,8 @@ const APP: () = {
             .reconcile_controls(cx.start + CV_PERIOD.cycles())
             .unwrap();
 
-        let audio = {
-            let audio = system.audio;
-
-            fn callback(_fs: f32, block: &mut audio::Block) {
-                let buffer: &'static mut [(f32, f32); audio::BLOCK_LENGTH] = unsafe { &mut BUFFER };
-                for (source, target) in buffer.iter().zip(block.iter_mut()) {
-                    *target = *source;
-                }
-            }
-
-            audio.spawn(callback).unwrap()
-        };
+        let mut audio = system.audio;
+        audio.spawn();
 
         let mut instrument = Instrument::new(&WAVETABLE_BANKS[..], SAMPLE_RATE);
         instrument.set_amplitude(0.0);
@@ -258,8 +247,6 @@ const APP: () = {
 
     #[task(binds = DMA1_STR1, priority = 2, resources = [audio, instrument])]
     fn dsp(cx: dsp::Context) {
-        let buffer: &'static mut [(f32, f32); audio::BLOCK_LENGTH] = unsafe { &mut BUFFER };
-
         let audio = cx.resources.audio;
 
         let mut buffer_root = [0.0; audio::BLOCK_LENGTH];
@@ -269,11 +256,11 @@ const APP: () = {
             .instrument
             .populate(&mut buffer_root, &mut buffer_chord);
 
-        for i in 0..audio::BLOCK_LENGTH {
-            buffer[i] = (buffer_root[i] * 0.9, buffer_chord[i] * 0.9);
-        }
-
-        audio.handle_interrupt_dma1_str1().unwrap();
+        audio.update_buffer(|buffer| {
+            buffer.iter_mut().enumerate().for_each(|(i, x)| {
+                *x = (buffer_root[i] * 0.9, buffer_chord[i] * 0.9);
+            })
+        });
     }
 
     extern "C" {

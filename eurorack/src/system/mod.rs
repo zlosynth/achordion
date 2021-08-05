@@ -18,7 +18,7 @@ use hal::pac::DWT;
 use hal::prelude::*;
 use rtic::Peripherals as CorePeripherals;
 
-use audio::Audio;
+use audio::{Audio, AudioPins};
 use button::Button as ButtonWrapper;
 use cv::Cv;
 use flash::Flash;
@@ -152,21 +152,21 @@ impl System<'_> {
         let flash = Flash::new(&ccdr.clocks, dp.QUADSPI, ccdr.peripheral.QSPI, pins.FMC);
 
         let audio = {
-            let ak_pins = (
-                pins.AK4556.PDN.into_push_pull_output(),
-                pins.AK4556.MCLK_A.into_alternate_af6(),
-                pins.AK4556.SCK_A.into_alternate_af6(),
-                pins.AK4556.FS_A.into_alternate_af6(),
-                pins.AK4556.SD_A.into_alternate_af6(),
-                pins.AK4556.SD_B.into_alternate_af6(),
-            );
+            let audio_pins = AudioPins {
+                pdn: pins.AK4556.PDN.into_push_pull_output(),
+                mclk_a: pins.AK4556.MCLK_A.into_alternate_af6(),
+                sck_a: pins.AK4556.SCK_A.into_alternate_af6(),
+                fs_a: pins.AK4556.FS_A.into_alternate_af6(),
+                sd_a: pins.AK4556.SD_A.into_alternate_af6(),
+                sd_b: pins.AK4556.SD_B.into_alternate_af6(),
+            };
 
-            let sai1_prec = ccdr
+            let sai = ccdr
                 .peripheral
                 .SAI1
                 .kernel_clk_mux(hal::rcc::rec::Sai1ClkSel::PLL3_P);
 
-            Audio::init(&ccdr.clocks, sai1_prec, ak_pins, ccdr.peripheral.DMA1).unwrap()
+            Audio::init(audio_pins, &ccdr.clocks, sai, ccdr.peripheral.DMA1)
         };
 
         System {
