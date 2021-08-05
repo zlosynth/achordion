@@ -54,7 +54,6 @@ const APP: () = {
         let system = System::init(cx.core, cx.device);
 
         let mut storage = Storage::new(system.flash);
-        let initial_parameters = storage.load_parameters();
         cx.spawn.store_parameters(0).unwrap();
 
         let controls = Controls::new(
@@ -73,7 +72,7 @@ const APP: () = {
                 cv_wavetable: system.cvs.cv6,
                 cv_probe: system.cvs.cv_probe,
             },
-            initial_parameters,
+            storage.load_parameters(),
         );
 
         let display = Display::new(DisplayConfig {
