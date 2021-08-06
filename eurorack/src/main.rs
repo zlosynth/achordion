@@ -46,6 +46,7 @@ const APP: () = {
         controls: Controls,
         display: Display,
         storage: Storage,
+        input_activity: InputActivity,
         audio: Audio<'static>,
         instrument: Instrument<'static>,
     }
@@ -56,7 +57,6 @@ const APP: () = {
         let system = System::init(cx.core, cx.device);
 
         let mut storage = Storage::new(system.flash);
-        cx.spawn.store_parameters(0).unwrap();
 
         let controls = Controls::new(
             ControlsConfig {
@@ -99,12 +99,15 @@ const APP: () = {
         instrument.set_amplitude(0.0);
         cx.spawn.fade_in().unwrap();
 
+        cx.spawn.store_parameters(0).unwrap();
+
         init::LateResources {
             controls,
             display,
-            storage,
             audio,
+            storage,
             instrument,
+            input_activity: InputActivity::new(),
         }
     }
 
@@ -124,14 +127,9 @@ const APP: () = {
         }
     }
 
-    #[task(schedule = [reconcile_controls], resources = [controls, display, instrument])]
+    #[task(schedule = [reconcile_controls], resources = [controls, display, instrument, input_activity])]
     fn reconcile_controls(mut cx: reconcile_controls::Context) {
-        static mut ACTIVITY: Option<InputActivity> = None;
-        if ACTIVITY.is_none() {
-            *ACTIVITY = Some(InputActivity::new());
-        }
-        let activity = ACTIVITY.as_mut().unwrap();
-
+        let activity = cx.resources.input_activity;
         let controls = cx.resources.controls;
         let display = cx.resources.display;
 
