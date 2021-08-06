@@ -6,6 +6,8 @@ backwards compatibility.
 
 ## Unreleased
 
+## 0.9.0
+
 * Remove component labels from the silkscreen.
 * Add graphics to front and back of the PCB.
 * Widen tracks on the PCB.
