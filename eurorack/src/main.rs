@@ -150,7 +150,7 @@ const APP: () = {
             if let Some(action) = pot_action {
                 display.set(display_lib::reduce(action));
             } else if let (Some(action), true) = (any_action, activity.idle_pots()) {
-                // Reset only once shown, so it can never bling quickly through
+                // Reset only once shown, so it can never blink quickly through
                 // pot to CV to default.
                 activity.reset_cv();
                 display.set(display_lib::reduce(action));
