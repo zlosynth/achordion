@@ -8,6 +8,7 @@
 mod bank;
 mod controls;
 mod display;
+mod input_activity;
 mod storage;
 mod system;
 
@@ -30,6 +31,7 @@ use achordion_lib::instrument::Instrument;
 use crate::bank::WAVETABLE_BANKS;
 use crate::controls::{Controls, ControlsConfig};
 use crate::display::{Display, DisplayConfig};
+use crate::input_activity::InputActivity;
 use crate::storage::Storage;
 use crate::system::audio::Audio;
 use crate::system::System;
@@ -124,9 +126,9 @@ const APP: () = {
 
     #[task(schedule = [reconcile_controls], resources = [controls, display, instrument])]
     fn reconcile_controls(mut cx: reconcile_controls::Context) {
-        static mut ACTIVITY: Option<Activity> = None;
+        static mut ACTIVITY: Option<InputActivity> = None;
         if ACTIVITY.is_none() {
-            *ACTIVITY = Some(Activity::new());
+            *ACTIVITY = Some(InputActivity::new());
         }
         let activity = ACTIVITY.as_mut().unwrap();
 
@@ -266,43 +268,5 @@ fn reconcile_pot_activity(
         Some(DisplayAction::SetDetune(detune_index, detune_phase))
     } else {
         None
-    }
-}
-
-struct Activity {
-    pot_idle: u32,
-    cv_idle: u32,
-}
-
-impl Activity {
-    const MAX_IDLE_POT: u32 = 300;
-    const MAX_IDLE_CV: u32 = 600;
-
-    pub fn new() -> Self {
-        Self {
-            pot_idle: u32::MAX,
-            cv_idle: u32::MAX,
-        }
-    }
-
-    pub fn reset_pots(&mut self) {
-        self.pot_idle = 0;
-    }
-
-    pub fn reset_cv(&mut self) {
-        self.cv_idle = 0;
-    }
-
-    pub fn tick_all(&mut self) {
-        self.pot_idle += 1;
-        self.cv_idle += 1;
-    }
-
-    pub fn idle_pots(&self) -> bool {
-        self.pot_idle > Self::MAX_IDLE_POT
-    }
-
-    pub fn idle_cv(&self) -> bool {
-        self.cv_idle > Self::MAX_IDLE_CV
     }
 }
