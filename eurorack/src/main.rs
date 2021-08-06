@@ -37,6 +37,7 @@ use crate::system::audio::Audio;
 use crate::system::System;
 
 const CV_PERIOD: u32 = 1_000_000;
+const STORE_PERIOD: u32 = 480_000_000;
 
 const SAMPLE_RATE: u32 = audio::FS.0;
 
@@ -181,7 +182,10 @@ const APP: () = {
         storage.save_parameters(controls.parameters(), version);
 
         cx.schedule
-            .store_parameters(cx.scheduled + 480_000_000.cycles(), version.wrapping_add(1))
+            .store_parameters(
+                cx.scheduled + STORE_PERIOD.cycles(),
+                version.wrapping_add(1),
+            )
             .unwrap();
     }
 
