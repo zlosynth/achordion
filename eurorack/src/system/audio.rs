@@ -1,8 +1,10 @@
-// TODO: This should introduce an abstraction to deal with producing and consuming of audio
-use daisy_bsp::audio::{Block, Interface, Sai1Pins, BLOCK_LENGTH};
+use daisy_bsp::audio::{self, Block, Interface, Sai1Pins};
 
 use crate::system::hal;
 use hal::gpio;
+
+pub const SAMPLE_RATE: u32 = audio::FS.0;
+pub const BLOCK_LENGTH: usize = audio::BLOCK_LENGTH;
 
 static mut BUFFER: [(f32, f32); BLOCK_LENGTH] = [(0.0, 0.0); BLOCK_LENGTH];
 

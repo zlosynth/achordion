@@ -23,8 +23,6 @@ use micromath::F32Ext;
 use rtic::app;
 use rtic::cyccnt::U32Ext as _;
 
-use daisy_bsp::audio;
-
 use achordion_lib::display::{self as display_lib, Action as DisplayAction};
 use achordion_lib::instrument::Instrument;
 
@@ -33,13 +31,11 @@ use crate::controls::{Controls, ControlsConfig};
 use crate::display::{Display, DisplayConfig};
 use crate::input_activity::InputActivity;
 use crate::storage::Storage;
-use crate::system::audio::Audio;
+use crate::system::audio::{Audio, BLOCK_LENGTH, SAMPLE_RATE};
 use crate::system::System;
 
 const CV_PERIOD: u32 = 1_000_000;
 const STORE_PERIOD: u32 = 480_000_000;
-
-const SAMPLE_RATE: u32 = audio::FS.0;
 
 #[app(device = stm32h7xx_hal::pac, peripherals = true, monotonic = rtic::cyccnt::CYCCNT)]
 const APP: () = {
@@ -193,8 +189,8 @@ const APP: () = {
     fn dsp(cx: dsp::Context) {
         let audio = cx.resources.audio;
 
-        let mut buffer_root = [0.0; audio::BLOCK_LENGTH];
-        let mut buffer_chord = [0.0; audio::BLOCK_LENGTH];
+        let mut buffer_root = [0.0; BLOCK_LENGTH];
+        let mut buffer_chord = [0.0; BLOCK_LENGTH];
 
         cx.resources
             .instrument

@@ -1,9 +1,7 @@
-use daisy_bsp::audio;
-
 use achordion_lib::waveform;
 use achordion_lib::wavetable::Wavetable;
 
-const SAMPLE_RATE: u32 = audio::FS.0;
+use crate::system::audio::SAMPLE_RATE;
 
 lazy_static! {
     static ref BANK_PERFECT: [Wavetable<'static>; 4] = [
