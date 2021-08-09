@@ -7,6 +7,7 @@ backwards compatibility.
 ## Unreleased
 
 * Update PCB with user labels for printing and easier soldering.
+* Replace tantalum DC decoupling capacitors with aluminium.
 
 ## 0.9.0
 
