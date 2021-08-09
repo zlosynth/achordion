@@ -6,6 +6,8 @@ backwards compatibility.
 
 ## Unreleased
 
+* Update PCB with user labels for printing and easier soldering.
+
 ## 0.9.0
 
 * Remove component labels from the silkscreen.
