@@ -9,7 +9,7 @@ def plot_gerber(board):
     pctl = pcbnew.PLOT_CONTROLLER(board)
     popt = pctl.GetPlotOptions()
 
-    popt.SetOutputDirectory("gerber")
+    popt.SetOutputDirectory("plot")
     popt.SetPlotFrameRef(False)
     popt.SetLineWidth(pcbnew.FromMM(0.1))
     popt.SetAutoScale(False)
@@ -60,7 +60,7 @@ def plot_drill(board):
 
     gen_drill = True
     gen_map = False
-    drlwriter.CreateDrillandMapFilesSet("hardware/gerber", gen_drill, gen_map);
+    drlwriter.CreateDrillandMapFilesSet("hardware/plot", gen_drill, gen_map);
 
 
 if __name__ == '__main__':

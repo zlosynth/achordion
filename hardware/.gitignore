@@ -20,4 +20,4 @@ fp-info-cache
 *.net
 
 # Avoid out-of-sync gerbers by not keeping them under the source tree
-gerber/
+plot/
