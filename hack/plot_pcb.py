@@ -3,7 +3,7 @@
 import sys
 import pcbnew
 
-BOARD_NAME = "hardware/Achordion.kicad_pcb"
+BOARD_FILE = "hardware/Achordion.kicad_pcb"
 
 def plot_gerber(board):
     pctl = pcbnew.PLOT_CONTROLLER(board)
@@ -64,6 +64,6 @@ def plot_drill(board):
 
 
 if __name__ == '__main__':
-    board = pcbnew.LoadBoard(BOARD_NAME)
+    board = pcbnew.LoadBoard(BOARD_FILE)
     plot_gerber(board)
     plot_drill(board)
