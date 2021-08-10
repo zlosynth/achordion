@@ -44,7 +44,7 @@ them open.
 # Changelog
 
 Read the [CHANGELOG.md](CHANGELOG.md) to learn about changes introduced in each
-release and revision.
+release.
 
 # Versioning
 
