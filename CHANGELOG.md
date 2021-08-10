@@ -10,6 +10,7 @@ backwards compatibility.
 * Replace tantalum DC decoupling capacitors with aluminium.
 * Use 10uF for DC decoupling capacitors.
 * Scale CV input range from -5 to +5 V.
+* Introduce a script generating gerber and drill files.
 
 ## 0.9.0
 
