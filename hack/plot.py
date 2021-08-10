@@ -13,11 +13,15 @@ def plot_gerber(board):
     popt.SetPlotFrameRef(False)
     popt.SetLineWidth(pcbnew.FromMM(0.1))
     popt.SetAutoScale(False)
+    popt.SetIncludeGerberNetlistInfo(True)
+    popt.SetUseGerberProtelExtensions(False)
     popt.SetScale(1)
     popt.SetMirror(False)
     popt.SetUseGerberAttributes(True)
     popt.SetExcludeEdgeLayer(False)
-    popt.SetUseAuxOrigin(False)
+    popt.SetUseAuxOrigin(True)
+    popt.SetSubtractMaskFromSilk(False)
+    popt.SetDrillMarksType(pcbnew.PCB_PLOT_PARAMS.NO_DRILL_SHAPE);
     pctl.SetColorMode(True)
 
     layers = [
@@ -33,9 +37,12 @@ def plot_gerber(board):
     ]
 
     for layer_info in layers:
+        cu_layer = layer_info[1] in (pcbnew.F_Cu, pcbnew.B_Cu)
+        popt.SetSkipPlotNPTH_Pads(cu_layer)
         pctl.SetLayer(layer_info[1])
         pctl.OpenPlotfile(layer_info[0], pcbnew.PLOT_FORMAT_GERBER, layer_info[2])
-        pctl.PlotLayer()
+        if pctl.PlotLayer() == False:
+            raise Exception("Failed plotting")
 
     pctl.ClosePlot()
 
