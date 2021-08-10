@@ -27,4 +27,5 @@ xdotool key shift+Tab shift+Tab shift+Tab Return
 echo 'Exit'
 xdotool key Escape
 until xdotool search --onlyvisible --name 'eeschema'; do sleep 0.01; done
+sleep 0.1
 xdotool key ctrl+q
