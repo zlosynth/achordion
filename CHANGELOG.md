@@ -9,6 +9,7 @@ backwards compatibility.
 * Update PCB with user labels for printing and easier soldering.
 * Replace tantalum DC decoupling capacitors with aluminium.
 * Use 10uF for DC decoupling capacitors.
+* Scale CV input range from -5 to +5 V.
 
 ## 0.9.0
 
