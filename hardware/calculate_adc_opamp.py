@@ -7,7 +7,8 @@ import unittest
 
 
 def main():
-    print("""OpAmps scaling for ADC ...
+    print(
+        """OpAmps scaling for ADC ...
 
 Legend:
   <V_in_min, V_in_max> = range for input voltage (coming from CV)
@@ -16,7 +17,8 @@ Legend:
   R_f = feedback resistance
   V_ref = reference voltage
   R_ref = resistence in series with the reference voltage
-""")
+"""
+    )
 
     r_in = 100e3
     v_ref = -10
@@ -26,29 +28,33 @@ Legend:
     v_out_min = 0
     v_out_max = 3.3
     r_f, r_ref = calculate(r_in, v_ref, v_in_min, v_in_max, v_out_min, v_out_max)
-    print(f"""Scaling from <{v_in_min}, {v_in_max}> to <{v_out_min}, {v_out_max}>:
+    print(
+        f"""Scaling from <{v_in_min}, {v_in_max}> to <{v_out_min}, {v_out_max}>:
   R_in = {r_in} Ω
   R_f = {r_f} Ω
   V_ref = {v_ref} V
   R_ref = {r_ref} Ω
-""")
+"""
+    )
 
     v_in_min = 0
     v_in_max = 10
     v_out_min = 0
     v_out_max = 3.3
     r_f, r_ref = calculate(r_in, v_ref, v_in_min, v_in_max, v_out_min, v_out_max)
-    print(f"""Scaling from <{v_in_min}, {v_in_max}> to <{v_out_min}, {v_out_max}>:
+    print(
+        f"""Scaling from <{v_in_min}, {v_in_max}> to <{v_out_min}, {v_out_max}>:
   R_in = {r_in} Ω
   R_f = {r_f} Ω
   V_ref = {v_ref} V
   R_ref = {r_ref} Ω
-""")
+"""
+    )
 
 
 def calculate(r_in, v_ref, v_in_min, v_in_max, v_out_min, v_out_max):
-    assert v_in_min < v_in_max, 'Input range must be ascending'
-    assert v_out_min < v_out_max, 'Output range must be ascending'
+    assert v_in_min < v_in_max, "Input range must be ascending"
+    assert v_out_min < v_out_max, "Output range must be ascending"
 
     # This scaler is inverting
     v_out_min, v_out_max = v_out_max, v_out_min
@@ -64,7 +70,6 @@ def calculate(r_in, v_ref, v_in_min, v_in_max, v_out_min, v_out_max):
 
 # Test based on reference values from Mutable Instrument schematics
 class TestScaling(unittest.TestCase):
-
     def test_minus_8_to_8(self):
         r_f, r_ref = calculate(
             r_in=100e3,
@@ -74,8 +79,8 @@ class TestScaling(unittest.TestCase):
             v_out_min=0,
             v_out_max=3.3,
         )
-        self.assertAlmostEqual(r_f, 47e3, delta=47e3*0.05)
-        self.assertAlmostEqual(r_ref, 180e3, delta=180e3*0.05)
+        self.assertAlmostEqual(r_f, 47e3, delta=47e3 * 0.05)
+        self.assertAlmostEqual(r_ref, 180e3, delta=180e3 * 0.05)
 
     def test_minus_5_to_5(self):
         r_f, r_ref = calculate(
@@ -86,8 +91,8 @@ class TestScaling(unittest.TestCase):
             v_out_min=0,
             v_out_max=3.3,
         )
-        self.assertAlmostEqual(r_f, 33e3, delta=33e3*0.05)
-        self.assertAlmostEqual(r_ref, 200e3, delta=200e3*0.05)
+        self.assertAlmostEqual(r_f, 33e3, delta=33e3 * 0.05)
+        self.assertAlmostEqual(r_ref, 200e3, delta=200e3 * 0.05)
 
     def test_minus_1_5_to_5_5(self):
         r_f, r_ref = calculate(
@@ -98,9 +103,9 @@ class TestScaling(unittest.TestCase):
             v_out_min=0,
             v_out_max=3.3,
         )
-        self.assertAlmostEqual(r_f, 47e3, delta=37e3*0.05)
-        self.assertAlmostEqual(r_ref, 180e3, delta=180e3*0.05)
+        self.assertAlmostEqual(r_f, 47e3, delta=37e3 * 0.05)
+        self.assertAlmostEqual(r_ref, 180e3, delta=180e3 * 0.05)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
