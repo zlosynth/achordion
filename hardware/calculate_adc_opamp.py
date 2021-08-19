@@ -22,34 +22,24 @@ Legend:
 
     r_in = 100e3
     v_ref = -10
-
-    v_in_min = -5
-    v_in_max = 5
     v_out_min = 0
     v_out_max = 3.3
-    r_f, r_ref = calculate(r_in, v_ref, v_in_min, v_in_max, v_out_min, v_out_max)
-    print(
-        f"""Scaling from <{v_in_min}, {v_in_max}> to <{v_out_min}, {v_out_max}>:
+
+    scaling_from = [
+        (-5, 5),
+        (0, 10),
+    ]
+
+    for (v_in_min, v_in_max) in scaling_from:
+        r_f, r_ref = calculate(r_in, v_ref, v_in_min, v_in_max, v_out_min, v_out_max)
+        print(
+            f"""Scaling from <{v_in_min}, {v_in_max}> to <{v_out_min}, {v_out_max}>:
   R_in = {r_in} Ω
   R_f = {r_f} Ω
   V_ref = {v_ref} V
   R_ref = {r_ref} Ω
-"""
-    )
-
-    v_in_min = 0
-    v_in_max = 10
-    v_out_min = 0
-    v_out_max = 3.3
-    r_f, r_ref = calculate(r_in, v_ref, v_in_min, v_in_max, v_out_min, v_out_max)
-    print(
-        f"""Scaling from <{v_in_min}, {v_in_max}> to <{v_out_min}, {v_out_max}>:
-  R_in = {r_in} Ω
-  R_f = {r_f} Ω
-  V_ref = {v_ref} V
-  R_ref = {r_ref} Ω
-"""
-    )
+  """
+        )
 
 
 def calculate(r_in, v_ref, v_in_min, v_in_max, v_out_min, v_out_max):
