@@ -16,6 +16,10 @@ jobs:
     steps:
       - name: Fetch sources
         uses: actions/checkout@v2
+      - name: Install up Python 3.x toolchain
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
       - name: Install x86 Rust toolchain
         uses: actions-rs/toolchain@v1
         with:
