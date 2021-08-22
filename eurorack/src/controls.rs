@@ -299,6 +299,6 @@ impl Controls {
 }
 
 fn sample_to_voct(transposed_sample: f32) -> f32 {
-    // V/OCT CV spans from -1.5 to 5.5 V.
-    transposed_sample * 7.0 + 0.5
+    // V/OCT CV spans from 0.0 to 10.0 V.
+    transposed_sample * 10.0
 }

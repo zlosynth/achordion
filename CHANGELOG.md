@@ -9,7 +9,8 @@ backwards compatibility.
 * Update PCB with user labels for printing and easier soldering.
 * Replace tantalum DC decoupling capacitors with aluminium.
 * Use 10uF for DC decoupling capacitors.
-* Scale CV input range from -5 to +5 V.
+* Scale modulation CV input range from -5 to +5 V.
+* Scale V/OCT CV input range from 0 to +10 V.
 * Introduce a script generating gerber and drill files.
 * Add a script printing PDF with the schematic.
 * Add a script printing PDF with assembly helper.
