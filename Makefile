@@ -31,7 +31,7 @@ test:
 	cd eurorack && cargo test --all
 	cd lib && cargo test --all
 	cd puredata && cargo test --all
-	python -m unittest -v hardware/*.py
+	python -m unittest -v hack/*.py
 
 .PHONY: puredata
 puredata:
