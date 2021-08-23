@@ -26,17 +26,17 @@ lazy_static! {
         Wavetable::new(&waveform::soft::SOFT_4_FACTORS, SAMPLE_RATE),
         Wavetable::new(&waveform::soft::SOFT_5_FACTORS, SAMPLE_RATE),
     ];
-    static ref BANK_VOCAL: [Wavetable<'static>; 5] = [
-        Wavetable::new(&waveform::vocal::VOCAL_0_FACTORS, SAMPLE_RATE),
-        Wavetable::new(&waveform::vocal::VOCAL_1_FACTORS, SAMPLE_RATE),
-        Wavetable::new(&waveform::vocal::VOCAL_2_FACTORS, SAMPLE_RATE),
-        Wavetable::new(&waveform::vocal::VOCAL_3_FACTORS, SAMPLE_RATE),
-        Wavetable::new(&waveform::vocal::VOCAL_4_FACTORS, SAMPLE_RATE),
-    ];
-    pub static ref WAVETABLE_BANKS: [&'static [Wavetable<'static>]; 4] = [
+    // static ref BANK_VOCAL: [Wavetable<'static>; 5] = [
+    //     Wavetable::new(&waveform::vocal::VOCAL_0_FACTORS, SAMPLE_RATE),
+    //     Wavetable::new(&waveform::vocal::VOCAL_1_FACTORS, SAMPLE_RATE),
+    //     Wavetable::new(&waveform::vocal::VOCAL_2_FACTORS, SAMPLE_RATE),
+    //     Wavetable::new(&waveform::vocal::VOCAL_3_FACTORS, SAMPLE_RATE),
+    //     Wavetable::new(&waveform::vocal::VOCAL_4_FACTORS, SAMPLE_RATE),
+    // ];
+    pub static ref WAVETABLE_BANKS: [&'static [Wavetable<'static>]; 3] = [
         &BANK_PERFECT[..],
         &BANK_HARSH[..],
         &BANK_SOFT[..],
-        &BANK_VOCAL[..]
+        // &BANK_VOCAL[..]
     ];
 }
