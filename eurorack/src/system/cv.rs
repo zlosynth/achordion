@@ -28,7 +28,8 @@ impl<P: Channel<ADC1, ID = u8>> Cv<P> {
         let sample: u32 = adc.read(&mut self.pin).unwrap();
         self.buffer
             .write(transpose_adc(sample as f32, adc.max_sample()));
-        self.probe_detector.write(is_high(sample, adc.max_sample(), self.input_range));
+        self.probe_detector
+            .write(is_high(sample, adc.max_sample(), self.input_range));
     }
 
     pub fn connected(&self) -> bool {
