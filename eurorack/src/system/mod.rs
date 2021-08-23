@@ -115,12 +115,12 @@ impl System<'_> {
         };
 
         let cvs = Cvs {
-            cv1: Cv::new(pins.SEED_PIN_20),
-            cv2: Cv::new(pins.SEED_PIN_19),
-            cv3: Cv::new(pins.SEED_PIN_15),
-            cv4: Cv::new(pins.SEED_PIN_16),
-            cv5: Cv::new(pins.SEED_PIN_17),
-            cv6: Cv::new(pins.SEED_PIN_18),
+            cv1: Cv::new(pins.SEED_PIN_20, (0.0, 10.0)),
+            cv2: Cv::new(pins.SEED_PIN_19, (0.0, 10.0)),
+            cv3: Cv::new(pins.SEED_PIN_15, (-5.0, 5.0)),
+            cv4: Cv::new(pins.SEED_PIN_16, (-5.0, 5.0)),
+            cv5: Cv::new(pins.SEED_PIN_17, (-5.0, 5.0)),
+            cv6: Cv::new(pins.SEED_PIN_18, (-5.0, 5.0)),
             cv_probe: Probe::new(pins.SEED_PIN_10.into_push_pull_output()),
         };
 
