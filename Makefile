@@ -31,7 +31,8 @@ test:
 	cd eurorack && cargo test --all
 	cd lib && cargo test --all
 	cd puredata && cargo test --all
-	python -m unittest -v hack/*.py
+	python -m unittest -v hack/calculate_adc_opamp_components.py
+	python -m unittest -v hack/calculate_reference_voltage_current_limiter.py
 
 .PHONY: puredata
 puredata:
