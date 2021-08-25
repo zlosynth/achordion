@@ -221,7 +221,8 @@ impl<'a> Instrument<'a> {
         let index = ((detune * DETUNES.len() as f32) as usize).min(DETUNES.len() - 1);
         self.selected_detune_index = index;
 
-        let section = 1.0 / DETUNES.len() as f32;
+        // Slightly over 1, so it never hits the maximum and wraps back
+        let section = 1.001 / DETUNES.len() as f32;
         let phase = taper::log((detune % section) / section);
 
         for (i, degree) in self.degrees.iter_mut().enumerate() {
