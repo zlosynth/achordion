@@ -162,7 +162,7 @@ const APP: () = {
             }
 
             // XXX: Temporary for testing
-            let amplitude = if controls.amplitude() > 0.5 { 0.2 } else { 0.0 };
+            let amplitude = if controls.amplitude() > 0.8 { 0.2 } else { 0.0 };
             instrument.set_amplitude(amplitude);
         });
 
