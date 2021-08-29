@@ -14,6 +14,7 @@ backwards compatibility.
 * Add a script generating gerber and drill files.
 * Add a script printing PDF with the schematic.
 * Add a script printing PDF with assembly helper.
+* Remove amplitude control.
 
 ## 0.9.0
 

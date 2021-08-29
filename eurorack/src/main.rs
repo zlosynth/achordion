@@ -94,8 +94,7 @@ const APP: () = {
 
         let mut instrument = Instrument::new(&WAVETABLE_BANKS[..], SAMPLE_RATE);
         instrument.set_amplitude(0.0);
-        // XXX: Temporarily disabled as it conflicts with gate-VCA
-        // cx.spawn.fade_in().unwrap();
+        cx.spawn.fade_in().unwrap();
 
         cx.spawn.store_parameters(0).unwrap();
 
@@ -160,10 +159,6 @@ const APP: () = {
                     instrument.chord_degrees(),
                 )));
             }
-
-            // XXX: Temporary for testing
-            let amplitude = if controls.amplitude() > 0.8 { 0.2 } else { 0.0 };
-            instrument.set_amplitude(amplitude);
         });
 
         cx.schedule
