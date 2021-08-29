@@ -6,6 +6,8 @@ backwards compatibility.
 
 ## Unreleased
 
+## 0.10.0
+
 * Update PCB with user labels for printing and easier soldering.
 * Replace tantalum DC decoupling capacitors with aluminium.
 * Use 10uF for DC decoupling capacitors.
