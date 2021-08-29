@@ -194,7 +194,7 @@ const APP: () = {
 
         audio.update_buffer(|buffer| {
             buffer.iter_mut().enumerate().for_each(|(i, x)| {
-                *x = (buffer_root[i] * 0.5, buffer_chord[i] * 0.5);
+                *x = (buffer_root[i] * 0.1, buffer_chord[i] * 0.1);
             })
         });
     }
