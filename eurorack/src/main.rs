@@ -119,7 +119,7 @@ const APP: () = {
 
         if amplitude < 1.0 {
             cx.schedule
-                .fade_in(cx.scheduled + 2_000_000.cycles())
+                .fade_in(cx.scheduled + 6_000_000.cycles())
                 .unwrap();
         }
     }
