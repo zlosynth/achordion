@@ -6,6 +6,8 @@ backwards compatibility.
 
 ## Unreleased
 
+* Remove CV buffering for faster response.
+
 ## 0.10.0
 
 * Update PCB with user labels for printing and easier soldering.

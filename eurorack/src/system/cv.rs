@@ -5,12 +5,10 @@ use crate::system::hal::prelude::*;
 
 use achordion_lib::probe::{ProbeDetector, PROBE_SEQUENCE};
 
-use super::control_buffer::ControlBuffer;
-
 pub struct Cv<P> {
     pin: P,
     probe_detector: ProbeDetector<'static>,
-    buffer: ControlBuffer<8>,
+    value: f32,
     input_range: (f32, f32),
 }
 
@@ -19,15 +17,14 @@ impl<P: Channel<ADC1, ID = u8>> Cv<P> {
         Self {
             pin,
             probe_detector: ProbeDetector::new(&PROBE_SEQUENCE),
-            buffer: ControlBuffer::new(),
+            value: 0.0,
             input_range,
         }
     }
 
     pub fn sample(&mut self, adc: &mut Adc<ADC1, Enabled>) {
         let sample: u32 = adc.read(&mut self.pin).unwrap();
-        self.buffer
-            .write(transpose_adc(sample as f32, adc.max_sample()));
+        self.value = transpose_adc(sample as f32, adc.max_sample());
         self.probe_detector
             .write(is_high(sample, adc.max_sample(), self.input_range));
     }
@@ -37,7 +34,7 @@ impl<P: Channel<ADC1, ID = u8>> Cv<P> {
     }
 
     pub fn value(&self) -> f32 {
-        self.buffer.read()
+        self.value
     }
 }
 
