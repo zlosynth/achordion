@@ -9,6 +9,7 @@ mod bank;
 mod controls;
 mod display;
 mod input_activity;
+mod profiling;
 mod storage;
 mod system;
 
