@@ -12,31 +12,37 @@ pub struct Cv<P> {
     input_range: (f32, f32),
 }
 
-impl<P: Channel<ADC1, ID = u8>> Cv<P> {
-    pub fn new(pin: P, input_range: (f32, f32)) -> Self {
-        Self {
-            pin,
-            probe_detector: ProbeDetector::new(&PROBE_SEQUENCE),
-            value: 0.0,
-            input_range,
+macro_rules! cv {
+    ($adc:ident) => {
+        impl<P: Channel<$adc, ID = u8>> Cv<P> {
+            pub fn new(pin: P, input_range: (f32, f32)) -> Self {
+                Self {
+                    pin,
+                    probe_detector: ProbeDetector::new(&PROBE_SEQUENCE),
+                    value: 0.0,
+                    input_range,
+                }
+            }
+
+            pub fn sample(&mut self, adc: &mut Adc<$adc, Enabled>) {
+                let sample: u32 = adc.read(&mut self.pin).unwrap();
+                self.value = transpose_adc(sample as f32, adc.max_sample());
+                self.probe_detector
+                    .write(is_high(sample, adc.max_sample(), self.input_range));
+            }
+
+            pub fn connected(&self) -> bool {
+                !self.probe_detector.detected()
+            }
+
+            pub fn value(&self) -> f32 {
+                self.value
+            }
         }
-    }
-
-    pub fn sample(&mut self, adc: &mut Adc<ADC1, Enabled>) {
-        let sample: u32 = adc.read(&mut self.pin).unwrap();
-        self.value = transpose_adc(sample as f32, adc.max_sample());
-        self.probe_detector
-            .write(is_high(sample, adc.max_sample(), self.input_range));
-    }
-
-    pub fn connected(&self) -> bool {
-        !self.probe_detector.detected()
-    }
-
-    pub fn value(&self) -> f32 {
-        self.value
-    }
+    };
 }
+
+cv!(ADC1);
 
 fn transpose_adc(sample: f32, max_sample: u32) -> f32 {
     (max_sample as f32 - sample) / max_sample as f32
