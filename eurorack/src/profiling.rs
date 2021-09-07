@@ -1,5 +1,3 @@
-#![macro_use]
-
 /// These are temporary macros that will be used for profiling of the code
 /// through oscilloscope. They are not using HAL, but instead they access the
 /// hardware directly to save troubles passing resources.

@@ -9,9 +9,11 @@ mod bank;
 mod controls;
 mod display;
 mod input_activity;
-mod profiling;
 mod storage;
 mod system;
+
+#[macro_use]
+mod profiling;
 
 #[macro_use]
 extern crate lazy_static;
@@ -26,6 +28,7 @@ use rtic::cyccnt::U32Ext as _;
 
 use achordion_lib::display::{self as display_lib, Action as DisplayAction};
 use achordion_lib::instrument::Instrument;
+use achordion_lib::store::Parameters;
 
 use crate::bank::WAVETABLE_BANKS;
 use crate::controls::{Controls, ControlsConfig};
@@ -35,8 +38,9 @@ use crate::storage::Storage;
 use crate::system::audio::{Audio, BLOCK_LENGTH, SAMPLE_RATE};
 use crate::system::System;
 
-const CV_PERIOD: u32 = 1_000_000;
-const STORE_PERIOD: u32 = 480_000_000;
+const SECOND: u32 = 480_000_000;
+const CV_PERIOD: u32 = SECOND / 480;
+const STORE_PERIOD: u32 = 4 * SECOND;
 
 #[app(device = stm32h7xx_hal::pac, peripherals = true, monotonic = rtic::cyccnt::CYCCNT)]
 const APP: () = {
@@ -50,7 +54,7 @@ const APP: () = {
     }
 
     /// Initialize all the peripherals.
-    #[init(schedule = [reconcile_controls], spawn = [fade_in, store_parameters])]
+    #[init(schedule = [reconcile_controls], spawn = [fade_in, backup])]
     fn init(cx: init::Context) -> init::LateResources {
         let system = System::init(cx.core, cx.device);
 
@@ -97,7 +101,7 @@ const APP: () = {
         instrument.set_amplitude(0.0);
         cx.spawn.fade_in().unwrap();
 
-        cx.spawn.store_parameters(0).unwrap();
+        cx.spawn.backup(0).unwrap();
 
         init::LateResources {
             controls,
@@ -109,7 +113,7 @@ const APP: () = {
         }
     }
 
-    #[task(schedule = [fade_in], resources = [instrument])]
+    #[task(schedule = [fade_in], resources = [instrument], priority = 2)]
     fn fade_in(mut cx: fade_in::Context) {
         let mut amplitude = 0.0;
 
@@ -125,7 +129,7 @@ const APP: () = {
         }
     }
 
-    #[task(schedule = [reconcile_controls], resources = [controls, display, instrument, input_activity])]
+    #[task(schedule = [reconcile_controls], resources = [controls, display, instrument, input_activity], priority = 2)]
     fn reconcile_controls(mut cx: reconcile_controls::Context) {
         let activity = cx.resources.input_activity;
         let controls = cx.resources.controls;
@@ -167,22 +171,30 @@ const APP: () = {
             .unwrap();
     }
 
-    #[task(schedule = [store_parameters], resources = [storage, controls])]
-    fn store_parameters(cx: store_parameters::Context, version: u16) {
-        let storage = cx.resources.storage;
+    #[task(spawn = [store_parameters], schedule = [backup], resources = [controls], priority = 2)]
+    fn backup(cx: backup::Context, version: u16) {
         let controls = cx.resources.controls;
 
-        storage.save_parameters(controls.parameters(), version);
+        cx.spawn
+            .store_parameters(controls.parameters(), version)
+            .ok()
+            .unwrap();
 
         cx.schedule
-            .store_parameters(
+            .backup(
                 cx.scheduled + STORE_PERIOD.cycles(),
                 version.wrapping_add(1),
             )
             .unwrap();
     }
 
-    #[task(binds = DMA1_STR1, priority = 2, resources = [audio, instrument])]
+    #[task(resources = [storage])]
+    fn store_parameters(cx: store_parameters::Context, parameters: Parameters, version: u16) {
+        let storage = cx.resources.storage;
+        storage.save_parameters(parameters, version);
+    }
+
+    #[task(binds = DMA1_STR1, priority = 3, resources = [audio, instrument])]
     fn dsp(cx: dsp::Context) {
         let audio = cx.resources.audio;
 
@@ -202,6 +214,7 @@ const APP: () = {
 
     extern "C" {
         fn EXTI0();
+        fn EXTI1();
     }
 };
 
