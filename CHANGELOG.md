@@ -8,7 +8,8 @@ backwards compatibility.
 
 * Remove CV buffering for faster response.
 * Fixed a bug where settings backup to EEPROM was hogging the MCU and causing CV
-  latency up to 100 ms. Now the CV latency should be around 1 ms.
+  latency up to 100 ms. Now the CV latency should be around 2 ms.
+* Increased control loop frequency to provide 0.5 ms latency.
 
 ## 0.10.0
 
