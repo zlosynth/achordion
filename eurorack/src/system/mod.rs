@@ -27,16 +27,16 @@ use pot::Pot;
 use probe::Probe as ProbeWrapper;
 
 pub type Button = ButtonWrapper<gpio::gpiob::PB4<gpio::Input<gpio::PullUp>>>; // PIN 9
-pub type Pot1 = Pot<gpio::gpioa::PA4<gpio::Analog>>; // PIN 23
-pub type Pot2 = Pot<gpio::gpioa::PA1<gpio::Analog>>; // PIN 24
-pub type Pot3 = Pot<gpio::gpioa::PA5<gpio::Analog>>; // PIN 22
-pub type Pot4 = Pot<gpio::gpioc::PC4<gpio::Analog>>; // PIN 21
-pub type Cv1 = Cv<ADC2, gpio::gpioc::PC1<gpio::Analog>>; // PIN 20
+pub type Pot1 = Pot<ADC2, gpio::gpioa::PA4<gpio::Analog>>; // PIN 23
+pub type Pot2 = Pot<ADC1, gpio::gpioa::PA1<gpio::Analog>>; // PIN 24
+pub type Pot3 = Pot<ADC1, gpio::gpioa::PA5<gpio::Analog>>; // PIN 22
+pub type Pot4 = Pot<ADC2, gpio::gpioc::PC4<gpio::Analog>>; // PIN 21
+pub type Cv1 = Cv<ADC1, gpio::gpioc::PC1<gpio::Analog>>; // PIN 20
 pub type Cv2 = Cv<ADC2, gpio::gpioa::PA6<gpio::Analog>>; // PIN 19
-pub type Cv3 = Cv<ADC2, gpio::gpioc::PC0<gpio::Analog>>; // PIN 15
+pub type Cv3 = Cv<ADC1, gpio::gpioc::PC0<gpio::Analog>>; // PIN 15
 pub type Cv4 = Cv<ADC2, gpio::gpioa::PA3<gpio::Analog>>; // PIN 16
-pub type Cv5 = Cv<ADC2, gpio::gpiob::PB1<gpio::Analog>>; // PIN 17
-pub type Cv6 = Cv<ADC1, gpio::gpioa::PA7<gpio::Analog>>; // PIN 18
+pub type Cv5 = Cv<ADC1, gpio::gpiob::PB1<gpio::Analog>>; // PIN 17
+pub type Cv6 = Cv<ADC2, gpio::gpioa::PA7<gpio::Analog>>; // PIN 18
 pub type Probe = ProbeWrapper<gpio::gpiob::PB5<gpio::Output<gpio::PushPull>>>; // PIN 10
 pub type Led1 = Led<gpio::gpiob::PB15<gpio::Output<gpio::PushPull>>>; // PIN 30
 pub type Led2 = Led<gpio::gpiob::PB14<gpio::Output<gpio::PushPull>>>; // PIN 29
@@ -109,20 +109,19 @@ impl System<'_> {
         );
 
         let pots = Pots {
-            pot1: Pot::new(pins.SEED_PIN_23),
-            pot2: Pot::new(pins.SEED_PIN_24),
-            pot3: Pot::new(pins.SEED_PIN_22),
-            pot4: Pot::new(pins.SEED_PIN_21),
+            pot1: Pot1::new(pins.SEED_PIN_23),
+            pot2: Pot2::new(pins.SEED_PIN_24),
+            pot3: Pot3::new(pins.SEED_PIN_22),
+            pot4: Pot4::new(pins.SEED_PIN_21),
         };
 
         let cvs = Cvs {
-            // TODO: Replace by type aliases?
-            cv1: Cv::<ADC2, _>::new(pins.SEED_PIN_20, (0.0, 10.0)),
-            cv2: Cv::<ADC2, _>::new(pins.SEED_PIN_19, (0.0, 10.0)),
-            cv3: Cv::<ADC2, _>::new(pins.SEED_PIN_15, (-5.0, 5.0)),
-            cv4: Cv::<ADC2, _>::new(pins.SEED_PIN_16, (-5.0, 5.0)),
-            cv5: Cv::<ADC2, _>::new(pins.SEED_PIN_17, (-5.0, 5.0)),
-            cv6: Cv::<ADC1, _>::new(pins.SEED_PIN_18, (-5.0, 5.0)),
+            cv1: Cv1::new(pins.SEED_PIN_20, (0.0, 10.0)),
+            cv2: Cv2::new(pins.SEED_PIN_19, (0.0, 10.0)),
+            cv3: Cv3::new(pins.SEED_PIN_15, (-5.0, 5.0)),
+            cv4: Cv4::new(pins.SEED_PIN_16, (-5.0, 5.0)),
+            cv5: Cv5::new(pins.SEED_PIN_17, (-5.0, 5.0)),
+            cv6: Cv6::new(pins.SEED_PIN_18, (-5.0, 5.0)),
             cv_probe: Probe::new(pins.SEED_PIN_10.into_push_pull_output()),
         };
 

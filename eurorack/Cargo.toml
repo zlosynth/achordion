@@ -14,16 +14,23 @@ cortex-m = "0.7.2"
 cortex-m-rt = "0.6.13"
 cortex-m-rtic = "0.5.6"
 cortex-m-semihosting = "0.3"
-stm32h7xx-hal = { version = "0.9.0", features = [ "stm32h750v", "rt", "revision_v" ] }
 panic-halt = "0.2.0"
 typenum = "1"
 lazy_static = { version = "1.4", features = [ "spin_no_std" ] }
 achordion-lib = { path = "../lib" }
 micromath = "1.1"
+nb = "1"
 
+# Requires custom branch with QSPI and split ADC
+[dependencies.stm32h7xx-hal]
+git = "https://github.com/phoracek/stm32h7xx-hal"
+branch = "async_adc_stable"
+features = [ "stm32h750v", "rt", "revision_v" ]
+
+# Requires custom branch with QSPI and split ADC
 [dependencies.daisy_bsp]
 git = "https://github.com/phoracek/daisy_bsp"
-rev = "cf0221dd2b1062b1c014483f768301033de6a0bb"
+rev = "99dcd44b16f1b619996e2546e9c56c47341e5364"
 
 [[bin]]
 name = "achordion-eurorack"

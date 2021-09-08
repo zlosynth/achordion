@@ -1,9 +1,10 @@
 use core::marker::PhantomData;
 
+use nb::block;
+
 use crate::system::hal::adc::{Adc, Enabled};
 use crate::system::hal::hal::adc::Channel;
 use crate::system::hal::pac::{ADC1, ADC2};
-use crate::system::hal::prelude::*;
 
 use achordion_lib::probe::{ProbeDetector, PROBE_SEQUENCE};
 
@@ -28,8 +29,12 @@ macro_rules! cv {
                 }
             }
 
-            pub fn sample(&mut self, adc: &mut Adc<$adc, Enabled>) {
-                let sample: u32 = adc.read(&mut self.pin).unwrap();
+            pub fn start_sampling(&mut self, adc: &mut Adc<$adc, Enabled>) {
+                adc.start_conversion(&mut self.pin);
+            }
+
+            pub fn finish_sampling(&mut self, adc: &mut Adc<$adc, Enabled>) {
+                let sample: u32 = block!(adc.read_sample()).unwrap();
                 self.value = transpose_adc(sample as f32, adc.max_sample());
                 self.probe_detector
                     .write(is_high(sample, adc.max_sample(), self.input_range));

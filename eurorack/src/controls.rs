@@ -160,17 +160,30 @@ impl Controls {
     }
 
     fn sample(&mut self) {
-        self.pot1.sample(&mut self.adc1);
-        self.pot2.sample(&mut self.adc1);
-        self.pot3.sample(&mut self.adc1);
-        self.pot4.sample(&mut self.adc1);
+        self.pot1.start_sampling(&mut self.adc2);
+        self.pot2.start_sampling(&mut self.adc1);
+        self.pot1.finish_sampling(&mut self.adc2);
+        self.pot2.finish_sampling(&mut self.adc1);
 
-        self.cv1.sample(&mut self.adc2);
-        self.cv2.sample(&mut self.adc2);
-        self.cv3.sample(&mut self.adc2);
-        self.cv4.sample(&mut self.adc2);
-        self.cv5.sample(&mut self.adc2);
-        self.cv6.sample(&mut self.adc1);
+        self.pot3.start_sampling(&mut self.adc1);
+        self.pot4.start_sampling(&mut self.adc2);
+        self.pot3.finish_sampling(&mut self.adc1);
+        self.pot4.finish_sampling(&mut self.adc2);
+
+        self.cv1.start_sampling(&mut self.adc1);
+        self.cv2.start_sampling(&mut self.adc2);
+        self.cv1.finish_sampling(&mut self.adc1);
+        self.cv2.finish_sampling(&mut self.adc2);
+
+        self.cv3.start_sampling(&mut self.adc1);
+        self.cv4.start_sampling(&mut self.adc2);
+        self.cv3.finish_sampling(&mut self.adc1);
+        self.cv4.finish_sampling(&mut self.adc2);
+
+        self.cv5.start_sampling(&mut self.adc1);
+        self.cv6.start_sampling(&mut self.adc2);
+        self.cv5.finish_sampling(&mut self.adc1);
+        self.cv6.finish_sampling(&mut self.adc2);
 
         self.probe.tick();
     }
