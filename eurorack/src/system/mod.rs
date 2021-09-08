@@ -13,8 +13,8 @@ use hal::adc::{Adc, AdcSampleTime, Enabled, Resolution};
 use hal::delay::DelayFromCountDownTimer;
 use hal::gpio;
 use hal::pac::Peripherals as DevicePeripherals;
-use hal::pac::ADC1;
 use hal::pac::DWT;
+use hal::pac::{ADC1, ADC2};
 use hal::prelude::*;
 use rtic::Peripherals as CorePeripherals;
 
@@ -31,12 +31,12 @@ pub type Pot1 = Pot<gpio::gpioa::PA4<gpio::Analog>>; // PIN 23
 pub type Pot2 = Pot<gpio::gpioa::PA1<gpio::Analog>>; // PIN 24
 pub type Pot3 = Pot<gpio::gpioa::PA5<gpio::Analog>>; // PIN 22
 pub type Pot4 = Pot<gpio::gpioc::PC4<gpio::Analog>>; // PIN 21
-pub type Cv1 = Cv<gpio::gpioc::PC1<gpio::Analog>>; // PIN 20
-pub type Cv2 = Cv<gpio::gpioa::PA6<gpio::Analog>>; // PIN 19
-pub type Cv3 = Cv<gpio::gpioc::PC0<gpio::Analog>>; // PIN 15
-pub type Cv4 = Cv<gpio::gpioa::PA3<gpio::Analog>>; // PIN 16
-pub type Cv5 = Cv<gpio::gpiob::PB1<gpio::Analog>>; // PIN 17
-pub type Cv6 = Cv<gpio::gpioa::PA7<gpio::Analog>>; // PIN 18
+pub type Cv1 = Cv<ADC2, gpio::gpioc::PC1<gpio::Analog>>; // PIN 20
+pub type Cv2 = Cv<ADC2, gpio::gpioa::PA6<gpio::Analog>>; // PIN 19
+pub type Cv3 = Cv<ADC2, gpio::gpioc::PC0<gpio::Analog>>; // PIN 15
+pub type Cv4 = Cv<ADC2, gpio::gpioa::PA3<gpio::Analog>>; // PIN 16
+pub type Cv5 = Cv<ADC2, gpio::gpiob::PB1<gpio::Analog>>; // PIN 17
+pub type Cv6 = Cv<ADC1, gpio::gpioa::PA7<gpio::Analog>>; // PIN 18
 pub type Probe = ProbeWrapper<gpio::gpiob::PB5<gpio::Output<gpio::PushPull>>>; // PIN 10
 pub type Led1 = Led<gpio::gpiob::PB15<gpio::Output<gpio::PushPull>>>; // PIN 30
 pub type Led2 = Led<gpio::gpiob::PB14<gpio::Output<gpio::PushPull>>>; // PIN 29
@@ -48,7 +48,8 @@ pub type Led7 = Led<gpio::gpiod::PD2<gpio::Output<gpio::PushPull>>>; // PIN 5
 pub type Led8 = Led<gpio::gpioc::PC12<gpio::Output<gpio::PushPull>>>; // PIN 6
 
 pub struct System<'a> {
-    pub adc: Adc<ADC1, Enabled>,
+    pub adc1: Adc<ADC1, Enabled>,
+    pub adc2: Adc<ADC2, Enabled>,
     pub cvs: Cvs,
     pub pots: Pots,
     pub button: Button,
@@ -115,12 +116,13 @@ impl System<'_> {
         };
 
         let cvs = Cvs {
-            cv1: Cv::new(pins.SEED_PIN_20, (0.0, 10.0)),
-            cv2: Cv::new(pins.SEED_PIN_19, (0.0, 10.0)),
-            cv3: Cv::new(pins.SEED_PIN_15, (-5.0, 5.0)),
-            cv4: Cv::new(pins.SEED_PIN_16, (-5.0, 5.0)),
-            cv5: Cv::new(pins.SEED_PIN_17, (-5.0, 5.0)),
-            cv6: Cv::new(pins.SEED_PIN_18, (-5.0, 5.0)),
+            // TODO: Replace by type aliases?
+            cv1: Cv::<ADC2, _>::new(pins.SEED_PIN_20, (0.0, 10.0)),
+            cv2: Cv::<ADC2, _>::new(pins.SEED_PIN_19, (0.0, 10.0)),
+            cv3: Cv::<ADC2, _>::new(pins.SEED_PIN_15, (-5.0, 5.0)),
+            cv4: Cv::<ADC2, _>::new(pins.SEED_PIN_16, (-5.0, 5.0)),
+            cv5: Cv::<ADC2, _>::new(pins.SEED_PIN_17, (-5.0, 5.0)),
+            cv6: Cv::<ADC1, _>::new(pins.SEED_PIN_18, (-5.0, 5.0)),
             cv_probe: Probe::new(pins.SEED_PIN_10.into_push_pull_output()),
         };
 
@@ -137,16 +139,24 @@ impl System<'_> {
             led8: Led::new(pins.SEED_PIN_6.into_push_pull_output()),
         };
 
-        let adc = {
+        let (adc1, adc2) = {
             let mut delay = DelayFromCountDownTimer::new(dp.TIM2.timer(
                 10.ms(),
                 ccdr.peripheral.TIM2,
                 &ccdr.clocks,
             ));
-            let mut adc = Adc::adc1(dp.ADC1, &mut delay, ccdr.peripheral.ADC12, &ccdr.clocks);
-            adc.set_resolution(Resolution::SIXTEENBIT);
-            adc.set_sample_time(AdcSampleTime::T_64);
-            adc.enable()
+            let (mut adc1, mut adc2) = hal::adc::adc12(
+                dp.ADC1,
+                dp.ADC2,
+                &mut delay,
+                ccdr.peripheral.ADC12,
+                &ccdr.clocks,
+            );
+            adc1.set_resolution(Resolution::SIXTEENBIT);
+            adc1.set_sample_time(AdcSampleTime::T_64);
+            adc2.set_resolution(Resolution::SIXTEENBIT);
+            adc2.set_sample_time(AdcSampleTime::T_64);
+            (adc1.enable(), adc2.enable())
         };
 
         let flash = Flash::new(&ccdr.clocks, dp.QUADSPI, ccdr.peripheral.QSPI, pins.FMC);
@@ -170,7 +180,8 @@ impl System<'_> {
         };
 
         System {
-            adc,
+            adc1,
+            adc2,
             cvs,
             pots,
             button,

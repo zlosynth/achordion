@@ -1,26 +1,30 @@
+use core::marker::PhantomData;
+
 use crate::system::hal::adc::{Adc, Enabled};
 use crate::system::hal::hal::adc::Channel;
-use crate::system::hal::pac::ADC1;
+use crate::system::hal::pac::{ADC1, ADC2};
 use crate::system::hal::prelude::*;
 
 use achordion_lib::probe::{ProbeDetector, PROBE_SEQUENCE};
 
-pub struct Cv<P> {
+pub struct Cv<A, P> {
     pin: P,
     probe_detector: ProbeDetector<'static>,
     value: f32,
     input_range: (f32, f32),
+    _adc: PhantomData<A>,
 }
 
 macro_rules! cv {
     ($adc:ident) => {
-        impl<P: Channel<$adc, ID = u8>> Cv<P> {
+        impl<P: Channel<$adc, ID = u8>> Cv<$adc, P> {
             pub fn new(pin: P, input_range: (f32, f32)) -> Self {
                 Self {
                     pin,
                     probe_detector: ProbeDetector::new(&PROBE_SEQUENCE),
                     value: 0.0,
                     input_range,
+                    _adc: PhantomData,
                 }
             }
 
@@ -43,6 +47,7 @@ macro_rules! cv {
 }
 
 cv!(ADC1);
+cv!(ADC2);
 
 fn transpose_adc(sample: f32, max_sample: u32) -> f32 {
     (max_sample as f32 - sample) / max_sample as f32

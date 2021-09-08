@@ -62,7 +62,8 @@ const APP: () = {
 
         let controls = Controls::new(
             ControlsConfig {
-                adc: system.adc,
+                adc1: system.adc1,
+                adc2: system.adc2,
                 alt_button: system.button,
                 pot_note: system.pots.pot1,
                 pot_wavetable: system.pots.pot2,

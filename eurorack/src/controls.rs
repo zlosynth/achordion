@@ -5,7 +5,7 @@ use daisy::hal;
 use daisy_bsp as daisy;
 
 use hal::adc::{Adc, Enabled};
-use hal::pac::ADC1;
+use hal::pac::{ADC1, ADC2};
 
 use achordion_lib::store::Parameters;
 
@@ -15,7 +15,8 @@ use crate::system::{Cv1, Cv2, Cv3, Cv4, Cv5, Cv6};
 use crate::system::{Pot1, Pot2, Pot3, Pot4};
 
 pub struct ControlsConfig {
-    pub adc: Adc<ADC1, Enabled>,
+    pub adc1: Adc<ADC1, Enabled>,
+    pub adc2: Adc<ADC2, Enabled>,
     pub alt_button: Button,
     pub pot_note: Pot1,
     pub pot_wavetable: Pot2,
@@ -31,7 +32,8 @@ pub struct ControlsConfig {
 }
 
 pub struct Controls {
-    adc: Adc<ADC1, Enabled>,
+    adc1: Adc<ADC1, Enabled>,
+    adc2: Adc<ADC2, Enabled>,
     button: Button,
     pot1: Pot1,
     pot2: Pot2,
@@ -57,7 +59,8 @@ pub struct Controls {
 impl Controls {
     pub fn new(config: ControlsConfig, parameters: Parameters) -> Self {
         Self {
-            adc: config.adc,
+            adc1: config.adc1,
+            adc2: config.adc2,
             button: config.alt_button,
             pot1: config.pot_note,
             pot2: config.pot_wavetable,
@@ -157,17 +160,17 @@ impl Controls {
     }
 
     fn sample(&mut self) {
-        self.pot1.sample(&mut self.adc);
-        self.pot2.sample(&mut self.adc);
-        self.pot3.sample(&mut self.adc);
-        self.pot4.sample(&mut self.adc);
+        self.pot1.sample(&mut self.adc1);
+        self.pot2.sample(&mut self.adc1);
+        self.pot3.sample(&mut self.adc1);
+        self.pot4.sample(&mut self.adc1);
 
-        self.cv1.sample(&mut self.adc);
-        self.cv2.sample(&mut self.adc);
-        self.cv3.sample(&mut self.adc);
-        self.cv4.sample(&mut self.adc);
-        self.cv5.sample(&mut self.adc);
-        self.cv6.sample(&mut self.adc);
+        self.cv1.sample(&mut self.adc2);
+        self.cv2.sample(&mut self.adc2);
+        self.cv3.sample(&mut self.adc2);
+        self.cv4.sample(&mut self.adc2);
+        self.cv5.sample(&mut self.adc2);
+        self.cv6.sample(&mut self.adc1);
 
         self.probe.tick();
     }
