@@ -4,8 +4,8 @@ pub struct InputActivity {
 }
 
 impl InputActivity {
-    const MAX_IDLE_POT: u32 = 300;
-    const MAX_IDLE_CV: u32 = 600;
+    const MAX_IDLE_POT: u32 = 1200;
+    const MAX_IDLE_CV: u32 = 3200;
 
     pub fn new() -> Self {
         Self {

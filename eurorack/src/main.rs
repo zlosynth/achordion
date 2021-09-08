@@ -25,6 +25,7 @@ use micromath::F32Ext;
 
 use rtic::app;
 use rtic::cyccnt::U32Ext as _;
+use rtic::cyccnt::Instant;
 
 use achordion_lib::display::{self as display_lib, Action as DisplayAction};
 use achordion_lib::instrument::Instrument;
@@ -39,7 +40,7 @@ use crate::system::audio::{Audio, BLOCK_LENGTH, SAMPLE_RATE};
 use crate::system::System;
 
 const SECOND: u32 = 480_000_000;
-const CV_PERIOD: u32 = SECOND / 480;
+const CV_PERIOD: u32 = SECOND / 2000;
 const STORE_PERIOD: u32 = 4 * SECOND;
 
 #[app(device = stm32h7xx_hal::pac, peripherals = true, monotonic = rtic::cyccnt::CYCCNT)]
@@ -168,7 +169,7 @@ const APP: () = {
         });
 
         cx.schedule
-            .reconcile_controls(cx.scheduled + CV_PERIOD.cycles())
+            .reconcile_controls(Instant::now() + CV_PERIOD.cycles())
             .unwrap();
     }
 
