@@ -152,9 +152,9 @@ impl System<'_> {
                 &ccdr.clocks,
             );
             adc1.set_resolution(Resolution::SIXTEENBIT);
-            adc1.set_sample_time(AdcSampleTime::T_64);
+            adc1.set_sample_time(AdcSampleTime::T_16);
             adc2.set_resolution(Resolution::SIXTEENBIT);
-            adc2.set_sample_time(AdcSampleTime::T_64);
+            adc2.set_sample_time(AdcSampleTime::T_16);
             (adc1.enable(), adc2.enable())
         };
 
