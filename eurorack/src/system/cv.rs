@@ -8,8 +8,6 @@ use crate::system::hal::pac::{ADC1, ADC2};
 
 use achordion_lib::probe::{ProbeDetector, PROBE_SEQUENCE};
 
-use crate::profile;
-
 const PROBE_SEQUENCE_LEN: usize = PROBE_SEQUENCE.len();
 
 pub struct Cv<A, P> {
@@ -37,13 +35,11 @@ macro_rules! cv {
                 adc.start_conversion(&mut self.pin);
             }
 
-            pub fn finish_sampling(&mut self, adc: &mut Adc<$adc, Enabled>) -> bool {
+            pub fn finish_sampling(&mut self, adc: &mut Adc<$adc, Enabled>) {
                 let sample: u32 = block!(adc.read_sample()).unwrap();
                 self.value = transpose_adc(sample as f32, adc.max_sample());
-                let high = is_high(sample, adc.max_sample(), self.input_range);
                 self.probe_detector
-                    .write(high);
-                high
+                    .write(is_high(sample, adc.max_sample(), self.input_range));
             }
 
             pub fn connected(&mut self) -> bool {

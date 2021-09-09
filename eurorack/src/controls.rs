@@ -14,8 +14,6 @@ use crate::system::Probe;
 use crate::system::{Cv1, Cv2, Cv3, Cv4, Cv5, Cv6};
 use crate::system::{Pot1, Pot2, Pot3, Pot4};
 
-use crate::profile;
-
 pub struct ControlsConfig {
     pub adc1: Adc<ADC1, Enabled>,
     pub adc2: Adc<ADC2, Enabled>,
