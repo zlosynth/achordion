@@ -24,55 +24,40 @@ impl<'a> ProbeGenerator<'a> {
     }
 }
 
-pub struct ProbeDetector<'a> {
+pub struct ProbeDetector<'a, const N: usize> {
     sequence: &'a [bool],
-    sequence_sum: i32,
     position: usize,
-    queue: [bool; 32],
+    queue: [bool; N],
+    detected_cache: bool,
 }
 
-impl<'a> ProbeDetector<'a> {
+impl<'a, const N: usize> ProbeDetector<'a, N> {
     pub fn new(sequence: &'a [bool]) -> Self {
+        assert!(sequence.len() == N);
         Self {
             sequence,
-            sequence_sum: sequence.iter().map(|b| if *b { 1 } else { 0 }).sum(),
             position: 0,
-            queue: [false; 32],
+            queue: [false; N],
+            detected_cache: false,
         }
     }
 
     pub fn write(&mut self, value: bool) {
         self.queue[self.position] = value;
-        self.position = (self.position + 1) % 32;
+        self.position = (self.position + 1) % N;
     }
 
-    pub fn detected(&self) -> bool {
-        let sum: i32 = self.queue.iter().map(|b| if *b { 1 } else { 0 }).sum();
-        if sum < self.sequence_sum - 2 || sum > self.sequence_sum + 2 {
-            return false;
+    pub fn detected(&mut self) -> bool {
+        if self.position == 0 {
+            let unmatched: u32 = self
+                .queue
+                .iter()
+                .zip(self.sequence)
+                .map(|(q, s)| if q == s { 0 } else { 1 })
+                .sum();
+            self.detected_cache = unmatched <= 2;
         }
-
-        for start in 0..self.sequence.len() {
-            let mut unmatching = 0;
-
-            for i in 0..self.sequence.len() {
-                if self.sequence[(start + i) % self.sequence.len()]
-                    != self.queue[(self.position + i + 1) % 32]
-                {
-                    unmatching += 1;
-
-                    if unmatching > 2 {
-                        break;
-                    }
-                }
-            }
-
-            if unmatching <= 2 {
-                return true;
-            }
-        }
-
-        false
+        self.detected_cache
     }
 }
 
@@ -93,114 +78,47 @@ mod tests {
 
     #[test]
     fn fully_matching_sequence() {
-        let sequence = [true, true, false, false, false];
-        let mut detector = ProbeDetector::new(&sequence);
+        const SEQUENCE: [bool; 5] = [true, true, false, false, false];
+        const SEQUENCE_LEN: usize = SEQUENCE.len();
+        let mut detector = ProbeDetector::<SEQUENCE_LEN>::new(&SEQUENCE);
 
-        detector.write(sequence[0]);
-        detector.write(sequence[1]);
-        detector.write(sequence[2]);
-        detector.write(sequence[3]);
-        detector.write(sequence[4]);
-
-        assert!(detector.detected());
-    }
-
-    #[test]
-    fn fully_matching_sequence_offset() {
-        let sequence = [true, true, false, false, false];
-        let mut detector = ProbeDetector::new(&sequence);
-
-        detector.write(sequence[3]);
-        detector.write(sequence[4]);
-        detector.write(sequence[0]);
-        detector.write(sequence[1]);
-        detector.write(sequence[2]);
+        detector.write(SEQUENCE[0]);
+        detector.write(SEQUENCE[1]);
+        detector.write(SEQUENCE[2]);
+        detector.write(SEQUENCE[3]);
+        detector.write(SEQUENCE[4]);
 
         assert!(detector.detected());
     }
 
     #[test]
     fn partially_matching_sequence() {
-        let sequence = [true, true, false, false, false];
-        let mut detector = ProbeDetector::new(&sequence);
+        const SEQUENCE: [bool; 5] = [true, true, false, false, false];
+        const SEQUENCE_LEN: usize = SEQUENCE.len();
+        let mut detector = ProbeDetector::<SEQUENCE_LEN>::new(&SEQUENCE);
 
-        detector.write(sequence[0]);
-        detector.write(!sequence[1]);
-        detector.write(sequence[2]);
-        detector.write(sequence[3]);
-        detector.write(sequence[4]);
-
-        assert!(detector.detected());
-    }
-
-    #[test]
-    fn partially_matching_sequence_offset() {
-        let sequence = [true, true, false, false, false];
-        let mut detector = ProbeDetector::new(&sequence);
-
-        detector.write(sequence[2]);
-        detector.write(sequence[3]);
-        detector.write(sequence[4]);
-        detector.write(sequence[0]);
-        detector.write(!sequence[1]);
+        detector.write(SEQUENCE[0]);
+        detector.write(!SEQUENCE[1]);
+        detector.write(SEQUENCE[2]);
+        detector.write(SEQUENCE[3]);
+        detector.write(SEQUENCE[4]);
 
         assert!(detector.detected());
     }
 
     #[test]
-    fn unmatching_sequence_with_matching_sum() {
-        let sequence = [true, false, true, false, true, false, false];
-        let mut detector = ProbeDetector::new(&sequence);
+    fn unmatching_sequence() {
+        const SEQUENCE: [bool; 7] = [true, false, true, false, true, false, false];
+        const SEQUENCE_LEN: usize = SEQUENCE.len();
+        let mut detector = ProbeDetector::<SEQUENCE_LEN>::new(&SEQUENCE);
 
-        detector.write(!sequence[0]);
-        detector.write(!sequence[1]);
-        detector.write(!sequence[2]);
-        detector.write(!sequence[3]);
-        detector.write(sequence[4]);
-        detector.write(sequence[5]);
-        detector.write(sequence[6]);
-
-        assert!(!detector.detected());
-    }
-
-    #[test]
-    fn unmatching_sequence_with_matching_sum_offset() {
-        let sequence = [true, false, true, false, true, false, false];
-        let mut detector = ProbeDetector::new(&sequence);
-
-        detector.write(!sequence[2]);
-        detector.write(!sequence[3]);
-        detector.write(sequence[4]);
-        detector.write(sequence[5]);
-        detector.write(sequence[6]);
-        detector.write(!sequence[0]);
-        detector.write(!sequence[1]);
-
-        assert!(!detector.detected());
-    }
-
-    #[test]
-    fn unmatching_sequence_with_sum_below() {
-        let sequence = [true, true, true, true];
-        let mut detector = ProbeDetector::new(&sequence);
-
-        detector.write(false);
-        detector.write(false);
-        detector.write(false);
-        detector.write(false);
-
-        assert!(!detector.detected());
-    }
-
-    #[test]
-    fn unmatching_sequence_with_sum_above() {
-        let sequence = [false, false, false, false];
-        let mut detector = ProbeDetector::new(&sequence);
-
-        detector.write(true);
-        detector.write(true);
-        detector.write(true);
-        detector.write(true);
+        detector.write(!SEQUENCE[0]);
+        detector.write(!SEQUENCE[1]);
+        detector.write(!SEQUENCE[2]);
+        detector.write(!SEQUENCE[3]);
+        detector.write(SEQUENCE[4]);
+        detector.write(SEQUENCE[5]);
+        detector.write(SEQUENCE[6]);
 
         assert!(!detector.detected());
     }

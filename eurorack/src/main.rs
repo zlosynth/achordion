@@ -24,8 +24,8 @@ use panic_halt as _;
 use micromath::F32Ext;
 
 use rtic::app;
-use rtic::cyccnt::U32Ext as _;
 use rtic::cyccnt::Instant;
+use rtic::cyccnt::U32Ext as _;
 
 use achordion_lib::display::{self as display_lib, Action as DisplayAction};
 use achordion_lib::instrument::Instrument;

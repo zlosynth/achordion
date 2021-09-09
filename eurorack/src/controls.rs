@@ -14,6 +14,8 @@ use crate::system::Probe;
 use crate::system::{Cv1, Cv2, Cv3, Cv4, Cv5, Cv6};
 use crate::system::{Pot1, Pot2, Pot3, Pot4};
 
+use crate::profile;
+
 pub struct ControlsConfig {
     pub adc1: Adc<ADC1, Enabled>,
     pub adc2: Adc<ADC2, Enabled>,
@@ -58,7 +60,7 @@ pub struct Controls {
 
 impl Controls {
     pub fn new(config: ControlsConfig, parameters: Parameters) -> Self {
-        Self {
+        let mut controls = Self {
             adc1: config.adc1,
             adc2: config.adc2,
             button: config.alt_button,
@@ -83,7 +85,13 @@ impl Controls {
             last_scale_root_pot_reading: 0.0,
             last_chord_pot_reading: 0.0,
             last_scale_mode_pot_reading: 0.0,
-        }
+        };
+
+        // Initial probe tick, so the signal has enough time to propagate to all
+        // the detectors.
+        controls.probe.tick();
+
+        controls
     }
 
     pub fn parameters(&self) -> Parameters {
@@ -185,6 +193,8 @@ impl Controls {
         self.cv5.finish_sampling(&mut self.adc1);
         self.cv6.finish_sampling(&mut self.adc2);
 
+        // This has to be set last as it takes a while for the probe to get to
+        // the detector. The interval between samples is enough for that.
         self.probe.tick();
     }
 
