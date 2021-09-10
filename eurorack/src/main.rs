@@ -55,7 +55,7 @@ const APP: () = {
     }
 
     /// Initialize all the peripherals.
-    #[init(schedule = [reconcile_controls], spawn = [fade_in, backup])]
+    #[init(schedule = [reconcile_controls], spawn = [fade_in, backup_collector])]
     fn init(cx: init::Context) -> init::LateResources {
         let system = System::init(cx.core, cx.device);
 
@@ -103,7 +103,7 @@ const APP: () = {
         instrument.set_amplitude(0.0);
         cx.spawn.fade_in().unwrap();
 
-        cx.spawn.backup(0).unwrap();
+        cx.spawn.backup_collector(0).unwrap();
 
         init::LateResources {
             controls,
@@ -173,27 +173,26 @@ const APP: () = {
             .unwrap();
     }
 
-    #[task(spawn = [store_parameters], schedule = [backup], resources = [controls], priority = 2)]
-    fn backup(cx: backup::Context, version: u16) {
+    #[task(spawn = [backup_executor], resources = [controls], priority = 2)]
+    fn backup_collector(cx: backup_collector::Context, version: u16) {
         let controls = cx.resources.controls;
-
         cx.spawn
-            .store_parameters(controls.parameters(), version)
+            .backup_executor(controls.parameters(), version)
             .ok()
-            .unwrap();
-
-        cx.schedule
-            .backup(
-                cx.scheduled + STORE_PERIOD.cycles(),
-                version.wrapping_add(1),
-            )
             .unwrap();
     }
 
-    #[task(resources = [storage])]
-    fn store_parameters(cx: store_parameters::Context, parameters: Parameters, version: u16) {
+    #[task(schedule = [backup_collector], resources = [storage])]
+    fn backup_executor(cx: backup_executor::Context, parameters: Parameters, version: u16) {
         let storage = cx.resources.storage;
         storage.save_parameters(parameters, version);
+
+        cx.schedule
+            .backup_collector(
+                Instant::now() + STORE_PERIOD.cycles(),
+                version.wrapping_add(1),
+            )
+            .unwrap();
     }
 
     #[task(binds = DMA1_STR1, priority = 3, resources = [audio, instrument])]
