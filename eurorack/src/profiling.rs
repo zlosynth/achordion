@@ -38,4 +38,20 @@ macro_rules! profile {
         gpioc.moder.modify(|_, w| w.moder11().output());
         gpioc.odr.modify(|_, w| w.odr11().clear_bit());
     }};
+    (c, on) => {{
+        use daisy_bsp::hal::pac::{GPIOC, RCC};
+        let rcc = unsafe { &*RCC::ptr() };
+        let gpioc = unsafe { &*GPIOC::ptr() };
+        rcc.ahb4enr.modify(|_, w| w.gpiocen().set_bit());
+        gpioc.moder.modify(|_, w| w.moder10().output());
+        gpioc.odr.modify(|_, w| w.odr10().set_bit());
+    }};
+    (c, off) => {{
+        use daisy_bsp::hal::pac::{GPIOC, RCC};
+        let rcc = unsafe { &*RCC::ptr() };
+        let gpioc = unsafe { &*GPIOC::ptr() };
+        rcc.ahb4enr.modify(|_, w| w.gpiocen().set_bit());
+        gpioc.moder.modify(|_, w| w.moder10().output());
+        gpioc.odr.modify(|_, w| w.odr10().clear_bit());
+    }};
 }
