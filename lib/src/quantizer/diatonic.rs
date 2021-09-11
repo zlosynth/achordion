@@ -2,59 +2,60 @@
 use micromath::F32Ext;
 
 use crate::note::Note;
-use crate::scales::diatonic::{Mode, SEMITONES};
+use crate::scales;
+use crate::scales::diatonic::Mode;
 
 pub type Degree = u8;
 
-// TODO: Return which degree it is
 pub fn quantize(mode: Mode, root: Note, mut voct: f32) -> (Note, Degree) {
-    if voct > to_voct(Note::HIGHEST_NOTE) {
-        voct = to_voct(Note::HIGHEST_NOTE);
+    if voct > to_voct(Note::G9) {
+        // One below the highest to allow it to quantize up
+        voct = to_voct(Note::Gb9);
     }
 
-    let root_frac = to_voct(root).fract();
-    let voct_trunc = voct.trunc();
-    let voct_frac = voct.fract();
+    let root_white = voct_to_white_key(to_voct(root));
+    let voct_white = voct_to_white_key(voct);
 
-    let close_root = if root_frac <= voct_frac {
-        voct_trunc + root_frac
+    let white_diff = voct_white as i32 - root_white as i32;
+    let interval = if white_diff > 0 {
+        white_diff + 1
     } else {
-        voct_trunc - 1.0 + root_frac
+        white_diff - 1
     };
 
-    let difference = voct - close_root;
+    let note = scales::diatonic::lookup_degree(root, mode, root, interval).unwrap();
 
-    let semitones = SEMITONES[mode as usize];
-    if difference < above_mean(semitones[0], semitones[1]) / 12.0 {
-        (to_midi_note(close_root), 1)
-    } else if difference < above_mean(semitones[1], semitones[2]) / 12.0 {
-        (to_midi_note(close_root + semitones[1] as f32 / 12.0), 2)
-    } else if difference < above_mean(semitones[2], semitones[3]) / 12.0 {
-        (to_midi_note(close_root + semitones[2] as f32 / 12.0), 3)
-    } else if difference < above_mean(semitones[3], semitones[4]) / 12.0 {
-        (to_midi_note(close_root + semitones[3] as f32 / 12.0), 4)
-    } else if difference < above_mean(semitones[4], semitones[5]) / 12.0 {
-        (to_midi_note(close_root + semitones[4] as f32 / 12.0), 5)
-    } else if difference < above_mean(semitones[5], semitones[6]) / 12.0 {
-        (to_midi_note(close_root + semitones[5] as f32 / 12.0), 6)
-    } else if difference < above_mean(semitones[6], 12) / 12.0 {
-        (to_midi_note(close_root + semitones[6] as f32 / 12.0), 7)
-    } else {
-        (to_midi_note(close_root + 1.0), 1)
-    }
-}
-
-fn above_mean(a: i8, b: i8) -> f32 {
-    debug_assert!(b > a);
-    a as f32 + (b as f32 - a as f32) * 0.55
+    (note, white_diff.rem_euclid(7) as u8 + 1)
 }
 
 fn to_voct(note: Note) -> f32 {
     note.to_midi_id() as f32 / 12.0
 }
 
-fn to_midi_note(voct: f32) -> Note {
-    Note::from_u8((voct * 12.0) as u8)
+fn voct_to_white_key(voct: f32) -> usize {
+    let voct_trunc = voct.trunc();
+    let white_octaves = voct_trunc as usize * 7;
+
+    let voct_fract = voct.fract();
+    let white_steps = if voct_fract < 1.5 / 12.0 {
+        0
+    } else if voct_fract < 3.5 / 12.0 {
+        1
+    } else if voct_fract < 4.5 / 12.0 {
+        2
+    } else if voct_fract < 6.5 / 12.0 {
+        3
+    } else if voct_fract < 8.5 / 12.0 {
+        4
+    } else if voct_fract < 10.5 / 12.0 {
+        5
+    } else if voct_fract < 11.5 / 12.0 {
+        6
+    } else {
+        7
+    };
+
+    white_octaves + white_steps
 }
 
 #[cfg(test)]
@@ -68,100 +69,276 @@ mod tests {
     }
 
     #[test]
-    fn convert_voct_to_midi_note() {
-        assert_eq!(to_midi_note(2.0 + 2.0 / 12.0), Note::D1);
+    fn convert_voct_to_white_key() {
+        assert_eq!(voct_to_white_key(0.0), 0);
+        assert_eq!(voct_to_white_key(1.0 / 12.0), 0);
+        assert_eq!(voct_to_white_key(2.0 / 12.0), 1);
+        assert_eq!(voct_to_white_key(3.0 / 12.0), 1);
+        assert_eq!(voct_to_white_key(4.0 / 12.0), 2);
+        assert_eq!(voct_to_white_key(5.0 / 12.0), 3);
+        assert_eq!(voct_to_white_key(6.0 / 12.0), 3);
+        assert_eq!(voct_to_white_key(7.0 / 12.0), 4);
+        assert_eq!(voct_to_white_key(8.0 / 12.0), 4);
+        assert_eq!(voct_to_white_key(9.0 / 12.0), 5);
+        assert_eq!(voct_to_white_key(10.0 / 12.0), 5);
+        assert_eq!(voct_to_white_key(11.0 / 12.0), 6);
+        assert_eq!(voct_to_white_key(11.8 / 12.0), 7);
+        assert_eq!(voct_to_white_key(1.0), 7);
     }
 
     #[test]
-    fn quantize_on_spot_voct_to_note_with_root_below() {
+    fn quantize_white_keys_in_c_major_with_root_below() {
+        quantize_white_keys_in_c_major_with_root(Note::C0);
+    }
+
+    #[test]
+    fn quantize_white_keys_in_c_major_with_root_above() {
+        quantize_white_keys_in_c_major_with_root(Note::C4);
+    }
+
+    fn quantize_white_keys_in_c_major_with_root(root: Note) {
         let voct = 2.0;
-        assert_eq!(quantize(Ionian, Note::C0, voct), (Note::C1, 1));
+        assert_eq!(quantize(Ionian, root, voct), (Note::C1, 1));
+        assert_eq!(quantize(Ionian, root, voct - 0.4 / 12.0), (Note::C1, 1));
+        assert_eq!(quantize(Ionian, root, voct + 0.4 / 12.0), (Note::C1, 1));
 
         let voct = 2.0 + 2.0 / 12.0;
-        assert_eq!(quantize(Ionian, Note::C0, voct), (Note::D1, 2));
+        assert_eq!(quantize(Ionian, root, voct), (Note::D1, 2));
+        assert_eq!(quantize(Ionian, root, voct - 0.4 / 12.0), (Note::D1, 2));
+        assert_eq!(quantize(Ionian, root, voct + 0.4 / 12.0), (Note::D1, 2));
 
         let voct = 2.0 + 4.0 / 12.0;
-        assert_eq!(quantize(Ionian, Note::C0, voct), (Note::E1, 3));
+        assert_eq!(quantize(Ionian, root, voct), (Note::E1, 3));
+        assert_eq!(quantize(Ionian, root, voct - 0.4 / 12.0), (Note::E1, 3));
+        assert_eq!(quantize(Ionian, root, voct + 0.4 / 12.0), (Note::E1, 3));
 
         let voct = 2.0 + 5.0 / 12.0;
-        assert_eq!(quantize(Ionian, Note::C0, voct), (Note::F1, 4));
+        assert_eq!(quantize(Ionian, root, voct), (Note::F1, 4));
+        assert_eq!(quantize(Ionian, root, voct - 0.4 / 12.0), (Note::F1, 4));
+        assert_eq!(quantize(Ionian, root, voct + 0.4 / 12.0), (Note::F1, 4));
 
         let voct = 2.0 + 7.0 / 12.0;
-        assert_eq!(quantize(Ionian, Note::C0, voct), (Note::G1, 5));
+        assert_eq!(quantize(Ionian, root, voct), (Note::G1, 5));
+        assert_eq!(quantize(Ionian, root, voct - 0.4 / 12.0), (Note::G1, 5));
+        assert_eq!(quantize(Ionian, root, voct + 0.4 / 12.0), (Note::G1, 5));
 
         let voct = 2.0 + 9.0 / 12.0;
-        assert_eq!(quantize(Ionian, Note::C0, voct), (Note::A1, 6));
+        assert_eq!(quantize(Ionian, root, voct), (Note::A1, 6));
+        assert_eq!(quantize(Ionian, root, voct - 0.4 / 12.0), (Note::A1, 6));
+        assert_eq!(quantize(Ionian, root, voct + 0.4 / 12.0), (Note::A1, 6));
 
         let voct = 2.0 + 11.0 / 12.0;
-        assert_eq!(quantize(Ionian, Note::C0, voct), (Note::B1, 7));
+        assert_eq!(quantize(Ionian, root, voct), (Note::B1, 7));
+        assert_eq!(quantize(Ionian, root, voct - 0.4 / 12.0), (Note::B1, 7));
+        assert_eq!(quantize(Ionian, root, voct + 0.4 / 12.0), (Note::B1, 7));
 
         let voct = 3.0;
-        assert_eq!(quantize(Ionian, Note::C0, voct), (Note::C2, 1));
+        assert_eq!(quantize(Ionian, root, voct), (Note::C2, 1));
+        assert_eq!(quantize(Ionian, root, voct - 0.4 / 12.0), (Note::C2, 1));
+        assert_eq!(quantize(Ionian, root, voct + 0.4 / 12.0), (Note::C2, 1));
     }
 
     #[test]
-    fn quantize_on_spot_with_note_below_the_lowest_root() {
+    fn quantize_white_keys_in_f_sharp_major_with_root_below() {
+        quantize_white_keys_in_f_sharp_major_with_root(Note::FSharp0);
+    }
+
+    #[test]
+    fn quantize_white_keys_in_f_sharp_major_with_root_above() {
+        quantize_white_keys_in_f_sharp_major_with_root(Note::FSharp3);
+    }
+
+    fn quantize_white_keys_in_f_sharp_major_with_root(root: Note) {
+        let voct = 2.0;
+        assert_eq!(quantize(Ionian, root, voct), (Note::CSharp1, 5));
+        assert_eq!(
+            quantize(Ionian, root, voct - 0.4 / 12.0),
+            (Note::CSharp1, 5)
+        );
+        assert_eq!(
+            quantize(Ionian, root, voct + 0.4 / 12.0),
+            (Note::CSharp1, 5)
+        );
+
+        let voct = 2.0 + 2.0 / 12.0;
+        assert_eq!(quantize(Ionian, root, voct), (Note::DSharp1, 6));
+        assert_eq!(
+            quantize(Ionian, root, voct - 0.4 / 12.0),
+            (Note::DSharp1, 6)
+        );
+        assert_eq!(
+            quantize(Ionian, root, voct + 0.4 / 12.0),
+            (Note::DSharp1, 6)
+        );
+
+        let voct = 2.0 + 4.0 / 12.0;
+        assert_eq!(quantize(Ionian, root, voct), (Note::F1, 7));
+        assert_eq!(quantize(Ionian, root, voct - 0.4 / 12.0), (Note::F1, 7));
+        assert_eq!(quantize(Ionian, root, voct + 0.4 / 12.0), (Note::F1, 7));
+
+        let voct = 2.0 + 5.0 / 12.0;
+        assert_eq!(quantize(Ionian, root, voct), (Note::FSharp1, 1));
+        assert_eq!(
+            quantize(Ionian, root, voct - 0.4 / 12.0),
+            (Note::FSharp1, 1)
+        );
+        assert_eq!(
+            quantize(Ionian, root, voct + 0.4 / 12.0),
+            (Note::FSharp1, 1)
+        );
+
+        let voct = 2.0 + 7.0 / 12.0;
+        assert_eq!(quantize(Ionian, root, voct), (Note::GSharp1, 2));
+        assert_eq!(
+            quantize(Ionian, root, voct - 0.4 / 12.0),
+            (Note::GSharp1, 2)
+        );
+        assert_eq!(
+            quantize(Ionian, root, voct + 0.4 / 12.0),
+            (Note::GSharp1, 2)
+        );
+
+        let voct = 2.0 + 9.0 / 12.0;
+        assert_eq!(quantize(Ionian, root, voct), (Note::ASharp1, 3));
+        assert_eq!(
+            quantize(Ionian, root, voct - 0.4 / 12.0),
+            (Note::ASharp1, 3)
+        );
+        assert_eq!(
+            quantize(Ionian, root, voct + 0.4 / 12.0),
+            (Note::ASharp1, 3)
+        );
+
+        let voct = 2.0 + 11.0 / 12.0;
+        assert_eq!(quantize(Ionian, root, voct), (Note::B1, 4));
+        assert_eq!(quantize(Ionian, root, voct - 0.4 / 12.0), (Note::B1, 4));
+        assert_eq!(quantize(Ionian, root, voct + 0.4 / 12.0), (Note::B1, 4));
+
+        let voct = 3.0;
+        assert_eq!(quantize(Ionian, root, voct), (Note::CSharp2, 5));
+        assert_eq!(
+            quantize(Ionian, root, voct - 0.4 / 12.0),
+            (Note::CSharp2, 5)
+        );
+        assert_eq!(
+            quantize(Ionian, root, voct + 0.4 / 12.0),
+            (Note::CSharp2, 5)
+        );
+    }
+
+    #[test]
+    fn quantize_black_keys_in_c_major_with_root_below() {
+        quantize_black_keys_in_c_major_with_root(Note::C0);
+    }
+
+    #[test]
+    fn quantize_black_keys_in_c_major_with_root_above() {
+        quantize_black_keys_in_c_major_with_root(Note::C4);
+    }
+
+    fn quantize_black_keys_in_c_major_with_root(root: Note) {
+        let voct = 2.0 + 1.0 / 12.0;
+        assert_eq!(quantize(Ionian, root, voct), (Note::C1, 1));
+        assert_eq!(quantize(Ionian, root, voct - 0.4 / 12.0), (Note::C1, 1));
+        assert_eq!(quantize(Ionian, root, voct + 0.4 / 12.0), (Note::C1, 1));
+
+        let voct = 2.0 + 3.0 / 12.0;
+        assert_eq!(quantize(Ionian, root, voct), (Note::D1, 2));
+        assert_eq!(quantize(Ionian, root, voct - 0.4 / 12.0), (Note::D1, 2));
+        assert_eq!(quantize(Ionian, root, voct + 0.4 / 12.0), (Note::D1, 2));
+
+        let voct = 2.0 + 6.0 / 12.0;
+        assert_eq!(quantize(Ionian, root, voct), (Note::F1, 4));
+        assert_eq!(quantize(Ionian, root, voct - 0.4 / 12.0), (Note::F1, 4));
+        assert_eq!(quantize(Ionian, root, voct + 0.4 / 12.0), (Note::F1, 4));
+
+        let voct = 2.0 + 8.0 / 12.0;
+        assert_eq!(quantize(Ionian, root, voct), (Note::G1, 5));
+        assert_eq!(quantize(Ionian, root, voct - 0.4 / 12.0), (Note::G1, 5));
+        assert_eq!(quantize(Ionian, root, voct + 0.4 / 12.0), (Note::G1, 5));
+
+        let voct = 2.0 + 10.0 / 12.0;
+        assert_eq!(quantize(Ionian, root, voct), (Note::A1, 6));
+        assert_eq!(quantize(Ionian, root, voct - 0.4 / 12.0), (Note::A1, 6));
+        assert_eq!(quantize(Ionian, root, voct + 0.4 / 12.0), (Note::A1, 6));
+    }
+
+    #[test]
+    fn quantize_black_keys_in_f_sharp_major_with_root_below() {
+        quantize_black_keys_in_f_sharp_major_with_root(Note::FSharp0);
+    }
+
+    #[test]
+    fn quantize_black_keys_in_f_sharp_major_with_root_above() {
+        quantize_black_keys_in_f_sharp_major_with_root(Note::FSharp3);
+    }
+
+    fn quantize_black_keys_in_f_sharp_major_with_root(root: Note) {
+        let voct = 2.0 + 1.0 / 12.0;
+        assert_eq!(quantize(Ionian, root, voct), (Note::CSharp1, 5));
+        assert_eq!(
+            quantize(Ionian, root, voct - 0.4 / 12.0),
+            (Note::CSharp1, 5)
+        );
+        assert_eq!(
+            quantize(Ionian, root, voct + 0.4 / 12.0),
+            (Note::CSharp1, 5)
+        );
+
+        let voct = 2.0 + 3.0 / 12.0;
+        assert_eq!(quantize(Ionian, root, voct), (Note::DSharp1, 6));
+        assert_eq!(
+            quantize(Ionian, root, voct - 0.4 / 12.0),
+            (Note::DSharp1, 6)
+        );
+        assert_eq!(
+            quantize(Ionian, root, voct + 0.4 / 12.0),
+            (Note::DSharp1, 6)
+        );
+
+        let voct = 2.0 + 6.0 / 12.0;
+        assert_eq!(quantize(Ionian, root, voct), (Note::FSharp1, 1));
+        assert_eq!(
+            quantize(Ionian, root, voct - 0.4 / 12.0),
+            (Note::FSharp1, 1)
+        );
+        assert_eq!(
+            quantize(Ionian, root, voct + 0.4 / 12.0),
+            (Note::FSharp1, 1)
+        );
+
+        let voct = 2.0 + 8.0 / 12.0;
+        assert_eq!(quantize(Ionian, root, voct), (Note::GSharp1, 2));
+        assert_eq!(
+            quantize(Ionian, root, voct - 0.4 / 12.0),
+            (Note::GSharp1, 2)
+        );
+        assert_eq!(
+            quantize(Ionian, root, voct + 0.4 / 12.0),
+            (Note::GSharp1, 2)
+        );
+
+        let voct = 2.0 + 10.0 / 12.0;
+        assert_eq!(quantize(Ionian, root, voct), (Note::ASharp1, 3));
+        assert_eq!(
+            quantize(Ionian, root, voct - 0.4 / 12.0),
+            (Note::ASharp1, 3)
+        );
+        assert_eq!(
+            quantize(Ionian, root, voct + 0.4 / 12.0),
+            (Note::ASharp1, 3)
+        );
+    }
+
+    #[test]
+    fn quantize_with_note_below_the_lowest_root() {
         let voct = 1.0 / 12.0;
         assert_eq!(quantize(Ionian, Note::A0, voct), (Note::CSharpMinus1, 3));
-    }
-
-    #[test]
-    fn quantize_on_spot_voct_to_note_with_root_above() {
-        let voct = 2.0;
-        assert_eq!(quantize(Ionian, Note::C3, voct), (Note::C1, 1));
-
-        let voct = 2.0 + 2.0 / 12.0;
-        assert_eq!(quantize(Ionian, Note::C3, voct), (Note::D1, 2));
-
-        let voct = 2.0 + 4.0 / 12.0;
-        assert_eq!(quantize(Ionian, Note::C3, voct), (Note::E1, 3));
-
-        let voct = 2.0 + 5.0 / 12.0;
-        assert_eq!(quantize(Ionian, Note::C3, voct), (Note::F1, 4));
-
-        let voct = 2.0 + 7.0 / 12.0;
-        assert_eq!(quantize(Ionian, Note::C3, voct), (Note::G1, 5));
-
-        let voct = 2.0 + 9.0 / 12.0;
-        assert_eq!(quantize(Ionian, Note::C3, voct), (Note::A1, 6));
-
-        let voct = 2.0 + 11.0 / 12.0;
-        assert_eq!(quantize(Ionian, Note::C3, voct), (Note::B1, 7));
-
-        let voct = 3.0;
-        assert_eq!(quantize(Ionian, Note::C3, voct), (Note::C2, 1));
     }
 
     #[test]
     fn quantize_note_over_limit_and_stay_in_scale() {
         let voct = 100.0;
         assert_eq!(quantize(Ionian, Note::B0, voct), (Note::FSharp9, 5));
-    }
-
-    #[test]
-    fn quantize_distant_voct_to_note() {
-        let voct = 2.0 + 0.4 / 12.0;
-        assert_eq!(quantize(Ionian, Note::C0, voct), (Note::C1, 1));
-
-        let voct = 2.0 + 1.3 / 12.0;
-        assert_eq!(quantize(Ionian, Note::C0, voct), (Note::D1, 2));
-
-        let voct = 2.0 + 3.3 / 12.0;
-        assert_eq!(quantize(Ionian, Note::C0, voct), (Note::E1, 3));
-
-        let voct = 2.0 + 4.7 / 12.0;
-        assert_eq!(quantize(Ionian, Note::C0, voct), (Note::F1, 4));
-
-        let voct = 2.0 + 7.9 / 12.0;
-        assert_eq!(quantize(Ionian, Note::C0, voct), (Note::G1, 5));
-
-        let voct = 2.0 + 9.2 / 12.0;
-        assert_eq!(quantize(Ionian, Note::C0, voct), (Note::A1, 6));
-
-        let voct = 2.0 + 11.4 / 12.0;
-        assert_eq!(quantize(Ionian, Note::C0, voct), (Note::B1, 7));
-
-        let voct = 3.0 - 0.4 / 12.0;
-        assert_eq!(quantize(Ionian, Note::C0, voct), (Note::C2, 1));
     }
 }

@@ -6,6 +6,9 @@ backwards compatibility.
 
 ## Unreleased
 
+* Align all quantization with white keys. All scales can be now played through
+  white keys only, with black keys always quantizing to the previous white.
+
 ## 0.11.0
 
 * Remove CV buffering for faster response.
