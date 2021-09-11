@@ -14,6 +14,17 @@ use crate::system::Probe;
 use crate::system::{Cv1, Cv2, Cv3, Cv4, Cv5, Cv6};
 use crate::system::{Pot1, Pot2, Pot3, Pot4};
 
+const C_A: f32 = 5.061;
+const C_B: f32 = 6.043;
+const CALIBRATION_RATIO: f32 = 1.0 / (C_B - C_A);
+lazy_static! {
+    static ref CALIBRATION_OFFSET: f32 = if (C_A * CALIBRATION_RATIO).fract() > 0.5 {
+        1.0 - (C_A * CALIBRATION_RATIO).fract()
+    } else {
+        -1.0 * (C_A * CALIBRATION_RATIO).fract()
+    };
+}
+
 pub struct ControlsConfig {
     pub adc1: Adc<ADC1, Enabled>,
     pub adc2: Adc<ADC2, Enabled>,
@@ -305,5 +316,6 @@ impl Controls {
 
 fn sample_to_voct(transposed_sample: f32) -> f32 {
     // V/OCT CV spans from 0.0 to 10.0 V.
-    transposed_sample * 10.0
+    let voct = transposed_sample * 10.0;
+    voct * CALIBRATION_RATIO + *CALIBRATION_OFFSET
 }
