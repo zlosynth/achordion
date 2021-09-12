@@ -324,28 +324,32 @@ impl Controls {
     }
 
     fn reconcile_calibration(&mut self) {
-        match self.calibration_state {
-            CalibrationState::Inactive => {
-                if self.button.active() && self.cv1.was_plugged() {
-                    self.calibration_state = CalibrationState::Entering;
+        if self.cv1.was_unplugged() {
+            self.calibration_state = CalibrationState::Inactive;
+        } else {
+            match self.calibration_state {
+                CalibrationState::Inactive => {
+                    if self.button.active() && self.cv1.was_plugged() {
+                        self.calibration_state = CalibrationState::Entering;
+                    }
                 }
-            }
-            CalibrationState::Entering => {
-                if !self.button.active() {
-                    self.calibration_state = CalibrationState::CalibratingLow;
+                CalibrationState::Entering => {
+                    if !self.button.active() {
+                        self.calibration_state = CalibrationState::CalibratingLow;
+                    }
                 }
-            }
-            CalibrationState::CalibratingLow => {
-                if self.button.clicked() {
-                    let c_a = self.cv1.value() * VOCT_CV_RANGE;
-                    self.calibration_state = CalibrationState::CalibratingHigh(c_a);
+                CalibrationState::CalibratingLow => {
+                    if self.button.clicked() {
+                        let c_a = self.cv1.value() * VOCT_CV_RANGE;
+                        self.calibration_state = CalibrationState::CalibratingHigh(c_a);
+                    }
                 }
-            }
-            CalibrationState::CalibratingHigh(c_a) => {
-                if self.button.clicked() {
-                    let c_b = self.cv1.value() * VOCT_CV_RANGE;
-                    self.calibrate(c_a, c_b);
-                    self.calibration_state = CalibrationState::Inactive;
+                CalibrationState::CalibratingHigh(c_a) => {
+                    if self.button.clicked() {
+                        let c_b = self.cv1.value() * VOCT_CV_RANGE;
+                        self.calibrate(c_a, c_b);
+                        self.calibration_state = CalibrationState::Inactive;
+                    }
                 }
             }
         }
