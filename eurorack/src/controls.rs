@@ -59,8 +59,6 @@ pub struct Controls {
     last_scale_mode_pot_reading: f32,
 
     calibration_state: CalibrationState,
-    calibration_ratio: f32,
-    calibration_offset: f32,
 }
 
 enum CalibrationState {
@@ -101,8 +99,6 @@ impl Controls {
             last_scale_mode_pot_reading: 0.0,
 
             calibration_state: CalibrationState::Inactive,
-            calibration_ratio: 1.0,
-            calibration_offset: 0.0,
         };
 
         // Initial probe tick, so the signal has enough time to propagate to all
@@ -385,8 +381,8 @@ impl Controls {
 
     fn calibrate(&mut self, c_a: f32, c_b: f32) -> Result<(), ()> {
         if let Ok((calibration_ratio, calibration_offset)) = calculate_calibration(c_a, c_b) {
-            self.calibration_ratio = calibration_ratio;
-            self.calibration_offset = calibration_offset;
+            self.parameters.calibration_ratio = calibration_ratio;
+            self.parameters.calibration_offset = calibration_offset;
             return Ok(());
         }
         Err(())
@@ -394,7 +390,7 @@ impl Controls {
 
     fn sample_to_voct(&self, transposed_sample: f32) -> f32 {
         let voct = transposed_sample * VOCT_CV_RANGE;
-        voct * self.calibration_ratio + self.calibration_offset
+        voct * self.parameters.calibration_ratio + self.parameters.calibration_offset
     }
 }
 

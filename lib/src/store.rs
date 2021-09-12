@@ -5,7 +5,7 @@ use crc::{Crc, CRC_16_IBM_SDLC};
 
 const CRC: Crc<u16> = Crc::<u16>::new(&CRC_16_IBM_SDLC);
 
-#[derive(Default, Clone, Copy, PartialEq)]
+#[derive(Clone, Copy, PartialEq)]
 pub struct Parameters {
     pub note: f32,
     pub wavetable: f32,
@@ -15,6 +15,25 @@ pub struct Parameters {
     pub scale_root: f32,
     pub scale_mode: f32,
     pub amplitude: f32,
+    pub calibration_ratio: f32,
+    pub calibration_offset: f32,
+}
+
+impl Default for Parameters {
+    fn default() -> Self {
+        Self {
+            note: 0.0,
+            wavetable: 0.0,
+            bank: 0.0,
+            chord: 0.0,
+            detune: 0.0,
+            scale_root: 0.0,
+            scale_mode: 0.0,
+            amplitude: 0.0,
+            calibration_ratio: 1.0,
+            calibration_offset: 0.0,
+        }
+    }
 }
 
 impl Parameters {
@@ -38,6 +57,8 @@ impl Parameters {
             scale_root: f32_from_bytes!(scale_root),
             scale_mode: f32_from_bytes!(scale_mode),
             amplitude: f32_from_bytes!(amplitude),
+            calibration_ratio: f32_from_bytes!(calibration_ratio),
+            calibration_offset: f32_from_bytes!(calibration_offset),
         }
     }
 
@@ -60,6 +81,8 @@ impl Parameters {
         f32_to_bytes!(scale_root);
         f32_to_bytes!(scale_mode);
         f32_to_bytes!(amplitude);
+        f32_to_bytes!(calibration_ratio);
+        f32_to_bytes!(calibration_offset);
 
         bytes
     }
@@ -212,6 +235,8 @@ mod tests {
             scale_root: 0.6,
             scale_mode: 0.7,
             amplitude: 0.8,
+            calibration_ratio: 0.9,
+            calibration_offset: 0.91,
         };
         let bytes = parameters.to_bytes();
         assert!(Parameters::from_bytes(bytes) == parameters);
