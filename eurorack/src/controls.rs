@@ -369,7 +369,9 @@ impl Controls {
 }
 
 fn calculate_calibration(c_a: f32, c_b: f32) -> Result<(f32, f32), ()> {
-    if (c_a - c_b).abs() < 0.5 {
+    let (c_a, c_b) = if c_a < c_b { (c_a, c_b) } else { (c_b, c_a) };
+
+    if c_b - c_a < 0.5 {
         return Err(());
     }
 
