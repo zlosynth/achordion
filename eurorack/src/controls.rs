@@ -16,14 +16,6 @@ use crate::system::{Pot1, Pot2, Pot3, Pot4};
 
 const C_A: f32 = 5.061;
 const C_B: f32 = 6.043;
-const CALIBRATION_RATIO: f32 = 1.0 / (C_B - C_A);
-lazy_static! {
-    static ref CALIBRATION_OFFSET: f32 = if (C_A * CALIBRATION_RATIO).fract() > 0.5 {
-        1.0 - (C_A * CALIBRATION_RATIO).fract()
-    } else {
-        -1.0 * (C_A * CALIBRATION_RATIO).fract()
-    };
-}
 
 pub struct ControlsConfig {
     pub adc1: Adc<ADC1, Enabled>,
@@ -65,6 +57,9 @@ pub struct Controls {
     last_scale_root_pot_reading: f32,
     last_chord_pot_reading: f32,
     last_scale_mode_pot_reading: f32,
+
+    calibration_ratio: f32,
+    calibration_offset: f32,
 }
 
 impl Controls {
@@ -94,11 +89,16 @@ impl Controls {
             last_scale_root_pot_reading: 0.0,
             last_chord_pot_reading: 0.0,
             last_scale_mode_pot_reading: 0.0,
+
+            calibration_ratio: 1.0,
+            calibration_offset: 0.0,
         };
 
         // Initial probe tick, so the signal has enough time to propagate to all
         // the detectors.
         controls.probe.tick();
+
+        controls.calibrate(C_A, C_B);
 
         controls
     }
@@ -227,7 +227,7 @@ impl Controls {
             // Keep the multiplier below 4, so assure that the result won't get
             // into the 5th octave when set on the edge.
             let octave_offset = (pot * 3.95).trunc() - 2.0;
-            let note = sample_to_voct(self.cv1.value());
+            let note = self.sample_to_voct(self.cv1.value());
             note + octave_offset
         } else {
             pot * 4.0 + 3.0
@@ -290,7 +290,7 @@ impl Controls {
         let pot = self.last_scale_root_pot_reading;
 
         let cv = if self.cv2.connected() {
-            sample_to_voct(self.cv2.value())
+            self.sample_to_voct(self.cv2.value())
         } else {
             0.0
         };
@@ -312,10 +312,28 @@ impl Controls {
 
         self.parameters.scale_mode = cv + pot;
     }
+
+    fn calibrate(&mut self, c_a: f32, c_b: f32) {
+        let (calibration_ratio, calibration_offset) = calculate_calibration(c_a, c_b);
+        self.calibration_ratio = calibration_ratio;
+        self.calibration_offset = calibration_offset;
+    }
+
+    fn sample_to_voct(&self, transposed_sample: f32) -> f32 {
+        // V/OCT CV spans from 0.0 to 10.0 V.
+        let voct = transposed_sample * 10.0;
+        voct * self.calibration_ratio + self.calibration_offset
+    }
 }
 
-fn sample_to_voct(transposed_sample: f32) -> f32 {
-    // V/OCT CV spans from 0.0 to 10.0 V.
-    let voct = transposed_sample * 10.0;
-    voct * CALIBRATION_RATIO + *CALIBRATION_OFFSET
+fn calculate_calibration(c_a: f32, c_b: f32) -> (f32, f32) {
+    let calibration_ratio = 1.0 / (c_b - c_a);
+
+    let calibration_offset = if (c_a * calibration_ratio).fract() > 0.5 {
+        1.0 - (c_a * calibration_ratio).fract()
+    } else {
+        -1.0 * (c_a * calibration_ratio).fract()
+    };
+
+    (calibration_ratio, calibration_offset)
 }
