@@ -356,9 +356,10 @@ impl Controls {
     }
 
     fn calibrate(&mut self, c_a: f32, c_b: f32) {
-        let (calibration_ratio, calibration_offset) = calculate_calibration(c_a, c_b);
-        self.calibration_ratio = calibration_ratio;
-        self.calibration_offset = calibration_offset;
+        if let Ok((calibration_ratio, calibration_offset)) = calculate_calibration(c_a, c_b) {
+            self.calibration_ratio = calibration_ratio;
+            self.calibration_offset = calibration_offset;
+        }
     }
 
     fn sample_to_voct(&self, transposed_sample: f32) -> f32 {
@@ -367,7 +368,11 @@ impl Controls {
     }
 }
 
-fn calculate_calibration(c_a: f32, c_b: f32) -> (f32, f32) {
+fn calculate_calibration(c_a: f32, c_b: f32) -> Result<(f32, f32), ()> {
+    if (c_a - c_b).abs() < 0.5 {
+        return Err(());
+    }
+
     let calibration_ratio = 1.0 / (c_b - c_a);
 
     let calibration_offset = if (c_a * calibration_ratio).fract() > 0.5 {
@@ -376,5 +381,5 @@ fn calculate_calibration(c_a: f32, c_b: f32) -> (f32, f32) {
         -1.0 * (c_a * calibration_ratio).fract()
     };
 
-    (calibration_ratio, calibration_offset)
+    Ok((calibration_ratio, calibration_offset))
 }
