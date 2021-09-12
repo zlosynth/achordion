@@ -7,6 +7,7 @@ pub mod pot;
 pub mod probe;
 
 mod control_buffer;
+mod debounce_buffer;
 mod hal;
 
 use hal::adc::{Adc, AdcSampleTime, Enabled, Resolution};

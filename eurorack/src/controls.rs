@@ -14,9 +14,6 @@ use crate::system::Probe;
 use crate::system::{Cv1, Cv2, Cv3, Cv4, Cv5, Cv6};
 use crate::system::{Pot1, Pot2, Pot3, Pot4};
 
-const C_A: f32 = 5.061;
-const C_B: f32 = 6.043;
-
 pub struct ControlsConfig {
     pub adc1: Adc<ADC1, Enabled>,
     pub adc2: Adc<ADC2, Enabled>,
@@ -58,8 +55,16 @@ pub struct Controls {
     last_chord_pot_reading: f32,
     last_scale_mode_pot_reading: f32,
 
+    calibration_state: CalibrationState,
     calibration_ratio: f32,
     calibration_offset: f32,
+}
+
+enum CalibrationState {
+    Inactive,
+    Entering,
+    CalibratingLow,
+    CalibratingHigh(f32),
 }
 
 impl Controls {
@@ -90,6 +95,7 @@ impl Controls {
             last_chord_pot_reading: 0.0,
             last_scale_mode_pot_reading: 0.0,
 
+            calibration_state: CalibrationState::Inactive,
             calibration_ratio: 1.0,
             calibration_offset: 0.0,
         };
@@ -97,8 +103,6 @@ impl Controls {
         // Initial probe tick, so the signal has enough time to propagate to all
         // the detectors.
         controls.probe.tick();
-
-        controls.calibrate(C_A, C_B);
 
         controls
     }
@@ -202,6 +206,8 @@ impl Controls {
         self.cv5.finish_sampling(&mut self.adc1);
         self.cv6.finish_sampling(&mut self.adc2);
 
+        self.button.sample();
+
         // This has to be set last as it takes a while for the probe to get to
         // the detector. The interval between samples is enough for that.
         self.probe.tick();
@@ -215,6 +221,7 @@ impl Controls {
         self.reconcile_detune();
         self.reconcile_scale_root();
         self.reconcile_scale_mode();
+        self.reconcile_calibration();
     }
 
     fn reconcile_note(&mut self) {
@@ -311,6 +318,34 @@ impl Controls {
         };
 
         self.parameters.scale_mode = cv + pot;
+    }
+
+    fn reconcile_calibration(&mut self) {
+        match self.calibration_state {
+            CalibrationState::Inactive => {
+                if self.button.active() && self.cv1.was_plugged() {
+                    self.calibration_state = CalibrationState::Entering;
+                }
+            }
+            CalibrationState::Entering => {
+                if !self.button.active() {
+                    self.calibration_state = CalibrationState::CalibratingLow;
+                }
+            }
+            CalibrationState::CalibratingLow => {
+                if self.button.clicked() {
+                    let c_a = self.cv1.value() * 10.0;
+                    self.calibration_state = CalibrationState::CalibratingHigh(c_a);
+                }
+            }
+            CalibrationState::CalibratingHigh(c_a) => {
+                if self.button.clicked() {
+                    let c_b = self.cv1.value() * 10.0;
+                    self.calibrate(c_a, c_b);
+                    self.calibration_state = CalibrationState::Inactive;
+                }
+            }
+        }
     }
 
     fn calibrate(&mut self, c_a: f32, c_b: f32) {
