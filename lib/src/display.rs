@@ -10,6 +10,15 @@ pub enum Action {
     SetWavetableBank(usize),
     SetWavetable(f32),
     SetDetune(usize, f32),
+    SetCalibration(CalibrationPhase),
+}
+
+#[derive(Clone, Copy)]
+pub enum CalibrationPhase {
+    WaitingLow,
+    WaitingHigh,
+    Succeeded,
+    Failed,
 }
 
 #[derive(Default, Clone, Copy, PartialEq, Debug)]
@@ -63,6 +72,7 @@ pub fn reduce(action: Action) -> State {
         Action::SetWavetableBank(bank_index) => reduce_set_wavetable_bank(bank_index),
         Action::SetWavetable(wavetable_phase) => reduce_set_wavetable(wavetable_phase),
         Action::SetDetune(index, phase) => reduce_set_detune(index, phase),
+        Action::SetCalibration(phase) => reduce_set_calibration(phase),
     }
 }
 
@@ -180,6 +190,17 @@ fn reduce_set_detune(index: usize, phase: f32) -> State {
 
     state_array[index * 2] = true;
     state_array[(phase * 3.999) as usize * 2 + 1] = true;
+
+    state_array.into()
+}
+
+fn reduce_set_calibration(phase: CalibrationPhase) -> State {
+    let state_array = match phase {
+        CalibrationPhase::WaitingLow => [true, false, true, false, true, false, true, false],
+        CalibrationPhase::WaitingHigh => [false, true, false, true, false, true, false, true],
+        CalibrationPhase::Succeeded => [true, true, true, true, true, true, true, true],
+        CalibrationPhase::Failed => [false, false, false, false, false, false, false, false],
+    };
 
     state_array.into()
 }
@@ -1082,6 +1103,78 @@ mod tests {
                 led6: false,
                 led7: false,
                 led_sharp: true,
+            }
+        );
+    }
+
+    #[test]
+    fn reduce_calibration_low() {
+        let state = reduce(Action::SetCalibration(CalibrationPhase::WaitingLow));
+        assert_eq!(
+            state,
+            State {
+                led1: true,
+                led2: false,
+                led3: true,
+                led4: false,
+                led5: true,
+                led6: false,
+                led7: true,
+                led_sharp: false,
+            }
+        );
+    }
+
+    #[test]
+    fn reduce_calibration_high() {
+        let state = reduce(Action::SetCalibration(CalibrationPhase::WaitingHigh));
+        assert_eq!(
+            state,
+            State {
+                led1: false,
+                led2: true,
+                led3: false,
+                led4: true,
+                led5: false,
+                led6: true,
+                led7: false,
+                led_sharp: true,
+            }
+        );
+    }
+
+    #[test]
+    fn reduce_calibration_succeeded() {
+        let state = reduce(Action::SetCalibration(CalibrationPhase::Succeeded));
+        assert_eq!(
+            state,
+            State {
+                led1: true,
+                led2: true,
+                led3: true,
+                led4: true,
+                led5: true,
+                led6: true,
+                led7: true,
+                led_sharp: true,
+            }
+        );
+    }
+
+    #[test]
+    fn reduce_calibration_failed() {
+        let state = reduce(Action::SetCalibration(CalibrationPhase::Failed));
+        assert_eq!(
+            state,
+            State {
+                led1: false,
+                led2: false,
+                led3: false,
+                led4: false,
+                led5: false,
+                led6: false,
+                led7: false,
+                led_sharp: false,
             }
         );
     }

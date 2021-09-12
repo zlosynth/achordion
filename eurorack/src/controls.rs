@@ -68,6 +68,8 @@ enum CalibrationState {
     Entering,
     CalibratingLow,
     CalibratingHigh(f32),
+    Succeeded,
+    Failed,
 }
 
 impl Controls {
@@ -176,6 +178,23 @@ impl Controls {
 
     pub fn detune_pot_active(&self) -> bool {
         self.pot4.active()
+    }
+
+    pub fn calibration_waiting_low(&self) -> bool {
+        matches!(self.calibration_state, CalibrationState::Entering)
+            || matches!(self.calibration_state, CalibrationState::CalibratingLow)
+    }
+
+    pub fn calibration_waiting_high(&self) -> bool {
+        matches!(self.calibration_state, CalibrationState::CalibratingHigh(_))
+    }
+
+    pub fn calibration_succeeded(&self) -> bool {
+        matches!(self.calibration_state, CalibrationState::Succeeded)
+    }
+
+    pub fn calibration_failed(&self) -> bool {
+        matches!(self.calibration_state, CalibrationState::Failed)
     }
 
     pub fn update(&mut self) {
@@ -347,19 +366,30 @@ impl Controls {
                 CalibrationState::CalibratingHigh(c_a) => {
                     if self.button.clicked() {
                         let c_b = self.cv1.value() * VOCT_CV_RANGE;
-                        self.calibrate(c_a, c_b);
-                        self.calibration_state = CalibrationState::Inactive;
+                        self.calibration_state = if self.calibrate(c_a, c_b).is_ok() {
+                            CalibrationState::Succeeded
+                        } else {
+                            CalibrationState::Failed
+                        };
                     }
+                }
+                CalibrationState::Succeeded => {
+                    self.calibration_state = CalibrationState::Inactive;
+                }
+                CalibrationState::Failed => {
+                    self.calibration_state = CalibrationState::Inactive;
                 }
             }
         }
     }
 
-    fn calibrate(&mut self, c_a: f32, c_b: f32) {
+    fn calibrate(&mut self, c_a: f32, c_b: f32) -> Result<(), ()> {
         if let Ok((calibration_ratio, calibration_offset)) = calculate_calibration(c_a, c_b) {
             self.calibration_ratio = calibration_ratio;
             self.calibration_offset = calibration_offset;
+            return Ok(());
         }
+        Err(())
     }
 
     fn sample_to_voct(&self, transposed_sample: f32) -> f32 {

@@ -27,7 +27,7 @@ use rtic::app;
 use rtic::cyccnt::Instant;
 use rtic::cyccnt::U32Ext as _;
 
-use achordion_lib::display::{self as display_lib, Action as DisplayAction};
+use achordion_lib::display::{self as display_lib, Action as DisplayAction, CalibrationPhase};
 use achordion_lib::instrument::Instrument;
 use achordion_lib::store::Parameters;
 
@@ -140,6 +140,7 @@ const APP: () = {
         controls.update();
 
         cx.resources.instrument.lock(|instrument| {
+            let calibration_action = reconcile_calibration(controls);
             let any_action = reconcile_all_changes(controls, instrument);
             let pot_action = reconcile_pot_activity(controls, instrument);
 
@@ -150,11 +151,14 @@ const APP: () = {
                 activity.tick_all();
             }
 
-            // 1. If there is any pot activity, prioritize showing it.
-            // 2. If pots are idle and there is a change caused through CV,
+            // 1. If calibration is in progress, prioritize showing that.
+            // 2. If there is any pot activity, show that.
+            // 3. If pots are idle and there is a change caused through CV,
             //    display that.
-            // 3. If all activity is idle, display the default page.
-            if let Some(action) = pot_action {
+            // 4. If all activity is idle, display the default page.
+            if let Some(action) = calibration_action {
+                display.set(display_lib::reduce(action));
+            } else if let Some(action) = pot_action {
                 display.set(display_lib::reduce(action));
             } else if let (Some(action), true) = (any_action, activity.idle_pots()) {
                 // Reset only once shown, so it can never blink quickly through
@@ -218,6 +222,20 @@ const APP: () = {
         fn EXTI1();
     }
 };
+
+fn reconcile_calibration(controls: &mut Controls) -> Option<DisplayAction> {
+    if controls.calibration_waiting_low() {
+        Some(DisplayAction::SetCalibration(CalibrationPhase::WaitingLow))
+    } else if controls.calibration_waiting_high() {
+        Some(DisplayAction::SetCalibration(CalibrationPhase::WaitingHigh))
+    } else if controls.calibration_succeeded() {
+        Some(DisplayAction::SetCalibration(CalibrationPhase::Succeeded))
+    } else if controls.calibration_failed() {
+        Some(DisplayAction::SetCalibration(CalibrationPhase::Failed))
+    } else {
+        None
+    }
+}
 
 fn reconcile_all_changes(
     controls: &mut Controls,
