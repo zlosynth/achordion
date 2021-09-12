@@ -61,6 +61,14 @@ const APP: () = {
 
         let mut storage = Storage::new(system.flash);
 
+        let parameters = if system.button.active_no_filter() {
+            let parameters = Parameters::default();
+            while system.button.active_no_filter() {}
+            parameters
+        } else {
+            storage.load_parameters()
+        };
+
         let controls = Controls::new(
             ControlsConfig {
                 adc1: system.adc1,
@@ -78,7 +86,7 @@ const APP: () = {
                 cv_wavetable: system.cvs.cv6,
                 cv_probe: system.cvs.cv_probe,
             },
-            storage.load_parameters(),
+            parameters,
         );
 
         let display = Display::new(DisplayConfig {

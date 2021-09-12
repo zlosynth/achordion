@@ -30,6 +30,10 @@ impl<P: InputPin> Button<P> {
         self.debounce_filter.read()
     }
 
+    pub fn active_no_filter(&self) -> bool {
+        self.pin.is_low().ok().unwrap()
+    }
+
     pub fn clicked(&self) -> bool {
         self.clicked
     }

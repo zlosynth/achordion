@@ -10,6 +10,8 @@ backwards compatibility.
   white keys only, with black keys always quantizing to the previous white.
 * Introduce CV calibration, allowing the V/OCT CV input to be calibrated
   precisely on any connected device.
+* Allow reset of all stored parameters on boot by holding the button while
+  powering on.
 
 ## 0.11.0
 
