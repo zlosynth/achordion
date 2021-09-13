@@ -1,7 +1,8 @@
 #[allow(unused_imports)]
 use micromath::F32Ext;
 
-const LOG: [f32; 21] = [
+const LOG: [f32; 22] = [
+    0.0,
     0.0,
     0.019996643,
     0.040958643,
@@ -60,9 +61,13 @@ mod tests {
     #[test]
     fn log_taper_within_limits() {
         assert_relative_eq!(log(0.0), 0.0);
-        assert_relative_eq!(log(0.025), 0.0099983215);
-        assert_relative_eq!(log(0.05), 0.019996643);
-        assert_relative_eq!(log(0.5), 0.2596373);
+        assert_relative_eq!(log(0.025), 0.0);
+        assert_relative_eq!(log(0.05), 0.0009998336);
+        assert_relative_eq!(log(0.1), 0.022092845);
+        assert_relative_eq!(log(0.3), 0.11849195);
+        assert_relative_eq!(log(0.5), 0.24256015);
+        assert_relative_eq!(log(0.7), 0.4168443);
+        assert_relative_eq!(log(0.9), 0.7120149);
         assert_relative_eq!(log(1.0), 1.0);
     }
 }

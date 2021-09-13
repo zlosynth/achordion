@@ -12,6 +12,8 @@ backwards compatibility.
   precisely on any connected device.
 * Allow reset of all stored parameters on boot by holding the button while
   powering on.
+* Prevent jumps back and forth on borders between two discrete values of
+  parameters.
 
 ## 0.11.0
 

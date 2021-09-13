@@ -1,3 +1,5 @@
+use core::cmp::PartialEq;
+use core::ops::Deref;
 use core::ptr;
 
 #[allow(unused_imports)]
@@ -63,12 +65,13 @@ const DETUNES: [[DetuneConfig; DEGREES]; 4] = [
 ];
 
 pub struct Instrument<'a> {
-    scale_root: Note,
-    scale_mode: scales::diatonic::Mode,
-    chord_root: f32,
+    scale_root: DiscreteParameter<Note>,
+    scale_mode: DiscreteParameter<scales::diatonic::Mode>,
+    chord_root_raw: f32,
     chord_root_degree: u8,
-    chord_degrees: [i8; DEGREES],
-    selected_detune_index: usize,
+    chord_root_note: DiscreteParameter<Note>,
+    chord_degrees_index: DiscreteParameter<usize>,
+    selected_detune_index: DiscreteParameter<usize>,
     amplitude: f32,
     degrees: [Degree<'a>; DEGREES],
 }
@@ -76,12 +79,13 @@ pub struct Instrument<'a> {
 impl<'a> Instrument<'a> {
     pub fn new(wavetable_banks: &'a [&'a [Wavetable]], sample_rate: u32) -> Self {
         Self {
-            scale_root: Note::C1,
-            scale_mode: scales::diatonic::Ionian,
-            chord_root: 0.0,
+            scale_root: DiscreteParameter::new(Note::C1, 0.01),
+            scale_mode: DiscreteParameter::new(scales::diatonic::Ionian, 0.001),
+            chord_root_raw: 0.0,
+            chord_root_note: DiscreteParameter::new(Note::C1, 0.01),
             chord_root_degree: 1,
-            chord_degrees: CHORDS[0],
-            selected_detune_index: 0,
+            chord_degrees_index: DiscreteParameter::new(0, 0.001),
+            selected_detune_index: DiscreteParameter::new(0, 0.001),
             amplitude: 1.0,
             degrees: [
                 Degree::new(wavetable_banks, sample_rate),
@@ -92,9 +96,10 @@ impl<'a> Instrument<'a> {
     }
 
     pub fn set_scale_mode(&mut self, scale_mode: f32) -> Option<scales::diatonic::Mode> {
-        let original = self.scale_mode;
+        let original = self.scale_mode();
 
-        self.scale_mode = if scale_mode < 1.0 / 7.0 {
+        let scale_mode = self.scale_mode.offset_raw(scale_mode);
+        self.scale_mode.set(if scale_mode < 1.0 / 7.0 {
             scales::diatonic::Ionian
         } else if scale_mode < 2.0 / 7.0 {
             scales::diatonic::Dorian
@@ -108,43 +113,43 @@ impl<'a> Instrument<'a> {
             scales::diatonic::Aeolian
         } else {
             scales::diatonic::Locrian
-        };
+        });
         self.apply_settings();
 
-        let updated = self.scale_mode;
-        if original != updated {
-            Some(updated)
+        if original != self.scale_mode() {
+            Some(self.scale_mode())
         } else {
             None
         }
     }
 
     pub fn scale_mode(&self) -> scales::diatonic::Mode {
-        self.scale_mode
+        *self.scale_mode
     }
 
     pub fn set_scale_root(&mut self, scale_root: f32) -> Option<Note> {
-        let original = self.scale_root;
+        let original = self.scale_root();
 
-        self.scale_root = quantizer::chromatic::quantize(scale_root);
+        self.scale_root.set(quantizer::chromatic::quantize(
+            self.scale_root.offset_raw(scale_root),
+        ));
         self.apply_settings();
 
-        let updated = self.scale_root;
-        if original != updated {
-            Some(updated)
+        if original != self.scale_root() {
+            Some(self.scale_root())
         } else {
             None
         }
     }
 
     pub fn scale_root(&self) -> Note {
-        self.scale_root
+        *self.scale_root
     }
 
     pub fn set_chord_root(&mut self, chord_root: f32) -> Option<u8> {
         let original = self.chord_root_degree;
 
-        self.chord_root = chord_root;
+        self.chord_root_raw = chord_root;
         self.apply_settings();
 
         let updated = self.chord_root_degree;
@@ -160,27 +165,23 @@ impl<'a> Instrument<'a> {
     }
 
     pub fn set_chord_degrees(&mut self, chord_degrees: f32) -> Option<[i8; DEGREES]> {
-        let original = self.chord_degrees;
+        let original = *self.chord_degrees_index;
 
-        for i in 1..=CHORDS.len() {
-            if chord_degrees < i as f32 / CHORDS.len() as f32 {
-                self.chord_degrees = CHORDS[i - 1];
-                break;
-            }
-        }
+        self.chord_degrees_index.set(
+            ((self.chord_degrees_index.offset_raw(chord_degrees) * CHORDS.len() as f32) as usize)
+                .min(CHORDS.len() - 1),
+        );
         self.apply_settings();
 
-        let updated = self.chord_degrees;
-
-        if original != updated {
-            Some(updated)
+        if original != *self.chord_degrees_index {
+            Some(self.chord_degrees())
         } else {
             None
         }
     }
 
     pub fn chord_degrees(&self) -> [i8; DEGREES] {
-        self.chord_degrees
+        CHORDS[*self.chord_degrees_index]
     }
 
     pub fn set_wavetable_bank(&mut self, wavetable_bank: f32) -> Option<usize> {
@@ -218,8 +219,9 @@ impl<'a> Instrument<'a> {
     pub fn set_detune(&mut self, detune: f32) -> Option<(usize, f32)> {
         let original = self.detune();
 
+        let detune = self.selected_detune_index.offset_raw(detune);
         let index = ((detune * DETUNES.len() as f32) as usize).min(DETUNES.len() - 1);
-        self.selected_detune_index = index;
+        self.selected_detune_index.set(index);
 
         // Slightly over 1, so it never hits the maximum and wraps back
         let section = 1.001 / DETUNES.len() as f32;
@@ -230,7 +232,6 @@ impl<'a> Instrument<'a> {
         }
 
         let updated = self.detune();
-
         if original.0 != updated.0 || (original.1 - updated.1).abs() > 0.01 {
             Some(updated)
         } else {
@@ -239,7 +240,7 @@ impl<'a> Instrument<'a> {
     }
 
     pub fn detune(&self) -> (usize, f32) {
-        let index = self.selected_detune_index;
+        let index = *self.selected_detune_index;
         let phase = self.degrees[0].detune_phase;
 
         (index, phase)
@@ -283,15 +284,20 @@ impl<'a> Instrument<'a> {
     }
 
     fn apply_settings(&mut self) {
-        let (chord_root_note, chord_root_degree) =
-            quantizer::diatonic::quantize(self.scale_mode, self.scale_root, self.chord_root);
+        let (chord_root_note, chord_root_degree) = quantizer::diatonic::quantize(
+            self.scale_mode(),
+            self.scale_root(),
+            self.chord_root_note.offset_raw(self.chord_root_raw),
+        );
+
+        self.chord_root_note.set(chord_root_note);
         self.chord_root_degree = chord_root_degree;
 
         let chord_notes = chords::diatonic::build(
-            self.scale_root,
-            self.scale_mode,
+            self.scale_root(),
+            self.scale_mode(),
             chord_root_note,
-            self.chord_degrees,
+            self.chord_degrees(),
         );
 
         for (i, degree) in self.degrees.iter_mut().enumerate() {
@@ -312,7 +318,7 @@ struct Degree<'a> {
     detune_config: DetuneConfig,
     detune_phase: f32,
     wavetable_banks: &'a [&'a [Wavetable<'a>]],
-    selected_wavetable_bank: usize,
+    selected_wavetable_bank: DiscreteParameter<usize>,
     oscillators: [Oscillator<'a>; OSCILLATORS_IN_DEGREE],
     enabled: bool,
 }
@@ -325,7 +331,7 @@ impl<'a> Degree<'a> {
             detune_config: DetuneConfig::Disabled,
             detune_phase: 0.0,
             wavetable_banks,
-            selected_wavetable_bank: 0,
+            selected_wavetable_bank: DiscreteParameter::new(0, 0.001),
             oscillators: [
                 Oscillator::new(wavetable_banks[0], sample_rate),
                 Oscillator::new(wavetable_banks[0], sample_rate),
@@ -394,31 +400,28 @@ impl<'a> Degree<'a> {
     }
 
     pub fn set_wavetable_bank(&mut self, wavetable_bank: f32) -> Option<usize> {
-        let original = self.selected_wavetable_bank;
+        let original = self.wavetable_bank();
 
-        for i in 1..=self.wavetable_banks.len() {
-            if wavetable_bank < i as f32 / self.wavetable_banks.len() as f32 {
-                self.selected_wavetable_bank = i - 1;
-                break;
-            }
-        }
+        self.selected_wavetable_bank.set(
+            ((self.selected_wavetable_bank.offset_raw(wavetable_bank)
+                * self.wavetable_banks.len() as f32) as usize)
+                .min(self.wavetable_banks.len() - 1),
+        );
 
-        let wavetable_bank = self.wavetable_banks[self.selected_wavetable_bank];
+        let wavetable_bank = self.wavetable_banks[self.wavetable_bank()];
         self.oscillators
             .iter_mut()
             .for_each(|o| o.wavetable_bank = wavetable_bank);
 
-        let updated = self.selected_wavetable_bank;
-
-        if original != updated {
-            Some(updated)
+        if original != self.wavetable_bank() {
+            Some(self.wavetable_bank())
         } else {
             None
         }
     }
 
     pub fn wavetable_bank(&self) -> usize {
-        self.selected_wavetable_bank
+        *self.selected_wavetable_bank
     }
 
     pub fn set_wavetable(&mut self, wavetable: f32) {
@@ -453,6 +456,50 @@ fn zero_slice(slice: &mut [f32]) {
     unsafe {
         let p = slice.as_mut_ptr();
         ptr::write_bytes(p, 0, slice.len());
+    }
+}
+
+#[derive(Clone, Copy)]
+struct DiscreteParameter<T: PartialOrd + Copy> {
+    offset: f32,
+    next_offset: f32,
+    value: T,
+}
+
+impl<T: Copy + PartialOrd> DiscreteParameter<T> {
+    pub fn new(value: T, offset: f32) -> Self {
+        Self {
+            value,
+            offset,
+            next_offset: 0.0,
+        }
+    }
+
+    pub fn offset_raw(&self, value: f32) -> f32 {
+        value + self.next_offset
+    }
+
+    pub fn set(&mut self, value: T) {
+        if value < self.value && (self.next_offset + self.offset).abs() > 0.0001 {
+            self.next_offset = -1.0 * self.offset;
+        } else if value > self.value && (self.next_offset - self.offset).abs() > 0.0001 {
+            self.next_offset = self.offset;
+        };
+        self.value = value;
+    }
+}
+
+impl<T: Copy + PartialOrd> Deref for DiscreteParameter<T> {
+    type Target = T;
+
+    fn deref(&self) -> &Self::Target {
+        &self.value
+    }
+}
+
+impl<T: Copy + PartialOrd> PartialEq for DiscreteParameter<T> {
+    fn eq(&self, other: &Self) -> bool {
+        self.value == other.value
     }
 }
 
@@ -648,10 +695,10 @@ mod tests {
         let mut instrument = create_valid_instrument();
         instrument.set_chord_degrees(0.0);
 
-        let new_degrees = instrument.set_chord_degrees(0.5);
+        let new_degrees = instrument.set_chord_degrees(0.4);
         assert!(new_degrees.is_some());
 
-        let new_degrees = instrument.set_chord_degrees(0.5);
+        let new_degrees = instrument.set_chord_degrees(0.4);
         assert!(new_degrees.is_none());
     }
 
