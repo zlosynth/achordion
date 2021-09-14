@@ -16,6 +16,7 @@ backwards compatibility.
   parameters.
 * Scroll through notes via the pot lineary, instead of unequal jumps between
   tones and semitones.
+* Increase detune phase on the display lineary.
 
 ## 0.11.0
 

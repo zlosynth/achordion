@@ -233,7 +233,7 @@ impl<'a> Instrument<'a> {
 
         // Slightly over 1, so it never hits the maximum and wraps back
         let section = 1.001 / DETUNES.len() as f32;
-        let phase = taper::log((detune % section) / section);
+        let phase = (detune % section) / section;
 
         for (i, degree) in self.degrees.iter_mut().enumerate() {
             degree.set_detune(DETUNES[index][i], phase)
@@ -397,7 +397,7 @@ impl<'a> Degree<'a> {
                 for (i, oscillator) in self.oscillators[1..].iter_mut().enumerate() {
                     let detune_delta = max - min;
                     let stage = (i + 1) as f32;
-                    let detune = (min + detune_delta * self.detune_phase) * stage;
+                    let detune = (min + detune_delta * taper::log(self.detune_phase)) * stage;
                     oscillator.frequency = self.frequency * detune;
                 }
             }
@@ -411,7 +411,7 @@ impl<'a> Degree<'a> {
                 for (i, pair) in self.oscillators[start..].chunks_exact_mut(2).enumerate() {
                     let detune_delta = max - min;
                     let stage = (i + 1) as f32;
-                    let detune = (min + detune_delta * self.detune_phase) * stage;
+                    let detune = (min + detune_delta * taper::log(self.detune_phase)) * stage;
                     pair[0].frequency = self.frequency * (1.0 / detune);
                     pair[1].frequency = self.frequency * detune;
                 }
