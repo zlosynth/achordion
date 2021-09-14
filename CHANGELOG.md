@@ -6,6 +6,8 @@ backwards compatibility.
 
 ## Unreleased
 
+## 0.12.0
+
 * Align all quantization with white keys. All scales can be now played through
   white keys only, with black keys always quantizing to the previous white.
 * Introduce CV calibration, allowing the V/OCT CV input to be calibrated
