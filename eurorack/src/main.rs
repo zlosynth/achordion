@@ -249,8 +249,13 @@ fn reconcile_all_changes(
     controls: &mut Controls,
     instrument: &mut Instrument,
 ) -> Option<DisplayAction> {
-    let new_chord_root_degree = instrument.set_chord_root(controls.note());
-    let new_scale_root = instrument.set_scale_root(controls.scale_root());
+    // TODO: Either linear or voct will be used
+    let new_chord_root_degree = if controls.note_from_pot() {
+        instrument.set_chord_root_linear(controls.note())
+    } else {
+        instrument.set_chord_root_voct(controls.note())
+    };
+    let new_scale_root = instrument.set_scale_root_voct(controls.scale_root());
     let new_scale_mode = instrument.set_scale_mode(controls.scale_mode());
     let new_wavetable = instrument.set_wavetable(controls.wavetable());
     let new_wavetable_bank = instrument.set_wavetable_bank(controls.wavetable_bank());

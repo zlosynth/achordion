@@ -58,6 +58,8 @@ pub struct Controls {
     last_chord_pot_reading: f32,
     last_scale_mode_pot_reading: f32,
 
+    note_source: NoteSource,
+
     calibration_state: CalibrationState,
 }
 
@@ -68,6 +70,11 @@ enum CalibrationState {
     CalibratingHigh(f32),
     Succeeded,
     Failed,
+}
+
+enum NoteSource {
+    Cv,
+    Pot,
 }
 
 impl Controls {
@@ -98,6 +105,8 @@ impl Controls {
             last_chord_pot_reading: 0.0,
             last_scale_mode_pot_reading: 0.0,
 
+            note_source: NoteSource::Pot,
+
             calibration_state: CalibrationState::Inactive,
         };
 
@@ -114,6 +123,10 @@ impl Controls {
 
     pub fn note(&self) -> f32 {
         self.parameters.note
+    }
+
+    pub fn note_from_pot(&self) -> bool {
+        matches!(self.note_source, NoteSource::Pot)
     }
 
     pub fn wavetable(&self) -> f32 {
@@ -253,9 +266,11 @@ impl Controls {
             // into the 5th octave when set on the edge.
             let octave_offset = (pot * 3.95).trunc() - 2.0;
             let note = self.sample_to_voct(self.cv1.value());
+            self.note_source = NoteSource::Cv;
             note + octave_offset
         } else {
-            pot * 4.0 + 3.0
+            self.note_source = NoteSource::Pot;
+            pot * 4.0 + 3.0 + 0.7 / 7.0
         };
     }
 

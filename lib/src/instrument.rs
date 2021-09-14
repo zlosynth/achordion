@@ -67,7 +67,7 @@ const DETUNES: [[DetuneConfig; DEGREES]; 4] = [
 pub struct Instrument<'a> {
     scale_root: DiscreteParameter<Note>,
     scale_mode: DiscreteParameter<scales::diatonic::Mode>,
-    chord_root_raw: f32,
+    chord_root_raw: ChordRoot,
     chord_root_degree: u8,
     chord_root_note: DiscreteParameter<Note>,
     chord_degrees_index: DiscreteParameter<usize>,
@@ -81,7 +81,7 @@ impl<'a> Instrument<'a> {
         Self {
             scale_root: DiscreteParameter::new(Note::C1, 0.01),
             scale_mode: DiscreteParameter::new(scales::diatonic::Ionian, 0.001),
-            chord_root_raw: 0.0,
+            chord_root_raw: ChordRoot::Voct(0.0),
             chord_root_note: DiscreteParameter::new(Note::C1, 0.01),
             chord_root_degree: 1,
             chord_degrees_index: DiscreteParameter::new(0, 0.001),
@@ -127,7 +127,7 @@ impl<'a> Instrument<'a> {
         *self.scale_mode
     }
 
-    pub fn set_scale_root(&mut self, scale_root: f32) -> Option<Note> {
+    pub fn set_scale_root_voct(&mut self, scale_root: f32) -> Option<Note> {
         let original = self.scale_root();
 
         self.scale_root.set(quantizer::chromatic::quantize(
@@ -146,7 +146,15 @@ impl<'a> Instrument<'a> {
         *self.scale_root
     }
 
-    pub fn set_chord_root(&mut self, chord_root: f32) -> Option<u8> {
+    pub fn set_chord_root_voct(&mut self, chord_root: f32) -> Option<u8> {
+        self.set_chord_root(ChordRoot::Voct(chord_root))
+    }
+
+    pub fn set_chord_root_linear(&mut self, chord_root: f32) -> Option<u8> {
+        self.set_chord_root(ChordRoot::Linear(chord_root))
+    }
+
+    fn set_chord_root(&mut self, chord_root: ChordRoot) -> Option<u8> {
         let original = self.chord_root_degree;
 
         self.chord_root_raw = chord_root;
@@ -284,11 +292,18 @@ impl<'a> Instrument<'a> {
     }
 
     fn apply_settings(&mut self) {
-        let (chord_root_note, chord_root_degree) = quantizer::diatonic::quantize(
-            self.scale_mode(),
-            self.scale_root(),
-            self.chord_root_note.offset_raw(self.chord_root_raw),
-        );
+        let (chord_root_note, chord_root_degree) = match self.chord_root_raw {
+            ChordRoot::Linear(chord_root_raw) => quantizer::diatonic::quantize_linear(
+                self.scale_mode(),
+                self.scale_root(),
+                self.chord_root_note.offset_raw(chord_root_raw),
+            ),
+            ChordRoot::Voct(chord_root_raw) => quantizer::diatonic::quantize_voct(
+                self.scale_mode(),
+                self.scale_root(),
+                self.chord_root_note.offset_raw(chord_root_raw),
+            ),
+        };
 
         self.chord_root_note.set(chord_root_note);
         self.chord_root_degree = chord_root_degree;
@@ -309,6 +324,11 @@ impl<'a> Instrument<'a> {
             }
         }
     }
+}
+
+enum ChordRoot {
+    Linear(f32),
+    Voct(f32),
 }
 
 const OSCILLATORS_IN_DEGREE: usize = 2;
@@ -528,8 +548,8 @@ mod tests {
     fn create_valid_instrument() -> Instrument<'static> {
         let mut instrument = Instrument::new(&WAVETABLE_BANKS[..], SAMPLE_RATE);
         instrument.set_scale_mode(0.0);
-        instrument.set_scale_root(2.0);
-        instrument.set_chord_root(2.5);
+        instrument.set_scale_root_voct(2.0);
+        instrument.set_chord_root_voct(2.5);
         instrument.set_chord_degrees(0.8);
         instrument.set_wavetable(0.1);
         instrument.set_detune(1.0);
@@ -568,28 +588,28 @@ mod tests {
     #[test]
     fn recover_after_scale_root_was_set_above_range() {
         let mut instrument = create_valid_instrument();
-        instrument.set_scale_root(100.0);
+        instrument.set_scale_root_voct(100.0);
         assert_populate(&mut instrument);
     }
 
     #[test]
     fn recover_after_scale_root_was_set_below_range() {
         let mut instrument = create_valid_instrument();
-        instrument.set_scale_root(-100.0);
+        instrument.set_scale_root_voct(-100.0);
         assert_populate(&mut instrument);
     }
 
     #[test]
     fn recover_after_chord_root_was_set_above_range() {
         let mut instrument = create_valid_instrument();
-        instrument.set_chord_root(100.0);
+        instrument.set_chord_root_voct(100.0);
         assert_populate(&mut instrument);
     }
 
     #[test]
     fn recover_after_chord_root_was_set_below_range() {
         let mut instrument = create_valid_instrument();
-        instrument.set_chord_root(-100.0);
+        instrument.set_chord_root_voct(-100.0);
         assert_populate(&mut instrument);
     }
 
@@ -650,7 +670,7 @@ mod tests {
     #[test]
     fn output_centered_around_zero_simple() {
         let mut instrument = create_valid_instrument();
-        instrument.set_chord_root(2.5);
+        instrument.set_chord_root_voct(2.5);
         instrument.set_chord_degrees(0.0);
 
         let mut root_buffer = [0.0; 1024];
@@ -664,7 +684,7 @@ mod tests {
     #[test]
     fn output_centered_around_zero_with_detune() {
         let mut instrument = create_valid_instrument();
-        instrument.set_chord_root(2.5);
+        instrument.set_chord_root_voct(2.5);
         instrument.set_chord_degrees(0.0);
         instrument.set_detune(1.0);
 
@@ -679,7 +699,7 @@ mod tests {
     #[test]
     fn output_centered_around_zero_with_chord() {
         let mut instrument = create_valid_instrument();
-        instrument.set_chord_root(2.5);
+        instrument.set_chord_root_voct(2.5);
         instrument.set_chord_degrees(1.0);
 
         let mut root_buffer = [0.0; 1024];
@@ -718,12 +738,12 @@ mod tests {
     #[test]
     fn change_scale_root() {
         let mut instrument = create_valid_instrument();
-        instrument.set_scale_root(1.0);
+        instrument.set_scale_root_voct(1.0);
 
-        let new_root = instrument.set_scale_root(1.0 + 2.0 / 12.0);
+        let new_root = instrument.set_scale_root_voct(1.0 + 2.0 / 12.0);
         assert!(new_root.is_some());
 
-        let new_root = instrument.set_scale_root(1.0 + 2.0 / 12.0);
+        let new_root = instrument.set_scale_root_voct(1.0 + 2.0 / 12.0);
         assert!(new_root.is_none());
     }
 
@@ -731,10 +751,10 @@ mod tests {
     fn get_scale_root() {
         let mut instrument = create_valid_instrument();
 
-        instrument.set_scale_root(1.0);
+        instrument.set_scale_root_voct(1.0);
         let old_root = instrument.scale_root();
 
-        instrument.set_scale_root(1.0 + 5.0 / 12.0);
+        instrument.set_scale_root_voct(1.0 + 5.0 / 12.0);
         let new_root = instrument.scale_root();
 
         assert!(old_root != new_root);
@@ -768,12 +788,12 @@ mod tests {
     #[test]
     fn change_chord_root() {
         let mut instrument = create_valid_instrument();
-        instrument.set_chord_root(1.0);
+        instrument.set_chord_root_voct(1.0);
 
-        let new_root = instrument.set_chord_root(1.0 + 2.0 / 12.0);
+        let new_root = instrument.set_chord_root_voct(1.0 + 2.0 / 12.0);
         assert!(new_root.is_some());
 
-        let new_root = instrument.set_chord_root(1.0 + 2.0 / 12.0);
+        let new_root = instrument.set_chord_root_voct(1.0 + 2.0 / 12.0);
         assert!(new_root.is_none());
     }
 
@@ -781,10 +801,10 @@ mod tests {
     fn get_chord_root_degree() {
         let mut instrument = create_valid_instrument();
 
-        instrument.set_chord_root(1.0);
+        instrument.set_chord_root_voct(1.0);
         let old_degree = instrument.chord_root_degree();
 
-        instrument.set_chord_root(1.0 + 2.0 / 12.0);
+        instrument.set_chord_root_voct(1.0 + 2.0 / 12.0);
         let new_degree = instrument.chord_root_degree();
 
         assert!(old_degree != new_degree);

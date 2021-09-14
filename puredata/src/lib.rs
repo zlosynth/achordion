@@ -153,7 +153,9 @@ unsafe fn register_float_method(
 }
 
 unsafe extern "C" fn set_chord_root(class: *mut Class, value: pd_sys::t_float) {
-    (*class).instrument.set_chord_root(value.clamp(0.0, 20.0));
+    (*class)
+        .instrument
+        .set_chord_root_linear(value.clamp(0.0, 10.0));
 }
 
 unsafe extern "C" fn set_chord_degrees(class: *mut Class, value: pd_sys::t_float) {
@@ -165,7 +167,9 @@ unsafe extern "C" fn set_scale_mode(class: *mut Class, value: pd_sys::t_float) {
 }
 
 unsafe extern "C" fn set_scale_root(class: *mut Class, value: pd_sys::t_float) {
-    (*class).instrument.set_scale_root(value.clamp(0.0, 20.0));
+    (*class)
+        .instrument
+        .set_scale_root_voct(value.clamp(0.0, 20.0));
 }
 
 unsafe extern "C" fn set_wavetable_bank(class: *mut Class, value: pd_sys::t_float) {

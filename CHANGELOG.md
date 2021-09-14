@@ -14,6 +14,8 @@ backwards compatibility.
   powering on.
 * Prevent jumps back and forth on borders between two discrete values of
   parameters.
+* Scroll through notes via the pot lineary, instead of unequal jumps between
+  tones and semitones.
 
 ## 0.11.0
 
