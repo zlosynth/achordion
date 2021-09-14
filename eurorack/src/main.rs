@@ -168,12 +168,12 @@ const APP: () = {
                 display.set(display_lib::reduce(action));
             } else if let Some(action) = pot_action {
                 display.set(display_lib::reduce(action));
-            } else if let (Some(action), true) = (any_action, activity.idle_pots()) {
+            } else if let Some(action) = any_action {
                 // Reset only once shown, so it can never blink quickly through
                 // pot to CV to default.
                 activity.reset_cv();
                 display.set(display_lib::reduce(action));
-            } else if activity.idle_cv() && activity.idle_cv() {
+            } else if activity.idle_cv() && activity.idle_pots() {
                 display.set(display_lib::reduce(DisplayAction::SetChord(
                     instrument.chord_degrees(),
                 )));
