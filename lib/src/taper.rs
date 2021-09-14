@@ -3,7 +3,7 @@ use micromath::F32Ext;
 
 const LOG: [f32; 22] = [
     0.0,
-    0.0,
+    0.005,
     0.019996643,
     0.040958643,
     0.06298393,
@@ -61,8 +61,8 @@ mod tests {
     #[test]
     fn log_taper_within_limits() {
         assert_relative_eq!(log(0.0), 0.0);
-        assert_relative_eq!(log(0.025), 0.0);
-        assert_relative_eq!(log(0.05), 0.0009998336);
+        assert_relative_eq!(log(0.025), 0.0026250002);
+        assert_relative_eq!(log(0.05), 0.0057498333);
         assert_relative_eq!(log(0.1), 0.022092845);
         assert_relative_eq!(log(0.3), 0.11849195);
         assert_relative_eq!(log(0.5), 0.24256015);
