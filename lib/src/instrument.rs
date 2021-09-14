@@ -232,7 +232,7 @@ impl<'a> Instrument<'a> {
         self.selected_detune_index.set(index);
 
         // Slightly over 1, so it never hits the maximum and wraps back
-        let section = 1.001 / DETUNES.len() as f32;
+        let section = 1.002 / DETUNES.len() as f32;
         let phase = (detune % section) / section;
 
         for (i, degree) in self.degrees.iter_mut().enumerate() {
