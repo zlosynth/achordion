@@ -249,7 +249,6 @@ fn reconcile_all_changes(
     controls: &mut Controls,
     instrument: &mut Instrument,
 ) -> Option<DisplayAction> {
-    // TODO: Either linear or voct will be used
     let new_chord_root_degree = if controls.note_from_pot() {
         instrument.set_chord_root_linear(controls.note())
     } else {
