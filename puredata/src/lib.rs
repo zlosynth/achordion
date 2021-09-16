@@ -95,6 +95,7 @@ pub unsafe extern "C" fn achordion_tilde_setup() {
         callback = perform
     );
 
+    register_float_method(class, "solo", set_solo);
     register_float_method(class, "float", set_chord_root);
     register_float_method(class, "chord_degrees", set_chord_degrees);
     register_float_method(class, "scale_mode", set_scale_mode);
@@ -150,6 +151,16 @@ unsafe fn register_float_method(
         pd_sys::t_atomtype::A_FLOAT,
         0,
     );
+}
+
+unsafe extern "C" fn set_solo(class: *mut Class, value: pd_sys::t_float) {
+    if value < 0.1 {
+        (*class).instrument.set_solo_voct(None);
+    } else {
+        (*class)
+            .instrument
+            .set_solo_voct(Some(value.clamp(0.0, 10.0)));
+    }
 }
 
 unsafe extern "C" fn set_chord_root(class: *mut Class, value: pd_sys::t_float) {

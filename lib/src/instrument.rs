@@ -14,9 +14,11 @@ use crate::scales;
 use crate::taper;
 use crate::wavetable::Wavetable;
 
-const DEGREES: usize = 3;
+const SOLO_DEGREE: usize = 1;
+const CHORD_DEGREES: usize = 3;
+const DEGREES: usize = CHORD_DEGREES + SOLO_DEGREE;
 
-const CHORDS: [[i8; DEGREES]; 22] = [
+const CHORDS: [[i8; CHORD_DEGREES]; 22] = [
     [1, 0, 0],
     [1, 2, 0],
     [1, 3, 0],
@@ -46,18 +48,22 @@ const DETUNES: [[DetuneConfig; DEGREES]; 4] = [
         DetuneConfig::Disabled,
         DetuneConfig::Disabled,
         DetuneConfig::Disabled,
+        DetuneConfig::Disabled,
     ],
     [
         DetuneConfig::SingleSide(0.5, 0.5 + 0.02),
         DetuneConfig::Disabled,
         DetuneConfig::Disabled,
+        DetuneConfig::Disabled,
     ],
     [
         DetuneConfig::SingleSide(0.5, 0.5 + 0.02),
         DetuneConfig::SingleSide(0.5, 0.5 + 0.02),
         DetuneConfig::SingleSide(0.5, 0.5 + 0.02),
+        DetuneConfig::SingleSide(0.5, 0.5 + 0.02),
     ],
     [
+        DetuneConfig::BothSides(1.0, 1.01),
         DetuneConfig::BothSides(1.0, 1.01),
         DetuneConfig::BothSides(1.0, 1.01),
         DetuneConfig::BothSides(1.0, 1.01),
@@ -88,6 +94,7 @@ impl<'a> Instrument<'a> {
             selected_detune_index: DiscreteParameter::new(0, 0.001),
             amplitude: 1.0,
             degrees: [
+                Degree::new(wavetable_banks, sample_rate),
                 Degree::new(wavetable_banks, sample_rate),
                 Degree::new(wavetable_banks, sample_rate),
                 Degree::new(wavetable_banks, sample_rate),
@@ -168,11 +175,31 @@ impl<'a> Instrument<'a> {
         }
     }
 
+    pub fn set_solo_voct(&mut self, voct: Option<f32>) -> Option<Note> {
+        let last = self.degrees.len() - 1;
+        let degree = &mut self.degrees[last];
+
+        if let Some(mut voct) = voct {
+            voct = voct.min(10.0);
+            degree.enable();
+            degree.set_frequency(Note::AMinus1.to_freq_f32() * 2.0.powf(voct));
+        } else {
+            degree.disable();
+        }
+
+        None
+    }
+
+    fn solo_enabled(&self) -> bool {
+        let last = self.degrees.len() - 1;
+        self.degrees[last].enabled()
+    }
+
     pub fn chord_root_degree(&self) -> u8 {
         self.chord_root_degree
     }
 
-    pub fn set_chord_degrees(&mut self, chord_degrees: f32) -> Option<[i8; DEGREES]> {
+    pub fn set_chord_degrees(&mut self, chord_degrees: f32) -> Option<[i8; CHORD_DEGREES]> {
         let original = *self.chord_degrees_index;
 
         self.chord_degrees_index.set(
@@ -188,7 +215,7 @@ impl<'a> Instrument<'a> {
         }
     }
 
-    pub fn chord_degrees(&self) -> [i8; DEGREES] {
+    pub fn chord_degrees(&self) -> [i8; CHORD_DEGREES] {
         CHORDS[*self.chord_degrees_index]
     }
 
@@ -278,17 +305,38 @@ impl<'a> Instrument<'a> {
 
         let amplitude = self.amplitude;
 
-        self.degrees[0].populate_add(
-            buffer_root,
-            amplitude * self.degrees[0].amplitude() / perceived_amplitude,
-        );
+        if self.solo_enabled() {
+            let solo_degree = self.degrees.len() - 1;
+            self.degrees[solo_degree].populate_add(
+                buffer_root,
+                amplitude * self.degrees[solo_degree].amplitude() / perceived_amplitude,
+            );
 
-        self.degrees[1..].iter_mut().for_each(|d| {
-            d.populate_add(
-                buffer_chord,
-                amplitude * d.amplitude() / perceived_amplitude,
-            )
-        });
+            self.degrees[..solo_degree]
+                .iter_mut()
+                .filter(|d| d.enabled())
+                .for_each(|d| {
+                    d.populate_add(
+                        buffer_chord,
+                        amplitude * d.amplitude() / perceived_amplitude,
+                    )
+                });
+        } else {
+            self.degrees[0].populate_add(
+                buffer_root,
+                amplitude * self.degrees[0].amplitude() / perceived_amplitude,
+            );
+
+            self.degrees[1..]
+                .iter_mut()
+                .filter(|d| d.enabled())
+                .for_each(|d| {
+                    d.populate_add(
+                        buffer_chord,
+                        amplitude * d.amplitude() / perceived_amplitude,
+                    )
+                });
+        };
     }
 
     fn apply_settings(&mut self) {
@@ -315,7 +363,8 @@ impl<'a> Instrument<'a> {
             self.chord_degrees(),
         );
 
-        for (i, degree) in self.degrees.iter_mut().enumerate() {
+        let last = self.degrees.len() - 1;
+        for (i, degree) in self.degrees[..last].iter_mut().enumerate() {
             if let Some(note) = chord_notes[i] {
                 degree.set_frequency(note.to_freq_f32());
                 degree.enable();
@@ -356,14 +405,18 @@ impl<'a> Degree<'a> {
                 Oscillator::new(wavetable_banks[0], sample_rate),
                 Oscillator::new(wavetable_banks[0], sample_rate),
             ],
-            enabled: true,
+            enabled: false,
         }
     }
 
     pub fn amplitude(&self) -> f32 {
-        match self.detune_config {
-            DetuneConfig::Disabled => 1.0,
-            _ => OSCILLATORS_IN_DEGREE as f32,
+        if self.enabled() {
+            match self.detune_config {
+                DetuneConfig::Disabled => 1.0,
+                _ => OSCILLATORS_IN_DEGREE as f32,
+            }
+        } else {
+            0.0
         }
     }
 
@@ -380,6 +433,10 @@ impl<'a> Degree<'a> {
 
     pub fn enable(&mut self) {
         self.enabled = true;
+    }
+
+    pub fn enabled(&self) -> bool {
+        self.enabled
     }
 
     pub fn disable(&mut self) {
@@ -551,6 +608,7 @@ mod tests {
         instrument.set_scale_root_voct(2.0);
         instrument.set_chord_root_voct(2.5);
         instrument.set_chord_degrees(0.8);
+        instrument.set_solo_voct(Some(3.5));
         instrument.set_wavetable(0.1);
         instrument.set_detune(1.0);
         instrument
@@ -610,6 +668,20 @@ mod tests {
     fn recover_after_chord_root_was_set_below_range() {
         let mut instrument = create_valid_instrument();
         instrument.set_chord_root_voct(-100.0);
+        assert_populate(&mut instrument);
+    }
+
+    #[test]
+    fn recover_after_solo_was_set_above_range() {
+        let mut instrument = create_valid_instrument();
+        instrument.set_solo_voct(Some(100.0));
+        assert_populate(&mut instrument);
+    }
+
+    #[test]
+    fn recover_after_solo_was_set_below_range() {
+        let mut instrument = create_valid_instrument();
+        instrument.set_solo_voct(Some(-100.0));
         assert_populate(&mut instrument);
     }
 
