@@ -73,6 +73,8 @@ const DETUNES: [[DetuneConfig; DEGREES]; 4] = [
 pub struct Instrument<'a> {
     scale_root: DiscreteParameter<Note>,
     scale_mode: DiscreteParameter<scales::diatonic::Mode>,
+    solo: Solo,
+    solo_raw: Option<f32>,
     chord_root_raw: ChordRoot,
     chord_root_degree: u8,
     chord_root_note: DiscreteParameter<Note>,
@@ -87,6 +89,8 @@ impl<'a> Instrument<'a> {
         Self {
             scale_root: DiscreteParameter::new(Note::C1, 0.01),
             scale_mode: DiscreteParameter::new(scales::diatonic::Ionian, 0.001),
+            solo: Solo::Disabled,
+            solo_raw: None,
             chord_root_raw: ChordRoot::Voct(0.0),
             chord_root_note: DiscreteParameter::new(Note::C1, 0.01),
             chord_root_degree: 1,
@@ -176,17 +180,8 @@ impl<'a> Instrument<'a> {
     }
 
     pub fn set_solo_voct(&mut self, voct: Option<f32>) -> Option<Note> {
-        let last = self.degrees.len() - 1;
-        let degree = &mut self.degrees[last];
-
-        if let Some(mut voct) = voct {
-            voct = voct.min(10.0);
-            degree.enable();
-            degree.set_frequency(Note::AMinus1.to_freq_f32() * 2.0.powf(voct));
-        } else {
-            degree.disable();
-        }
-
+        self.solo_raw = voct;
+        self.apply_settings();
         None
     }
 
@@ -364,6 +359,7 @@ impl<'a> Instrument<'a> {
         );
 
         let last = self.degrees.len() - 1;
+
         for (i, degree) in self.degrees[..last].iter_mut().enumerate() {
             if let Some(note) = chord_notes[i] {
                 degree.set_frequency(note.to_freq_f32());
@@ -372,12 +368,30 @@ impl<'a> Instrument<'a> {
                 degree.disable();
             }
         }
+
+        self.solo = if let Some(mut voct) = self.solo_raw {
+            voct = voct.min(10.0);
+            self.degrees[last].enable();
+            let note =
+                quantizer::diatonic::quantize_voct(self.scale_mode(), self.scale_root(), voct).0;
+            self.degrees[last].set_frequency(note.to_freq_f32());
+            // solo_degree.set_frequency(Note::AMinus1.to_freq_f32() * 2.0.powf(voct));
+            Solo::Quantized(note)
+        } else {
+            self.degrees[last].disable();
+            Solo::Disabled
+        };
     }
 }
 
 enum ChordRoot {
     Linear(f32),
     Voct(f32),
+}
+
+enum Solo {
+    Quantized(Note),
+    Disabled,
 }
 
 const OSCILLATORS_IN_DEGREE: usize = 2;
