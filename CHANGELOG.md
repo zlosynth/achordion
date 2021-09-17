@@ -6,6 +6,8 @@ backwards compatibility.
 
 ## Unreleased
 
+* Add 4th voice to the instrument and allow its individual control through CV.
+
 ## 0.12.0
 
 * Align all quantization with white keys. All scales can be now played through
