@@ -16,8 +16,10 @@ pub struct Parameters {
     pub scale_root: f32,
     pub scale_mode: f32,
     pub amplitude: f32,
-    pub calibration_ratio: f32,
-    pub calibration_offset: f32,
+    pub cv1_calibration_ratio: f32,
+    pub cv1_calibration_offset: f32,
+    pub cv2_calibration_ratio: f32,
+    pub cv2_calibration_offset: f32,
 }
 
 impl Default for Parameters {
@@ -32,8 +34,10 @@ impl Default for Parameters {
             scale_root: 0.0,
             scale_mode: 0.0,
             amplitude: 0.0,
-            calibration_ratio: 1.0,
-            calibration_offset: 0.0,
+            cv1_calibration_ratio: 1.0,
+            cv1_calibration_offset: 0.0,
+            cv2_calibration_ratio: 1.0,
+            cv2_calibration_offset: 0.0,
         }
     }
 }
@@ -60,8 +64,10 @@ impl Parameters {
             scale_root: f32_from_bytes!(scale_root),
             scale_mode: f32_from_bytes!(scale_mode),
             amplitude: f32_from_bytes!(amplitude),
-            calibration_ratio: f32_from_bytes!(calibration_ratio),
-            calibration_offset: f32_from_bytes!(calibration_offset),
+            cv1_calibration_ratio: f32_from_bytes!(cv1_calibration_ratio),
+            cv1_calibration_offset: f32_from_bytes!(cv1_calibration_offset),
+            cv2_calibration_ratio: f32_from_bytes!(cv2_calibration_ratio),
+            cv2_calibration_offset: f32_from_bytes!(cv2_calibration_offset),
         }
     }
 
@@ -85,8 +91,10 @@ impl Parameters {
         f32_to_bytes!(scale_root);
         f32_to_bytes!(scale_mode);
         f32_to_bytes!(amplitude);
-        f32_to_bytes!(calibration_ratio);
-        f32_to_bytes!(calibration_offset);
+        f32_to_bytes!(cv1_calibration_ratio);
+        f32_to_bytes!(cv1_calibration_offset);
+        f32_to_bytes!(cv2_calibration_ratio);
+        f32_to_bytes!(cv2_calibration_offset);
 
         bytes
     }
@@ -239,9 +247,11 @@ mod tests {
             scale_root: 0.6,
             scale_mode: 0.7,
             amplitude: 0.8,
-            calibration_ratio: 0.9,
-            calibration_offset: 0.91,
-            solo: 0.92,
+            cv1_calibration_ratio: 0.9,
+            cv1_calibration_offset: 0.91,
+            cv2_calibration_ratio: 0.92,
+            cv2_calibration_offset: 0.93,
+            solo: 0.94,
         };
         let bytes = parameters.to_bytes();
         assert!(Parameters::from_bytes(bytes) == parameters);

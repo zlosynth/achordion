@@ -60,9 +60,18 @@ pub struct Controls {
 
     note_source: NoteSource,
 
+    calibration_target: CalibrationTarget,
     calibration_state: CalibrationState,
 }
 
+#[derive(Clone, Copy)]
+enum CalibrationTarget {
+    Cv1,
+    Cv2,
+    None,
+}
+
+#[derive(Clone, Copy)]
 enum CalibrationState {
     Inactive,
     Entering,
@@ -72,6 +81,7 @@ enum CalibrationState {
     Failed,
 }
 
+#[derive(Clone, Copy)]
 enum NoteSource {
     Cv,
     Pot,
@@ -107,6 +117,7 @@ impl Controls {
 
             note_source: NoteSource::Pot,
 
+            calibration_target: CalibrationTarget::None,
             calibration_state: CalibrationState::Inactive,
         };
 
@@ -274,7 +285,7 @@ impl Controls {
             // Keep the multiplier below 4, so assure that the result won't get
             // into the 5th octave when set on the edge.
             let octave_offset = (pot * 3.95).trunc() - 2.0;
-            let note = self.sample_to_voct(self.cv1.value());
+            let note = self.cv1_sample_to_voct(self.cv1.value());
             self.note_source = NoteSource::Cv;
             note + octave_offset
         } else {
@@ -334,7 +345,7 @@ impl Controls {
 
     fn reconcile_solo(&mut self) {
         self.parameters.solo = if self.cv2.connected() {
-            self.sample_to_voct(self.cv2.value())
+            self.cv2_sample_to_voct(self.cv2.value())
         } else {
             0.0
         };
@@ -363,58 +374,96 @@ impl Controls {
     }
 
     fn reconcile_calibration(&mut self) {
-        if self.cv1.was_unplugged() {
+        if matches!(self.calibration_target, CalibrationTarget::Cv1) && self.cv1.was_unplugged() {
+            self.calibration_target = CalibrationTarget::None;
             self.calibration_state = CalibrationState::Inactive;
-        } else {
-            match self.calibration_state {
-                CalibrationState::Inactive => {
-                    if self.button.active() && self.cv1.was_plugged() {
+        }
+
+        if matches!(self.calibration_target, CalibrationTarget::Cv2) && self.cv2.was_unplugged() {
+            self.calibration_target = CalibrationTarget::None;
+            self.calibration_state = CalibrationState::Inactive;
+        }
+
+        match self.calibration_state {
+            CalibrationState::Inactive => {
+                if self.button.active() {
+                    if self.cv1.was_plugged() {
+                        self.calibration_target = CalibrationTarget::Cv1;
+                        self.calibration_state = CalibrationState::Entering;
+                    } else if self.cv2.was_plugged() {
+                        self.calibration_target = CalibrationTarget::Cv2;
                         self.calibration_state = CalibrationState::Entering;
                     }
                 }
-                CalibrationState::Entering => {
-                    if !self.button.active() {
-                        self.calibration_state = CalibrationState::CalibratingLow;
-                    }
+            }
+            CalibrationState::Entering => {
+                if !self.button.active() {
+                    self.calibration_state = CalibrationState::CalibratingLow;
                 }
-                CalibrationState::CalibratingLow => {
-                    if self.button.clicked() {
-                        let c_a = self.cv1.value() * VOCT_CV_RANGE;
-                        self.calibration_state = CalibrationState::CalibratingHigh(c_a);
-                    }
+            }
+            CalibrationState::CalibratingLow => {
+                if self.button.clicked() {
+                    let c_a = match self.calibration_target {
+                        CalibrationTarget::Cv1 => self.cv1.value() * VOCT_CV_RANGE,
+                        CalibrationTarget::Cv2 => self.cv2.value() * VOCT_CV_RANGE,
+                        _ => unreachable!(),
+                    };
+                    self.calibration_state = CalibrationState::CalibratingHigh(c_a);
                 }
-                CalibrationState::CalibratingHigh(c_a) => {
-                    if self.button.clicked() {
-                        let c_b = self.cv1.value() * VOCT_CV_RANGE;
-                        self.calibration_state = if self.calibrate(c_a, c_b).is_ok() {
+            }
+            CalibrationState::CalibratingHigh(c_a) => {
+                if self.button.clicked() {
+                    let c_b = match self.calibration_target {
+                        CalibrationTarget::Cv1 => self.cv1.value() * VOCT_CV_RANGE,
+                        CalibrationTarget::Cv2 => self.cv2.value() * VOCT_CV_RANGE,
+                        _ => unreachable!(),
+                    };
+                    self.calibration_state =
+                        if self.calibrate(self.calibration_target, c_a, c_b).is_ok() {
                             CalibrationState::Succeeded
                         } else {
                             CalibrationState::Failed
                         };
-                    }
                 }
-                CalibrationState::Succeeded => {
-                    self.calibration_state = CalibrationState::Inactive;
-                }
-                CalibrationState::Failed => {
-                    self.calibration_state = CalibrationState::Inactive;
-                }
+            }
+            CalibrationState::Succeeded => {
+                self.calibration_state = CalibrationState::Inactive;
+            }
+            CalibrationState::Failed => {
+                self.calibration_state = CalibrationState::Inactive;
             }
         }
     }
 
-    fn calibrate(&mut self, c_a: f32, c_b: f32) -> Result<(), ()> {
+    fn calibrate(&mut self, target: CalibrationTarget, c_a: f32, c_b: f32) -> Result<(), ()> {
+        assert!(!matches!(target, CalibrationTarget::None));
+
         if let Ok((calibration_ratio, calibration_offset)) = calculate_calibration(c_a, c_b) {
-            self.parameters.calibration_ratio = calibration_ratio;
-            self.parameters.calibration_offset = calibration_offset;
+            match target {
+                CalibrationTarget::Cv1 => {
+                    self.parameters.cv1_calibration_ratio = calibration_ratio;
+                    self.parameters.cv1_calibration_offset = calibration_offset;
+                }
+                CalibrationTarget::Cv2 => {
+                    self.parameters.cv2_calibration_ratio = calibration_ratio;
+                    self.parameters.cv2_calibration_offset = calibration_offset;
+                }
+                _ => unreachable!(),
+            }
             return Ok(());
         }
+
         Err(())
     }
 
-    fn sample_to_voct(&self, transposed_sample: f32) -> f32 {
+    fn cv1_sample_to_voct(&self, transposed_sample: f32) -> f32 {
         let voct = transposed_sample * VOCT_CV_RANGE;
-        voct * self.parameters.calibration_ratio + self.parameters.calibration_offset
+        voct * self.parameters.cv1_calibration_ratio + self.parameters.cv1_calibration_offset
+    }
+
+    fn cv2_sample_to_voct(&self, transposed_sample: f32) -> f32 {
+        let voct = transposed_sample * VOCT_CV_RANGE;
+        voct * self.parameters.cv2_calibration_ratio + self.parameters.cv2_calibration_offset
     }
 }
 
