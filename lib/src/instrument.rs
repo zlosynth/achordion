@@ -179,10 +179,27 @@ impl<'a> Instrument<'a> {
         }
     }
 
-    pub fn set_solo_voct(&mut self, voct: Option<f32>) -> Option<Note> {
+    pub fn set_solo_voct(&mut self, voct: Option<f32>) -> Option<u8> {
+        let original = if let Solo::Quantized(degree) = self.solo {
+            Some(degree)
+        } else {
+            None
+        };
+
         self.solo_raw = voct;
         self.apply_settings();
-        None
+
+        let updated = if let Solo::Quantized(degree) = self.solo {
+            Some(degree)
+        } else {
+            None
+        };
+
+        if original != updated {
+            updated
+        } else {
+            None
+        }
     }
 
     fn solo_enabled(&self) -> bool {
@@ -372,11 +389,11 @@ impl<'a> Instrument<'a> {
         self.solo = if let Some(mut voct) = self.solo_raw {
             voct = voct.min(10.0);
             self.degrees[last].enable();
-            let note =
-                quantizer::diatonic::quantize_voct(self.scale_mode(), self.scale_root(), voct).0;
+            let (note, degree) =
+                quantizer::diatonic::quantize_voct(self.scale_mode(), self.scale_root(), voct);
             self.degrees[last].set_frequency(note.to_freq_f32());
             // solo_degree.set_frequency(Note::AMinus1.to_freq_f32() * 2.0.powf(voct));
-            Solo::Quantized(note)
+            Solo::Quantized(degree)
         } else {
             self.degrees[last].disable();
             Solo::Disabled
@@ -390,7 +407,7 @@ enum ChordRoot {
 }
 
 enum Solo {
-    Quantized(Note),
+    Quantized(u8),
     Disabled,
 }
 

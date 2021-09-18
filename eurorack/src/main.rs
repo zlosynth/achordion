@@ -254,18 +254,20 @@ fn reconcile_all_changes(
     } else {
         instrument.set_chord_root_voct(controls.note())
     };
+    let new_solo = instrument.set_solo_voct(controls.solo());
     let new_scale_root = instrument.set_scale_root_voct(controls.scale_root());
     let new_scale_mode = instrument.set_scale_mode(controls.scale_mode());
     let new_wavetable = instrument.set_wavetable(controls.wavetable());
     let new_wavetable_bank = instrument.set_wavetable_bank(controls.wavetable_bank());
     let new_degrees = instrument.set_chord_degrees(controls.chord());
     let new_detune = instrument.set_detune(controls.detune());
-    instrument.set_solo_voct(controls.solo());
 
     if let Some(new_degrees) = new_degrees {
         Some(DisplayAction::SetChord(new_degrees))
     } else if let Some(new_chord_root_degree) = new_chord_root_degree {
         Some(DisplayAction::SetChordRootDegree(new_chord_root_degree))
+    } else if let Some(new_solo) = new_solo {
+        Some(DisplayAction::SetSolo(new_solo))
     } else if let Some(new_scale_root) = new_scale_root {
         Some(DisplayAction::SetScaleRoot(new_scale_root))
     } else if let Some(new_scale_mode) = new_scale_mode {
