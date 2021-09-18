@@ -125,6 +125,14 @@ impl Controls {
         self.parameters.note
     }
 
+    pub fn solo(&self) -> Option<f32> {
+        if self.parameters.solo < 0.01 {
+            None
+        } else {
+            Some(self.parameters.solo)
+        }
+    }
+
     pub fn note_from_pot(&self) -> bool {
         matches!(self.note_source, NoteSource::Pot)
     }
@@ -250,6 +258,7 @@ impl Controls {
         self.reconcile_wavetable_bank();
         self.reconcile_chord();
         self.reconcile_detune();
+        self.reconcile_solo();
         self.reconcile_scale_root();
         self.reconcile_scale_mode();
         self.reconcile_calibration();
@@ -323,19 +332,19 @@ impl Controls {
         };
     }
 
-    fn reconcile_scale_root(&mut self) {
-        if self.scale_root_pot_active() {
-            self.last_scale_root_pot_reading = self.pot1.value();
-        }
-        let pot = self.last_scale_root_pot_reading;
-
-        let cv = if self.cv2.connected() {
+    fn reconcile_solo(&mut self) {
+        self.parameters.solo = if self.cv2.connected() {
             self.sample_to_voct(self.cv2.value())
         } else {
             0.0
         };
+    }
 
-        self.parameters.scale_root = cv + pot;
+    fn reconcile_scale_root(&mut self) {
+        if self.scale_root_pot_active() {
+            self.last_scale_root_pot_reading = self.pot1.value();
+        }
+        self.parameters.scale_root = self.last_scale_root_pot_reading;
     }
 
     fn reconcile_scale_mode(&mut self) {

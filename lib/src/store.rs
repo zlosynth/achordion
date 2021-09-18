@@ -8,6 +8,7 @@ const CRC: Crc<u16> = Crc::<u16>::new(&CRC_16_IBM_SDLC);
 #[derive(Clone, Copy, PartialEq)]
 pub struct Parameters {
     pub note: f32,
+    pub solo: f32,
     pub wavetable: f32,
     pub bank: f32,
     pub chord: f32,
@@ -23,6 +24,7 @@ impl Default for Parameters {
     fn default() -> Self {
         Self {
             note: 0.0,
+            solo: 0.0,
             wavetable: 0.0,
             bank: 0.0,
             chord: 0.0,
@@ -50,6 +52,7 @@ impl Parameters {
 
         Parameters {
             note: f32_from_bytes!(note),
+            solo: f32_from_bytes!(solo),
             wavetable: f32_from_bytes!(wavetable),
             bank: f32_from_bytes!(bank),
             chord: f32_from_bytes!(chord),
@@ -74,6 +77,7 @@ impl Parameters {
         }
 
         f32_to_bytes!(note);
+        f32_to_bytes!(solo);
         f32_to_bytes!(wavetable);
         f32_to_bytes!(bank);
         f32_to_bytes!(chord);
@@ -237,6 +241,7 @@ mod tests {
             amplitude: 0.8,
             calibration_ratio: 0.9,
             calibration_offset: 0.91,
+            solo: 0.92,
         };
         let bytes = parameters.to_bytes();
         assert!(Parameters::from_bytes(bytes) == parameters);
