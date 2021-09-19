@@ -7,6 +7,7 @@ backwards compatibility.
 ## Unreleased
 
 * Add 4th voice to the instrument and allow its individual control through CV.
+* List more accurate parts for the V/OCT CV input.
 
 ## 0.12.0
 
