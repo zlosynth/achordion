@@ -211,16 +211,16 @@ const APP: () = {
     fn dsp(cx: dsp::Context) {
         let audio = cx.resources.audio;
 
-        let mut buffer_root = [0.0; BLOCK_LENGTH];
+        let mut buffer_solo = [0.0; BLOCK_LENGTH];
         let mut buffer_chord = [0.0; BLOCK_LENGTH];
 
         cx.resources
             .instrument
-            .populate(&mut buffer_root, &mut buffer_chord);
+            .populate(&mut buffer_solo, &mut buffer_chord);
 
         audio.update_buffer(|buffer| {
             buffer.iter_mut().enumerate().for_each(|(i, x)| {
-                *x = (buffer_root[i] * 0.1, buffer_chord[i] * 0.1);
+                *x = (buffer_solo[i] * 0.1, buffer_chord[i] * 0.1);
             })
         });
     }

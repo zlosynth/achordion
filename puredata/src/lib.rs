@@ -74,7 +74,7 @@ lazy_static! {
 #[repr(C)]
 struct Class<'a> {
     pd_obj: pd_sys::t_object,
-    root_outlet: *mut pd_sys::_outlet,
+    solo_outlet: *mut pd_sys::_outlet,
     chord_outlet: *mut pd_sys::_outlet,
     instrument: Instrument<'a>,
     signal_dummy: f32,
@@ -130,7 +130,7 @@ unsafe extern "C" fn new() -> *mut c_void {
     (*class).instrument = instrument;
 
     pd_sys::outlet_new(&mut (*class).pd_obj, &mut pd_sys::s_signal);
-    (*class).root_outlet = pd_sys::outlet_new(&mut (*class).pd_obj, &mut pd_sys::s_signal);
+    (*class).solo_outlet = pd_sys::outlet_new(&mut (*class).pd_obj, &mut pd_sys::s_signal);
     (*class).chord_outlet = pd_sys::outlet_new(&mut (*class).pd_obj, &mut pd_sys::s_signal);
 
     class as *mut c_void
@@ -206,17 +206,17 @@ fn perform(
     const BUFFER_LEN: usize = 32;
     assert!(outlets[0].len() % BUFFER_LEN == 0);
 
-    let mut buffer_root = [0.0; BUFFER_LEN];
+    let mut buffer_solo = [0.0; BUFFER_LEN];
     let mut buffer_chord = [0.0; BUFFER_LEN];
 
     for chunk_index in 0..outlets[0].len() / BUFFER_LEN {
         class
             .instrument
-            .populate(&mut buffer_root[..], &mut buffer_chord[..]);
+            .populate(&mut buffer_solo[..], &mut buffer_chord[..]);
 
         let start = chunk_index * BUFFER_LEN;
         for i in 0..BUFFER_LEN {
-            outlets[1][start + i] = buffer_root[i];
+            outlets[1][start + i] = buffer_solo[i];
             outlets[2][start + i] = buffer_chord[i];
             outlets[0][start + i] = (outlets[1][start + i] + outlets[2][start + i]) / 2.0;
         }

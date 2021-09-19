@@ -301,8 +301,8 @@ impl<'a> Instrument<'a> {
         self.amplitude = amplitude;
     }
 
-    pub fn populate(&mut self, buffer_root: &mut [f32], buffer_chord: &mut [f32]) {
-        zero_slice(buffer_root);
+    pub fn populate(&mut self, buffer_solo: &mut [f32], buffer_chord: &mut [f32]) {
+        zero_slice(buffer_solo);
         zero_slice(buffer_chord);
 
         // Amplitude of N mixed voices is not N times higher than the one of a
@@ -320,7 +320,7 @@ impl<'a> Instrument<'a> {
         if self.solo_enabled() {
             let solo_degree = self.degrees.len() - 1;
             self.degrees[solo_degree].populate_add(
-                buffer_root,
+                buffer_solo,
                 amplitude * self.degrees[solo_degree].amplitude() / perceived_amplitude,
             );
 
@@ -335,7 +335,7 @@ impl<'a> Instrument<'a> {
                 });
         } else {
             self.degrees[0].populate_add(
-                buffer_root,
+                buffer_solo,
                 amplitude * self.degrees[0].amplitude() / perceived_amplitude,
             );
 
@@ -646,11 +646,11 @@ mod tests {
     }
 
     fn assert_populate(instrument: &mut Instrument) {
-        let mut root_buffer = [-10.0; 64];
+        let mut solo_buffer = [-10.0; 64];
         let mut chord_buffer = [-10.0; 64];
-        instrument.populate(&mut root_buffer, &mut chord_buffer);
+        instrument.populate(&mut solo_buffer, &mut chord_buffer);
 
-        assert!(root_buffer[0].abs() <= 1.0);
+        assert!(solo_buffer[0].abs() <= 1.0);
         assert!(chord_buffer[0].abs() <= 1.0);
     }
 
@@ -776,11 +776,11 @@ mod tests {
         instrument.set_chord_root_voct(2.5);
         instrument.set_chord_degrees(0.0);
 
-        let mut root_buffer = [0.0; 1024];
+        let mut solo_buffer = [0.0; 1024];
         let mut chord_buffer = [0.0; 1024];
-        instrument.populate(&mut root_buffer, &mut chord_buffer);
+        instrument.populate(&mut solo_buffer, &mut chord_buffer);
 
-        assert_centered_around_zero(&root_buffer);
+        assert_centered_around_zero(&solo_buffer);
         assert_centered_around_zero(&chord_buffer);
     }
 
@@ -791,11 +791,11 @@ mod tests {
         instrument.set_chord_degrees(0.0);
         instrument.set_detune(1.0);
 
-        let mut root_buffer = [0.0; 1024];
+        let mut solo_buffer = [0.0; 1024];
         let mut chord_buffer = [0.0; 1024];
-        instrument.populate(&mut root_buffer, &mut chord_buffer);
+        instrument.populate(&mut solo_buffer, &mut chord_buffer);
 
-        assert_centered_around_zero(&root_buffer);
+        assert_centered_around_zero(&solo_buffer);
         assert_centered_around_zero(&chord_buffer);
     }
 
@@ -805,11 +805,11 @@ mod tests {
         instrument.set_chord_root_voct(2.5);
         instrument.set_chord_degrees(1.0);
 
-        let mut root_buffer = [0.0; 1024];
+        let mut solo_buffer = [0.0; 1024];
         let mut chord_buffer = [0.0; 1024];
-        instrument.populate(&mut root_buffer, &mut chord_buffer);
+        instrument.populate(&mut solo_buffer, &mut chord_buffer);
 
-        assert_centered_around_zero(&root_buffer);
+        assert_centered_around_zero(&solo_buffer);
         assert_centered_around_zero(&chord_buffer);
     }
 
