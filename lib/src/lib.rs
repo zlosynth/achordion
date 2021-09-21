@@ -11,6 +11,7 @@ extern crate lazy_static;
 #[macro_use]
 extern crate approx;
 
+pub mod bank;
 pub mod display;
 pub mod instrument;
 pub mod probe;

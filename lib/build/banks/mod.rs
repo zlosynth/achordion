@@ -1,7 +1,6 @@
 mod generator;
 mod harsh;
 mod perfect;
-mod processing;
 mod saving;
 mod soft;
 mod vocal;
