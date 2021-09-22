@@ -104,11 +104,11 @@ const APP: () = {
             .reconcile_controls(cx.start + CV_PERIOD.cycles())
             .unwrap();
 
-        let mut audio = system.audio;
-        audio.spawn();
-
         let mut instrument = Instrument::new(&WAVETABLE_BANKS[..], SAMPLE_RATE);
         instrument.set_amplitude(0.0);
+
+        let mut audio = system.audio;
+        audio.spawn();
         cx.spawn.fade_in().unwrap();
 
         cx.spawn.backup_collector(0).unwrap();
