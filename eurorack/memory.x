@@ -47,4 +47,18 @@ SECTIONS
 
         PROVIDE(__sdram_bss_end = _esdram_bss);
     } > SDRAM
+
+    .sram (NOLOAD) :
+    {
+        . = ALIGN(4);
+        _ssram = .;
+
+        PROVIDE(__sram_start__ = _sram);
+        *(.sram)
+        *(.sram*)
+        . = ALIGN(4);
+        _esram = .;
+
+        PROVIDE(__sram_end__ = _esram);
+    } > SRAM
 }

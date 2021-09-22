@@ -8,6 +8,10 @@ backwards compatibility.
 
 * Add 4th voice to the instrument and allow its individual control through CV.
 * List more accurate parts for the V/OCT CV input.
+* Instead of pre-calculating bandlimited wavetables and storing them in flash,
+  filter them during runtime initialization and store them in SRAM. This allows
+  to fit more banks into eurorack and also to higher optimization.
+* Reintroduce vowel wavetable bank into eurorack module.
 
 ## 0.12.0
 

@@ -3,6 +3,7 @@ extern crate lazy_static;
 
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
 
+use achordion_lib::bank;
 use achordion_lib::instrument::Instrument;
 use achordion_lib::waveform;
 use achordion_lib::wavetable::Wavetable;
@@ -10,10 +11,24 @@ use achordion_lib::wavetable::Wavetable;
 const SAMPLE_RATE: u32 = 44_100;
 
 lazy_static! {
-    static ref BANK_A: [Wavetable<'static>; 1] = [Wavetable::new(
-        &waveform::perfect::PERFECT_3_FACTORS,
-        SAMPLE_RATE
-    )];
+    static ref FACTORS: bank::factor::Factors =
+        bank::factor::Factors::from_raw(&waveform::perfect::PERFECT_3);
+    static ref FACTORS_REF: [&'static [u16]; 11] = {
+        [
+            &FACTORS.factor1,
+            &FACTORS.factor2,
+            &FACTORS.factor4,
+            &FACTORS.factor8,
+            &FACTORS.factor16,
+            &FACTORS.factor32,
+            &FACTORS.factor64,
+            &FACTORS.factor128,
+            &FACTORS.factor256,
+            &FACTORS.factor512,
+            &FACTORS.factor1024,
+        ]
+    };
+    static ref BANK_A: [Wavetable<'static>; 1] = [Wavetable::new(&*FACTORS_REF, SAMPLE_RATE)];
     static ref WAVETABLE_BANKS: [&'static [Wavetable<'static>]; 1] = [&BANK_A[..]];
 }
 
