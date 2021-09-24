@@ -57,6 +57,13 @@ const APP: () = {
     /// Initialize all the peripherals.
     #[init(schedule = [reconcile_controls], spawn = [fade_in, backup_collector])]
     fn init(cx: init::Context) -> init::LateResources {
+        // Wavetable banks must be initialized before the system. Otherwise,
+        // system initalized DAC before we are able to serve data (due to banks
+        // taking substantial amout time to initialize) and that produces loud
+        // pop.
+        let mut instrument = Instrument::new(&WAVETABLE_BANKS[..], SAMPLE_RATE);
+        instrument.set_amplitude(0.0);
+
         let system = System::init(cx.core, cx.device);
 
         let mut storage = Storage::new(system.flash);
@@ -103,9 +110,6 @@ const APP: () = {
         cx.schedule
             .reconcile_controls(cx.start + CV_PERIOD.cycles())
             .unwrap();
-
-        let mut instrument = Instrument::new(&WAVETABLE_BANKS[..], SAMPLE_RATE);
-        instrument.set_amplitude(0.0);
 
         let mut audio = system.audio;
         audio.spawn();
