@@ -22,15 +22,24 @@ micromath = "1.1"
 nb = "1"
 
 # Requires custom branch with QSPI and split ADC
+# TODO: HAL extended with QSPI support introduced by
+# https://github.com/stm32-rs/stm32h7xx-hal/pull/230 and rebased on the current
+# master. Once this PR gets in, start using the original distribution.
 [dependencies.stm32h7xx-hal]
 git = "https://github.com/phoracek/stm32h7xx-hal"
-branch = "async_adc_stable"
+rev = "bacb2588dd7e7ff04523d80a08a0a0e500d3679f"
 features = [ "stm32h750v", "rt", "revision_v" ]
 
 # Requires custom branch with QSPI and split ADC
+# TODO: BSP extended with Flash drivers
+# https://github.com/antoinevg/daisy_bsp/pull/4, using rebased version of
+# https://github.com/stm32-rs/stm32h7xx-hal/pull/230. Once the HAL PR gets
+# merged, BSP PR should be rebased. This BSP rebase also fixes broken
+# constructor API introduced in HAL 0.11.0, that too should be fixed once the PR
+# gets in or once 0.11.0 comes out.
 [dependencies.daisy_bsp]
 git = "https://github.com/phoracek/daisy_bsp"
-rev = "99dcd44b16f1b619996e2546e9c56c47341e5364"
+rev = "f9317496948cea7bf02b2a84b04a8d870beb8886"
 
 [[bin]]
 name = "achordion-eurorack"

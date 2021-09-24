@@ -16,7 +16,7 @@ dependencies = [
  "micromath",
  "nb 1.0.0",
  "panic-halt",
- "stm32h7xx-hal 0.9.0 (git+https://github.com/phoracek/stm32h7xx-hal?branch=async_adc_stable)",
+ "stm32h7xx-hal",
  "typenum",
 ]
 
@@ -201,13 +201,13 @@ checksum = "7313c0d620d0cb4dbd9d019e461a4beb501071ff46ec0ab933efb4daa76d73e3"
 [[package]]
 name = "daisy_bsp"
 version = "0.4.2"
-source = "git+https://github.com/phoracek/daisy_bsp?rev=99dcd44b16f1b619996e2546e9c56c47341e5364#99dcd44b16f1b619996e2546e9c56c47341e5364"
+source = "git+https://github.com/phoracek/daisy_bsp?rev=f9317496948cea7bf02b2a84b04a8d870beb8886#f9317496948cea7bf02b2a84b04a8d870beb8886"
 dependencies = [
  "cortex-m 0.7.3",
  "cortex-m-rt",
  "cortex-m-semihosting",
  "cty",
- "stm32h7xx-hal 0.9.0 (git+https://github.com/phoracek/stm32h7xx-hal?rev=b755ee26c78c4ab6f3bc7c0f5ae2f30f459b5c93)",
+ "stm32h7xx-hal",
 ]
 
 [[package]]
@@ -511,25 +511,8 @@ dependencies = [
 
 [[package]]
 name = "stm32h7xx-hal"
-version = "0.9.0"
-source = "git+https://github.com/phoracek/stm32h7xx-hal?branch=async_adc_stable#b755ee26c78c4ab6f3bc7c0f5ae2f30f459b5c93"
-dependencies = [
- "bare-metal 1.0.0",
- "cast",
- "cortex-m 0.7.3",
- "cortex-m-rt",
- "embedded-dma",
- "embedded-hal",
- "nb 1.0.0",
- "paste",
- "stm32h7",
- "void",
-]
-
-[[package]]
-name = "stm32h7xx-hal"
-version = "0.9.0"
-source = "git+https://github.com/phoracek/stm32h7xx-hal?rev=b755ee26c78c4ab6f3bc7c0f5ae2f30f459b5c93#b755ee26c78c4ab6f3bc7c0f5ae2f30f459b5c93"
+version = "0.10.0"
+source = "git+https://github.com/phoracek/stm32h7xx-hal?rev=bacb2588dd7e7ff04523d80a08a0a0e500d3679f#bacb2588dd7e7ff04523d80a08a0a0e500d3679f"
 dependencies = [
  "bare-metal 1.0.0",
  "cast",
