@@ -6,6 +6,8 @@ backwards compatibility.
 
 ## Unreleased
 
+## 0.13.0
+
 * Add 4th voice to the instrument and allow its individual control through CV.
 * List more accurate parts for the V/OCT CV input.
 * Instead of pre-calculating bandlimited wavetables and storing them in flash,

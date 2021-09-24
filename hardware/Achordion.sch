@@ -6,7 +6,7 @@ encoding utf-8
 Sheet 1 1
 Title "Achordion"
 Date "2021-04-22"
-Rev "v0.12.0"
+Rev "v0.13.0"
 Comp "Petr Horáček"
 Comment1 "hrck@protonmail.com"
 Comment2 "https://github.com/zlosynth/achordion"
