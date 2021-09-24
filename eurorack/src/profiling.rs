@@ -4,6 +4,7 @@
 ///
 /// A: Daisy pin 1, PB12
 /// B: Daisy pin 2, PC11
+/// C: Daisy pin 3, PC10
 #[macro_export]
 macro_rules! profile {
     (a, on) => {{
