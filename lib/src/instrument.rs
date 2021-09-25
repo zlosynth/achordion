@@ -95,7 +95,25 @@ const CHORDS_C: [[i8; CHORD_DEGREES]; 18] = [
     [1, 4, 7],
 ];
 
-const STYLES: [&[[i8; CHORD_DEGREES]]; 3] = [&CHORDS_A, &CHORDS_B, &CHORDS_C];
+const CHORDS_D: [[i8; CHORD_DEGREES]; 15] = [
+    [1, 3, 5],
+    [1, 3 - 8, 5],
+    [1, 3 - 8, 7],
+    [1, 3, 7],
+    [1, 3, 5 - 8],
+    [1, 2, 5 - 8],
+    [1, 2, 7],
+    [1, 4 - 8, 7],
+    [1, 4 - 8, 5],
+    [1, 4, 5],
+    [1, 4, 5 - 8],
+    [1, 5 - 8, 7],
+    [1, 2 - 8, 7],
+    [1, 2 - 8, 5],
+    [1, 2, 5],
+];
+
+const STYLES: [&[[i8; CHORD_DEGREES]]; 4] = [&CHORDS_A, &CHORDS_B, &CHORDS_C, &CHORDS_D];
 
 const DETUNES: [[DetuneConfig; DEGREES]; 4] = [
     [

@@ -11,6 +11,7 @@ backwards compatibility.
   +- 2 octaves is selected.
 * Add a new play style which opens chords note by note. This could be used with
   ADSR connected to chord input to play more human-like.
+* Add a new play mode which contains inversions of chords around the root.
 
 ## 0.13.0
 
