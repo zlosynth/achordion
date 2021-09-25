@@ -36,7 +36,8 @@ const CHORDS_A: [[i8; CHORD_DEGREES]; 15] = [
     [-6, 1, 5],
 ];
 
-const CHORDS_B: [[i8; CHORD_DEGREES]; 27] = [
+const CHORDS_B: [[i8; CHORD_DEGREES]; 29] = [
+    [1, -15, 0],
     [1, -14, 0],
     [1, -13, 0],
     [1, -12, 0],
@@ -64,6 +65,7 @@ const CHORDS_B: [[i8; CHORD_DEGREES]; 27] = [
     [1, 12, 0],
     [1, 13, 0],
     [1, 14, 0],
+    [1, 15, 0],
 ];
 
 const STYLES: [&[[i8; CHORD_DEGREES]]; 2] = [&CHORDS_A, &CHORDS_B];

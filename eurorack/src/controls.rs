@@ -56,6 +56,7 @@ pub struct Controls {
     last_wavetable_pot_reading: f32,
     last_scale_root_pot_reading: f32,
     last_chord_pot_reading: f32,
+    last_detune_pot_reading: f32,
     last_scale_mode_pot_reading: f32,
 
     note_source: NoteSource,
@@ -113,6 +114,7 @@ impl Controls {
             last_wavetable_pot_reading: 0.0,
             last_scale_root_pot_reading: 0.0,
             last_chord_pot_reading: 0.0,
+            last_detune_pot_reading: 0.0,
             last_scale_mode_pot_reading: 0.0,
 
             note_source: NoteSource::Pot,
@@ -154,6 +156,10 @@ impl Controls {
 
     pub fn chord(&self) -> f32 {
         self.parameters.chord
+    }
+
+    pub fn style(&self) -> f32 {
+        self.parameters.style
     }
 
     pub fn detune(&self) -> f32 {
@@ -198,6 +204,10 @@ impl Controls {
 
     pub fn chord_pot_active(&self) -> bool {
         !self.button.active() && self.pot3.active()
+    }
+
+    pub fn style_pot_active(&self) -> bool {
+        self.button.active() && self.pot3.active()
     }
 
     pub fn detune_pot_active(&self) -> bool {
@@ -268,6 +278,7 @@ impl Controls {
         self.reconcile_wavetable();
         self.reconcile_wavetable_bank();
         self.reconcile_chord();
+        self.reconcile_style();
         self.reconcile_detune();
         self.reconcile_solo();
         self.reconcile_scale_root();
@@ -329,6 +340,12 @@ impl Controls {
             (chord + offset).min(0.9999).max(0.0)
         } else {
             pot
+        };
+    }
+
+    fn reconcile_style(&mut self) {
+        if self.style_pot_active() {
+            self.parameters.style = self.pot3.value();
         };
     }
 

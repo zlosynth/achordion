@@ -266,6 +266,8 @@ fn reconcile_all_changes(
     let new_degrees = instrument.set_chord_degrees(controls.chord());
     let new_detune = instrument.set_detune(controls.detune());
 
+    instrument.set_style(controls.style());
+
     if let Some(new_degrees) = new_degrees {
         Some(DisplayAction::SetChord(new_degrees))
     } else if let Some(new_chord_root_degree) = new_chord_root_degree {

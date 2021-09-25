@@ -12,6 +12,7 @@ pub struct Parameters {
     pub wavetable: f32,
     pub bank: f32,
     pub chord: f32,
+    pub style: f32,
     pub detune: f32,
     pub scale_root: f32,
     pub scale_mode: f32,
@@ -30,6 +31,7 @@ impl Default for Parameters {
             wavetable: 0.0,
             bank: 0.0,
             chord: 0.0,
+            style: 0.0,
             detune: 0.0,
             scale_root: 0.0,
             scale_mode: 0.0,
@@ -60,6 +62,7 @@ impl Parameters {
             wavetable: f32_from_bytes!(wavetable),
             bank: f32_from_bytes!(bank),
             chord: f32_from_bytes!(chord),
+            style: f32_from_bytes!(style),
             detune: f32_from_bytes!(detune),
             scale_root: f32_from_bytes!(scale_root),
             scale_mode: f32_from_bytes!(scale_mode),
@@ -87,6 +90,7 @@ impl Parameters {
         f32_to_bytes!(wavetable);
         f32_to_bytes!(bank);
         f32_to_bytes!(chord);
+        f32_to_bytes!(style);
         f32_to_bytes!(detune);
         f32_to_bytes!(scale_root);
         f32_to_bytes!(scale_mode);
@@ -252,6 +256,7 @@ mod tests {
             cv2_calibration_ratio: 0.92,
             cv2_calibration_offset: 0.93,
             solo: 0.94,
+            style: 0.95,
         };
         let bytes = parameters.to_bytes();
         assert!(Parameters::from_bytes(bytes) == parameters);
