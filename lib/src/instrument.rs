@@ -875,10 +875,10 @@ mod tests {
         let mut instrument = create_valid_instrument();
         instrument.set_chord_degrees(0.0);
 
-        let new_degrees = instrument.set_chord_degrees(0.4);
+        let new_degrees = instrument.set_chord_degrees(0.41);
         assert!(new_degrees.is_some());
 
-        let new_degrees = instrument.set_chord_degrees(0.4);
+        let new_degrees = instrument.set_chord_degrees(0.41);
         assert!(new_degrees.is_none());
     }
 
