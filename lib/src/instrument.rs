@@ -18,7 +18,7 @@ const SOLO_DEGREE: usize = 1;
 const CHORD_DEGREES: usize = 3;
 const DEGREES: usize = CHORD_DEGREES + SOLO_DEGREE;
 
-const CHORDS_A: [[i8; CHORD_DEGREES]; 16] = [
+const CHORDS_A: [[i8; CHORD_DEGREES]; 21] = [
     [1, 0, 0],
     [1, 3, 5],
     [1, 2, 5],
@@ -27,14 +27,19 @@ const CHORDS_A: [[i8; CHORD_DEGREES]; 16] = [
     [1, 3, 7],
     [1, 4, 7],
     [1, 2, 7],
+    [1, 3, 9],
+    [1, 4, 9],
     [1, 5, 9],
-    [1, 2, 9],
-    [1, 7 + 5, 7 + 3],
-    [1, 7 + 7, 7 + 3],
-    [1, 7 + 9, 7 + 3],
-    [1, 3, 5],
-    [-4, 1, 3],
-    [-6, 1, 5],
+    [1, 7 + 3, 5],
+    [1, 7 + 2, 5],
+    [1, 7 + 4, 5],
+    [1, 7 + 5, 7],
+    [1, 7 + 3, 7],
+    [1, 7 + 4, 7],
+    [1, 7 + 2, 7],
+    [1, 7 + 3, 9],
+    [1, 7 + 4, 9],
+    [1, 7 + 5, 9],
 ];
 
 const CHORDS_B: [[i8; CHORD_DEGREES]; 29] = [
