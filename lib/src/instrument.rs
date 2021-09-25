@@ -437,7 +437,12 @@ impl<'a> Instrument<'a> {
 
         for (i, degree) in self.degrees[..last].iter_mut().enumerate() {
             if let Some(note) = chord_notes[i] {
-                degree.set_frequency(note.to_freq_f32());
+                let frequency = if is_already_used(chord_notes, i) {
+                    note.to_freq_f32() * 1.001
+                } else {
+                    note.to_freq_f32()
+                };
+                degree.set_frequency(frequency);
                 degree.enable();
             } else {
                 degree.disable();
@@ -457,6 +462,15 @@ impl<'a> Instrument<'a> {
             Solo::Disabled
         };
     }
+}
+
+fn is_already_used(chord_notes: [Option<Note>; CHORD_DEGREES], index: usize) -> bool {
+    for degree in chord_notes[..index].iter() {
+        if *degree == chord_notes[index] {
+            return true;
+        }
+    }
+    false
 }
 
 enum ChordRoot {
