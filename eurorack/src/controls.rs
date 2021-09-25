@@ -201,7 +201,7 @@ impl Controls {
     }
 
     pub fn detune_pot_active(&self) -> bool {
-        self.pot4.active()
+        !self.button.active() && self.pot4.active()
     }
 
     pub fn scale_mode_pot_active(&self) -> bool {
@@ -333,13 +333,18 @@ impl Controls {
     }
 
     fn reconcile_detune(&mut self) {
+        if !self.button.active() {
+            self.last_detune_pot_reading = self.pot4.value();
+        };
+        let pot = self.last_detune_pot_reading;
+
         self.parameters.detune = if self.cv5.connected() {
             // CV is centered around zero, suited for LFO.
             let detune = self.cv5.value() * 2.0 - 1.0;
-            let offset = self.pot4.value();
+            let offset = pot;
             (detune + offset).min(0.9999).max(0.0)
         } else {
-            self.pot4.value()
+            pot
         };
     }
 
