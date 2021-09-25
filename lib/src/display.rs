@@ -1107,6 +1107,24 @@ mod tests {
     }
 
     #[test]
+    fn reduce_style_2() {
+        let state = reduce(Action::SetStyle(2));
+        assert_eq!(
+            state,
+            State {
+                led1: false,
+                led2: false,
+                led3: false,
+                led4: false,
+                led5: true,
+                led6: true,
+                led7: false,
+                led_sharp: false,
+            }
+        )
+    }
+
+    #[test]
     fn reduce_wavetable_low() {
         let state = reduce(Action::SetWavetable(0.0));
         assert_eq!(

@@ -9,6 +9,8 @@ backwards compatibility.
 * Introduce "style" setting to switch between different approaches to select
   harmonies. This also introduces alternative to chords where a simple interval
   +- 2 octaves is selected.
+* Add a new play style which opens chords note by note. This could be used with
+  ADSR connected to chord input to play more human-like.
 
 ## 0.13.0
 
