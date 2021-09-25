@@ -196,16 +196,16 @@ impl Controls {
         self.button.active() && self.pot1.active()
     }
 
-    pub fn scale_mode_pot_active(&self) -> bool {
-        self.button.active() && self.pot3.active()
-    }
-
     pub fn chord_pot_active(&self) -> bool {
         !self.button.active() && self.pot3.active()
     }
 
     pub fn detune_pot_active(&self) -> bool {
         self.pot4.active()
+    }
+
+    pub fn scale_mode_pot_active(&self) -> bool {
+        self.button.active() && self.pot4.active()
     }
 
     pub fn calibration_waiting_low(&self) -> bool {
@@ -360,7 +360,7 @@ impl Controls {
 
     fn reconcile_scale_mode(&mut self) {
         if self.scale_mode_pot_active() {
-            self.last_scale_mode_pot_reading = self.pot3.value();
+            self.last_scale_mode_pot_reading = self.pot4.value();
         }
         let pot = self.last_scale_mode_pot_reading;
 
