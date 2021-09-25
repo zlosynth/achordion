@@ -243,12 +243,25 @@ impl<'a> Instrument<'a> {
         self.chord_root_degree
     }
 
-    pub fn set_style(&mut self, style: f32) {
+    pub fn set_style(&mut self, style: f32) -> Option<usize> {
+        let original = self.style();
+
         self.style_index.set(
             ((self.style_index.offset_raw(style) * STYLES.len() as f32) as usize)
                 .min(STYLES.len() - 1),
         );
         self.set_chord_degrees(self.chord_degrees_raw);
+
+        let updated = self.style();
+        if original != updated {
+            Some(updated)
+        } else {
+            None
+        }
+    }
+
+    pub fn style(&self) -> usize {
+        *self.style_index
     }
 
     pub fn set_chord_degrees(&mut self, chord_degrees: f32) -> Option<[i8; CHORD_DEGREES]> {
@@ -818,6 +831,20 @@ mod tests {
         assert_populate(&mut instrument);
     }
 
+    #[test]
+    fn recover_after_style_was_set_above_range() {
+        let mut instrument = create_valid_instrument();
+        instrument.set_style(10.0);
+        assert_populate(&mut instrument);
+    }
+
+    #[test]
+    fn recover_after_style_was_set_below_range() {
+        let mut instrument = create_valid_instrument();
+        instrument.set_style(-10.0);
+        assert_populate(&mut instrument);
+    }
+
     fn assert_centered_around_zero(data: &[f32]) {
         let min = data.iter().fold(f32::MAX, |a, b| a.min(*b));
         let max = data.iter().fold(f32::MIN, |a, b| a.max(*b));
@@ -1059,5 +1086,18 @@ mod tests {
         let (_, new_detune_phase) = instrument.detune();
 
         assert!(old_detune_phase != new_detune_phase);
+    }
+
+    #[test]
+    fn get_style() {
+        let mut instrument = create_valid_instrument();
+
+        instrument.set_detune(0.0);
+        let (old_style, _) = instrument.detune();
+
+        instrument.set_detune(0.9);
+        let (new_style, _) = instrument.detune();
+
+        assert!(old_style != new_style);
     }
 }

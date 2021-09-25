@@ -262,11 +262,10 @@ fn reconcile_all_changes(
     let new_scale_root = instrument.set_scale_root_voct(controls.scale_root());
     let new_scale_mode = instrument.set_scale_mode(controls.scale_mode());
     let new_wavetable = instrument.set_wavetable(controls.wavetable());
+    let new_style = instrument.set_style(controls.style());
     let new_wavetable_bank = instrument.set_wavetable_bank(controls.wavetable_bank());
     let new_degrees = instrument.set_chord_degrees(controls.chord());
     let new_detune = instrument.set_detune(controls.detune());
-
-    instrument.set_style(controls.style());
 
     if let Some(new_degrees) = new_degrees {
         Some(DisplayAction::SetChord(new_degrees))
@@ -282,6 +281,8 @@ fn reconcile_all_changes(
         Some(DisplayAction::SetWavetableBank(new_wavetable_bank))
     } else if let Some(new_wavetable) = new_wavetable {
         Some(DisplayAction::SetWavetable(new_wavetable))
+    } else if let Some(new_style) = new_style {
+        Some(DisplayAction::SetStyle(new_style))
     } else if let Some((new_detune_index, new_detune_phase)) = new_detune {
         Some(DisplayAction::SetDetune(new_detune_index, new_detune_phase))
     } else {
@@ -311,6 +312,9 @@ fn reconcile_pot_activity(
     } else if controls.wavetable_pot_active() {
         let wavetable = instrument.wavetable();
         Some(DisplayAction::SetWavetable(wavetable))
+    } else if controls.style_pot_active() {
+        let style = instrument.style();
+        Some(DisplayAction::SetStyle(style))
     } else if controls.detune_pot_active() {
         let (detune_index, detune_phase) = instrument.detune();
         Some(DisplayAction::SetDetune(detune_index, detune_phase))

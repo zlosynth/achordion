@@ -10,6 +10,7 @@ pub enum Action {
     SetSolo(u8),
     SetWavetableBank(usize),
     SetWavetable(f32),
+    SetStyle(usize),
     SetDetune(usize, f32),
     SetCalibration(CalibrationPhase),
 }
@@ -73,6 +74,7 @@ pub fn reduce(action: Action) -> State {
         Action::SetSolo(degree) => reduce_set_degree(degree),
         Action::SetWavetableBank(bank_index) => reduce_set_wavetable_bank(bank_index),
         Action::SetWavetable(wavetable_phase) => reduce_set_wavetable(wavetable_phase),
+        Action::SetStyle(style_index) => reduce_set_style(style_index),
         Action::SetDetune(index, phase) => reduce_set_detune(index, phase),
         Action::SetCalibration(phase) => reduce_set_calibration(phase),
     }
@@ -180,6 +182,19 @@ fn reduce_set_wavetable(phase: f32) -> State {
 
     let index = (phase * 7.999) as usize;
     state_array[index] = true;
+
+    state_array.into()
+}
+
+fn reduce_set_style(style_index: usize) -> State {
+    debug_assert!(style_index < 4);
+
+    let mut state_array = [false; 8];
+
+    if style_index < 4 {
+        state_array[style_index * 2] = true;
+        state_array[style_index * 2 + 1] = true;
+    }
 
     state_array.into()
 }
@@ -1051,6 +1066,42 @@ mod tests {
                 led6: false,
                 led7: true,
                 led_sharp: true,
+            }
+        )
+    }
+
+    #[test]
+    fn reduce_style_0() {
+        let state = reduce(Action::SetStyle(0));
+        assert_eq!(
+            state,
+            State {
+                led1: true,
+                led2: true,
+                led3: false,
+                led4: false,
+                led5: false,
+                led6: false,
+                led7: false,
+                led_sharp: false,
+            }
+        )
+    }
+
+    #[test]
+    fn reduce_style_1() {
+        let state = reduce(Action::SetStyle(1));
+        assert_eq!(
+            state,
+            State {
+                led1: false,
+                led2: false,
+                led3: true,
+                led4: true,
+                led5: false,
+                led6: false,
+                led7: false,
+                led_sharp: false,
             }
         )
     }
