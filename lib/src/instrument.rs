@@ -18,7 +18,7 @@ const SOLO_DEGREE: usize = 1;
 const CHORD_DEGREES: usize = 3;
 const DEGREES: usize = CHORD_DEGREES + SOLO_DEGREE;
 
-const CHORDS: [[i8; CHORD_DEGREES]; 22] = [
+const CHORDS_A: [[i8; CHORD_DEGREES]; 22] = [
     [1, 0, 0],
     [1, 2, 0],
     [1, 3, 0],
@@ -42,6 +42,38 @@ const CHORDS: [[i8; CHORD_DEGREES]; 22] = [
     [-4, 1, 3],
     [-6, 1, 5],
 ];
+
+const CHORDS_B: [[i8; CHORD_DEGREES]; 27] = [
+    [1, -14, 0],
+    [1, -13, 0],
+    [1, -12, 0],
+    [1, -11, 0],
+    [1, -10, 0],
+    [1, -9, 0],
+    [1, -8, 0],
+    [1, -7, 0],
+    [1, -6, 0],
+    [1, -5, 0],
+    [1, -4, 0],
+    [1, -3, 0],
+    [1, -2, 0],
+    [1, 1, 0],
+    [1, 2, 0],
+    [1, 3, 0],
+    [1, 4, 0],
+    [1, 5, 0],
+    [1, 6, 0],
+    [1, 7, 0],
+    [1, 8, 0],
+    [1, 9, 0],
+    [1, 10, 0],
+    [1, 11, 0],
+    [1, 12, 0],
+    [1, 13, 0],
+    [1, 14, 0],
+];
+
+const STYLES: [&[[i8; CHORD_DEGREES]]; 2] = [&CHORDS_A, &CHORDS_B];
 
 const DETUNES: [[DetuneConfig; DEGREES]; 4] = [
     [
@@ -79,7 +111,9 @@ pub struct Instrument<'a> {
     chord_root_degree: u8,
     chord_root_note: DiscreteParameter<Note>,
     chord_degrees_index: DiscreteParameter<usize>,
+    chord_degrees_raw: f32,
     selected_detune_index: DiscreteParameter<usize>,
+    style_index: DiscreteParameter<usize>,
     amplitude: f32,
     degrees: [Degree<'a>; DEGREES],
 }
@@ -95,7 +129,9 @@ impl<'a> Instrument<'a> {
             chord_root_note: DiscreteParameter::new(Note::C1, 0.01),
             chord_root_degree: 1,
             chord_degrees_index: DiscreteParameter::new(0, 0.001),
+            chord_degrees_raw: 0.0,
             selected_detune_index: DiscreteParameter::new(0, 0.001),
+            style_index: DiscreteParameter::new(0, 0.001),
             amplitude: 1.0,
             degrees: [
                 Degree::new(wavetable_banks, sample_rate),
@@ -211,12 +247,24 @@ impl<'a> Instrument<'a> {
         self.chord_root_degree
     }
 
+    pub fn set_style(&mut self, style: f32) {
+        self.style_index.set(
+            ((self.style_index.offset_raw(style) * STYLES.len() as f32) as usize)
+                .min(STYLES.len() - 1),
+        );
+        self.set_chord_degrees(self.chord_degrees_raw);
+    }
+
     pub fn set_chord_degrees(&mut self, chord_degrees: f32) -> Option<[i8; CHORD_DEGREES]> {
+        self.chord_degrees_raw = chord_degrees;
+
         let original = *self.chord_degrees_index;
 
+        let chords = STYLES[*self.style_index];
+
         self.chord_degrees_index.set(
-            ((self.chord_degrees_index.offset_raw(chord_degrees) * CHORDS.len() as f32) as usize)
-                .min(CHORDS.len() - 1),
+            ((self.chord_degrees_index.offset_raw(chord_degrees) * chords.len() as f32) as usize)
+                .min(chords.len() - 1),
         );
         self.apply_settings();
 
@@ -228,7 +276,8 @@ impl<'a> Instrument<'a> {
     }
 
     pub fn chord_degrees(&self) -> [i8; CHORD_DEGREES] {
-        CHORDS[*self.chord_degrees_index]
+        let chords = STYLES[*self.style_index];
+        chords[*self.chord_degrees_index]
     }
 
     pub fn set_wavetable_bank(&mut self, wavetable_bank: f32) -> Option<usize> {

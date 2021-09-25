@@ -6,6 +6,10 @@ backwards compatibility.
 
 ## Unreleased
 
+* Introduce "style" setting to switch between different approaches to select
+  harmonies. This also introduces alternative to chords where a simple interval
+  +- 2 octaves is selected.
+
 ## 0.13.0
 
 * Add 4th voice to the instrument and allow its individual control through CV.

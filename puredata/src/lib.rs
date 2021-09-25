@@ -184,6 +184,7 @@ pub unsafe extern "C" fn achordion_tilde_setup() {
     register_float_method(class, "wavetable_bank", set_wavetable_bank);
     register_float_method(class, "wavetable", set_wavetable);
     register_float_method(class, "detune", set_detune);
+    register_float_method(class, "style", set_style);
 }
 
 unsafe fn create_class() -> *mut pd_sys::_class {
@@ -276,6 +277,10 @@ unsafe extern "C" fn set_wavetable(class: *mut Class, value: pd_sys::t_float) {
 
 unsafe extern "C" fn set_detune(class: *mut Class, value: pd_sys::t_float) {
     (*class).instrument.set_detune(value.clamp(0.0, 1.0));
+}
+
+unsafe extern "C" fn set_style(class: *mut Class, value: pd_sys::t_float) {
+    (*class).instrument.set_style(value.clamp(0.0, 1.0));
 }
 
 fn perform(
