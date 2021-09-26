@@ -10,7 +10,7 @@ pub enum Action {
     SetSolo(u8),
     SetWavetableBank(usize),
     SetWavetable(f32),
-    SetStyle(usize),
+    SetStyle(usize, bool),
     SetDetune(usize, f32),
     SetCalibration(CalibrationPhase),
 }
@@ -74,7 +74,9 @@ pub fn reduce(action: Action) -> State {
         Action::SetSolo(degree) => reduce_set_degree(degree),
         Action::SetWavetableBank(bank_index) => reduce_set_wavetable_bank(bank_index),
         Action::SetWavetable(wavetable_phase) => reduce_set_wavetable(wavetable_phase),
-        Action::SetStyle(style_index) => reduce_set_style(style_index),
+        Action::SetStyle(chord_style_index, solo_quantization) => {
+            reduce_set_style(chord_style_index, solo_quantization)
+        }
         Action::SetDetune(index, phase) => reduce_set_detune(index, phase),
         Action::SetCalibration(phase) => reduce_set_calibration(phase),
     }
@@ -186,15 +188,16 @@ fn reduce_set_wavetable(phase: f32) -> State {
     state_array.into()
 }
 
-fn reduce_set_style(style_index: usize) -> State {
-    debug_assert!(style_index < 4);
+fn reduce_set_style(chord_style_index: usize, solo_quantization: bool) -> State {
+    debug_assert!(chord_style_index < 4);
 
     let mut state_array = [false; 8];
 
-    if style_index < 4 {
-        state_array[style_index * 2] = true;
-        state_array[style_index * 2 + 1] = true;
-    }
+    state_array[chord_style_index * 2] = true;
+    state_array[1] = solo_quantization;
+    state_array[3] = solo_quantization;
+    state_array[5] = solo_quantization;
+    state_array[7] = solo_quantization;
 
     state_array.into()
 }
@@ -1071,73 +1074,37 @@ mod tests {
     }
 
     #[test]
-    fn reduce_style_0() {
-        let state = reduce(Action::SetStyle(0));
+    fn reduce_style_0_quantized() {
+        let state = reduce(Action::SetStyle(0, true));
         assert_eq!(
             state,
             State {
                 led1: true,
                 led2: true,
                 led3: false,
-                led4: false,
-                led5: false,
-                led6: false,
-                led7: false,
-                led_sharp: false,
-            }
-        )
-    }
-
-    #[test]
-    fn reduce_style_1() {
-        let state = reduce(Action::SetStyle(1));
-        assert_eq!(
-            state,
-            State {
-                led1: false,
-                led2: false,
-                led3: true,
                 led4: true,
                 led5: false,
-                led6: false,
-                led7: false,
-                led_sharp: false,
-            }
-        )
-    }
-
-    #[test]
-    fn reduce_style_2() {
-        let state = reduce(Action::SetStyle(2));
-        assert_eq!(
-            state,
-            State {
-                led1: false,
-                led2: false,
-                led3: false,
-                led4: false,
-                led5: true,
                 led6: true,
                 led7: false,
-                led_sharp: false,
+                led_sharp: true,
             }
         )
     }
 
     #[test]
-    fn reduce_style_3() {
-        let state = reduce(Action::SetStyle(3));
+    fn reduce_style_0_not_quantized() {
+        let state = reduce(Action::SetStyle(0, false));
         assert_eq!(
             state,
             State {
-                led1: false,
+                led1: true,
                 led2: false,
                 led3: false,
                 led4: false,
                 led5: false,
                 led6: false,
-                led7: true,
-                led_sharp: true,
+                led7: false,
+                led_sharp: false,
             }
         )
     }
