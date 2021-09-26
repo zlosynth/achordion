@@ -3,7 +3,7 @@ use crate::scales::diatonic::Mode;
 
 #[derive(Clone, Copy)]
 pub enum Action {
-    SetChord([i8; 3]),
+    SetChord([i8; 5]),
     SetScaleRoot(Note),
     SetScaleMode(Mode),
     SetChordRootDegree(u8),
@@ -80,7 +80,7 @@ pub fn reduce(action: Action) -> State {
     }
 }
 
-fn reduce_set_chord(chord: [i8; 3]) -> State {
+fn reduce_set_chord(chord: [i8; 5]) -> State {
     let mut state_array = [false; 8];
 
     for degree in chord {
@@ -262,7 +262,7 @@ mod tests {
 
     #[test]
     fn reduce_single_tone_chord() {
-        let state = reduce(Action::SetChord([1, 0, 0]));
+        let state = reduce(Action::SetChord([1, 0, 0, 0, 0]));
         assert_eq!(
             state,
             State {
@@ -280,7 +280,7 @@ mod tests {
 
     #[test]
     fn reduce_simple_fifth_chord() {
-        let state = reduce(Action::SetChord([1, 3, 5]));
+        let state = reduce(Action::SetChord([1, 3, 5, 0, 0]));
         assert_eq!(
             state,
             State {
@@ -297,8 +297,26 @@ mod tests {
     }
 
     #[test]
+    fn reduce_simple_ninth_chord() {
+        let state = reduce(Action::SetChord([1, 3, 5, 7, 9]));
+        assert_eq!(
+            state,
+            State {
+                led1: true,
+                led2: true,
+                led3: true,
+                led4: false,
+                led5: true,
+                led6: false,
+                led7: true,
+                led_sharp: false,
+            }
+        )
+    }
+
+    #[test]
     fn reduce_simple_seventh_chord() {
-        let state = reduce(Action::SetChord([1, 3, 7]));
+        let state = reduce(Action::SetChord([1, 3, 5, 7, 0]));
         assert_eq!(
             state,
             State {
@@ -306,7 +324,7 @@ mod tests {
                 led2: false,
                 led3: true,
                 led4: false,
-                led5: false,
+                led5: true,
                 led6: false,
                 led7: true,
                 led_sharp: false,
@@ -316,7 +334,7 @@ mod tests {
 
     #[test]
     fn reduce_simple_sus_chord() {
-        let state = reduce(Action::SetChord([1, 2, 5]));
+        let state = reduce(Action::SetChord([1, 2, 5, 0, 0]));
         assert_eq!(
             state,
             State {
@@ -334,7 +352,7 @@ mod tests {
 
     #[test]
     fn reduce_chord_with_negative_root() {
-        let state = reduce(Action::SetChord([-2, 2, 5]));
+        let state = reduce(Action::SetChord([-2, 2, 5, 0, 0]));
         assert_eq!(
             state,
             State {
@@ -352,7 +370,7 @@ mod tests {
 
     #[test]
     fn reduce_chord_spanning_multiple_octaves_positive() {
-        let state = reduce(Action::SetChord([1, 5, 10]));
+        let state = reduce(Action::SetChord([1, 5, 10, 0, 0]));
         assert_eq!(
             state,
             State {
@@ -370,7 +388,7 @@ mod tests {
 
     #[test]
     fn reduce_chord_spanning_multiple_octaves_negative() {
-        let state = reduce(Action::SetChord([1, -3, -13]));
+        let state = reduce(Action::SetChord([1, -3, -13, 0, 0]));
         assert_eq!(
             state,
             State {
@@ -388,7 +406,7 @@ mod tests {
 
     #[test]
     fn reduce_chord_spanning_multiple_octaves_with_unisono() {
-        let state = reduce(Action::SetChord([1, 8, -15]));
+        let state = reduce(Action::SetChord([1, 8, -15, 0, 0]));
         assert_eq!(
             state,
             State {

@@ -12,6 +12,8 @@ backwards compatibility.
 * Add a new play style which opens chords note by note. This could be used with
   ADSR connected to chord input to play more human-like.
 * Add a new play mode which contains inversions of chords around the root.
+* Increase the maximum number of chord degrees to 5 and populate the default
+  chord style with some nineth chords.
 
 ## 0.13.0
 
