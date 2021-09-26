@@ -282,7 +282,7 @@ fn reconcile_all_changes(
     } else if let Some(new_wavetable) = new_wavetable {
         Some(DisplayAction::SetWavetable(new_wavetable))
     } else if let Some(new_style) = new_style {
-        Some(DisplayAction::SetStyle(new_style.0, new_style.1))
+        Some(DisplayAction::SetStyle(new_style))
     } else if let Some((new_detune_index, new_detune_phase)) = new_detune {
         Some(DisplayAction::SetDetune(new_detune_index, new_detune_phase))
     } else {
@@ -314,7 +314,7 @@ fn reconcile_pot_activity(
         Some(DisplayAction::SetWavetable(wavetable))
     } else if controls.style_pot_active() {
         let style = instrument.style();
-        Some(DisplayAction::SetStyle(style.0, style.1))
+        Some(DisplayAction::SetStyle(style))
     } else if controls.detune_pot_active() {
         let (detune_index, detune_phase) = instrument.detune();
         Some(DisplayAction::SetDetune(detune_index, detune_phase))

@@ -147,7 +147,6 @@ pub struct Instrument<'a> {
     scale_mode: DiscreteParameter<scales::diatonic::Mode>,
     solo: Solo,
     solo_raw: Option<f32>,
-    solo_quantization: bool,
     chord_root_raw: ChordRoot,
     chord_root_degree: u8,
     chord_root_note: DiscreteParameter<Note>,
@@ -155,7 +154,6 @@ pub struct Instrument<'a> {
     chord_degrees_raw: f32,
     selected_detune_index: DiscreteParameter<usize>,
     style_index: DiscreteParameter<usize>,
-    chord_style_index: usize,
     amplitude: f32,
     degrees: [Degree<'a>; DEGREES],
 }
@@ -167,7 +165,6 @@ impl<'a> Instrument<'a> {
             scale_mode: DiscreteParameter::new(scales::diatonic::Ionian, 0.001),
             solo: Solo::Disabled,
             solo_raw: None,
-            solo_quantization: false,
             chord_root_raw: ChordRoot::Voct(0.0),
             chord_root_note: DiscreteParameter::new(Note::C1, 0.01),
             chord_root_degree: 1,
@@ -175,7 +172,6 @@ impl<'a> Instrument<'a> {
             chord_degrees_raw: 0.0,
             selected_detune_index: DiscreteParameter::new(0, 0.001),
             style_index: DiscreteParameter::new(0, 0.001),
-            chord_style_index: 0,
             amplitude: 1.0,
             degrees: [
                 Degree::new(wavetable_banks, sample_rate),
@@ -260,33 +256,25 @@ impl<'a> Instrument<'a> {
     }
 
     pub fn set_solo_voct(&mut self, voct: Option<f32>) -> Option<u8> {
-        let original = self.solo;
+        let original = if let Solo::Quantized(degree) = self.solo {
+            Some(degree)
+        } else {
+            None
+        };
 
         self.solo_raw = voct;
         self.apply_settings();
 
-        let updated = self.solo;
+        let updated = if let Solo::Quantized(degree) = self.solo {
+            Some(degree)
+        } else {
+            None
+        };
 
-        match (original, updated) {
-            (Solo::Quantized(degree_a), Solo::Quantized(degree_b)) => {
-                if degree_a != degree_b {
-                    Some(degree_b)
-                } else {
-                    None
-                }
-            }
-            (Solo::Linear(degree_a, voct_a), Solo::Linear(degree_b, voct_b)) => {
-                if degree_a != degree_b || (voct_b - voct_a).abs() > 0.5 / 12.0 {
-                    Some(degree_b)
-                } else {
-                    None
-                }
-            }
-            (Solo::Quantized(_), Solo::Linear(degree, _)) => Some(degree),
-            (Solo::Linear(_, _), Solo::Quantized(degree)) => Some(degree),
-            (Solo::Disabled, Solo::Quantized(degree)) => Some(degree),
-            (Solo::Disabled, Solo::Linear(degree, _)) => Some(degree),
-            (_, Solo::Disabled) => None,
+        if original != updated {
+            updated
+        } else {
+            None
         }
     }
 
@@ -299,16 +287,13 @@ impl<'a> Instrument<'a> {
         self.chord_root_degree
     }
 
-    pub fn set_style(&mut self, style: f32) -> Option<(usize, bool)> {
+    pub fn set_style(&mut self, style: f32) -> Option<usize> {
         let original = self.style();
 
         self.style_index.set(
-            ((self.style_index.offset_raw(style) * (STYLES.len() * 2) as f32) as usize)
-                .min(STYLES.len() * 2 - 1),
+            ((self.style_index.offset_raw(style) * STYLES.len() as f32) as usize)
+                .min(STYLES.len() - 1),
         );
-        self.chord_style_index = *self.style_index / 2;
-        self.solo_quantization = *self.style_index % 2 == 1;
-
         self.set_chord_degrees(self.chord_degrees_raw);
 
         let updated = self.style();
@@ -319,8 +304,8 @@ impl<'a> Instrument<'a> {
         }
     }
 
-    pub fn style(&self) -> (usize, bool) {
-        (self.chord_style_index, self.solo_quantization)
+    pub fn style(&self) -> usize {
+        *self.style_index
     }
 
     pub fn set_chord_degrees(&mut self, chord_degrees: f32) -> Option<[i8; CHORD_DEGREES]> {
@@ -328,7 +313,7 @@ impl<'a> Instrument<'a> {
 
         let original = *self.chord_degrees_index;
 
-        let chords = STYLES[self.chord_style_index];
+        let chords = STYLES[*self.style_index];
 
         self.chord_degrees_index.set(
             ((self.chord_degrees_index.offset_raw(chord_degrees) * chords.len() as f32) as usize)
@@ -344,7 +329,7 @@ impl<'a> Instrument<'a> {
     }
 
     pub fn chord_degrees(&self) -> [i8; CHORD_DEGREES] {
-        let chords = STYLES[self.chord_style_index];
+        let chords = STYLES[*self.style_index];
         chords[*self.chord_degrees_index]
     }
 
@@ -513,15 +498,9 @@ impl<'a> Instrument<'a> {
             self.degrees[last].enable();
             let (note, degree) =
                 quantizer::diatonic::quantize_voct(self.scale_mode(), self.scale_root(), voct);
-
-            if self.solo_quantization {
-                self.degrees[last].set_frequency(note.to_freq_f32());
-                Solo::Quantized(degree)
-            } else {
-                let frequency = Note::CMinus1.to_freq_f32() * 2.0.powf(voct);
-                self.degrees[last].set_frequency(frequency);
-                Solo::Linear(degree, voct)
-            }
+            self.degrees[last].set_frequency(note.to_freq_f32());
+            // solo_degree.set_frequency(Note::AMinus1.to_freq_f32() * 2.0.powf(voct));
+            Solo::Quantized(degree)
         } else {
             self.degrees[last].disable();
             Solo::Disabled
@@ -538,16 +517,13 @@ fn is_already_used(chord_notes: [Option<Note>; CHORD_DEGREES], index: usize) -> 
     false
 }
 
-#[derive(Clone, Copy, PartialEq)]
 enum ChordRoot {
     Linear(f32),
     Voct(f32),
 }
 
-#[derive(Clone, Copy, PartialEq)]
 enum Solo {
     Quantized(u8),
-    Linear(u8, f32),
     Disabled,
 }
 
