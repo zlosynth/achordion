@@ -6,6 +6,9 @@ backwards compatibility.
 
 ## Unreleased
 
+* Speed up boot time of the module.
+* Display progress of the boot on module's display.
+
 ## 0.14.0
 
 * Introduce "style" setting to switch between different approaches to select
