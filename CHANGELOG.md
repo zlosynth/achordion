@@ -6,6 +6,8 @@ backwards compatibility.
 
 ## Unreleased
 
+## 0.14.0
+
 * Introduce "style" setting to switch between different approaches to select
   harmonies. This also introduces alternative to chords where a simple interval
   +- 2 octaves is selected.
