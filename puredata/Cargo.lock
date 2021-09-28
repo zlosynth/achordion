@@ -21,7 +21,6 @@ version = "0.14.0"
 dependencies = [
  "achordion-lib",
  "field-offset",
- "lazy_static",
  "pd-sys",
 ]
 

@@ -16,7 +16,6 @@ cortex-m-rtic = "0.5.6"
 cortex-m-semihosting = "0.3"
 panic-halt = "0.2.0"
 typenum = "1"
-lazy_static = { version = "1.4", features = [ "spin_no_std" ] }
 achordion-lib = { path = "../lib" }
 micromath = "1.1"
 nb = "1"

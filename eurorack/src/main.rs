@@ -15,9 +15,6 @@ mod system;
 #[macro_use]
 mod profiling;
 
-#[macro_use]
-extern crate lazy_static;
-
 use panic_halt as _;
 
 #[allow(unused_imports)]
@@ -61,7 +58,11 @@ const APP: () = {
         // system initalized DAC before we are able to serve data (due to banks
         // taking substantial amout time to initialize) and that produces loud
         // pop.
-        let mut instrument = Instrument::new(&WAVETABLE_BANKS[..], SAMPLE_RATE);
+        bank::setup();
+        let mut instrument = Instrument::new(
+            unsafe { &WAVETABLE_BANKS.as_ref().unwrap()[..] },
+            SAMPLE_RATE,
+        );
         instrument.set_amplitude(0.0);
 
         let system = System::init(cx.core, cx.device);

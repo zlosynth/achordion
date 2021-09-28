@@ -12,7 +12,6 @@ dependencies = [
  "cortex-m-rtic",
  "cortex-m-semihosting",
  "daisy_bsp",
- "lazy_static",
  "micromath",
  "nb 1.0.0",
  "panic-halt",
