@@ -97,7 +97,7 @@ const APP: () = {
             parameters,
         );
 
-        let display = Display::new(DisplayConfig {
+        let mut display = Display::new(DisplayConfig {
             led1: system.leds.led4,
             led2: system.leds.led8,
             led3: system.leds.led3,

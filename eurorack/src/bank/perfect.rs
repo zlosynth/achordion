@@ -3,6 +3,7 @@ use achordion_lib::waveform;
 use achordion_lib::wavetable::Wavetable;
 
 use super::FactorsRef;
+use super::Progress;
 use crate::system::audio::SAMPLE_RATE;
 
 #[link_section = ".sram"]
@@ -23,19 +24,23 @@ static mut FACTORS_3_REF: Option<FactorsRef> = None;
 
 pub static mut BANK: Option<[Wavetable<'static>; 4]> = None;
 
-pub fn setup() {
+pub fn setup(progress: &mut Progress) {
     unsafe {
         FACTORS_0 = Some(Factors::from_raw(&waveform::perfect::PERFECT_0));
         FACTORS_0_REF = Some(factors_ref!(FACTORS_0));
+        progress.tick();
 
         FACTORS_1 = Some(Factors::from_raw(&waveform::perfect::PERFECT_1));
         FACTORS_1_REF = Some(factors_ref!(FACTORS_1));
+        progress.tick();
 
         FACTORS_2 = Some(Factors::from_raw(&waveform::perfect::PERFECT_2));
         FACTORS_2_REF = Some(factors_ref!(FACTORS_2));
+        progress.tick();
 
         FACTORS_3 = Some(Factors::from_raw(&waveform::perfect::PERFECT_3));
         FACTORS_3_REF = Some(factors_ref!(FACTORS_3));
+        progress.tick();
 
         BANK = Some([
             Wavetable::new(FACTORS_0_REF.as_ref().unwrap(), SAMPLE_RATE),

@@ -1,4 +1,4 @@
-use achordion_lib::display::State as DisplayState;
+pub use achordion_lib::display::State as DisplayState;
 
 use crate::system::{Led1, Led2, Led3, Led4, Led5, Led6, Led7, Led8};
 
