@@ -48,23 +48,12 @@ const APP: () = {
         storage: Storage,
         input_activity: InputActivity,
         audio: Audio<'static>,
-        instrument: Instrument<'static>,
+        instrument: Option<Instrument<'static>>,
     }
 
     /// Initialize all the peripherals.
-    #[init(schedule = [reconcile_controls], spawn = [fade_in, backup_collector])]
+    #[init(spawn = [initialize])]
     fn init(cx: init::Context) -> init::LateResources {
-        // Wavetable banks must be initialized before the system. Otherwise,
-        // system initalized DAC before we are able to serve data (due to banks
-        // taking substantial amout time to initialize) and that produces loud
-        // pop.
-        bank::setup();
-        let mut instrument = Instrument::new(
-            unsafe { &WAVETABLE_BANKS.as_ref().unwrap()[..] },
-            SAMPLE_RATE,
-        );
-        instrument.set_amplitude(0.0);
-
         let system = System::init(cx.core, cx.device);
 
         let mut storage = Storage::new(system.flash);
@@ -97,7 +86,7 @@ const APP: () = {
             parameters,
         );
 
-        let mut display = Display::new(DisplayConfig {
+        let display = Display::new(DisplayConfig {
             led1: system.leds.led4,
             led2: system.leds.led8,
             led3: system.leds.led3,
@@ -108,24 +97,59 @@ const APP: () = {
             led_sharp: system.leds.led5,
         });
 
-        cx.schedule
-            .reconcile_controls(cx.start + CV_PERIOD.cycles())
-            .unwrap();
-
         let mut audio = system.audio;
         audio.spawn();
-        cx.spawn.fade_in().unwrap();
 
-        cx.spawn.backup_collector(0).unwrap();
+        cx.spawn.initialize().unwrap();
 
         init::LateResources {
             controls,
             display,
             audio,
             storage,
-            instrument,
+            instrument: None,
             input_activity: InputActivity::new(),
         }
+    }
+
+    #[task(schedule = [reconcile_controls], spawn = [fade_in, backup_collector], resources = [display, instrument], priority = 2)]
+    fn initialize(mut cx: initialize::Context) {
+        let mut display = cx.resources.display;
+        bank::setup(&mut display);
+
+        let mut instrument = Instrument::new(
+            unsafe { &WAVETABLE_BANKS.as_ref().unwrap()[..] },
+            SAMPLE_RATE,
+        );
+        instrument.set_amplitude(0.0);
+
+        cx.resources
+            .instrument
+            .lock(|resource| *resource = Some(instrument));
+
+        cx.schedule
+            .reconcile_controls(Instant::now() + CV_PERIOD.cycles())
+            .unwrap();
+        cx.spawn.fade_in().unwrap();
+        cx.spawn.backup_collector(0).unwrap();
+    }
+
+    #[task(binds = DMA1_STR1, priority = 3, resources = [audio, instrument])]
+    fn dsp(cx: dsp::Context) {
+        let audio = cx.resources.audio;
+
+        let mut buffer_solo = [0.0; BLOCK_LENGTH];
+        let mut buffer_chord = [0.0; BLOCK_LENGTH];
+
+        if let Some(instrument) = cx.resources.instrument {
+            instrument.populate(&mut buffer_solo, &mut buffer_chord);
+        }
+
+        audio.update_buffer(|buffer| {
+            buffer.iter_mut().enumerate().for_each(|(i, x)| {
+                *x = (buffer_solo[i] * 0.1, buffer_chord[i] * 0.1);
+            })
+        });
     }
 
     #[task(schedule = [fade_in], resources = [instrument], priority = 2)]
@@ -133,6 +157,7 @@ const APP: () = {
         let mut amplitude = 0.0;
 
         cx.resources.instrument.lock(|instrument| {
+            let instrument = instrument.as_mut().unwrap();
             amplitude = instrument.amplitude() + 0.01;
             instrument.set_amplitude(amplitude.min(1.0));
         });
@@ -153,6 +178,8 @@ const APP: () = {
         controls.update();
 
         cx.resources.instrument.lock(|instrument| {
+            let instrument = instrument.as_mut().unwrap();
+
             let calibration_action = reconcile_calibration(controls);
             let any_action = reconcile_all_changes(controls, instrument);
             let pot_action = reconcile_pot_activity(controls, instrument);
@@ -210,24 +237,6 @@ const APP: () = {
                 version.wrapping_add(1),
             )
             .unwrap();
-    }
-
-    #[task(binds = DMA1_STR1, priority = 3, resources = [audio, instrument])]
-    fn dsp(cx: dsp::Context) {
-        let audio = cx.resources.audio;
-
-        let mut buffer_solo = [0.0; BLOCK_LENGTH];
-        let mut buffer_chord = [0.0; BLOCK_LENGTH];
-
-        cx.resources
-            .instrument
-            .populate(&mut buffer_solo, &mut buffer_chord);
-
-        audio.update_buffer(|buffer| {
-            buffer.iter_mut().enumerate().for_each(|(i, x)| {
-                *x = (buffer_solo[i] * 0.1, buffer_chord[i] * 0.1);
-            })
-        });
     }
 
     extern "C" {
