@@ -9,6 +9,7 @@ backwards compatibility.
 * Speed up boot time of the module.
 * Display progress of the boot on module's display.
 * Exponentially fade in on boot.
+* Increase the Note pot range to 6 octaves, extending in both directions.
 
 ## 0.14.0
 

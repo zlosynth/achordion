@@ -301,7 +301,7 @@ impl Controls {
             note + octave_offset
         } else {
             self.note_source = NoteSource::Pot;
-            pot * 4.0 + 3.0 + 0.7 / 7.0
+            pot * 6.0 + 2.0 + 0.7 / 7.0
         };
     }
 
