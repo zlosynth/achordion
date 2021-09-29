@@ -10,6 +10,7 @@ backwards compatibility.
 * Display progress of the boot on module's display.
 * Exponentially fade in on boot.
 * Increase the Note pot range to 6 octaves, extending in both directions.
+* Make eurorack module louder.
 
 ## 0.14.0
 
