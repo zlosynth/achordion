@@ -158,7 +158,11 @@ const APP: () = {
 
         cx.resources.instrument.lock(|instrument| {
             let instrument = instrument.as_mut().unwrap();
-            amplitude = instrument.amplitude() + 0.01;
+            amplitude = if instrument.amplitude() < 0.00005 {
+                0.0001
+            } else {
+                instrument.amplitude() * 1.05
+            };
             instrument.set_amplitude(amplitude.min(1.0));
         });
 

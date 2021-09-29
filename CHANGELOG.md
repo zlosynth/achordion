@@ -8,6 +8,7 @@ backwards compatibility.
 
 * Speed up boot time of the module.
 * Display progress of the boot on module's display.
+* Exponentially fade in on boot.
 
 ## 0.14.0
 
