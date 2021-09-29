@@ -32,31 +32,46 @@ pub static mut WAVETABLE_BANKS: Option<[&'static [Wavetable<'static>]; 4]> = Non
 pub struct Progress<'a> {
     display: &'a mut Display,
     phase: usize,
+    total: usize,
 }
 
 impl<'a> Progress<'a> {
-    pub fn new(display: &'a mut Display) -> Self {
-        Self { display, phase: 0 }
+    pub fn new(display: &'a mut Display, total: usize) -> Self {
+        display.set(DisplayState {
+            led1: false,
+            led2: false,
+            led3: false,
+            led4: false,
+            led5: false,
+            led6: false,
+            led7: false,
+            led_sharp: false,
+        });
+        Self {
+            display,
+            phase: 0,
+            total,
+        }
     }
 
     pub fn tick(&mut self) {
         self.display.set(DisplayState {
-            led1: self.phase == 0,
-            led2: self.phase == 7,
-            led3: self.phase == 1,
-            led4: self.phase == 6,
-            led5: self.phase == 2,
-            led6: self.phase == 5,
-            led7: self.phase == 3,
-            led_sharp: self.phase == 4,
+            led1: self.phase as f32 / self.total as f32 > 0.2,
+            led2: self.phase as f32 / self.total as f32 > 0.2,
+            led3: self.phase as f32 / self.total as f32 > 0.45,
+            led4: self.phase as f32 / self.total as f32 > 0.45,
+            led5: self.phase as f32 / self.total as f32 > 0.7,
+            led6: self.phase as f32 / self.total as f32 > 0.7,
+            led7: self.phase as f32 / self.total as f32 > 0.95,
+            led_sharp: self.phase as f32 / self.total as f32 > 0.95,
         });
-        self.phase = (self.phase + 1) % 8;
+        self.phase += 1;
     }
 }
 
 pub fn setup(display: &mut Display) {
-    let mut progress = Progress::new(display);
-    progress.tick();
+    let total = perfect::len() + harsh::len() + soft::len() + vocal::len();
+    let mut progress = Progress::new(display, total);
 
     perfect::setup(&mut progress);
     harsh::setup(&mut progress);

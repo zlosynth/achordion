@@ -50,3 +50,7 @@ pub fn setup(progress: &mut Progress) {
         ]);
     }
 }
+
+pub fn len() -> usize {
+    4
+}
