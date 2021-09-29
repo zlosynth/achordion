@@ -161,7 +161,7 @@ const APP: () = {
             amplitude = if instrument.amplitude() < 0.00005 {
                 0.0001
             } else {
-                instrument.amplitude() * 1.05
+                instrument.amplitude() * 1.1
             };
             instrument.set_amplitude(amplitude.min(1.0));
         });
