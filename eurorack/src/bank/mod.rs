@@ -56,14 +56,14 @@ impl<'a> Progress<'a> {
 
     pub fn tick(&mut self) {
         self.display.set(DisplayState {
-            led1: self.phase as f32 / self.total as f32 > 0.2,
-            led2: self.phase as f32 / self.total as f32 > 0.2,
-            led3: self.phase as f32 / self.total as f32 > 0.45,
-            led4: self.phase as f32 / self.total as f32 > 0.45,
-            led5: self.phase as f32 / self.total as f32 > 0.7,
-            led6: self.phase as f32 / self.total as f32 > 0.7,
-            led7: self.phase as f32 / self.total as f32 > 0.95,
-            led_sharp: self.phase as f32 / self.total as f32 > 0.95,
+            led1: self.phase as f32 / self.total as f32 > 0.1,
+            led2: self.phase as f32 / self.total as f32 > 0.1,
+            led3: self.phase as f32 / self.total as f32 > 0.3,
+            led4: self.phase as f32 / self.total as f32 > 0.3,
+            led5: self.phase as f32 / self.total as f32 > 0.6,
+            led6: self.phase as f32 / self.total as f32 > 0.6,
+            led7: self.phase as f32 / self.total as f32 > 0.8,
+            led_sharp: self.phase as f32 / self.total as f32 > 0.8,
         });
         self.phase += 1;
     }
