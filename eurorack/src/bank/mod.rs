@@ -18,8 +18,8 @@ macro_rules! factors_ref {
 
 mod harsh;
 mod perfect;
+mod sins;
 mod soft;
-mod vocal;
 
 use achordion_lib::wavetable::Wavetable;
 
@@ -70,20 +70,20 @@ impl<'a> Progress<'a> {
 }
 
 pub fn setup(display: &mut Display) {
-    let total = perfect::len() + harsh::len() + soft::len() + vocal::len();
+    let total = perfect::len() + harsh::len() + soft::len() + sins::len();
     let mut progress = Progress::new(display, total);
 
     perfect::setup(&mut progress);
     harsh::setup(&mut progress);
     soft::setup(&mut progress);
-    vocal::setup(&mut progress);
+    sins::setup(&mut progress);
 
     unsafe {
         WAVETABLE_BANKS = Some([
             &perfect::BANK.as_ref().unwrap()[..],
             &harsh::BANK.as_ref().unwrap()[..],
             &soft::BANK.as_ref().unwrap()[..],
-            &vocal::BANK.as_ref().unwrap()[..],
+            &sins::BANK.as_ref().unwrap()[..],
         ]);
     }
 }

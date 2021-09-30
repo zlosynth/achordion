@@ -18,6 +18,7 @@ macro_rules! factors_ref {
 
 mod harsh;
 mod perfect;
+mod sins;
 mod soft;
 mod vocal;
 
@@ -25,13 +26,14 @@ use achordion_lib::wavetable::Wavetable;
 
 type FactorsRef = [&'static [u16]; 11];
 
-pub static mut WAVETABLE_BANKS: Option<[&'static [Wavetable<'static>]; 4]> = None;
+pub static mut WAVETABLE_BANKS: Option<[&'static [Wavetable<'static>]; 5]> = None;
 
 pub fn setup() {
     perfect::setup();
     harsh::setup();
     soft::setup();
     vocal::setup();
+    sins::setup();
 
     unsafe {
         WAVETABLE_BANKS = Some([
@@ -39,6 +41,7 @@ pub fn setup() {
             &harsh::BANK.as_ref().unwrap()[..],
             &soft::BANK.as_ref().unwrap()[..],
             &vocal::BANK.as_ref().unwrap()[..],
+            &sins::BANK.as_ref().unwrap()[..],
         ]);
     }
 }

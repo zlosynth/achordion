@@ -2,6 +2,7 @@ mod generator;
 mod harsh;
 mod perfect;
 mod saving;
+mod sins;
 mod soft;
 mod vocal;
 
@@ -13,4 +14,5 @@ pub fn register(module: &mut File, package: &Path) {
     harsh::register(module, package);
     soft::register(module, package);
     vocal::register(module, package);
+    sins::register(module, package);
 }

@@ -11,6 +11,7 @@ backwards compatibility.
 * Exponentially fade in on boot.
 * Increase the Note pot range to 6 octaves, extending in both directions.
 * Make eurorack module louder.
+* Replace vowel bank with sine multiple and sum sequences.
 
 ## 0.14.0
 
