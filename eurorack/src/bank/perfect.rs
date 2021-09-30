@@ -22,7 +22,8 @@ static mut FACTORS_2_REF: Option<FactorsRef> = None;
 static mut FACTORS_3: Option<Factors> = None;
 static mut FACTORS_3_REF: Option<FactorsRef> = None;
 
-pub static mut BANK: Option<[Wavetable<'static>; 4]> = None;
+const BANK_SIZE: usize = 4;
+pub static mut BANK: Option<[Wavetable<'static>; BANK_SIZE]> = None;
 
 pub fn setup(progress: &mut Progress) {
     unsafe {
@@ -52,5 +53,5 @@ pub fn setup(progress: &mut Progress) {
 }
 
 pub fn len() -> usize {
-    4
+    BANK_SIZE
 }
