@@ -11,6 +11,10 @@ make
 # run benchmark
 cargo bench --bench bench
 
+# check size of firmware
+cargo size -- -m
+cargo size -- -A
+
 # run the module via pure data
 make puredata
 
