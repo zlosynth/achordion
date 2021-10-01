@@ -17,6 +17,7 @@ cortex-m-semihosting = "0.3"
 panic-halt = "0.2.0"
 typenum = "1"
 achordion-lib = { path = "../lib" }
+achordion-bank = { path = "../bank" }
 micromath = "1.1"
 nb = "1"
 

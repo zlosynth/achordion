@@ -3,9 +3,19 @@
 version = 3
 
 [[package]]
+name = "achordion-bank"
+version = "0.14.0"
+dependencies = [
+ "micromath",
+ "sirena",
+ "wav",
+]
+
+[[package]]
 name = "achordion-eurorack"
 version = "0.14.0"
 dependencies = [
+ "achordion-bank",
  "achordion-lib",
  "cortex-m 0.7.3",
  "cortex-m-rt",
@@ -28,8 +38,6 @@ dependencies = [
  "heapless",
  "lazy_static",
  "micromath",
- "sirena",
- "wav",
 ]
 
 [[package]]

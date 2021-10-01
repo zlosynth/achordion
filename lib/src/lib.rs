@@ -11,12 +11,10 @@ extern crate lazy_static;
 #[macro_use]
 extern crate approx;
 
-pub mod bank;
 pub mod display;
 pub mod instrument;
 pub mod probe;
 pub mod store;
-pub mod waveform;
 pub mod wavetable;
 
 mod chords;

@@ -1,5 +1,5 @@
-use achordion_lib::bank::factor::Factors;
-use achordion_lib::waveform;
+use achordion_bank::factor::Factors;
+use achordion_bank::waveform;
 use achordion_lib::wavetable::Wavetable;
 
 use super::FactorsRef;

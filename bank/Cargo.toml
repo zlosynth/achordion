@@ -1,0 +1,22 @@
+[package]
+authors = ["Petr Horáček <hrck@protonmail.com>"]
+edition = "2018"
+name = "achordion-bank"
+version = "0.14.0" # hack/release.sh
+license = "GPL-3.0-or-later"
+description = "Wavetable banks and their processing."
+repository = "https://github.com/zlosynth/achordion"
+readme = "../README.md"
+publish = false
+build = "build/main.rs"
+
+[dependencies]
+micromath = "1.1"
+
+[build-dependencies]
+wav = "1"
+
+[dependencies.sirena]
+git = "https://github.com/zlosynth/sirena"
+rev = "52ebc6c0e82804a3aced22d04effb04af6cd2646"
+default-features = false

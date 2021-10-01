@@ -6,7 +6,7 @@ import struct
 import wave
 
 TABLE_SIZE = 600
-OUTPUT_DIR = 'lib/build/banks/sources'
+OUTPUT_DIR = 'bank/build/banks/sources'
 
 
 def _generate_sin_mul_bank():

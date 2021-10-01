@@ -3,9 +3,9 @@ extern crate lazy_static;
 
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
 
-use achordion_lib::bank;
+use achordion_bank as bank;
+use achordion_bank::waveform;
 use achordion_lib::instrument::Instrument;
-use achordion_lib::waveform;
 use achordion_lib::wavetable::Wavetable;
 
 const SAMPLE_RATE: u32 = 44_100;

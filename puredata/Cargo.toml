@@ -15,4 +15,5 @@ crate-type = ["cdylib"]
 [dependencies]
 pd-sys = "0.1.0"
 achordion-lib = { path = "../lib" }
+achordion-bank = { path = "../bank" }
 field-offset = "0.3"

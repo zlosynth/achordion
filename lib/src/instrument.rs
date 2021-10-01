@@ -733,8 +733,8 @@ impl<T: Copy + PartialOrd> PartialEq for DiscreteParameter<T> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::bank;
-    use crate::waveform;
+    use achordion_bank as bank;
+    use achordion_bank::waveform;
 
     const SAMPLE_RATE: u32 = 44_100;
 

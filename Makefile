@@ -3,24 +3,28 @@ all: format clippy check test
 
 .PHONY: check-format
 check-format:
+	cd bank && cargo fmt --all -- --check
 	cd eurorack && cargo fmt --all -- --check
 	cd lib && cargo fmt --all -- --check
 	cd puredata && cargo fmt --all -- --check
 
 .PHONY: format
 format:
+	cd bank && cargo fmt --all
 	cd eurorack && cargo fmt --all
 	cd lib && cargo fmt --all
 	cd puredata && cargo fmt --all
 
 .PHONY: clippy
 clippy:
+	cd bank && cargo clippy --all -- -D warnings
 	cd eurorack && cargo clippy --all -- -D warnings
 	cd lib && cargo clippy --all -- -D warnings
 	cd puredata && cargo clippy --all -- -D warnings
 
 .PHONY: check
 check:
+	cd bank && cargo check --all
 	cd eurorack && cargo check --all
 	cd lib && cargo check --all
 	cd lib && cargo check --benches --all
@@ -28,6 +32,7 @@ check:
 
 .PHONY: test
 test:
+	cd bank && cargo test --all
 	cd eurorack && cargo test --all
 	cd lib && cargo test --all
 	cd puredata && cargo test --all

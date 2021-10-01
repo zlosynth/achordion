@@ -8,7 +8,6 @@ description = "Chord-crafting quantizing wavetable oscillator."
 repository = "https://github.com/zlosynth/achordion"
 readme = "../README.md"
 publish = false
-build = "build/main.rs"
 
 [dependencies]
 heapless = "0.6"
@@ -17,17 +16,10 @@ crc = "2"
 field-offset = "0.3"
 lazy_static = { version = "1.4", features = [ "spin_no_std" ] }
 
-[build-dependencies]
-wav = "1"
-
-[dependencies.sirena]
-git = "https://github.com/zlosynth/sirena"
-rev = "52ebc6c0e82804a3aced22d04effb04af6cd2646"
-default-features = false
-
 [dev-dependencies]
 approx = "0.4"
 criterion = "0.3"
+achordion-bank = { path = "../bank" }
 
 [[bench]]
 name = "bench"
