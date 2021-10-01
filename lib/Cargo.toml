@@ -19,7 +19,7 @@ lazy_static = { version = "1.4", features = [ "spin_no_std" ] }
 [dev-dependencies]
 approx = "0.4"
 criterion = "0.3"
-achordion-bank = { path = "../bank" }
+achordion-bank = { path = "../bank", features = ["fft"] }
 
 [[bench]]
 name = "bench"

@@ -17,14 +17,16 @@ format:
 
 .PHONY: clippy
 clippy:
-	cd bank && cargo clippy --all -- -D warnings
+	cd bank && cargo clippy --features fft --all -- -D warnings
+	cd bank && cargo clippy --features svf --all -- -D warnings
 	cd eurorack && cargo clippy --all -- -D warnings
 	cd lib && cargo clippy --all -- -D warnings
 	cd puredata && cargo clippy --all -- -D warnings
 
 .PHONY: check
 check:
-	cd bank && cargo check --all
+	cd bank && cargo check --features fft --all
+	cd bank && cargo check --features svf --all
 	cd eurorack && cargo check --all
 	cd lib && cargo check --all
 	cd lib && cargo check --benches --all
@@ -32,7 +34,8 @@ check:
 
 .PHONY: test
 test:
-	cd bank && cargo test --all
+	cd bank && cargo test --features fft --all
+	cd bank && cargo test --features svf --all
 	cd eurorack && cargo test --all
 	cd lib && cargo test --all
 	cd puredata && cargo test --all

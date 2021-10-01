@@ -13,6 +13,7 @@ backwards compatibility.
 * Make eurorack module louder.
 * Replace vowel bank with sine multiple and sum sequences.
 * Optimize booting code for size, to free up more space for wavetables.
+* Make it possible to select between two bandlimiting algorithms.
 
 ## 0.14.0
 

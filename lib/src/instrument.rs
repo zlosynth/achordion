@@ -953,8 +953,8 @@ mod tests {
         instrument.set_chord_root_voct(2.5);
         instrument.set_chord_degrees(1.0);
 
-        let mut solo_buffer = [0.0; 1024];
-        let mut chord_buffer = [0.0; 1024];
+        let mut solo_buffer = [0.0; 8 * 1024];
+        let mut chord_buffer = [0.0; 8 * 1024];
         instrument.populate(&mut solo_buffer, &mut chord_buffer);
 
         assert_centered_around_zero(&solo_buffer);

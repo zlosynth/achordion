@@ -33,6 +33,14 @@ valgrind \
 kcachegrind callgrind.out.*
 ```
 
+## Bandlimiting algorithm
+
+Bandlimiting is available with two different filtering algorithms - fast fourier
+transform (FFT) removing high frequency bins and state variable filter (SVF).
+While FFT provides crips clean and very sharp sound, SVF goes little harder on
+filtering and leaves slighly more muted, but warmer sound. Preferred algorithm
+can be selected through a feature in `Cargo.toml` of both Eurorack and Pure Data
+modules.
 
 # License
 
