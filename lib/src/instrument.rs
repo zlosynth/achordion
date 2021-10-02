@@ -606,7 +606,11 @@ impl<'a> Degree<'a> {
                 for (i, oscillator) in self.oscillators[1..voices].iter_mut().enumerate() {
                     let detune_delta = max - min;
                     let stage = (i + 1) as f32;
-                    let detune = (min + detune_delta * taper::log(self.detune_phase)) * stage;
+                    let detune = if min < 1.0 {
+                        (min + detune_delta * taper::log(self.detune_phase) / stage) * stage
+                    } else {
+                        (min + detune_delta * taper::log(self.detune_phase)) * stage
+                    };
                     oscillator.frequency = self.frequency * detune;
                 }
             }
