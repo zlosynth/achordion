@@ -6,6 +6,9 @@ backwards compatibility.
 
 ## Unreleased
 
+* Introduce 3rd voice to each chord degree and utilize it for double sub
+  oscillator on 4th position of the detune.
+
 ## 0.15.0
 
 * Speed up boot time of the module.

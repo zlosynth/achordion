@@ -126,20 +126,20 @@ const DETUNES: [[DetuneConfig; DEGREES]; 4] = [
         DetuneConfig::Disabled,
     ],
     [
-        DetuneConfig::SingleSide(0.5, 0.5 + 0.02, 2),
-        DetuneConfig::SingleSide(0.5, 0.5 + 0.02, 2),
-        DetuneConfig::SingleSide(0.5, 0.5 + 0.02, 2),
-        DetuneConfig::SingleSide(0.5, 0.5 + 0.02, 2),
-        DetuneConfig::SingleSide(0.5, 0.5 + 0.02, 2),
-        DetuneConfig::SingleSide(0.5, 0.5 + 0.02, 2),
+        DetuneConfig::BothSides(1.0, 1.01, 2),
+        DetuneConfig::BothSides(1.0, 1.01, 2),
+        DetuneConfig::BothSides(1.0, 1.01, 2),
+        DetuneConfig::BothSides(1.0, 1.01, 2),
+        DetuneConfig::BothSides(1.0, 1.01, 2),
+        DetuneConfig::BothSides(1.0, 1.01, 2),
     ],
     [
-        DetuneConfig::BothSides(1.0, 1.01, 2),
-        DetuneConfig::BothSides(1.0, 1.01, 2),
-        DetuneConfig::BothSides(1.0, 1.01, 2),
-        DetuneConfig::BothSides(1.0, 1.01, 2),
-        DetuneConfig::BothSides(1.0, 1.01, 2),
-        DetuneConfig::BothSides(1.0, 1.01, 2),
+        DetuneConfig::SingleSide(0.5, 0.5 + 0.02, 3),
+        DetuneConfig::SingleSide(0.5, 0.5 + 0.02, 3),
+        DetuneConfig::SingleSide(0.5, 0.5 + 0.02, 3),
+        DetuneConfig::SingleSide(0.5, 0.5 + 0.02, 3),
+        DetuneConfig::SingleSide(0.5, 0.5 + 0.02, 3),
+        DetuneConfig::SingleSide(0.5, 0.5 + 0.02, 3),
     ],
 ];
 
@@ -530,7 +530,7 @@ enum Solo {
     Disabled,
 }
 
-const OSCILLATORS_IN_DEGREE: usize = 2;
+const OSCILLATORS_IN_DEGREE: usize = 3;
 
 struct Degree<'a> {
     frequency: f32,
@@ -552,6 +552,7 @@ impl<'a> Degree<'a> {
             wavetable_banks,
             selected_wavetable_bank: DiscreteParameter::new(0, 0.001),
             oscillators: [
+                Oscillator::new(wavetable_banks[0], sample_rate),
                 Oscillator::new(wavetable_banks[0], sample_rate),
                 Oscillator::new(wavetable_banks[0], sample_rate),
             ],
@@ -616,7 +617,10 @@ impl<'a> Degree<'a> {
                     self.oscillators[0].frequency = self.frequency;
                 }
 
-                for (i, pair) in self.oscillators[start..voices].chunks_exact_mut(2).enumerate() {
+                for (i, pair) in self.oscillators[start..voices]
+                    .chunks_exact_mut(2)
+                    .enumerate()
+                {
                     let detune_delta = max - min;
                     let stage = (i + 1) as f32;
                     let detune = (min + detune_delta * taper::log(self.detune_phase)) * stage;
@@ -781,7 +785,7 @@ mod tests {
         instrument.set_chord_degrees(0.8);
         instrument.set_solo_voct(Some(3.5));
         instrument.set_wavetable(0.1);
-        instrument.set_detune(1.0);
+        instrument.set_detune(0.7);
         instrument
     }
 
@@ -943,7 +947,7 @@ mod tests {
         let mut instrument = create_valid_instrument();
         instrument.set_chord_root_voct(2.5);
         instrument.set_chord_degrees(0.0);
-        instrument.set_detune(1.0);
+        instrument.set_detune(0.7);
 
         let mut solo_buffer = [0.0; 1024];
         let mut chord_buffer = [0.0; 1024];
