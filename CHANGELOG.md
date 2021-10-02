@@ -6,8 +6,8 @@ backwards compatibility.
 
 ## Unreleased
 
-* Introduce 3rd voice to each chord degree and utilize it for double sub
-  oscillator on 4th position of the detune.
+* Allow using 3 voices in each chord degree.
+* Use 2 sub-octave oscillators in the chord detune mode.
 
 ## 0.15.0
 
