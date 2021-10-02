@@ -118,7 +118,7 @@ const DETUNES: [[DetuneConfig; DEGREES]; 4] = [
         DetuneConfig::Disabled,
     ],
     [
-        DetuneConfig::SingleSide(0.5, 0.5 + 0.02),
+        DetuneConfig::SingleSide(0.5, 0.5 + 0.02, 2),
         DetuneConfig::Disabled,
         DetuneConfig::Disabled,
         DetuneConfig::Disabled,
@@ -126,20 +126,20 @@ const DETUNES: [[DetuneConfig; DEGREES]; 4] = [
         DetuneConfig::Disabled,
     ],
     [
-        DetuneConfig::SingleSide(0.5, 0.5 + 0.02),
-        DetuneConfig::SingleSide(0.5, 0.5 + 0.02),
-        DetuneConfig::SingleSide(0.5, 0.5 + 0.02),
-        DetuneConfig::SingleSide(0.5, 0.5 + 0.02),
-        DetuneConfig::SingleSide(0.5, 0.5 + 0.02),
-        DetuneConfig::SingleSide(0.5, 0.5 + 0.02),
+        DetuneConfig::SingleSide(0.5, 0.5 + 0.02, 2),
+        DetuneConfig::SingleSide(0.5, 0.5 + 0.02, 2),
+        DetuneConfig::SingleSide(0.5, 0.5 + 0.02, 2),
+        DetuneConfig::SingleSide(0.5, 0.5 + 0.02, 2),
+        DetuneConfig::SingleSide(0.5, 0.5 + 0.02, 2),
+        DetuneConfig::SingleSide(0.5, 0.5 + 0.02, 2),
     ],
     [
-        DetuneConfig::BothSides(1.0, 1.01),
-        DetuneConfig::BothSides(1.0, 1.01),
-        DetuneConfig::BothSides(1.0, 1.01),
-        DetuneConfig::BothSides(1.0, 1.01),
-        DetuneConfig::BothSides(1.0, 1.01),
-        DetuneConfig::BothSides(1.0, 1.01),
+        DetuneConfig::BothSides(1.0, 1.01, 2),
+        DetuneConfig::BothSides(1.0, 1.01, 2),
+        DetuneConfig::BothSides(1.0, 1.01, 2),
+        DetuneConfig::BothSides(1.0, 1.01, 2),
+        DetuneConfig::BothSides(1.0, 1.01, 2),
+        DetuneConfig::BothSides(1.0, 1.01, 2),
     ],
 ];
 
@@ -563,7 +563,8 @@ impl<'a> Degree<'a> {
         if self.enabled() {
             match self.detune_config {
                 DetuneConfig::Disabled => 1.0,
-                _ => OSCILLATORS_IN_DEGREE as f32,
+                DetuneConfig::SingleSide(_, _, voices) => voices as f32,
+                DetuneConfig::BothSides(_, _, voices) => voices as f32,
             }
         } else {
             0.0
@@ -598,24 +599,24 @@ impl<'a> Degree<'a> {
             DetuneConfig::Disabled => {
                 self.oscillators[0].frequency = self.frequency;
             }
-            DetuneConfig::SingleSide(min, max) => {
+            DetuneConfig::SingleSide(min, max, voices) => {
                 self.oscillators[0].frequency = self.frequency;
 
-                for (i, oscillator) in self.oscillators[1..].iter_mut().enumerate() {
+                for (i, oscillator) in self.oscillators[1..voices].iter_mut().enumerate() {
                     let detune_delta = max - min;
                     let stage = (i + 1) as f32;
                     let detune = (min + detune_delta * taper::log(self.detune_phase)) * stage;
                     oscillator.frequency = self.frequency * detune;
                 }
             }
-            DetuneConfig::BothSides(min, max) => {
-                let start = if OSCILLATORS_IN_DEGREE % 2 == 0 { 0 } else { 1 };
+            DetuneConfig::BothSides(min, max, voices) => {
+                let start = if voices % 2 == 0 { 0 } else { 1 };
 
                 if start > 0 {
                     self.oscillators[0].frequency = self.frequency;
                 }
 
-                for (i, pair) in self.oscillators[start..].chunks_exact_mut(2).enumerate() {
+                for (i, pair) in self.oscillators[start..voices].chunks_exact_mut(2).enumerate() {
                     let detune_delta = max - min;
                     let stage = (i + 1) as f32;
                     let detune = (min + detune_delta * taper::log(self.detune_phase)) * stage;
@@ -670,10 +671,15 @@ impl<'a> Degree<'a> {
             DetuneConfig::Disabled => {
                 self.oscillators[0].populate_add(buffer, amplitude);
             }
-            _ => {
-                self.oscillators
+            DetuneConfig::SingleSide(_, _, voices) => {
+                self.oscillators[..voices]
                     .iter_mut()
-                    .for_each(|o| o.populate_add(buffer, amplitude / OSCILLATORS_IN_DEGREE as f32));
+                    .for_each(|o| o.populate_add(buffer, amplitude / voices as f32));
+            }
+            DetuneConfig::BothSides(_, _, voices) => {
+                self.oscillators[..voices]
+                    .iter_mut()
+                    .for_each(|o| o.populate_add(buffer, amplitude / voices as f32));
             }
         }
     }
