@@ -6,6 +6,8 @@ backwards compatibility.
 
 ## Unreleased
 
+## 0.15.0
+
 * Speed up boot time of the module.
 * Display progress of the boot on module's display.
 * Exponentially fade in on boot.
