@@ -112,7 +112,7 @@ const APP: () = {
         }
     }
 
-    #[task(schedule = [reconcile_controls], spawn = [fade_in, backup_collector], resources = [display, instrument], priority = 2)]
+    #[task(schedule = [fade_in, reconcile_controls], spawn = [backup_collector], resources = [display, instrument], priority = 2)]
     fn initialize(mut cx: initialize::Context) {
         let mut display = cx.resources.display;
         bank::setup(&mut display);
@@ -130,7 +130,9 @@ const APP: () = {
         cx.schedule
             .reconcile_controls(Instant::now() + CV_PERIOD.cycles())
             .unwrap();
-        cx.spawn.fade_in().unwrap();
+        cx.schedule
+            .fade_in(Instant::now() + (SECOND / 10).cycles())
+            .unwrap();
         cx.spawn.backup_collector(0).unwrap();
     }
 
