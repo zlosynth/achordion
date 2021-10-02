@@ -34,9 +34,9 @@ pub fn register(module: &mut File, package: &Path) {
             "sin_seq_9.wav",
             "sin_seq_11.wav",
             "sin_seq_13.wav",
-            "sin_seq_16.wav",
-            "sin_seq_30.wav",
-            "sin_seq_60.wav",
+            "sin_seq_17.wav",
+            "sin_seq_23.wav",
+            "sin_seq_31.wav",
         ],
         &mut module,
     );

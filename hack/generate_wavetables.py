@@ -35,9 +35,9 @@ def _generate_sin_seq_bank():
     _generate_sin_seq(9)
     _generate_sin_seq(11)
     _generate_sin_seq(13)
-    _generate_sin_seq(16)
-    _generate_sin_seq(30)
-    _generate_sin_seq(60)
+    _generate_sin_seq(17)
+    _generate_sin_seq(23)
+    _generate_sin_seq(31)
 
 
 def _generate_sin_seq(size):
