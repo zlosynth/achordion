@@ -17,16 +17,12 @@ version = "0.14.0"
 dependencies = [
  "achordion-bank",
  "achordion-lib",
- "cortex-m 0.7.3",
- "cortex-m-rt",
  "cortex-m-rtic",
- "cortex-m-semihosting",
  "daisy_bsp",
  "micromath",
  "nb 1.0.0",
  "panic-halt",
  "stm32h7xx-hal",
- "typenum",
 ]
 
 [[package]]
@@ -35,7 +31,6 @@ version = "0.14.0"
 dependencies = [
  "crc",
  "field-offset",
- "heapless",
  "lazy_static",
  "micromath",
 ]
@@ -151,12 +146,11 @@ dependencies = [
 
 [[package]]
 name = "cortex-m-rtic"
-version = "0.5.7"
+version = "0.5.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9845c4c7f7af19e216a2d00345f7f1507b8907b85cd551e403d68baeec342bb3"
+checksum = "fb77bb72c171d0aa52a2954d8dc7e3f0800ab54b8df7d826f138abbea9eb2794"
 dependencies = [
  "cortex-m 0.6.7",
- "cortex-m-rt",
  "cortex-m-rtic-macros",
  "heapless",
  "rtic-core",
