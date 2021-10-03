@@ -8,6 +8,7 @@ backwards compatibility.
 
 * Allow using 3 voices in each chord degree.
 * Use 2 sub-octave oscillators in the chord detune mode.
+* Prevent phase lock by detuning solo if it collides with the chord.
 
 ## 0.15.0
 

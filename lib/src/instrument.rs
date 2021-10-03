@@ -484,8 +484,8 @@ impl<'a> Instrument<'a> {
 
         for (i, degree) in self.degrees[..last].iter_mut().enumerate() {
             if let Some(note) = chord_notes[i] {
-                let frequency = if is_already_used(chord_notes, i) {
-                    note.to_freq_f32() * 1.001
+                let frequency = if is_already_used_in_chord(chord_notes, i) {
+                    note.to_freq_f32() * 1.01
                 } else {
                     note.to_freq_f32()
                 };
@@ -501,7 +501,12 @@ impl<'a> Instrument<'a> {
             self.degrees[last].enable();
             let (note, degree) =
                 quantizer::diatonic::quantize_voct(self.scale_mode(), self.scale_root(), voct);
-            self.degrees[last].set_frequency(note.to_freq_f32());
+            let frequency = if is_already_used_by_chord(chord_notes, note) {
+                note.to_freq_f32() * 1.01
+            } else {
+                note.to_freq_f32()
+            };
+            self.degrees[last].set_frequency(frequency);
             // solo_degree.set_frequency(Note::AMinus1.to_freq_f32() * 2.0.powf(voct));
             Solo::Quantized(degree)
         } else {
@@ -511,10 +516,21 @@ impl<'a> Instrument<'a> {
     }
 }
 
-fn is_already_used(chord_notes: [Option<Note>; CHORD_DEGREES], index: usize) -> bool {
+fn is_already_used_in_chord(chord_notes: [Option<Note>; CHORD_DEGREES], index: usize) -> bool {
     for degree in chord_notes[..index].iter() {
         if *degree == chord_notes[index] {
             return true;
+        }
+    }
+    false
+}
+
+fn is_already_used_by_chord(chord_notes: [Option<Note>; CHORD_DEGREES], note: Note) -> bool {
+    for degree in chord_notes.iter() {
+        if let Some(degree) = degree {
+            if *degree == note {
+                return true;
+            }
         }
     }
     false
