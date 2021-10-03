@@ -1,6 +1,19 @@
+use core::f32::consts::PI;
+
+#[allow(unused_imports)]
+use micromath::F32Ext;
+
 use microfft::{complex::cfft_2048, Complex32};
 
-pub fn filter(wavetable: [f32; 2048], fraction: f32) -> [f32; 2048] {
+pub fn filter(mut wavetable: [f32; 2048], fraction: f32) -> [f32; 2048] {
+    if fraction < 2.0 / 1024.0 {
+        wavetable.iter_mut().enumerate().for_each(|(i, x)| {
+            let phase = i as f32 / 2048.0;
+            *x = f32::sin(2.0 * PI * phase);
+        });
+        return wavetable;
+    }
+
     let mut complex_wavetable = {
         let mut complex_wavetable = [Complex32::default(); 2048];
         complex_wavetable
