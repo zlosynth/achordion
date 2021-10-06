@@ -526,11 +526,9 @@ fn is_already_used_in_chord(chord_notes: [Option<Note>; CHORD_DEGREES], index: u
 }
 
 fn is_already_used_by_chord(chord_notes: [Option<Note>; CHORD_DEGREES], note: Note) -> bool {
-    for degree in chord_notes.iter() {
-        if let Some(degree) = degree {
-            if *degree == note {
-                return true;
-            }
+    for degree in chord_notes.iter().flatten() {
+        if *degree == note {
+            return true;
         }
     }
     false
@@ -577,15 +575,7 @@ impl<'a> Degree<'a> {
     }
 
     pub fn amplitude(&self) -> f32 {
-        if self.enabled() {
-            match self.detune_config {
-                DetuneConfig::Disabled => 1.0,
-                DetuneConfig::SingleSide(_, _, voices) => voices as f32,
-                DetuneConfig::BothSides(_, _, voices) => voices as f32,
-            }
-        } else {
-            0.0
-        }
+        3.0
     }
 
     pub fn set_frequency(&mut self, frequency: f32) {
@@ -601,6 +591,7 @@ impl<'a> Degree<'a> {
 
     pub fn enable(&mut self) {
         self.enabled = true;
+        self.apply_settings();
     }
 
     pub fn enabled(&self) -> bool {
@@ -609,12 +600,20 @@ impl<'a> Degree<'a> {
 
     pub fn disable(&mut self) {
         self.enabled = false;
+        self.apply_settings();
     }
 
     fn apply_settings(&mut self) {
+        if !self.enabled {
+            self.oscillators.iter_mut().for_each(|o| o.disable());
+            return;
+        }
+
         match self.detune_config {
             DetuneConfig::Disabled => {
                 self.oscillators[0].frequency = self.frequency;
+                self.oscillators[0].enable();
+                self.oscillators[1..].iter_mut().for_each(|o| o.disable());
             }
             DetuneConfig::SingleSide(min, max, voices) => {
                 self.oscillators[0].frequency = self.frequency;
@@ -629,6 +628,13 @@ impl<'a> Degree<'a> {
                     };
                     oscillator.frequency = self.frequency * detune;
                 }
+
+                self.oscillators[..voices]
+                    .iter_mut()
+                    .for_each(|o| o.enable());
+                self.oscillators[voices..]
+                    .iter_mut()
+                    .for_each(|o| o.disable());
             }
             DetuneConfig::BothSides(min, max, voices) => {
                 let start = if voices % 2 == 0 { 0 } else { 1 };
@@ -647,6 +653,13 @@ impl<'a> Degree<'a> {
                     pair[0].frequency = self.frequency * (1.0 / detune);
                     pair[1].frequency = self.frequency * detune;
                 }
+
+                self.oscillators[..voices]
+                    .iter_mut()
+                    .for_each(|o| o.enable());
+                self.oscillators[voices..]
+                    .iter_mut()
+                    .for_each(|o| o.disable());
             }
         }
     }
@@ -687,25 +700,9 @@ impl<'a> Degree<'a> {
     }
 
     pub fn populate_add(&mut self, buffer: &mut [f32], amplitude: f32) {
-        if !self.enabled {
-            return;
-        }
-
-        match self.detune_config {
-            DetuneConfig::Disabled => {
-                self.oscillators[0].populate_add(buffer, amplitude);
-            }
-            DetuneConfig::SingleSide(_, _, voices) => {
-                self.oscillators[..voices]
-                    .iter_mut()
-                    .for_each(|o| o.populate_add(buffer, amplitude / voices as f32));
-            }
-            DetuneConfig::BothSides(_, _, voices) => {
-                self.oscillators[..voices]
-                    .iter_mut()
-                    .for_each(|o| o.populate_add(buffer, amplitude / voices as f32));
-            }
-        }
+        self.oscillators
+            .iter_mut()
+            .for_each(|o| o.populate_add(buffer, amplitude));
     }
 }
 
