@@ -68,35 +68,30 @@ impl<'a> BandWavetable<'a> {
     pub fn read(&self, phase: f32) -> f32 {
         let a = {
             let position = phase * self.lower.len() as f32;
-            let raw_value = linear_interpolation(self.lower, position);
-            convert_to_f32(raw_value)
+            linear_interpolation(self.lower, position)
         };
         let b = {
             let position = phase * self.higher.len() as f32;
-            let raw_value = linear_interpolation(self.higher, position);
-            convert_to_f32(raw_value)
+            linear_interpolation(self.higher, position)
         };
 
         linear_xfade(a, b, self.mix)
     }
 }
 
-fn linear_interpolation(data: &[u16], position: f32) -> u16 {
+fn linear_interpolation(data: &[u16], position: f32) -> f32 {
     let index = position as usize;
     let remainder = position - index as f32;
 
     let value = data[index];
     let delta_to_next = if index == (data.len() - 1) {
-        data[0] as i32 - data[index] as i32
+        data[0] as i32 - value as i32
     } else {
-        data[index + 1] as i32 - data[index] as i32
+        data[index + 1] as i32 - value as i32
     };
 
-    (value as f32 + delta_to_next as f32 * remainder) as u16
-}
-
-fn convert_to_f32(value: u16) -> f32 {
-    value as f32 / f32::powi(2.0, 15) - 1.0
+    // TODO: Store result of pow
+    (value as f32 + delta_to_next as f32 * remainder) / f32::powi(2.0, 15) - 1.0
 }
 
 fn linear_xfade(a: f32, b: f32, mix: f32) -> f32 {
@@ -171,12 +166,5 @@ mod tests {
     #[should_panic]
     fn linear_xfade_panics_on_x_above_one() {
         linear_xfade(8.0, 4.0, 2.0);
-    }
-
-    #[test]
-    fn convert_u16_to_f32() {
-        assert_relative_eq!(convert_to_f32(0), -1.0, epsilon = 0.001);
-        assert_relative_eq!(convert_to_f32(u16::MAX / 2), 0.0, epsilon = 0.001);
-        assert_relative_eq!(convert_to_f32(u16::MAX), 1.0, epsilon = 0.001);
     }
 }
