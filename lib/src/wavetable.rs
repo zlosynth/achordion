@@ -3,6 +3,8 @@ use micromath::F32Ext;
 
 const EQULIBRIUM: [u16; 1] = [2 << 14];
 
+const TWO_POW_15: f32 = 32768.0;
+
 pub struct Wavetable<'a> {
     sample_rate: u32,
     factors: &'a [&'a [u16]],
@@ -90,8 +92,7 @@ fn linear_interpolation(data: &[u16], position: f32) -> f32 {
         data[index + 1] as i32 - value as i32
     };
 
-    // TODO: Store result of pow
-    (value as f32 + delta_to_next as f32 * remainder) / f32::powi(2.0, 15) - 1.0
+    (value as f32 + delta_to_next as f32 * remainder) / TWO_POW_15 - 1.0
 }
 
 fn linear_xfade(a: f32, b: f32, mix: f32) -> f32 {
