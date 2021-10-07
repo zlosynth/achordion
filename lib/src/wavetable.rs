@@ -85,7 +85,7 @@ impl<'a> BandWavetable<'a> {
             linear_interpolation(self.higher, position)
         };
 
-        linear_xfade(a, b, self.mix, self.mix_remainder)
+        linear_xfade(a, b, self.mix, self.mix_remainder) / TWO_POW_15 - 1.0
     }
 }
 
@@ -100,7 +100,7 @@ fn linear_interpolation(data: &[u16], position: f32) -> f32 {
         data[index + 1] as f32 - value
     };
 
-    (value + delta_to_next * remainder) / TWO_POW_15 - 1.0
+    value + delta_to_next * remainder
 }
 
 fn linear_xfade(a: f32, b: f32, mix: f32, mix_remainder: f32) -> f32 {
