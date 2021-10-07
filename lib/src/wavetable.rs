@@ -6,24 +6,22 @@ const EQULIBRIUM: [u16; 1] = [2 << 14];
 const TWO_POW_15: f32 = 32768.0;
 
 pub struct Wavetable<'a> {
-    sample_rate: u32,
+    niquist: f32,
     factors: &'a [&'a [u16]],
 }
 
 impl<'a> Wavetable<'a> {
     pub fn new(factors: &'a [&'a [u16]], sample_rate: u32) -> Self {
         Wavetable {
-            sample_rate,
+            niquist: sample_rate as f32 / 2.0,
             factors,
         }
     }
 
     pub fn band(&self, frequency: f32) -> BandWavetable {
         let (wavetable_a, wavetable_b, mix): (&[u16], &[u16], f32) = {
-            let niquist = self.sample_rate as f32 / 2.0;
-
             let (factor, mix) = {
-                let (factor, mix) = calculate_factor_and_mix(frequency, niquist);
+                let (factor, mix) = calculate_factor_and_mix(frequency, self.niquist);
                 if factor > self.factors.len() - 1 {
                     (self.factors.len() - 1, 0.0)
                 } else {
