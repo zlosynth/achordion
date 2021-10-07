@@ -58,22 +58,30 @@ fn calculate_factor_and_mix(frequency: f32, niquist: f32) -> (usize, f32) {
 
 pub struct BandWavetable<'a> {
     lower: &'a [u16],
+    lower_len: f32,
     higher: &'a [u16],
+    higher_len: f32,
     mix: f32,
 }
 
 impl<'a> BandWavetable<'a> {
     fn new(lower: &'a [u16], higher: &'a [u16], mix: f32) -> Self {
-        Self { lower, higher, mix }
+        Self {
+            lower,
+            lower_len: lower.len() as f32,
+            higher,
+            higher_len: higher.len() as f32,
+            mix,
+        }
     }
 
     pub fn read(&self, phase: f32) -> f32 {
         let a = {
-            let position = phase * self.lower.len() as f32;
+            let position = phase * self.lower_len;
             linear_interpolation(self.lower, position)
         };
         let b = {
-            let position = phase * self.higher.len() as f32;
+            let position = phase * self.higher_len;
             linear_interpolation(self.higher, position)
         };
 
