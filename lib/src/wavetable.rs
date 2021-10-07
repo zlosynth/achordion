@@ -85,14 +85,14 @@ fn linear_interpolation(data: &[u16], position: f32) -> f32 {
     let index = position as usize;
     let remainder = position - index as f32;
 
-    let value = data[index];
+    let value = data[index] as f32;
     let delta_to_next = if index == (data.len() - 1) {
-        data[0] as i32 - value as i32
+        data[0] as f32 - value
     } else {
-        data[index + 1] as i32 - value as i32
+        data[index + 1] as f32 - value
     };
 
-    (value as f32 + delta_to_next as f32 * remainder) / TWO_POW_15 - 1.0
+    (value + delta_to_next * remainder) / TWO_POW_15 - 1.0
 }
 
 fn linear_xfade(a: f32, b: f32, mix: f32) -> f32 {
