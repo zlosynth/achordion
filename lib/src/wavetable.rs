@@ -62,6 +62,7 @@ pub struct BandWavetable<'a> {
     higher: &'a [u16],
     higher_len: f32,
     mix: f32,
+    mix_remainder: f32,
 }
 
 impl<'a> BandWavetable<'a> {
@@ -72,6 +73,7 @@ impl<'a> BandWavetable<'a> {
             higher,
             higher_len: higher.len() as f32,
             mix,
+            mix_remainder: 1.0 - mix,
         }
     }
 
@@ -85,7 +87,7 @@ impl<'a> BandWavetable<'a> {
             linear_interpolation(self.higher, position)
         };
 
-        linear_xfade(a, b, self.mix)
+        linear_xfade(a, b, self.mix, self.mix_remainder)
     }
 }
 
@@ -103,9 +105,10 @@ fn linear_interpolation(data: &[u16], position: f32) -> f32 {
     (value + delta_to_next * remainder) / TWO_POW_15 - 1.0
 }
 
-fn linear_xfade(a: f32, b: f32, mix: f32) -> f32 {
+fn linear_xfade(a: f32, b: f32, mix: f32, mix_remainder: f32) -> f32 {
     debug_assert!((0.0..=1.0).contains(&mix));
-    a * (1.0 - mix) + b * mix
+    debug_assert!((0.0..=1.0).contains(&mix_remainder));
+    a * mix_remainder + b * mix
 }
 
 #[cfg(test)]
@@ -147,33 +150,33 @@ mod tests {
 
     #[test]
     fn linear_xfade_even() {
-        assert_eq!(linear_xfade(8.0, 4.0, 0.5), 6.0);
+        assert_eq!(linear_xfade(8.0, 4.0, 0.5, 0.5), 6.0);
     }
 
     #[test]
     fn linear_xfade_uneven() {
-        assert_eq!(linear_xfade(10.0, 20.0, 0.2), 12.0);
+        assert_eq!(linear_xfade(10.0, 20.0, 0.2, 0.8), 12.0);
     }
 
     #[test]
     fn linear_xfade_left_side() {
-        assert_eq!(linear_xfade(8.0, 4.0, 0.0), 8.0);
+        assert_eq!(linear_xfade(8.0, 4.0, 0.0, 1.0), 8.0);
     }
 
     #[test]
     fn linear_xfade_right_side() {
-        assert_eq!(linear_xfade(8.0, 4.0, 1.0), 4.0);
+        assert_eq!(linear_xfade(8.0, 4.0, 1.0, 0.0), 4.0);
     }
 
     #[test]
     #[should_panic]
     fn linear_xfade_panics_on_x_below_zero() {
-        linear_xfade(8.0, 4.0, -1.0);
+        linear_xfade(8.0, 4.0, -1.0, 0.0);
     }
 
     #[test]
     #[should_panic]
     fn linear_xfade_panics_on_x_above_one() {
-        linear_xfade(8.0, 4.0, 2.0);
+        linear_xfade(8.0, 4.0, 2.0, 0.0);
     }
 }
