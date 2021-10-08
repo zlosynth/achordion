@@ -14,9 +14,10 @@ use State::*;
 
 pub struct Oscillator<'a> {
     pub frequency: f32,
-    pub wavetable: f32,
     pub phase: f32,
     pub wavetable_bank: &'a [Wavetable<'a>],
+    previous_wavetable: Option<f32>,
+    wavetable: f32,
     state: State,
     sample_rate: f32,
 }
@@ -28,10 +29,22 @@ impl<'a> Oscillator<'a> {
             frequency: 0.0,
             phase: 0.0,
             sample_rate: sample_rate as f32,
+            previous_wavetable: None,
             wavetable: 0.0,
             state: Enabled,
             wavetable_bank,
         }
+    }
+
+    pub fn set_wavetable(&mut self, wavetable: f32) {
+        if self.previous_wavetable.is_none() {
+            self.previous_wavetable = Some(wavetable);
+        }
+        self.wavetable = wavetable;
+    }
+
+    pub fn wavetable(&self) -> f32 {
+        self.wavetable
     }
 
     pub fn enable(&mut self) {
@@ -55,30 +68,62 @@ impl<'a> Oscillator<'a> {
             return;
         }
 
-        let scaled_wavetable = self.wavetable * (self.wavetable_bank.len() - 1) as f32;
-        let wavetable_a_index = scaled_wavetable as usize;
-        let wavetable_b_index = if wavetable_a_index == self.wavetable_bank.len() - 1 {
-            wavetable_a_index
-        } else {
-            wavetable_a_index + 1
+        macro_rules! lookup_wavetable {
+            ( $wavetable:expr ) => {{
+                let scaled_wavetable = $wavetable * (self.wavetable_bank.len() - 1) as f32;
+                let wavetable_a_index = scaled_wavetable as usize;
+                let wavetable_b_index = if wavetable_a_index == self.wavetable_bank.len() - 1 {
+                    wavetable_a_index
+                } else {
+                    wavetable_a_index + 1
+                };
+
+                let band_wavetable_a = self.wavetable_bank[wavetable_a_index].band(self.frequency);
+                let band_wavetable_b = self.wavetable_bank[wavetable_b_index].band(self.frequency);
+                let xfade = scaled_wavetable - wavetable_a_index as f32;
+
+                (band_wavetable_a, band_wavetable_b, xfade)
+            }};
+        }
+
+        let (previous_band_wavetable_a, previous_band_wavetable_b, previous_xfade) = {
+            let wavetable = if let Some(previous_wavetable) = self.previous_wavetable {
+                previous_wavetable
+            } else {
+                self.wavetable
+            };
+
+            lookup_wavetable!(wavetable)
         };
 
-        let xfade = scaled_wavetable - wavetable_a_index as f32;
+        let (current_band_wavetable_a, current_band_wavetable_b, current_xfade) =
+            { lookup_wavetable!(self.wavetable) };
 
-        let band_wavetable_a = self.wavetable_bank[wavetable_a_index].band(self.frequency);
-        let band_wavetable_b = self.wavetable_bank[wavetable_b_index].band(self.frequency);
+        self.previous_wavetable = Some(self.wavetable);
 
         let interval_in_samples = self.frequency / self.sample_rate;
+        let buffer_len = buffer.len() as f32;
 
         macro_rules! populate_buffer {
             ( $self:ident, $fader:ident ) => {
-                for x in buffer.iter_mut() {
-                    let value_a = band_wavetable_a.read(self.phase);
-                    let value_b = band_wavetable_b.read(self.phase);
+                for (i, x) in buffer.iter_mut().enumerate() {
+                    let previous_value = {
+                        let value_a = previous_band_wavetable_a.read(self.phase);
+                        let value_b = previous_band_wavetable_b.read(self.phase);
+                        value_a * (1.0 - previous_xfade) + value_b * previous_xfade
+                    };
 
-                    let value = value_a * (1.0 - xfade) + value_b * xfade;
+                    let current_value = {
+                        let value_a = current_band_wavetable_a.read(self.phase);
+                        let value_b = current_band_wavetable_b.read(self.phase);
+                        value_a * (1.0 - current_xfade) + value_b * current_xfade
+                    };
 
-                    *x += value * amplitude * $self.$fader();
+                    let mix = i as f32 / buffer_len;
+
+                    *x += (previous_value * (1.0 - mix) + current_value * mix)
+                        * amplitude
+                        * $self.$fader();
 
                     self.phase += interval_in_samples;
                     if self.phase >= 1.0 {

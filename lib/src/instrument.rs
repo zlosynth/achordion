@@ -692,11 +692,11 @@ impl<'a> Degree<'a> {
     pub fn set_wavetable(&mut self, wavetable: f32) {
         self.oscillators
             .iter_mut()
-            .for_each(|o| o.wavetable = wavetable);
+            .for_each(|o| o.set_wavetable(wavetable));
     }
 
     pub fn wavetable(&self) -> f32 {
-        self.oscillators[0].wavetable
+        self.oscillators[0].wavetable()
     }
 
     pub fn populate_add(&mut self, buffer: &mut [f32], amplitude: f32) {
