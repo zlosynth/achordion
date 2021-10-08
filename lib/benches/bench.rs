@@ -36,6 +36,9 @@ fn criterion_benchmark(c: &mut Criterion) {
     c.bench_function("instrument", |b| {
         let mut instrument = Instrument::new(&WAVETABLE_BANKS[..], SAMPLE_RATE);
         instrument.set_chord_root_voct(2.0);
+        instrument.set_chord_degrees(1.0);
+        instrument.set_solo_voct(Some(3.5));
+        instrument.set_detune(1.0);
         let mut solo_buffer = [0.0; 64];
         let mut chord_buffer = [0.0; 64];
         b.iter(|| instrument.populate(black_box(&mut solo_buffer), black_box(&mut chord_buffer)));
