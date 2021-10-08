@@ -1,6 +1,8 @@
 #[allow(unused_imports)]
 use micromath::F32Ext;
 
+use crate::interpolation;
+
 const EQULIBRIUM: [u16; 1] = [2 << 14];
 
 const TWO_POW_15: f32 = 32768.0;
@@ -78,29 +80,15 @@ impl<'a> BandWavetable<'a> {
     pub fn read(&self, phase: f32) -> f32 {
         let a = {
             let position = phase * self.lower_len;
-            linear_interpolation(self.lower, position)
+            interpolation::linear(self.lower, position)
         };
         let b = {
             let position = phase * self.higher_len;
-            linear_interpolation(self.higher, position)
+            interpolation::linear(self.higher, position)
         };
 
         linear_xfade(a, b, self.mix, self.mix_remainder) / TWO_POW_15 - 1.0
     }
-}
-
-fn linear_interpolation(data: &[u16], position: f32) -> f32 {
-    let index = position as usize;
-    let remainder = position - index as f32;
-
-    let value = data[index] as f32;
-    let delta_to_next = if index == (data.len() - 1) {
-        data[0] as f32 - value
-    } else {
-        data[index + 1] as f32 - value
-    };
-
-    value + delta_to_next * remainder
 }
 
 fn linear_xfade(a: f32, b: f32, mix: f32, mix_remainder: f32) -> f32 {
