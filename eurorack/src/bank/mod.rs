@@ -25,7 +25,7 @@ use achordion_lib::wavetable::Wavetable;
 
 use crate::display::{Display, DisplayState};
 
-type FactorsRef = [&'static [u16]; 11];
+type FactorsRef = [&'static [f32]; 11];
 
 pub static mut WAVETABLE_BANKS: Option<[&'static [Wavetable<'static>]; 4]> = None;
 

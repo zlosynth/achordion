@@ -24,7 +24,7 @@ mod vocal;
 
 use achordion_lib::wavetable::Wavetable;
 
-type FactorsRef = [&'static [u16]; 11];
+type FactorsRef = [&'static [f32]; 11];
 
 pub static mut WAVETABLE_BANKS: Option<[&'static [Wavetable<'static>]; 5]> = None;
 

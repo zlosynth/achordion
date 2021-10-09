@@ -25,13 +25,12 @@ impl Factors {
     }
 }
 
-fn process<const N: usize>(data: &[u16; WAVEFORM_LENGTH], fraction: f32) -> [u16; N] {
+fn process<const N: usize>(data: &[u16; WAVEFORM_LENGTH], fraction: f32) -> [f32; N] {
     let data_f32 = to_f32(data);
     let oversampled = scale::<2048>(&data_f32);
     let mut filtered = filter(oversampled, fraction);
     normalize(&mut filtered);
-    let undersampled = scale(&filtered);
-    to_u16(&undersampled)
+    scale(&filtered)
 }
 
 fn scale<const N: usize>(data: &[f32]) -> [f32; N] {
@@ -58,15 +57,6 @@ fn to_f32<const N: usize>(data: &[u16; N]) -> [f32; N] {
         .iter_mut()
         .zip(data.iter())
         .for_each(|(x, y)| *x = *y as f32 / f32::powi(2.0, 15) - 1.0);
-    result
-}
-
-fn to_u16<const N: usize>(data: &[f32; N]) -> [u16; N] {
-    let mut result = [0; N];
-    result
-        .iter_mut()
-        .zip(data.iter())
-        .for_each(|(x, y)| *x = ((y + 1.0) * f32::powi(2.0, 15)) as u16);
     result
 }
 

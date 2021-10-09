@@ -13,7 +13,7 @@ const SAMPLE_RATE: u32 = 44_100;
 lazy_static! {
     static ref FACTORS: bank::factor::Factors =
         bank::factor::Factors::from_raw(&waveform::perfect::PERFECT_3);
-    static ref FACTORS_REF: [&'static [u16]; 11] = {
+    static ref FACTORS_REF: [&'static [f32]; 11] = {
         [
             &FACTORS.factor1,
             &FACTORS.factor2,

@@ -3,17 +3,15 @@ use micromath::F32Ext;
 
 use crate::interpolation;
 
-const EQULIBRIUM: [u16; 1] = [2 << 14];
-
-const TWO_POW_15: f32 = 32768.0;
+const EQULIBRIUM: [f32; 1] = [0.0];
 
 pub struct Wavetable<'a> {
     niquist: f32,
-    factors: &'a [&'a [u16]],
+    factors: &'a [&'a [f32]],
 }
 
 impl<'a> Wavetable<'a> {
-    pub fn new(factors: &'a [&'a [u16]], sample_rate: u32) -> Self {
+    pub fn new(factors: &'a [&'a [f32]], sample_rate: u32) -> Self {
         Wavetable {
             niquist: sample_rate as f32 / 2.0,
             factors,
@@ -21,7 +19,7 @@ impl<'a> Wavetable<'a> {
     }
 
     pub fn band(&self, frequency: f32) -> BandWavetable {
-        let (wavetable_a, wavetable_b, mix): (&[u16], &[u16], f32) = {
+        let (wavetable_a, wavetable_b, mix): (&[f32], &[f32], f32) = {
             let (factor, mix) = {
                 let (factor, mix) = calculate_factor_and_mix(frequency, self.niquist);
                 if factor > self.factors.len() - 1 {
@@ -57,16 +55,16 @@ fn calculate_factor_and_mix(frequency: f32, niquist: f32) -> (usize, f32) {
 }
 
 pub struct BandWavetable<'a> {
-    lower: &'a [u16],
+    lower: &'a [f32],
     lower_len: f32,
-    higher: &'a [u16],
+    higher: &'a [f32],
     higher_len: f32,
     mix: f32,
     mix_remainder: f32,
 }
 
 impl<'a> BandWavetable<'a> {
-    fn new(lower: &'a [u16], higher: &'a [u16], mix: f32) -> Self {
+    fn new(lower: &'a [f32], higher: &'a [f32], mix: f32) -> Self {
         Self {
             lower,
             lower_len: lower.len() as f32,
@@ -87,7 +85,7 @@ impl<'a> BandWavetable<'a> {
             interpolation::linear(self.higher, position)
         };
 
-        linear_xfade(a, b, self.mix, self.mix_remainder) / TWO_POW_15 - 1.0
+        linear_xfade(a, b, self.mix, self.mix_remainder)
     }
 }
 
@@ -102,8 +100,8 @@ fn linear_xfade(a: f32, b: f32, mix: f32, mix_remainder: f32) -> f32 {
 mod tests {
     use super::*;
 
-    const WAVEFORM: [u16; 8] = [8, 10, 12, 14, 0, 2, 4, 6];
-    const FACTORS: [&[u16]; 1] = [&WAVEFORM];
+    const WAVEFORM: [f32; 8] = [8.0, 10.0, 12.0, 14.0, 0.0, 2.0, 4.0, 6.0];
+    const FACTORS: [&[f32]; 1] = [&WAVEFORM];
     const SAMPLE_RATE: u32 = 8;
 
     #[test]

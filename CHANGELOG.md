@@ -11,6 +11,7 @@ backwards compatibility.
 * Prevent phase lock by detuning solo if it collides with the chord.
 * Prevent pop on change of detune by fading in/out the oscillators.
 * Smoothly traverse wavetable changes between CV reconciles.
+* Store bandlimited wavetables as f32 sequences to save on processing.
 
 ## 0.15.0
 

@@ -1,8 +1,8 @@
-pub type Factor1024 = [u16; 1024];
-pub type Factor512 = [u16; 512];
-pub type Factor256 = [u16; 256];
-pub type Factor128 = [u16; 128];
-pub type Factor64 = [u16; 64];
+pub type Factor1024 = [f32; 1024];
+pub type Factor512 = [f32; 512];
+pub type Factor256 = [f32; 256];
+pub type Factor128 = [f32; 128];
+pub type Factor64 = [f32; 64];
 pub type Factor32 = Factor64;
 pub type Factor16 = Factor64;
 pub type Factor8 = Factor64;
@@ -24,7 +24,7 @@ pub struct Factors {
     pub factor1: Factor1,
 }
 
-pub struct FactorsRef<'a>([&'a [u16]; 11]);
+pub struct FactorsRef<'a>([&'a [f32]; 11]);
 
 impl<'a> FactorsRef<'a> {
     pub fn new(factors: &'a Factors) -> Self {
@@ -48,17 +48,17 @@ impl<'a> FactorsRef<'a> {
 mod tests {
     use super::*;
 
-    const F1024: Factor1024 = [0; 1024];
-    const F512: Factor512 = [0; 512];
-    const F256: Factor256 = [0; 256];
-    const F128: Factor128 = [0; 128];
-    const F64: Factor64 = [0; 64];
-    const F32: Factor32 = [0; 64];
-    const F16: Factor16 = [0; 64];
-    const F8: Factor8 = [0; 64];
-    const F4: Factor4 = [0; 64];
-    const F2: Factor2 = [0; 64];
-    const F1: Factor1 = [0; 64];
+    const F1024: Factor1024 = [0.0; 1024];
+    const F512: Factor512 = [0.0; 512];
+    const F256: Factor256 = [0.0; 256];
+    const F128: Factor128 = [0.0; 128];
+    const F64: Factor64 = [0.0; 64];
+    const F32: Factor32 = [0.0; 64];
+    const F16: Factor16 = [0.0; 64];
+    const F8: Factor8 = [0.0; 64];
+    const F4: Factor4 = [0.0; 64];
+    const F2: Factor2 = [0.0; 64];
+    const F1: Factor1 = [0.0; 64];
     const FS: Factors = Factors {
         factor1024: F1024,
         factor512: F512,

@@ -183,22 +183,22 @@ impl<'a> Oscillator<'a> {
 mod tests {
     use super::*;
 
-    const TENTH: u16 = u16::MAX / 10;
-    const WAVEFORM: [u16; 11] = [
-        0 * TENTH,
-        1 * TENTH,
-        2 * TENTH,
-        3 * TENTH,
-        4 * TENTH,
-        5 * TENTH,
-        6 * TENTH,
-        7 * TENTH,
-        8 * TENTH,
-        9 * TENTH,
-        10 * TENTH,
+    const TENTH: f32 = 2.0 / 10.0;
+    const WAVEFORM: [f32; 11] = [
+        -1.0 + 0.0 * TENTH,
+        -1.0 + 1.0 * TENTH,
+        -1.0 + 2.0 * TENTH,
+        -1.0 + 3.0 * TENTH,
+        -1.0 + 4.0 * TENTH,
+        -1.0 + 5.0 * TENTH,
+        -1.0 + 6.0 * TENTH,
+        -1.0 + 7.0 * TENTH,
+        -1.0 + 8.0 * TENTH,
+        -1.0 + 9.0 * TENTH,
+        -1.0 + 10.0 * TENTH,
     ];
 
-    const FACTORS: [&[u16]; 1] = [&WAVEFORM];
+    const FACTORS: [&[f32]; 1] = [&WAVEFORM];
     const SAMPLE_RATE: u32 = 22;
 
     lazy_static! {
