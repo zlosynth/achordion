@@ -9,18 +9,18 @@ const WAVEFORM_LENGTH: usize = 600;
 impl Factors {
     pub fn from_raw(raw: &[u16; WAVEFORM_LENGTH]) -> Self {
         Self {
-            factor1024: process::<1024>(raw, 1.0),
-            factor512: process::<512>(raw, 1.0 / 2.0),
-            factor256: process::<256>(raw, 1.0 / 4.0),
-            factor128: process::<128>(raw, 1.0 / 8.0),
-            factor64: process::<64>(raw, 1.0 / 16.0),
-            factor32: process::<64>(raw, 1.0 / 32.0),
+            factor1024: process(raw, 1.0),
+            factor512: process(raw, 1.0 / 2.0),
+            factor256: process(raw, 1.0 / 4.0),
+            factor128: process(raw, 1.0 / 8.0),
+            factor64: process(raw, 1.0 / 16.0),
+            factor32: process(raw, 1.0 / 32.0),
             // Apply extra filtering on everything below, otherwise aliasing happens
-            factor16: process::<64>(raw, 1.0 / 64.0 / 2.0),
-            factor8: process::<64>(raw, 1.0 / 128.0 / 2.0),
-            factor4: process::<64>(raw, 1.0 / 256.0 / 2.0),
-            factor2: process::<64>(raw, 1.0 / 512.0 / 2.0),
-            factor1: process::<64>(raw, 1.0 / 1024.0 / 2.0),
+            factor16: process(raw, 1.0 / 64.0 / 2.0),
+            factor8: process(raw, 1.0 / 128.0 / 2.0),
+            factor4: process(raw, 1.0 / 256.0 / 2.0),
+            factor2: process(raw, 1.0 / 512.0 / 2.0),
+            factor1: process(raw, 1.0 / 1024.0 / 2.0),
         }
     }
 }
