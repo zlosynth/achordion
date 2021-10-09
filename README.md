@@ -23,7 +23,7 @@ rm -f target/release/deps/bench-*
 rm -f callgrind.out.*
 RUSTFLAGS="-g" cargo bench --bench bench --no-run
 BENCH=$(find target/release/deps -type f -executable -name 'bench-*')
-TEST=oscillator
+TEST=instrument
 valgrind \
     --tool=callgrind \
     --dump-instr=yes \
