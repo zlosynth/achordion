@@ -94,6 +94,7 @@ impl<'a> BandWavetable<'a> {
 fn linear_xfade(a: f32, b: f32, mix: f32, mix_remainder: f32) -> f32 {
     debug_assert!((0.0..=1.0).contains(&mix));
     debug_assert!((0.0..=1.0).contains(&mix_remainder));
+    debug_assert!((1.0 - mix - mix_remainder).abs() < 0.001);
     a * mix_remainder + b * mix
 }
 
