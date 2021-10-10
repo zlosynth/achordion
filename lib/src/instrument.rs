@@ -429,28 +429,24 @@ impl<'a> Instrument<'a> {
                 amplitude * self.degrees[solo_degree].amplitude() / perceived_amplitude,
             );
 
-            self.degrees[..solo_degree]
-                .iter_mut()
-                .for_each(|d| {
-                    d.populate_add(
-                        buffer_chord,
-                        amplitude * d.amplitude() / perceived_amplitude,
-                    )
-                });
+            self.degrees[..solo_degree].iter_mut().for_each(|d| {
+                d.populate_add(
+                    buffer_chord,
+                    amplitude * d.amplitude() / perceived_amplitude,
+                )
+            });
         } else {
             self.degrees[0].populate_add(
                 buffer_solo,
                 amplitude * self.degrees[0].amplitude() / perceived_amplitude,
             );
 
-            self.degrees[1..]
-                .iter_mut()
-                .for_each(|d| {
-                    d.populate_add(
-                        buffer_chord,
-                        amplitude * d.amplitude() / perceived_amplitude,
-                    )
-                });
+            self.degrees[1..].iter_mut().for_each(|d| {
+                d.populate_add(
+                    buffer_chord,
+                    amplitude * d.amplitude() / perceived_amplitude,
+                )
+            });
         };
     }
 

@@ -22,7 +22,13 @@ def _generate_sin_mul(size):
         for j in range(2, size + 1):
             audio[i] *= math.sin(2 * math.pi * (i / TABLE_SIZE) * j)
 
+    audio = _center_wavetable(audio)
     _save_wavetable(audio, f'sin_mul_{size}.wav')
+
+
+def _center_wavetable(wavetable):
+    mean = sum(wavetable) / len(wavetable)
+    return [x - mean for x in wavetable]
 
 
 def _generate_sin_seq_bank():
