@@ -410,44 +410,25 @@ impl<'a> Instrument<'a> {
         zero_slice(buffer_solo);
         zero_slice(buffer_chord);
 
-        // Amplitude of N mixed voices is not N times higher than the one of a
-        // single one. Express perceived amplitude by increasing lower values.
-        // This should make changes between different numbers of oscillators
-        // less noticable.
-        let perceived_amplitude = {
-            let max_amplitude = (DEGREES * OSCILLATORS_IN_DEGREE) as f32;
-            let total_amplitude = self.degrees.iter().fold(0.0, |a, d| a + d.amplitude());
-            (total_amplitude + max_amplitude) / 2.0
-        };
-
-        let amplitude = self.amplitude;
-
         if self.solo_enabled() {
             let solo_degree = self.degrees.len() - 1;
-            self.degrees[solo_degree].populate_add(
-                buffer_solo,
-                amplitude * self.degrees[solo_degree].amplitude() / perceived_amplitude,
-            );
+            self.degrees[solo_degree].populate_add(buffer_solo);
 
-            self.degrees[..solo_degree].iter_mut().for_each(|d| {
-                d.populate_add(
-                    buffer_chord,
-                    amplitude * d.amplitude() / perceived_amplitude,
-                )
-            });
+            self.degrees[..solo_degree]
+                .iter_mut()
+                .for_each(|d| d.populate_add(buffer_chord));
         } else {
-            self.degrees[0].populate_add(
-                buffer_solo,
-                amplitude * self.degrees[0].amplitude() / perceived_amplitude,
-            );
+            self.degrees[0].populate_add(buffer_solo);
 
-            self.degrees[1..].iter_mut().for_each(|d| {
-                d.populate_add(
-                    buffer_chord,
-                    amplitude * d.amplitude() / perceived_amplitude,
-                )
-            });
+            self.degrees[1..]
+                .iter_mut()
+                .for_each(|d| d.populate_add(buffer_chord));
         };
+
+        let oscillators_in_degree = OSCILLATORS_IN_DEGREE as f32;
+        let amplitude_multiplier = 1.0 / oscillators_in_degree / self.degrees.len() as f32;
+        multiply_slice(buffer_solo, amplitude_multiplier);
+        multiply_slice(buffer_chord, amplitude_multiplier);
     }
 
     fn apply_settings(&mut self) {
@@ -566,10 +547,6 @@ impl<'a> Degree<'a> {
             ],
             enabled: false,
         }
-    }
-
-    pub fn amplitude(&self) -> f32 {
-        3.0
     }
 
     pub fn set_frequency(&mut self, frequency: f32) {
@@ -693,10 +670,10 @@ impl<'a> Degree<'a> {
         self.oscillators[0].wavetable()
     }
 
-    pub fn populate_add(&mut self, buffer: &mut [f32], amplitude: f32) {
+    pub fn populate_add(&mut self, buffer: &mut [f32]) {
         self.oscillators
             .iter_mut()
-            .for_each(|o| o.populate_add(buffer, amplitude));
+            .for_each(|o| o.populate_add(buffer));
     }
 }
 
@@ -705,6 +682,10 @@ fn zero_slice(slice: &mut [f32]) {
         let p = slice.as_mut_ptr();
         ptr::write_bytes(p, 0, slice.len());
     }
+}
+
+fn multiply_slice(slice: &mut [f32], mul: f32) {
+    slice.iter_mut().for_each(|x| *x *= mul);
 }
 
 #[derive(Clone, Copy)]

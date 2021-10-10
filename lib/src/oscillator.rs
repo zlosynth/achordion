@@ -63,7 +63,7 @@ impl<'a> Oscillator<'a> {
         }
     }
 
-    pub fn populate_add(&mut self, buffer: &mut [f32], amplitude: f32) {
+    pub fn populate_add(&mut self, buffer: &mut [f32]) {
         if self.state == Disabled {
             return;
         }
@@ -123,9 +123,7 @@ impl<'a> Oscillator<'a> {
 
                     let mix = i as f32 / buffer_len;
 
-                    *x += (previous_value * (1.0 - mix) + current_value * mix)
-                        * amplitude
-                        * $self.$fader();
+                    *x += (previous_value * (1.0 - mix) + current_value * mix) * $self.$fader();
 
                     self.phase += interval_in_samples;
                     if self.phase >= 1.0 {
@@ -220,7 +218,7 @@ mod tests {
 
         let mut buffer = [0.0; 22];
         oscillator.frequency = 1.0;
-        oscillator.populate_add(&mut buffer, 1.0);
+        oscillator.populate_add(&mut buffer);
         for i in 0..11 {
             assert_relative_eq!(
                 buffer[i],
@@ -231,7 +229,7 @@ mod tests {
 
         let mut buffer = [0.0; 22];
         oscillator.frequency = 2.0;
-        oscillator.populate_add(&mut buffer, 1.0);
+        oscillator.populate_add(&mut buffer);
         for i in 0..11 {
             assert_relative_eq!(
                 buffer[i],
@@ -255,7 +253,7 @@ mod tests {
         let step = 1.0 / 10.0;
 
         oscillator.frequency = 0.5;
-        oscillator.populate_add(&mut buffer, 1.0);
+        oscillator.populate_add(&mut buffer);
 
         for i in 0..11 {
             assert_relative_eq!(
@@ -273,7 +271,7 @@ mod tests {
         let step = 1.0 / 10.0;
 
         let mut buffer = [0.0; 22];
-        oscillator.populate_add(&mut buffer, 1.0);
+        oscillator.populate_add(&mut buffer);
         for i in 0..11 {
             assert_relative_eq!(
                 buffer[i],
@@ -284,7 +282,7 @@ mod tests {
 
         oscillator.disable();
         let mut buffer = [0.0; 50];
-        oscillator.populate_add(&mut buffer, 1.0);
+        oscillator.populate_add(&mut buffer);
         for i in 0..50 {
             if i % 10 == 0 {
                 continue;
@@ -295,7 +293,7 @@ mod tests {
         }
 
         let mut buffer = [0.0; 12];
-        oscillator.populate_add(&mut buffer, 1.0);
+        oscillator.populate_add(&mut buffer);
         for i in 0..12 {
             assert_relative_eq!(buffer[i], 0.0, epsilon = 0.001);
         }
