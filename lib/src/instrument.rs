@@ -431,7 +431,6 @@ impl<'a> Instrument<'a> {
 
             self.degrees[..solo_degree]
                 .iter_mut()
-                .filter(|d| d.enabled())
                 .for_each(|d| {
                     d.populate_add(
                         buffer_chord,
@@ -446,7 +445,6 @@ impl<'a> Instrument<'a> {
 
             self.degrees[1..]
                 .iter_mut()
-                .filter(|d| d.enabled())
                 .for_each(|d| {
                     d.populate_add(
                         buffer_chord,
