@@ -1,8 +1,6 @@
 #[allow(unused_imports)]
 use micromath::F32Ext;
 
-use crate::interpolation;
-
 const EQULIBRIUM: [f32; 1] = [0.0];
 
 pub struct Wavetable<'a> {
@@ -63,6 +61,17 @@ pub struct BandWavetable<'a> {
     mix_remainder: f32,
 }
 
+pub struct Preparation {
+    pub lower: SubPreparation,
+    pub higher: SubPreparation,
+}
+
+pub struct SubPreparation {
+    pub index: usize,
+    pub next_index: usize,
+    pub remainder: f32,
+}
+
 impl<'a> BandWavetable<'a> {
     fn new(lower: &'a [f32], higher: &'a [f32], mix: f32) -> Self {
         Self {
@@ -75,14 +84,35 @@ impl<'a> BandWavetable<'a> {
         }
     }
 
-    pub fn read(&self, phase: f32) -> f32 {
+    pub fn prepare(&self, phase: f32) -> Preparation {
+        Preparation {
+            lower: self.sub_prepare(self.lower.len(), self.lower_len, phase),
+            higher: self.sub_prepare(self.higher.len(), self.higher_len, phase),
+        }
+    }
+
+    fn sub_prepare(&self, len: usize, len_f32: f32, phase: f32) -> SubPreparation {
+        let position = phase * len_f32;
+        let index = position as usize;
+        let next_index = if index == (len - 1) { 0 } else { index + 1 };
+        let remainder = position - index as f32;
+        SubPreparation {
+            index,
+            next_index,
+            remainder,
+        }
+    }
+
+    pub fn read(&self, preparation: &Preparation) -> f32 {
         let a = {
-            let position = phase * self.lower_len;
-            interpolation::linear(self.lower, position)
+            let value = self.lower[preparation.lower.index];
+            let delta_to_next = self.lower[preparation.lower.next_index] - value;
+            value + delta_to_next * preparation.lower.remainder
         };
         let b = {
-            let position = phase * self.higher_len;
-            interpolation::linear(self.higher, position)
+            let value = self.higher[preparation.higher.index];
+            let delta_to_next = self.higher[preparation.higher.next_index] - value;
+            value + delta_to_next * preparation.higher.remainder
         };
 
         linear_xfade(a, b, self.mix, self.mix_remainder)
@@ -114,8 +144,8 @@ mod tests {
         let wavetable = Wavetable::new(&FACTORS, SAMPLE_RATE);
 
         let band_wavetable = wavetable.band(1.0);
-        let first = band_wavetable.read(0.0);
-        let second = band_wavetable.read(0.1);
+        let first = band_wavetable.read(&band_wavetable.prepare(0.0));
+        let second = band_wavetable.read(&band_wavetable.prepare(0.1));
         assert!(second > first);
     }
 

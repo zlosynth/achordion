@@ -107,15 +107,17 @@ impl<'a> Oscillator<'a> {
         macro_rules! populate_buffer {
             ( $self:ident, $fader:ident ) => {
                 for (i, x) in buffer.iter_mut().enumerate() {
+                    let preparation = current_band_wavetable_a.prepare(self.phase);
+
                     let previous_value = {
-                        let value_a = previous_band_wavetable_a.read(self.phase);
-                        let value_b = previous_band_wavetable_b.read(self.phase);
+                        let value_a = previous_band_wavetable_a.read(&preparation);
+                        let value_b = previous_band_wavetable_b.read(&preparation);
                         value_a * (1.0 - previous_xfade) + value_b * previous_xfade
                     };
 
                     let current_value = {
-                        let value_a = current_band_wavetable_a.read(self.phase);
-                        let value_b = current_band_wavetable_b.read(self.phase);
+                        let value_a = current_band_wavetable_a.read(&preparation);
+                        let value_b = current_band_wavetable_b.read(&preparation);
                         value_a * (1.0 - current_xfade) + value_b * current_xfade
                     };
 
