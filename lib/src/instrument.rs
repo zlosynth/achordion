@@ -761,7 +761,7 @@ mod tests {
 
     lazy_static! {
         static ref FACTORS: bank::factor::Factors =
-            bank::factor::Factors::from_raw(&waveform::perfect::PERFECT_2);
+            bank::factor::Factors::from_raw(&waveform::perfect::PERFECT_1);
         static ref FACTORS_REF: [&'static [f32]; 11] = {
             [
                 &FACTORS.factor1,
