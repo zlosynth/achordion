@@ -24,3 +24,4 @@ mod oscillator;
 mod quantizer;
 mod scales;
 mod taper;
+mod weighting;

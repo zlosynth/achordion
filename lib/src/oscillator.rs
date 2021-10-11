@@ -1,7 +1,8 @@
 #[allow(unused_imports)]
 use micromath::F32Ext;
 
-use super::wavetable::Wavetable;
+use crate::wavetable::Wavetable;
+use crate::weighting;
 
 #[derive(Clone, Copy, PartialEq, Debug)]
 pub enum State {
@@ -103,6 +104,7 @@ impl<'a> Oscillator<'a> {
 
         let interval_in_samples = self.frequency / self.sample_rate;
         let buffer_len = buffer.len() as f32;
+        let amplitude_weight = weighting::lookup(self.frequency);
 
         macro_rules! populate_buffer {
             ( $self:ident, $fader:ident ) => {
@@ -123,7 +125,9 @@ impl<'a> Oscillator<'a> {
 
                     let mix = i as f32 / buffer_len;
 
-                    *x += (previous_value * (1.0 - mix) + current_value * mix) * $self.$fader();
+                    *x += (previous_value * (1.0 - mix) + current_value * mix)
+                        * $self.$fader()
+                        * amplitude_weight;
 
                     self.phase += interval_in_samples;
                     if self.phase >= 1.0 {
