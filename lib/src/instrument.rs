@@ -576,15 +576,19 @@ impl<'a> Degree<'a> {
 
     fn apply_settings(&mut self) {
         if !self.enabled {
-            self.oscillators.iter_mut().for_each(|o| o.disable());
+            self.oscillators
+                .iter_mut()
+                .for_each(|o| o.set_amplitude(0.0));
             return;
         }
 
         match self.detune_config {
             DetuneConfig::Disabled => {
                 self.oscillators[0].frequency = self.frequency;
-                self.oscillators[0].enable();
-                self.oscillators[1..].iter_mut().for_each(|o| o.disable());
+                self.oscillators[0].set_amplitude(1.0);
+                self.oscillators[1..]
+                    .iter_mut()
+                    .for_each(|o| o.set_amplitude(0.0));
             }
             DetuneConfig::SingleSide(min, max, voices) => {
                 self.oscillators[0].frequency = self.frequency;
@@ -602,10 +606,10 @@ impl<'a> Degree<'a> {
 
                 self.oscillators[..voices]
                     .iter_mut()
-                    .for_each(|o| o.enable());
+                    .for_each(|o| o.set_amplitude(1.0));
                 self.oscillators[voices..]
                     .iter_mut()
-                    .for_each(|o| o.disable());
+                    .for_each(|o| o.set_amplitude(0.0));
             }
             DetuneConfig::BothSides(min, max, voices) => {
                 let start = if voices % 2 == 0 { 0 } else { 1 };
@@ -627,10 +631,10 @@ impl<'a> Degree<'a> {
 
                 self.oscillators[..voices]
                     .iter_mut()
-                    .for_each(|o| o.enable());
+                    .for_each(|o| o.set_amplitude(1.0));
                 self.oscillators[voices..]
                     .iter_mut()
-                    .for_each(|o| o.disable());
+                    .for_each(|o| o.set_amplitude(0.0));
             }
         }
     }
@@ -782,8 +786,8 @@ mod tests {
     }
 
     fn assert_populate(instrument: &mut Instrument) {
-        let mut solo_buffer = [-10.0; 64];
-        let mut chord_buffer = [-10.0; 64];
+        let mut solo_buffer = [-10.0; 128];
+        let mut chord_buffer = [-10.0; 128];
         instrument.populate(&mut solo_buffer, &mut chord_buffer);
 
         assert!(solo_buffer[0].abs() <= 1.0);
@@ -914,7 +918,7 @@ mod tests {
         let center = (min + max) / 2.0;
         let delta = center.abs() / 1.0;
         assert!(
-            delta < 0.05,
+            delta < 0.15,
             "Delta {} % is bigger than allowed",
             delta * 100.0
         );

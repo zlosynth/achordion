@@ -3,14 +3,19 @@ use micromath::F32Ext;
 
 use super::wavetable::Wavetable;
 
+// With 44800 hz, it takes 50 cycles to fade in, 1 ms
+const STEPS: f32 = 50.0;
+
 #[derive(Clone, Copy, PartialEq, Debug)]
-pub enum State {
-    Enabling(f32),
-    Enabled,
-    Disabling(f32),
-    Disabled,
+pub enum Amplitude {
+    Stable(f32),
+    Traveling {
+        step: f32,
+        current: f32,
+        target: f32,
+    },
 }
-use State::*;
+use Amplitude::*;
 
 pub struct Oscillator<'a> {
     pub frequency: f32,
@@ -18,7 +23,7 @@ pub struct Oscillator<'a> {
     pub wavetable_bank: &'a [Wavetable<'a>],
     previous_wavetable: Option<f32>,
     wavetable: f32,
-    state: State,
+    amplitude: Amplitude,
     sample_rate: f32,
 }
 
@@ -31,7 +36,7 @@ impl<'a> Oscillator<'a> {
             sample_rate: sample_rate as f32,
             previous_wavetable: None,
             wavetable: 0.0,
-            state: Enabled,
+            amplitude: Stable(0.0),
             wavetable_bank,
         }
     }
@@ -47,27 +52,34 @@ impl<'a> Oscillator<'a> {
         self.wavetable
     }
 
-    pub fn enable(&mut self) {
-        match self.state {
-            Disabled => self.state = Enabling(0.0),
-            Disabling(value) => self.state = Enabling(value),
-            _ => (),
-        }
-    }
-
-    pub fn disable(&mut self) {
-        match self.state {
-            Enabled => self.state = Disabling(1.0),
-            Enabling(value) => self.state = Disabling(value),
-            _ => (),
+    pub fn set_amplitude(&mut self, amplitude: f32) {
+        match self.amplitude {
+            Stable(current) => {
+                // There is no processing involved, so the float should be identical
+                #[allow(clippy::float_cmp)]
+                if amplitude != current {
+                    self.amplitude = Traveling {
+                        step: (amplitude - current) / STEPS,
+                        current,
+                        target: amplitude,
+                    }
+                }
+            }
+            Traveling { current, target, .. } => {
+                // There is no processing involved, so the float should be identical
+                #[allow(clippy::float_cmp)]
+                if amplitude != target {
+                    self.amplitude = Traveling {
+                        step: (amplitude - current) / STEPS,
+                        current,
+                        target: amplitude,
+                    }
+                }
+            }
         }
     }
 
     pub fn populate_add(&mut self, buffer: &mut [f32]) {
-        if self.state == Disabled {
-            return;
-        }
-
         macro_rules! lookup_wavetable {
             ( $wavetable:expr ) => {{
                 let scaled_wavetable = $wavetable * (self.wavetable_bank.len() - 1) as f32;
@@ -104,75 +116,53 @@ impl<'a> Oscillator<'a> {
         let interval_in_samples = self.frequency / self.sample_rate;
         let buffer_len = buffer.len() as f32;
 
-        macro_rules! populate_buffer {
-            ( $self:ident, $fader:ident ) => {
-                for (i, x) in buffer.iter_mut().enumerate() {
-                    let preparation = current_band_wavetable_a.prepare(self.phase);
+        for (i, x) in buffer.iter_mut().enumerate() {
+            let preparation = current_band_wavetable_a.prepare(self.phase);
 
-                    let previous_value = {
-                        let value_a = previous_band_wavetable_a.read(&preparation);
-                        let value_b = previous_band_wavetable_b.read(&preparation);
-                        value_a * (1.0 - previous_xfade) + value_b * previous_xfade
-                    };
-
-                    let current_value = {
-                        let value_a = current_band_wavetable_a.read(&preparation);
-                        let value_b = current_band_wavetable_b.read(&preparation);
-                        value_a * (1.0 - current_xfade) + value_b * current_xfade
-                    };
-
-                    let mix = i as f32 / buffer_len;
-
-                    *x += (previous_value * (1.0 - mix) + current_value * mix) * $self.$fader();
-
-                    self.phase += interval_in_samples;
-                    if self.phase >= 1.0 {
-                        self.phase -= 1.0;
-                    }
-                }
+            let previous_value = {
+                let value_a = previous_band_wavetable_a.read(&preparation);
+                let value_b = previous_band_wavetable_b.read(&preparation);
+                value_a * (1.0 - previous_xfade) + value_b * previous_xfade
             };
-        }
 
-        match self.state {
-            Enabled => {
-                populate_buffer!(self, no_fade);
+            let current_value = {
+                let value_a = current_band_wavetable_a.read(&preparation);
+                let value_b = current_band_wavetable_b.read(&preparation);
+                value_a * (1.0 - current_xfade) + value_b * current_xfade
+            };
+
+            let mix = i as f32 / buffer_len;
+
+            *x += (previous_value * (1.0 - mix) + current_value * mix) * self.amplitude();
+
+            self.phase += interval_in_samples;
+            if self.phase >= 1.0 {
+                self.phase -= 1.0;
             }
-            Enabling(_) | Disabling(_) => {
-                populate_buffer!(self, step_fade);
-            }
-            _ => unreachable!(),
         }
     }
 
-    fn no_fade(&mut self) -> f32 {
-        1.0
-    }
-
-    fn step_fade(&mut self) -> f32 {
-        // With 44800 hz, it takes 50 cycles to fade in, 1 ms
-        const STEP: f32 = 0.02;
-
-        match self.state {
-            Enabled => 1.0,
-            Disabled => 0.0,
-            Enabling(value) => {
-                let mut new_value = value + STEP;
-                if new_value > 1.0 {
-                    new_value = 1.0;
-                    self.state = Enabled;
+    fn amplitude(&mut self) -> f32 {
+        match self.amplitude {
+            Stable(current) => current,
+            Traveling {
+                step,
+                current,
+                target,
+            } => {
+                let mut new_value = current + step;
+                self.amplitude = if (target < current && new_value < target)
+                    || (target > current && new_value > target)
+                {
+                    new_value = target;
+                    Stable(new_value)
                 } else {
-                    self.state = Enabling(new_value);
-                }
-                new_value
-            }
-            Disabling(value) => {
-                let mut new_value = value - STEP;
-                if new_value < 0.0 {
-                    new_value = 0.0;
-                    self.state = Disabled;
-                } else {
-                    self.state = Disabling(new_value);
-                }
+                    Traveling {
+                        step,
+                        current: new_value,
+                        target,
+                    }
+                };
                 new_value
             }
         }
@@ -214,6 +204,7 @@ mod tests {
     #[test]
     fn populate() {
         let mut oscillator = Oscillator::new(&WAVETABLE_BANK[..], SAMPLE_RATE);
+        oscillator.amplitude = Stable(1.0);
         let step = 1.0 / 10.0;
 
         let mut buffer = [0.0; 22];
@@ -249,6 +240,7 @@ mod tests {
     #[test]
     fn interpolation() {
         let mut oscillator = Oscillator::new(&WAVETABLE_BANK[..], SAMPLE_RATE);
+        oscillator.amplitude = Stable(1.0);
         let mut buffer = [0.0; 11];
         let step = 1.0 / 10.0;
 
@@ -267,6 +259,7 @@ mod tests {
     #[test]
     fn fade_out_after_50_samples() {
         let mut oscillator = Oscillator::new(&WAVETABLE_BANK[..], SAMPLE_RATE);
+        oscillator.amplitude = Stable(1.0);
         oscillator.frequency = 1.0;
         let step = 1.0 / 10.0;
 
@@ -280,7 +273,7 @@ mod tests {
             );
         }
 
-        oscillator.disable();
+        oscillator.set_amplitude(0.0);
         let mut buffer = [0.0; 50];
         oscillator.populate_add(&mut buffer);
         for i in 0..50 {
