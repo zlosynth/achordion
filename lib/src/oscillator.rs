@@ -153,18 +153,17 @@ impl<'a> Oscillator<'a> {
                 target,
             } => {
                 let mut new_value = current + step;
-                self.amplitude = if (step < 0.0 && new_value < target)
-                    || (step > 0.0 && new_value > target)
-                {
-                    new_value = target;
-                    Stable(new_value)
-                } else {
-                    Traveling {
-                        step,
-                        current: new_value,
-                        target,
-                    }
-                };
+                self.amplitude =
+                    if (step < 0.0 && new_value < target) || (step > 0.0 && new_value > target) {
+                        new_value = target;
+                        Stable(new_value)
+                    } else {
+                        Traveling {
+                            step,
+                            current: new_value,
+                            target,
+                        }
+                    };
                 new_value
             }
         }

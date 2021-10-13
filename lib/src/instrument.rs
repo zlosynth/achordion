@@ -497,7 +497,8 @@ impl<'a> Instrument<'a> {
                 self.degrees
                     .iter()
                     .fold(0, |a, d| a + d.enabled_oscillators()) as f32;
-            let total_amplitude = (enabled_oscillators + COMPENSATION) / (max_oscillators + COMPENSATION);
+            let total_amplitude =
+                (enabled_oscillators + COMPENSATION) / (max_oscillators + COMPENSATION);
             total_amplitude / enabled_oscillators
         };
         self.degrees
