@@ -383,6 +383,8 @@ impl<'a> Instrument<'a> {
             degree.set_detune(DETUNES[index][i], phase)
         }
 
+        self.apply_settings();
+
         let updated = self.detune();
         if original.0 != updated.0 || (original.1 - updated.1).abs() > 0.01 {
             Some(updated)
@@ -424,11 +426,6 @@ impl<'a> Instrument<'a> {
                 .iter_mut()
                 .for_each(|d| d.populate_add(buffer_chord));
         };
-
-        let oscillators_in_degree = OSCILLATORS_IN_DEGREE as f32;
-        let amplitude_multiplier = 1.0 / oscillators_in_degree / self.degrees.len() as f32;
-        multiply_slice(buffer_solo, amplitude_multiplier);
-        multiply_slice(buffer_chord, amplitude_multiplier);
     }
 
     fn apply_settings(&mut self) {
@@ -488,6 +485,24 @@ impl<'a> Instrument<'a> {
             self.degrees[last].disable();
             Solo::Disabled
         };
+
+        // Amplitude of N mixed voices is not N times higher than the one of a
+        // single one. Express perceived amplitude by increasing lower values.
+        // This should make changes between different numbers of oscillators
+        // less noticable.
+        let target_amplitude = {
+            const COMPENSATION: f32 = 3.0;
+            let max_oscillators = (DEGREES * OSCILLATORS_IN_DEGREE) as f32;
+            let enabled_oscillators =
+                self.degrees
+                    .iter()
+                    .fold(0, |a, d| a + d.enabled_oscillators()) as f32;
+            let total_amplitude = (enabled_oscillators + COMPENSATION) / (max_oscillators + COMPENSATION);
+            total_amplitude / enabled_oscillators
+        };
+        self.degrees
+            .iter_mut()
+            .for_each(|d| d.set_target_amplitude(target_amplitude));
     }
 }
 
@@ -529,6 +544,7 @@ struct Degree<'a> {
     selected_wavetable_bank: DiscreteParameter<usize>,
     oscillators: [Oscillator<'a>; OSCILLATORS_IN_DEGREE],
     enabled: bool,
+    target_amplitude: f32,
 }
 
 impl<'a> Degree<'a> {
@@ -546,6 +562,7 @@ impl<'a> Degree<'a> {
                 Oscillator::new(wavetable_banks[0], sample_rate),
             ],
             enabled: false,
+            target_amplitude: 0.0,
         }
     }
 
@@ -565,6 +582,24 @@ impl<'a> Degree<'a> {
         self.apply_settings();
     }
 
+    pub fn set_target_amplitude(&mut self, amplitude: f32) {
+        self.target_amplitude = amplitude;
+        self.apply_settings();
+    }
+
+    pub fn enabled_oscillators(&self) -> usize {
+        if !self.enabled {
+            return 0;
+        }
+
+        match self.detune_config {
+            DetuneConfig::Disabled => 1,
+            DetuneConfig::SingleSide(_, _, voices) | DetuneConfig::BothSides(_, _, voices) => {
+                voices
+            }
+        }
+    }
+
     pub fn enabled(&self) -> bool {
         self.enabled
     }
@@ -582,10 +617,12 @@ impl<'a> Degree<'a> {
             return;
         }
 
+        let target_amplitude = self.target_amplitude;
+
         match self.detune_config {
             DetuneConfig::Disabled => {
                 self.oscillators[0].frequency = self.frequency;
-                self.oscillators[0].set_amplitude(1.0);
+                self.oscillators[0].set_amplitude(target_amplitude);
                 self.oscillators[1..]
                     .iter_mut()
                     .for_each(|o| o.set_amplitude(0.0));
@@ -606,7 +643,7 @@ impl<'a> Degree<'a> {
 
                 self.oscillators[..voices]
                     .iter_mut()
-                    .for_each(|o| o.set_amplitude(1.0));
+                    .for_each(|o| o.set_amplitude(target_amplitude));
                 self.oscillators[voices..]
                     .iter_mut()
                     .for_each(|o| o.set_amplitude(0.0));
@@ -631,7 +668,7 @@ impl<'a> Degree<'a> {
 
                 self.oscillators[..voices]
                     .iter_mut()
-                    .for_each(|o| o.set_amplitude(1.0));
+                    .for_each(|o| o.set_amplitude(target_amplitude));
                 self.oscillators[voices..]
                     .iter_mut()
                     .for_each(|o| o.set_amplitude(0.0));
@@ -686,10 +723,6 @@ fn zero_slice(slice: &mut [f32]) {
         let p = slice.as_mut_ptr();
         ptr::write_bytes(p, 0, slice.len());
     }
-}
-
-fn multiply_slice(slice: &mut [f32], mul: f32) {
-    slice.iter_mut().for_each(|x| *x *= mul);
 }
 
 #[derive(Clone, Copy)]

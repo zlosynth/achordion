@@ -65,7 +65,9 @@ impl<'a> Oscillator<'a> {
                     }
                 }
             }
-            Traveling { current, target, .. } => {
+            Traveling {
+                current, target, ..
+            } => {
                 // There is no processing involved, so the float should be identical
                 #[allow(clippy::float_cmp)]
                 if amplitude != target {
@@ -151,8 +153,8 @@ impl<'a> Oscillator<'a> {
                 target,
             } => {
                 let mut new_value = current + step;
-                self.amplitude = if (target < current && new_value < target)
-                    || (target > current && new_value > target)
+                self.amplitude = if (step < 0.0 && new_value < target)
+                    || (step > 0.0 && new_value > target)
                 {
                     new_value = target;
                     Stable(new_value)

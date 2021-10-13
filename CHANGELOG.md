@@ -12,6 +12,7 @@ backwards compatibility.
 * Prevent pop on change of detune by fading in/out the oscillators.
 * Smoothly traverse wavetable changes between CV reconciles.
 * Store bandlimited wavetables as f32 sequences to save on processing.
+* Compensate amplitude of lower numbers of enabled oscillators.
 
 ## 0.15.0
 
