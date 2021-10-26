@@ -20,7 +20,7 @@ Legend:
         v_ref=-10,
         i_q_min=45e-6, # LM4040
         i_q_max=15e-3, # LM4040
-        r_refs=[100e3] * 2 + [200e3] * 4
+        r_refs=[100e3] * 2 + [200e3] * 3
     )
 
     r_lim_min = round(r_lim_min)

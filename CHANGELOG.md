@@ -6,6 +6,10 @@ backwards compatibility.
 
 ## Unreleased
 
+* Convert PCB to two stacked layers for easier soldering.
+* Change the panel layout.
+* Expose debugging GPIO and UART pins.
+
 ## 0.16.0
 
 * Allow using 3 voices in each chord degree.
