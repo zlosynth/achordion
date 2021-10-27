@@ -9,6 +9,7 @@ backwards compatibility.
 * Convert PCB to two stacked layers for easier soldering.
 * Change the panel layout.
 * Expose debugging GPIO and UART pins.
+* Wire compatibility version into the PCB.
 
 ## 0.16.0
 
