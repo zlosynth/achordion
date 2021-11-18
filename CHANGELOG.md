@@ -10,6 +10,7 @@ backwards compatibility.
 * Change the panel layout.
 * Expose debugging GPIO and UART pins.
 * Wire compatibility version into the PCB.
+* Document the module through a user manual.
 
 ## 0.16.0
 
