@@ -48,3 +48,7 @@ puredata:
 	cd puredata && cargo build --release
 	cp puredata/target/release/libachordion_puredata.so ~/.local/lib/pd/extra/achordion~.pd_linux
 	pd puredata/achordion.pd
+
+.PHONY: manual
+manual:
+	make -C manual
