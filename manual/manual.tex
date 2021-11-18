@@ -46,18 +46,15 @@
 
 \vspace{5mm}
 
-This module allows you to do many things but in essence it is just a bunch of oscillators that never go out of tune nor out of scale! Apart from playing anything between lush pads and hellish walls of sound, it enables you to easily jam with other musicians and explore characters of different scales. If you don't know any music theory, don't despair, the module will do all the harmony maths and all left for you to do is to use your intuition. If you on the other hand understand basics of music theory, with this instrument, you can leverage it.
+Achordion allows you to do many things but in essence it is just a bunch of oscillators that never go out of tune nor out of scale! Apart from playing anything between lush pads and hellish walls of sound, it enables you to easily jam with other musicians and explore characters of different scales. If you don't know any music theory, don't despair, the module will do all the harmony maths and all left for you to do is to use your intuition. If you on the other hand do understand basics of music theory, with this instrument, you can leverage it.
 
 \section{Features}
 
-% The front panel of the module is made out of aluminium with engraved lettering, it is available in black or light anodized finishes.
 This module is based around wavetable synthesis, and contains a selection of 37 wavetables, offering smooth transitions between them. With up to 18 simultaneous voices, it allows to enable sub-octaves, duplicated tones or chords. Four modes of playing are available – single tone, selection of 18 standard chords (fifth, sevent and ninth), arpeggios, and intervals. All playing tones are quantized to a configurable scale. 1V/oct inputs are quantized so any scale can be played with white keys of the piano. Two lines can be played at the same time, each controlled by an independent 1V/oct input. There are also two separate outputs, enabling to send each line to a different effect chain. Last but not least, a display consisting of 8 LEDs is used to make dialing of parameters easier.
-% and to provide visual cues.
 
 \section{Installation}
 
 Achordion is 10 HP wide Eurorack module. It is powered by +12V/-12V 2x5 connector. The red stripe (-12V) must be connected on the side of the board marked with the white line.
-% The boxed power connector should make it easier to connect with the correct polarity.
 
 \section{Specs}
 
@@ -72,7 +69,7 @@ Achordion is 10 HP wide Eurorack module. It is powered by +12V/-12V 2x5 connecto
 
 \section{Controls, inputs and outputs}
 
-On the left side, there is a column of LEDs (X) that are visualizing the currently selected parameter. Below the LEDs, there is a button (Y) to access alternative parameters of each of the knobs.
+On the left side, there is a column of LEDs (X) that are visualizing the currently selected parameter. Below the LEDs, there is a button (Y) providing access to alternative parameters of each of the knobs.
 
 WAVETABLE (A) knob selects the wavetable. When the button is held down, this knob scrolls through banks.
 
@@ -91,11 +88,11 @@ the outputs are mixed together.
 
 \section{Two Lines}
 
-The module has two lines, primary and secondary. The tone of these lines can be controlled independently while all the other attributes are shared.
+The module has two lines, main and side. The tone of these lines can be controlled independently while all the other attributes are shared.
 
-The primary line is controlled through the TONE knob and CV input. This line can play a chord, controlled through the CHORD knob and CV input.
+The main line is controlled through the TONE knob and CV input. This line can play a chord, controlled through the CHORD knob and CV input.
 
-The secondary line is controlled through the TONE' CV input and is playing only when a jack is connected. Unlike the primary line, the secondary is not playing chords.
+The side line is controlled through the TONE' CV input and is playing only when a jack is connected. Unlike the main line, the side one is not playing chords.
 
 \section{Wavetables}
 
@@ -170,9 +167,9 @@ Furthermore, there are three different modes of playing chords. These can be acc
 
 There are two audio outputs in the module: OUT and OUT'. When only one of these outputs is connected, it gets mixed with the unconnected one. When both outputs are connected, each plays different voices. This allows to run through two different effect chains.
 
-The content of these outputs depends on the playing lines. If the secondary line is playing, OUT plays the primary line, controlled by TONE and OUT' is playing the secondary line, controlled by TONE'.
+The content of these outputs depends on the playing lines. If the side line is playing, OUT plays the main line, controlled by TONE and OUT' is playing the side line, controlled by TONE'.
 
-However, when the secondary line is not connected, OUT contains the root note of the primary line, while OUT' contains the rest of the chord played by the primary line.
+However, when the side line is not connected, OUT contains the root note of the main line, while OUT' contains the rest of the chord played by the main line.
 
 \section{Calibration}
 
