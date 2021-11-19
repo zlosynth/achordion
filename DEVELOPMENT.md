@@ -52,7 +52,7 @@ valgrind \
 kcachegrind callgrind.out.*
 ```
 
-And more under `hack/`.
+And more under `hack/` and in the `Makefile`.
 
 ## Bandlimiting algorithm
 
