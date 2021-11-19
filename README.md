@@ -2,46 +2,6 @@
 
 Chord-crafting quantizing wavetable oscillator module for Eurorack.
 
-## Development
-
-``` sh
-# run formatting, linter and unit tests
-make
-
-# run benchmark
-cargo bench --bench bench
-
-# check size of firmware
-cargo size -- -m
-cargo size -- -A
-
-# run the module via pure data
-make puredata
-
-# profiling example
-rm -f target/release/deps/bench-*
-rm -f callgrind.out.*
-RUSTFLAGS="-g" cargo bench --bench bench --no-run
-BENCH=$(find target/release/deps -type f -executable -name 'bench-*')
-TEST=instrument
-valgrind \
-    --tool=callgrind \
-    --dump-instr=yes \
-    --collect-jumps=yes \
-    --simulate-cache=yes \
-    ${BENCH} --bench --profile-time 10 ${TEST}
-kcachegrind callgrind.out.*
-```
-
-## Bandlimiting algorithm
-
-Bandlimiting is available with two different filtering algorithms - fast fourier
-transform (FFT) removing high frequency bins and state variable filter (SVF).
-While FFT provides crips clean and very sharp sound, SVF goes little harder on
-filtering and leaves slighly more muted, but warmer sound. Preferred algorithm
-can be selected through a feature in `Cargo.toml` of both Eurorack and Pure Data
-modules.
-
 # License
 
 Software of Achordion is distributed under the terms of the General Public
