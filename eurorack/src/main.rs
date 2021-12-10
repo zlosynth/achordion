@@ -113,8 +113,8 @@ const APP: () = {
 
     #[task(schedule = [fade_in, reconcile_controls], spawn = [backup_collector], resources = [display, instrument], priority = 2)]
     fn initialize(mut cx: initialize::Context) {
-        let mut display = cx.resources.display;
-        bank::setup(&mut display);
+        let display = cx.resources.display;
+        bank::setup(display);
 
         let mut instrument = Instrument::new(
             unsafe { &WAVETABLE_BANKS.as_ref().unwrap()[..] },

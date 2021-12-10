@@ -24,7 +24,7 @@ pub fn filter(mut wavetable: [f32; 2048], fraction: f32) -> [f32; 2048] {
     };
 
     // Convert to the frequency domain
-    let mut complex_wavetable = microfft::complex::cfft_2048(&mut complex_wavetable);
+    let complex_wavetable = microfft::complex::cfft_2048(&mut complex_wavetable);
 
     // Clear frequency bins above given cutoff
     complex_wavetable[(2048.0 * fraction) as usize..]
@@ -37,7 +37,7 @@ pub fn filter(mut wavetable: [f32; 2048], fraction: f32) -> [f32; 2048] {
         .for_each(|c| core::mem::swap(&mut c.re, &mut c.im));
 
     // Convert back to the time domain
-    let complex_wavetable = cfft_2048(&mut complex_wavetable);
+    let complex_wavetable = cfft_2048(complex_wavetable);
 
     // Finish inverse FFT by flipping real and imaginary numbers back
     complex_wavetable
