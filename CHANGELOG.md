@@ -6,6 +6,8 @@ backwards compatibility.
 
 ## Unreleased
 
+## 1.0.0
+
 * Convert PCB to two stacked layers for easier soldering.
 * Change the panel layout.
 * Expose debugging GPIO and UART pins.

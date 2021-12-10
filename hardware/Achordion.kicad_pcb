@@ -13,7 +13,7 @@
   (title_block
     (title Achordion)
     (date 2021-04-25)
-    (rev v0.16.0)
+    (rev v1.0.0)
     (company "Petr Horáček")
     (comment 1 hrck@protonmail.com)
     (comment 2 https://github.com/zlosynth/achordion)
@@ -4248,7 +4248,7 @@
     )
   )
 
-  (gr_text "board v1.0.0-rc.1" (at 155.48 50.94) (layer B.SilkS)
+  (gr_text "board v1.0.0" (at 155.48 50.94) (layer B.SilkS)
     (effects (font (size 1 1) (thickness 0.15)) (justify mirror))
   )
   (gr_line (start 191.530001 140.540001) (end 191.530001 143.76) (layer Edge.Cuts) (width 0.05))
