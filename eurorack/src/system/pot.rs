@@ -53,5 +53,5 @@ pot!(ADC1);
 pot!(ADC2);
 
 fn transpose_adc(sample: f32, max_sample: u32) -> f32 {
-    (max_sample as f32 - sample) / max_sample as f32
+    sample / max_sample as f32
 }

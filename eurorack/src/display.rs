@@ -3,25 +3,25 @@ pub use achordion_lib::display::State as DisplayState;
 use crate::system::{Led1, Led2, Led3, Led4, Led5, Led6, Led7, Led8};
 
 pub struct DisplayConfig {
-    pub led1: Led4,
-    pub led2: Led8,
+    pub led1: Led1,
+    pub led2: Led2,
     pub led3: Led3,
-    pub led4: Led7,
-    pub led5: Led2,
+    pub led4: Led4,
+    pub led5: Led5,
     pub led6: Led6,
-    pub led7: Led1,
-    pub led_sharp: Led5,
+    pub led7: Led7,
+    pub led_sharp: Led8,
 }
 
 pub struct Display {
-    led1: Led4,
-    led2: Led8,
+    led1: Led1,
+    led2: Led2,
     led3: Led3,
-    led4: Led7,
-    led5: Led2,
+    led4: Led4,
+    led5: Led5,
     led6: Led6,
-    led7: Led1,
-    led_sharp: Led5,
+    led7: Led7,
+    led_sharp: Led8,
 }
 
 impl Display {

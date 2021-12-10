@@ -11,7 +11,7 @@ use achordion_lib::store::Parameters;
 
 use crate::system::Button;
 use crate::system::Probe;
-use crate::system::{Cv1, Cv2, Cv3, Cv4, Cv5, Cv6};
+use crate::system::{Cv1, Cv2, Cv3, Cv4, Cv5};
 use crate::system::{Pot1, Pot2, Pot3, Pot4};
 
 // V/OCT CV spans from 0.0 to 10.0 V.
@@ -21,16 +21,15 @@ pub struct ControlsConfig {
     pub adc1: Adc<ADC1, Enabled>,
     pub adc2: Adc<ADC2, Enabled>,
     pub alt_button: Button,
-    pub pot_note: Pot1,
-    pub pot_wavetable: Pot2,
-    pub pot_chord: Pot3,
-    pub pot_detune: Pot4,
+    pub pot_wavetable: Pot1,
+    pub pot_note: Pot2,
+    pub pot_detune: Pot3,
+    pub pot_chord: Pot4,
     pub cv_voct: Cv1,
-    pub cv_scale_tonic: Cv2,
-    pub cv_scale_mode: Cv3,
-    pub cv_chord: Cv4,
-    pub cv_detune: Cv5,
-    pub cv_wavetable: Cv6,
+    pub cv_solo: Cv2,
+    pub cv_wavetable: Cv3,
+    pub cv_detune: Cv4,
+    pub cv_chord: Cv5,
     pub cv_probe: Probe,
 }
 
@@ -47,7 +46,6 @@ pub struct Controls {
     cv3: Cv3,
     cv4: Cv4,
     cv5: Cv5,
-    cv6: Cv6,
     probe: Probe,
 
     parameters: Parameters,
@@ -94,16 +92,15 @@ impl Controls {
             adc1: config.adc1,
             adc2: config.adc2,
             button: config.alt_button,
-            pot1: config.pot_note,
-            pot2: config.pot_wavetable,
-            pot3: config.pot_chord,
-            pot4: config.pot_detune,
+            pot1: config.pot_wavetable,
+            pot2: config.pot_note,
+            pot3: config.pot_detune,
+            pot4: config.pot_chord,
             cv1: config.cv_voct,
-            cv2: config.cv_scale_tonic,
-            cv3: config.cv_scale_mode,
-            cv4: config.cv_chord,
-            cv5: config.cv_detune,
-            cv6: config.cv_wavetable,
+            cv2: config.cv_solo,
+            cv3: config.cv_wavetable,
+            cv4: config.cv_detune,
+            cv5: config.cv_chord,
             probe: config.cv_probe,
 
             parameters,
@@ -187,35 +184,35 @@ impl Controls {
     }
 
     pub fn wavetable_bank_pot_active(&self) -> bool {
-        self.button.active() && self.pot2.active()
-    }
-
-    pub fn wavetable_pot_active(&self) -> bool {
-        !self.button.active() && self.pot2.active()
-    }
-
-    pub fn note_pot_active(&self) -> bool {
-        !self.button.active() && self.pot1.active()
-    }
-
-    pub fn scale_root_pot_active(&self) -> bool {
         self.button.active() && self.pot1.active()
     }
 
+    pub fn wavetable_pot_active(&self) -> bool {
+        !self.button.active() && self.pot1.active()
+    }
+
+    pub fn note_pot_active(&self) -> bool {
+        !self.button.active() && self.pot2.active()
+    }
+
+    pub fn scale_root_pot_active(&self) -> bool {
+        self.button.active() && self.pot2.active()
+    }
+
     pub fn chord_pot_active(&self) -> bool {
-        !self.button.active() && self.pot3.active()
-    }
-
-    pub fn style_pot_active(&self) -> bool {
-        self.button.active() && self.pot3.active()
-    }
-
-    pub fn detune_pot_active(&self) -> bool {
         !self.button.active() && self.pot4.active()
     }
 
-    pub fn scale_mode_pot_active(&self) -> bool {
+    pub fn style_pot_active(&self) -> bool {
         self.button.active() && self.pot4.active()
+    }
+
+    pub fn detune_pot_active(&self) -> bool {
+        !self.button.active() && self.pot3.active()
+    }
+
+    pub fn scale_mode_pot_active(&self) -> bool {
+        self.button.active() && self.pot3.active()
     }
 
     pub fn calibration_waiting_low(&self) -> bool {
@@ -262,9 +259,7 @@ impl Controls {
         self.cv4.finish_sampling(&mut self.adc2);
 
         self.cv5.start_sampling(&mut self.adc1);
-        self.cv6.start_sampling(&mut self.adc2);
         self.cv5.finish_sampling(&mut self.adc1);
-        self.cv6.finish_sampling(&mut self.adc2);
 
         self.button.sample();
 
@@ -288,7 +283,7 @@ impl Controls {
 
     fn reconcile_note(&mut self) {
         if !self.button.active() {
-            self.last_note_pot_reading = self.pot1.value();
+            self.last_note_pot_reading = self.pot2.value();
         };
         let pot = self.last_note_pot_reading;
 
@@ -307,13 +302,13 @@ impl Controls {
 
     fn reconcile_wavetable(&mut self) {
         if !self.button.active() {
-            self.last_wavetable_pot_reading = self.pot2.value();
+            self.last_wavetable_pot_reading = self.pot1.value();
         }
         let pot = self.last_wavetable_pot_reading;
 
-        self.parameters.wavetable = if self.cv6.connected() {
+        self.parameters.wavetable = if self.cv3.connected() {
             // CV is centered around zero, suited for LFO.
-            let wavetable = self.cv6.value() * 2.0 - 1.0;
+            let wavetable = self.cv3.value() * 2.0 - 1.0;
             let offset = pot;
             (wavetable + offset).min(0.9999).max(0.0)
         } else {
@@ -323,19 +318,19 @@ impl Controls {
 
     fn reconcile_wavetable_bank(&mut self) {
         if self.wavetable_bank_pot_active() {
-            self.parameters.bank = self.pot2.value();
+            self.parameters.bank = self.pot1.value();
         };
     }
 
     fn reconcile_chord(&mut self) {
         if !self.button.active() {
-            self.last_chord_pot_reading = self.pot3.value();
+            self.last_chord_pot_reading = self.pot4.value();
         };
         let pot = self.last_chord_pot_reading;
 
-        self.parameters.chord = if self.cv4.connected() {
+        self.parameters.chord = if self.cv5.connected() {
             // CV is centered around zero, suited for LFO.
-            let chord = self.cv4.value() * 2.0 - 1.0;
+            let chord = self.cv5.value() * 2.0 - 1.0;
             let offset = pot;
             (chord + offset).min(0.9999).max(0.0)
         } else {
@@ -345,19 +340,19 @@ impl Controls {
 
     fn reconcile_style(&mut self) {
         if self.style_pot_active() {
-            self.parameters.style = self.pot3.value();
+            self.parameters.style = self.pot4.value();
         };
     }
 
     fn reconcile_detune(&mut self) {
         if !self.button.active() {
-            self.last_detune_pot_reading = self.pot4.value();
+            self.last_detune_pot_reading = self.pot3.value();
         };
         let pot = self.last_detune_pot_reading;
 
-        self.parameters.detune = if self.cv5.connected() {
+        self.parameters.detune = if self.cv4.connected() {
             // CV is centered around zero, suited for LFO.
-            let detune = self.cv5.value() * 2.0 - 1.0;
+            let detune = self.cv4.value() * 2.0 - 1.0;
             let offset = pot;
             (detune + offset).min(0.9999).max(0.0)
         } else {
@@ -375,24 +370,16 @@ impl Controls {
 
     fn reconcile_scale_root(&mut self) {
         if self.scale_root_pot_active() {
-            self.last_scale_root_pot_reading = self.pot1.value();
+            self.last_scale_root_pot_reading = self.pot2.value();
         }
         self.parameters.scale_root = self.last_scale_root_pot_reading;
     }
 
     fn reconcile_scale_mode(&mut self) {
         if self.scale_mode_pot_active() {
-            self.last_scale_mode_pot_reading = self.pot4.value();
+            self.last_scale_mode_pot_reading = self.pot3.value();
         }
-        let pot = self.last_scale_mode_pot_reading;
-
-        let cv = if self.cv3.connected() {
-            self.cv3.value() * 2.0 - 1.0
-        } else {
-            0.0
-        };
-
-        self.parameters.scale_mode = cv + pot;
+        self.parameters.scale_mode = self.last_scale_mode_pot_reading;
     }
 
     fn reconcile_calibration(&mut self) {
