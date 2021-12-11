@@ -91,12 +91,9 @@ checksum = "14c189c53d098945499cdfa7ecc63567cf3886b3332b312a5b4585d8d3a6a610"
 
 [[package]]
 name = "cast"
-version = "0.2.7"
+version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4c24dab4283a142afa2fdca129b80ad2c6284e073930f964c3a1293c225ee39a"
-dependencies = [
- "rustc_version 0.4.0",
-]
+checksum = "37b2a672a2cb129a2e41c10b1224bb368f9f37a2b16b612598138befd7b37eb5"
 
 [[package]]
 name = "cortex-m"
@@ -150,7 +147,7 @@ version = "0.5.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "fb77bb72c171d0aa52a2954d8dc7e3f0800ab54b8df7d826f138abbea9eb2794"
 dependencies = [
- "cortex-m 0.6.7",
+ "cortex-m 0.7.3",
  "cortex-m-rtic-macros",
  "heapless",
  "rtic-core",
@@ -202,7 +199,7 @@ checksum = "b365fabc795046672053e29c954733ec3b05e4be654ab130fe8f1f94d7051f35"
 [[package]]
 name = "daisy_bsp"
 version = "0.4.2"
-source = "git+https://github.com/phoracek/daisy_bsp?rev=f9317496948cea7bf02b2a84b04a8d870beb8886#f9317496948cea7bf02b2a84b04a8d870beb8886"
+source = "git+https://github.com/phoracek/daisy_bsp?rev=a5c15f90a1720927c62720052e706d04e34d064a#a5c15f90a1720927c62720052e706d04e34d064a"
 dependencies = [
  "cortex-m 0.7.3",
  "cortex-m-rt",
@@ -459,15 +456,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "rustc_version"
-version = "0.4.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bfa0f585226d2e68097d4f95d113b15b83a82e819ab25717ec0590d9584ef366"
-dependencies = [
- "semver 1.0.4",
-]
-
-[[package]]
 name = "semver"
 version = "0.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -484,12 +472,6 @@ checksum = "f301af10236f6df4160f7c3f04eec6dbc70ace82d23326abad5edee88801c6b6"
 dependencies = [
  "semver-parser 0.10.2",
 ]
-
-[[package]]
-name = "semver"
-version = "1.0.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "568a8e6258aa33c13358f81fd834adb854c6f7c9468520910a9b1e8fac068012"
 
 [[package]]
 name = "semver-parser"
@@ -526,11 +508,11 @@ checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
 
 [[package]]
 name = "stm32h7"
-version = "0.13.0"
+version = "0.14.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8b672c837e0ee8158ecc7fce0f9a948dd0693a9c588338e728d14b73307a0b7d"
+checksum = "6f0faa648e03579befdd7267ab5c669624729028001fcf3c973832f53e310a06"
 dependencies = [
- "bare-metal 0.2.5",
+ "bare-metal 1.0.0",
  "cortex-m 0.7.3",
  "cortex-m-rt",
  "vcell",
@@ -539,12 +521,11 @@ dependencies = [
 [[package]]
 name = "stm32h7xx-hal"
 version = "0.10.0"
-source = "git+https://github.com/phoracek/stm32h7xx-hal?rev=bacb2588dd7e7ff04523d80a08a0a0e500d3679f#bacb2588dd7e7ff04523d80a08a0a0e500d3679f"
+source = "git+https://github.com/stm32-rs/stm32h7xx-hal?rev=cd09880208a6d2a1ac5f77305fe687e1a49db8ea#cd09880208a6d2a1ac5f77305fe687e1a49db8ea"
 dependencies = [
  "bare-metal 1.0.0",
  "cast",
  "cortex-m 0.7.3",
- "cortex-m-rt",
  "embedded-dma",
  "embedded-hal",
  "nb 1.0.0",

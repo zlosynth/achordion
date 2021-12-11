@@ -10,8 +10,8 @@ readme = "../README.md"
 publish = false
 
 [dependencies]
-cortex-m-rtic = "0.5.6"
-panic-halt = "0.2.0"
+cortex-m-rtic = { version = "0.5.8", default-features = false, features = ["cortex-m-7"] }
+panic-halt = "0.2"
 achordion-lib = { path = "../lib" }
 achordion-bank = { path = "../bank", features = ["fft"] }
 micromath = "1.1"
@@ -20,10 +20,10 @@ nb = "1"
 # Requires custom branch with QSPI and split ADC
 # TODO: HAL extended with QSPI support introduced by
 # https://github.com/stm32-rs/stm32h7xx-hal/pull/230 and rebased on the current
-# master. Once this PR gets in, start using the original distribution.
+# master. Once a new release is tagged, use it.
 [dependencies.stm32h7xx-hal]
-git = "https://github.com/phoracek/stm32h7xx-hal"
-rev = "bacb2588dd7e7ff04523d80a08a0a0e500d3679f"
+git = "https://github.com/stm32-rs/stm32h7xx-hal"
+rev = "cd09880208a6d2a1ac5f77305fe687e1a49db8ea"
 features = [ "stm32h750v", "rt", "revision_v" ]
 
 # Requires custom branch with QSPI and split ADC
@@ -35,7 +35,7 @@ features = [ "stm32h750v", "rt", "revision_v" ]
 # gets in or once 0.11.0 comes out.
 [dependencies.daisy_bsp]
 git = "https://github.com/phoracek/daisy_bsp"
-rev = "f9317496948cea7bf02b2a84b04a8d870beb8886"
+rev = "a5c15f90a1720927c62720052e706d04e34d064a"
 
 [[bin]]
 name = "achordion-eurorack"
