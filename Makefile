@@ -42,6 +42,13 @@ test:
 	python -m unittest -v hack/calculate_adc_opamp_components.py
 	python -m unittest -v hack/calculate_reference_voltage_current_limiter.py
 
+.PHONY: update
+update:
+	cd bank && cargo update
+	cd eurorack && cargo update
+	cd lib && cargo update
+	cd puredata && cargo update
+
 .PHONY: puredata
 puredata:
 	mkdir -p ~/.local/lib/pd/extra
