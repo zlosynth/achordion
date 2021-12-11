@@ -186,35 +186,17 @@ const APP: () = {
             let instrument = instrument.as_mut().unwrap();
 
             let calibration_action = reconcile_calibration(controls);
-            let any_action = reconcile_all_changes(controls, instrument);
-            let pot_action = reconcile_pot_activity(controls, instrument);
+            let any_actions = reconcile_all_changes(controls, instrument);
+            let pot_actions = reconcile_pot_activity(controls, instrument);
 
-            if controls.active() {
-                activity.reset_pots();
-                activity.reset_cv();
-            } else {
-                activity.tick_all();
-            }
-
-            // 1. If calibration is in progress, prioritize showing that.
-            // 2. If there is any pot activity, show that.
-            // 3. If pots are idle and there is a change caused through CV,
-            //    display that.
-            // 4. If all activity is idle, display the default page.
-            if let Some(action) = calibration_action {
-                display.set(display_lib::reduce(action));
-            } else if let Some(action) = pot_action {
-                display.set(display_lib::reduce(action));
-            } else if let Some(action) = any_action {
-                // Reset only once shown, so it can never blink quickly through
-                // pot to CV to default.
-                activity.reset_cv();
-                display.set(display_lib::reduce(action));
-            } else if activity.idle_cv() && activity.idle_pots() {
-                display.set(display_lib::reduce(DisplayAction::SetChord(
-                    instrument.chord_degrees(),
-                )));
-            }
+            if let Some(display_action) = activity.reconcile(
+                calibration_action,
+                pot_actions,
+                any_actions,
+                DisplayAction::SetChord(instrument.chord_degrees()),
+            ) {
+                display.set(display_lib::reduce(display_action));
+            };
         });
 
         cx.schedule
@@ -267,73 +249,155 @@ fn reconcile_calibration(controls: &mut Controls) -> Option<DisplayAction> {
 fn reconcile_all_changes(
     controls: &mut Controls,
     instrument: &mut Instrument,
-) -> Option<DisplayAction> {
+) -> [Option<DisplayAction>; 9] {
     let new_chord_root_degree = if controls.note_from_pot() {
         instrument.set_chord_root_linear(controls.note())
     } else {
         instrument.set_chord_root_voct(controls.note())
     };
-    let new_solo = instrument.set_solo_voct(controls.solo());
-    let new_scale_root = instrument.set_scale_root_voct(controls.scale_root());
-    let new_scale_mode = instrument.set_scale_mode(controls.scale_mode());
-    let new_wavetable = instrument.set_wavetable(controls.wavetable());
-    let new_style = instrument.set_style(controls.style());
-    let new_wavetable_bank = instrument.set_wavetable_bank(controls.wavetable_bank());
-    let new_degrees = instrument.set_chord_degrees(controls.chord());
-    let new_detune = instrument.set_detune(controls.detune());
-
-    if let Some(new_degrees) = new_degrees {
-        Some(DisplayAction::SetChord(new_degrees))
-    } else if let Some(new_chord_root_degree) = new_chord_root_degree {
+    let chord_root_action = if let Some(new_chord_root_degree) = new_chord_root_degree {
         Some(DisplayAction::SetChordRootDegree(new_chord_root_degree))
-    } else if let Some(new_solo) = new_solo {
+    } else {
+        None
+    };
+
+    let new_degrees = instrument.set_chord_degrees(controls.chord());
+    let degrees_action = if let Some(new_degrees) = new_degrees {
+        Some(DisplayAction::SetChord(new_degrees))
+    } else {
+        None
+    };
+
+    let new_solo = instrument.set_solo_voct(controls.solo());
+    let solo_action = if let Some(new_solo) = new_solo {
         Some(DisplayAction::SetSolo(new_solo))
-    } else if let Some(new_scale_root) = new_scale_root {
+    } else {
+        None
+    };
+
+    let new_scale_root = instrument.set_scale_root_voct(controls.scale_root());
+    let scale_root_action = if let Some(new_scale_root) = new_scale_root {
         Some(DisplayAction::SetScaleRoot(new_scale_root))
-    } else if let Some(new_scale_mode) = new_scale_mode {
+    } else {
+        None
+    };
+
+    let new_scale_mode = instrument.set_scale_mode(controls.scale_mode());
+    let scale_mode_action = if let Some(new_scale_mode) = new_scale_mode {
         Some(DisplayAction::SetScaleMode(new_scale_mode))
-    } else if let Some(new_wavetable_bank) = new_wavetable_bank {
+    } else {
+        None
+    };
+
+    let new_wavetable_bank = instrument.set_wavetable_bank(controls.wavetable_bank());
+    let wavetable_bank_action = if let Some(new_wavetable_bank) = new_wavetable_bank {
         Some(DisplayAction::SetWavetableBank(new_wavetable_bank))
-    } else if let Some(new_wavetable) = new_wavetable {
+    } else {
+        None
+    };
+
+    let new_wavetable = instrument.set_wavetable(controls.wavetable());
+    let wavetable_action = if let Some(new_wavetable) = new_wavetable {
         Some(DisplayAction::SetWavetable(new_wavetable))
-    } else if let Some(new_style) = new_style {
+    } else {
+        None
+    };
+
+    let new_style = instrument.set_style(controls.style());
+    let style_action = if let Some(new_style) = new_style {
         Some(DisplayAction::SetStyle(new_style))
-    } else if let Some((new_detune_index, new_detune_phase)) = new_detune {
+    } else {
+        None
+    };
+
+    let new_detune = instrument.set_detune(controls.detune());
+    let detune_action = if let Some((new_detune_index, new_detune_phase)) = new_detune {
         Some(DisplayAction::SetDetune(new_detune_index, new_detune_phase))
     } else {
         None
-    }
+    };
+
+    [
+        chord_root_action,
+        degrees_action,
+        solo_action,
+        scale_root_action,
+        scale_mode_action,
+        wavetable_bank_action,
+        wavetable_action,
+        style_action,
+        detune_action,
+    ]
 }
 
 fn reconcile_pot_activity(
     controls: &mut Controls,
     instrument: &mut Instrument,
-) -> Option<DisplayAction> {
-    if controls.chord_pot_active() {
+) -> [Option<DisplayAction>; 8] {
+    let chord_action = if controls.chord_pot_active() {
         let chord_degrees = instrument.chord_degrees();
         Some(DisplayAction::SetChord(chord_degrees))
-    } else if controls.wavetable_bank_pot_active() {
+    } else {
+        None
+    };
+
+    let wavetable_bank_action = if controls.wavetable_bank_pot_active() {
         let wavetable_bank = instrument.wavetable_bank();
         Some(DisplayAction::SetWavetableBank(wavetable_bank))
-    } else if controls.note_pot_active() {
+    } else {
+        None
+    };
+
+    let note_action = if controls.note_pot_active() {
         let chord_root_degree = instrument.chord_root_degree();
         Some(DisplayAction::SetChordRootDegree(chord_root_degree))
-    } else if controls.scale_root_pot_active() {
+    } else {
+        None
+    };
+
+    let scale_root_action = if controls.scale_root_pot_active() {
         let scale_root = instrument.scale_root();
         Some(DisplayAction::SetScaleRoot(scale_root))
-    } else if controls.scale_mode_pot_active() {
+    } else {
+        None
+    };
+
+    let scale_mode_action = if controls.scale_mode_pot_active() {
         let scale_mode = instrument.scale_mode();
         Some(DisplayAction::SetScaleMode(scale_mode))
-    } else if controls.wavetable_pot_active() {
+    } else {
+        None
+    };
+
+    let wavetable_action = if controls.wavetable_pot_active() {
         let wavetable = instrument.wavetable();
         Some(DisplayAction::SetWavetable(wavetable))
-    } else if controls.style_pot_active() {
+    } else {
+        None
+    };
+
+    let style_action = if controls.style_pot_active() {
         let style = instrument.style();
         Some(DisplayAction::SetStyle(style))
-    } else if controls.detune_pot_active() {
+    } else {
+        None
+    };
+
+    let detune_action = if controls.detune_pot_active() {
         let (detune_index, detune_phase) = instrument.detune();
         Some(DisplayAction::SetDetune(detune_index, detune_phase))
     } else {
         None
-    }
+    };
+
+    [
+        chord_action,
+        wavetable_bank_action,
+        note_action,
+        scale_root_action,
+        scale_mode_action,
+        wavetable_action,
+        style_action,
+        detune_action,
+    ]
 }

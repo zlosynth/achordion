@@ -6,6 +6,11 @@ backwards compatibility.
 
 ## Unreleased
 
+* The display is now more user-friendly: It priorititizes what is being changed
+  through pots over CV. Furthermore, one CV overtakes another only after the
+  original source is idle.
+* Refactor display handling to define clear order of priority.
+
 ## 1.0.0
 
 * Convert PCB to two stacked layers for easier soldering.
