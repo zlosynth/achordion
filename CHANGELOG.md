@@ -11,6 +11,7 @@ backwards compatibility.
   original source is idle.
 * Fix calibration display. The lower octave is now signalized by LEDs on the
   left, higher on the right.
+* Increase display sensitivity to CV, so it shows even small changes of input.
 
 ## 1.0.0
 
