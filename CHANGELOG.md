@@ -16,6 +16,7 @@ backwards compatibility.
 * Prevent solo CV from bouncing between notes.
 * Stabilize the display, so it does not blink while crossing large differences
   in V/OCT.
+* Change the loading animation to go one LED at the time.
 
 ## 1.0.0
 
