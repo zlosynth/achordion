@@ -213,8 +213,8 @@ fn reduce_set_detune(index: usize, phase: f32) -> State {
 
 fn reduce_set_calibration(phase: CalibrationPhase) -> State {
     let state_array = match phase {
-        CalibrationPhase::WaitingLow => [true, false, true, false, true, false, true, false],
-        CalibrationPhase::WaitingHigh => [false, true, false, true, false, true, false, true],
+        CalibrationPhase::WaitingLow => [false, true, false, true, false, true, false, true],
+        CalibrationPhase::WaitingHigh => [true, false, true, false, true, false, true, false],
         CalibrationPhase::Succeeded => [true, true, true, true, true, true, true, true],
         CalibrationPhase::Failed => [false, false, false, false, false, false, false, false],
     };
@@ -1328,14 +1328,14 @@ mod tests {
         assert_eq!(
             state,
             State {
-                led1: true,
-                led2: false,
-                led3: true,
-                led4: false,
-                led5: true,
-                led6: false,
-                led7: true,
-                led_sharp: false,
+                led1: false,
+                led2: true,
+                led3: false,
+                led4: true,
+                led5: false,
+                led6: true,
+                led7: false,
+                led_sharp: true,
             }
         );
     }
@@ -1346,14 +1346,14 @@ mod tests {
         assert_eq!(
             state,
             State {
-                led1: false,
-                led2: true,
-                led3: false,
-                led4: true,
-                led5: false,
-                led6: true,
-                led7: false,
-                led_sharp: true,
+                led1: true,
+                led2: false,
+                led3: true,
+                led4: false,
+                led5: true,
+                led6: false,
+                led7: true,
+                led_sharp: false,
             }
         );
     }

@@ -9,7 +9,8 @@ backwards compatibility.
 * The display is now more user-friendly: It priorititizes what is being changed
   through pots over CV. Furthermore, one CV overtakes another only after the
   original source is idle.
-* Refactor display handling to define clear order of priority.
+* Fix calibration display. The lower octave is now signalized by LEDs on the
+  left, higher on the right.
 
 ## 1.0.0
 
