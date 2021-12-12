@@ -22,8 +22,8 @@ pub struct Display {
     led6: Led6,
     led7: Led7,
     led_sharp: Led8,
-    previous_state: DisplayState,
-    previous_previous_state: DisplayState,
+    minus_1_state: DisplayState,
+    minus_2_state: DisplayState,
 }
 
 impl Display {
