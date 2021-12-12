@@ -13,6 +13,7 @@ backwards compatibility.
 * Increase display sensitivity to CV, so it shows even small changes of input.
 * If multiple CV inputs compete, the one that was controled through the pot most
   recently is picked.
+* Prevent solo CV from bouncing between notes.
 
 ## 1.0.0
 
