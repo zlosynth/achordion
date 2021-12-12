@@ -65,6 +65,7 @@ impl InputActivity {
         if let Some(last_action) = self.last_action.as_mut() {
             for display_action in cv_actions.iter().flatten() {
                 if discriminant(display_action) == discriminant(&last_action.display_action) {
+                    last_action.display_action = *display_action;
                     last_action.age = 0;
                     return Some(*display_action);
                 }
@@ -92,6 +93,6 @@ impl InputActivity {
             return Some(fallback_action);
         }
 
-        None
+        Some(self.last_action.unwrap().display_action)
     }
 }

@@ -22,6 +22,8 @@ pub struct Display {
     led6: Led6,
     led7: Led7,
     led_sharp: Led8,
+    previous_state: DisplayState,
+    previous_previous_state: DisplayState,
 }
 
 impl Display {
@@ -35,17 +37,54 @@ impl Display {
             led6: config.led6,
             led7: config.led7,
             led_sharp: config.led_sharp,
+            minus_1_state: DisplayState::default(),
+            minus_2_state: DisplayState::default(),
         }
     }
 
     pub fn set(&mut self, display_state: DisplayState) {
-        self.led1.set(display_state.led1);
-        self.led2.set(display_state.led2);
-        self.led3.set(display_state.led3);
-        self.led4.set(display_state.led4);
-        self.led5.set(display_state.led5);
-        self.led6.set(display_state.led6);
-        self.led7.set(display_state.led7);
-        self.led_sharp.set(display_state.led_sharp);
+        if self.minus_1_state.led1 == display_state.led1
+            && self.minus_2_state.led1 == display_state.led1
+        {
+            self.led1.set(display_state.led1);
+        }
+        if self.minus_1_state.led2 == display_state.led2
+            && self.minus_2_state.led2 == display_state.led2
+        {
+            self.led2.set(display_state.led2);
+        }
+        if self.minus_1_state.led3 == display_state.led3
+            && self.minus_2_state.led3 == display_state.led3
+        {
+            self.led3.set(display_state.led3);
+        }
+        if self.minus_1_state.led4 == display_state.led4
+            && self.minus_2_state.led4 == display_state.led4
+        {
+            self.led4.set(display_state.led4);
+        }
+        if self.minus_1_state.led5 == display_state.led5
+            && self.minus_2_state.led5 == display_state.led5
+        {
+            self.led5.set(display_state.led5);
+        }
+        if self.minus_1_state.led6 == display_state.led6
+            && self.minus_2_state.led6 == display_state.led6
+        {
+            self.led6.set(display_state.led6);
+        }
+        if self.minus_1_state.led7 == display_state.led7
+            && self.minus_2_state.led7 == display_state.led7
+        {
+            self.led7.set(display_state.led7);
+        }
+        if self.minus_1_state.led_sharp == display_state.led_sharp
+            && self.minus_2_state.led_sharp == display_state.led_sharp
+        {
+            self.led_sharp.set(display_state.led_sharp);
+        }
+
+        self.minus_2_state = self.minus_1_state;
+        self.minus_1_state = display_state;
     }
 }

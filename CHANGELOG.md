@@ -14,6 +14,8 @@ backwards compatibility.
 * If multiple CV inputs compete, the one that was controled through the pot most
   recently is picked.
 * Prevent solo CV from bouncing between notes.
+* Stabilize the display, so it does not blink while crossing large differences
+  in V/OCT.
 
 ## 1.0.0
 
