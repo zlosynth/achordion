@@ -6,12 +6,13 @@ backwards compatibility.
 
 ## Unreleased
 
-* The display is now more user-friendly: It priorititizes what is being changed
-  through pots over CV. Furthermore, one CV overtakes another only after the
-  original source is idle.
+* The display now priorititizes what is being changed through pots over CV.
+  Furthermore, one CV overtakes another only after the original source is idle.
 * Fix calibration display. The lower octave is now signalized by LEDs on the
   left, higher on the right.
 * Increase display sensitivity to CV, so it shows even small changes of input.
+* If multiple CV inputs compete, the one that was controled through the pot most
+  recently is picked.
 
 ## 1.0.0
 
