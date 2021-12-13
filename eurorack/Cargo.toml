@@ -35,7 +35,7 @@ features = [ "stm32h750v", "rt", "revision_v" ]
 # gets in or once 0.11.0 comes out.
 [dependencies.daisy_bsp]
 git = "https://github.com/phoracek/daisy_bsp"
-rev = "a5c15f90a1720927c62720052e706d04e34d064a"
+rev = "854c34539da2ced6e472d9b579b66e3623e2e10d"
 
 [[bin]]
 name = "achordion-eurorack"

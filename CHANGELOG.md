@@ -18,6 +18,7 @@ backwards compatibility.
   in V/OCT.
 * Change the loading animation to go one LED at the time.
 * Fix scale tonic control, so the pot does not wrap around when set to top.
+* Resolve a bug where saved parameters sometimes failed to get restored.
 
 ## 1.0.0
 

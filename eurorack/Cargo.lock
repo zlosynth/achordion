@@ -199,7 +199,7 @@ checksum = "b365fabc795046672053e29c954733ec3b05e4be654ab130fe8f1f94d7051f35"
 [[package]]
 name = "daisy_bsp"
 version = "0.4.2"
-source = "git+https://github.com/phoracek/daisy_bsp?rev=a5c15f90a1720927c62720052e706d04e34d064a#a5c15f90a1720927c62720052e706d04e34d064a"
+source = "git+https://github.com/phoracek/daisy_bsp?rev=854c34539da2ced6e472d9b579b66e3623e2e10d#854c34539da2ced6e472d9b579b66e3623e2e10d"
 dependencies = [
  "cortex-m 0.7.3",
  "cortex-m-rt",
