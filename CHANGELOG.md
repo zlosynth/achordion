@@ -6,6 +6,8 @@ backwards compatibility.
 
 ## Unreleased
 
+## 1.1.0
+
 * The display now priorititizes what is being changed through pots over CV.
   Furthermore, one CV overtakes another only after the original source is idle.
 * Fix calibration display. The lower octave is now signalized by LEDs on the
