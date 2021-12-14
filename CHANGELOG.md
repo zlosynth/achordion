@@ -6,6 +6,8 @@ backwards compatibility.
 
 ## Unreleased
 
+* Add mounting holes for distancing standoffs.
+
 ## 1.1.0
 
 * The display now priorititizes what is being changed through pots over CV.
