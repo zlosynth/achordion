@@ -7,6 +7,7 @@ backwards compatibility.
 ## Unreleased
 
 * Add mounting holes for distancing standoffs.
+* Label boards and their sides to allow clear identification while building.
 
 ## 1.1.0
 
