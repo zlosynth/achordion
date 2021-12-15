@@ -187,13 +187,21 @@ fn reduce_set_wavetable(phase: f32) -> State {
 }
 
 fn reduce_set_style(style_index: usize) -> State {
-    debug_assert!(style_index < 4);
+    debug_assert!(style_index < 3);
 
     let mut state_array = [false; 8];
 
-    if style_index < 4 {
-        state_array[style_index * 2] = true;
-        state_array[style_index * 2 + 1] = true;
+    if style_index == 0 {
+        state_array[0] = true;
+        state_array[1] = true;
+        state_array[2] = true;
+    } else if style_index == 1 {
+        state_array[3] = true;
+        state_array[4] = true;
+    } else {
+        state_array[5] = true;
+        state_array[6] = true;
+        state_array[7] = true;
     }
 
     state_array.into()
@@ -1096,7 +1104,7 @@ mod tests {
             State {
                 led1: true,
                 led2: true,
-                led3: false,
+                led3: true,
                 led4: false,
                 led5: false,
                 led6: false,
@@ -1114,9 +1122,9 @@ mod tests {
             State {
                 led1: false,
                 led2: false,
-                led3: true,
+                led3: false,
                 led4: true,
-                led5: false,
+                led5: true,
                 led6: false,
                 led7: false,
                 led_sharp: false,
@@ -1134,10 +1142,10 @@ mod tests {
                 led2: false,
                 led3: false,
                 led4: false,
-                led5: true,
+                led5: false,
                 led6: true,
-                led7: false,
-                led_sharp: false,
+                led7: true,
+                led_sharp: true,
             }
         )
     }

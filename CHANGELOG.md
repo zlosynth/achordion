@@ -11,6 +11,7 @@ backwards compatibility.
 * Make it possible to disable quantization on the side line.
 * Divide each octave V/OCT input to 7 almost equal sections.
 * Document the depth of the module.
+* Fully utilize the display while indicating the chord mode.
 
 ## 1.1.0
 
