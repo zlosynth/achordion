@@ -9,6 +9,8 @@ backwards compatibility.
 * Add mounting holes for distancing standoffs.
 * Label boards and their sides to allow clear identification while building.
 * Make it possible to disable quantization on the side line.
+* Divide each octave V/OCT input to 7 equal sections, no matter if they are
+  tones or semitones.
 
 ## 1.1.0
 
