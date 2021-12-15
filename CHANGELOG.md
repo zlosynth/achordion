@@ -10,6 +10,7 @@ backwards compatibility.
 * Label boards and their sides to allow clear identification while building.
 * Make it possible to disable quantization on the side line.
 * Divide each octave V/OCT input to 7 almost equal sections.
+* Document the depth of the module.
 
 ## 1.1.0
 
