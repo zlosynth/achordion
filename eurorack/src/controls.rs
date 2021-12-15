@@ -279,6 +279,7 @@ impl Controls {
         self.reconcile_scale_root();
         self.reconcile_scale_mode();
         self.reconcile_calibration();
+        self.reconcile_solo_quantization();
     }
 
     fn reconcile_note(&mut self) {
@@ -463,6 +464,16 @@ impl Controls {
         }
 
         Err(())
+    }
+
+    fn reconcile_solo_quantization(&mut self) {
+        if self.button.active() && self.cv4.was_plugged() {
+            self.parameters.solo_quantization = !self.parameters.solo_quantization;
+        }
+    }
+
+    pub fn solo_quantization(&self) -> bool {
+        self.parameters.solo_quantization
     }
 
     fn cv1_sample_to_voct(&self, transposed_sample: f32) -> f32 {

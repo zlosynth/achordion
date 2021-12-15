@@ -275,6 +275,8 @@ fn reconcile_all_changes(
         None
     };
 
+    instrument.set_solo_quantization(controls.solo_quantization());
+
     let new_scale_root = instrument.set_scale_root_voct(controls.scale_root());
     let scale_root_action = if let Some(new_scale_root) = new_scale_root {
         Some(DisplayAction::SetScaleRoot(new_scale_root))

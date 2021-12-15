@@ -147,6 +147,7 @@ pub struct Instrument<'a> {
     scale_root: DiscreteParameter<Note>,
     scale_mode: DiscreteParameter<scales::diatonic::Mode>,
     solo: Solo,
+    solo_quantization: bool,
     solo_raw: Option<f32>,
     chord_root_raw: ChordRoot,
     chord_root_degree: u8,
@@ -165,6 +166,7 @@ impl<'a> Instrument<'a> {
             scale_root: DiscreteParameter::new(Note::C1, 0.01),
             scale_mode: DiscreteParameter::new(scales::diatonic::Ionian, 0.001),
             solo: Solo::Disabled,
+            solo_quantization: true,
             solo_raw: None,
             chord_root_raw: ChordRoot::Voct(0.0),
             chord_root_note: DiscreteParameter::new(Note::C1, 0.01),
@@ -260,7 +262,7 @@ impl<'a> Instrument<'a> {
     }
 
     pub fn set_solo_voct(&mut self, voct: Option<f32>) -> Option<u8> {
-        let original = if let Solo::Quantized { degree, .. } = self.solo {
+        let original = if let Solo::Enabled { degree, .. } = self.solo {
             Some(degree)
         } else {
             None
@@ -269,7 +271,7 @@ impl<'a> Instrument<'a> {
         self.solo_raw = voct;
         self.apply_settings();
 
-        let updated = if let Solo::Quantized { degree, .. } = self.solo {
+        let updated = if let Solo::Enabled { degree, .. } = self.solo {
             Some(degree)
         } else {
             None
@@ -280,6 +282,10 @@ impl<'a> Instrument<'a> {
         } else {
             None
         }
+    }
+
+    pub fn set_solo_quantization(&mut self, quantized: bool) {
+        self.solo_quantization = quantized;
     }
 
     fn solo_enabled(&self) -> bool {
@@ -475,7 +481,7 @@ impl<'a> Instrument<'a> {
             self.degrees[last].enable();
 
             let mut note = match self.solo {
-                Solo::Quantized { note, .. } => note,
+                Solo::Enabled { note, .. } => note,
                 _ => DiscreteParameter::new(Note::C1, 0.02),
             };
 
@@ -486,17 +492,18 @@ impl<'a> Instrument<'a> {
             );
             note.set(new_note);
 
-            let frequency = if is_already_used_by_chord(chord_notes, *note) {
-                note.to_freq_f32() * 1.01
+            let frequency = if self.solo_quantization {
+                if is_already_used_by_chord(chord_notes, *note) {
+                    note.to_freq_f32() * 1.01
+                } else {
+                    note.to_freq_f32()
+                }
             } else {
-                note.to_freq_f32()
+                Note::AMinus1.to_freq_f32() * 2.0.powf(voct)
             };
             self.degrees[last].set_frequency(frequency);
 
-            Solo::Quantized { note, degree }
-
-            // self.degrees[last].set_frequency(Note::AMinus1.to_freq_f32() * 2.0.powf(voct));
-            // Solo::Quantized(0)
+            Solo::Enabled { note, degree }
         } else {
             self.degrees[last].disable();
             Solo::Disabled
@@ -547,7 +554,7 @@ enum ChordRoot {
 }
 
 enum Solo {
-    Quantized {
+    Enabled {
         note: DiscreteParameter<Note>,
         degree: u8,
     },

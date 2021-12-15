@@ -9,6 +9,7 @@ const CRC: Crc<u16> = Crc::<u16>::new(&CRC_16_IBM_SDLC);
 pub struct Parameters {
     pub note: f32,
     pub solo: f32,
+    pub solo_quantization: bool,
     pub wavetable: f32,
     pub bank: f32,
     pub chord: f32,
@@ -28,6 +29,7 @@ impl Default for Parameters {
         Self {
             note: 0.0,
             solo: 0.0,
+            solo_quantization: true,
             wavetable: 0.0,
             bank: 0.0,
             chord: 0.0,
@@ -56,9 +58,19 @@ impl Parameters {
             }}
         }
 
+        macro_rules! bool_from_bytes {
+            ( $attribute:ident ) => {{
+                let start = offset_of!(Self => $attribute).get_byte_offset();
+                let stop = start + mem::size_of::<u8>();
+                let x = u8::from_be_bytes(bytes[start..stop].try_into().unwrap());
+                x != 0
+            }}
+        }
+
         Parameters {
             note: f32_from_bytes!(note),
             solo: f32_from_bytes!(solo),
+            solo_quantization: bool_from_bytes!(solo_quantization),
             wavetable: f32_from_bytes!(wavetable),
             bank: f32_from_bytes!(bank),
             chord: f32_from_bytes!(chord),
@@ -85,8 +97,22 @@ impl Parameters {
             }}
         }
 
+        macro_rules! bool_to_bytes {
+            ( $attribute:ident ) => {{
+                let start = offset_of!(Self => $attribute).get_byte_offset();
+                let stop = start + mem::size_of::<u8>();
+                let x: u8 = if self.$attribute {
+                    1
+                } else {
+                    0
+                };
+                bytes[start..stop].copy_from_slice(&x.to_be_bytes());
+            }}
+        }
+
         f32_to_bytes!(note);
         f32_to_bytes!(solo);
+        bool_to_bytes!(solo_quantization);
         f32_to_bytes!(wavetable);
         f32_to_bytes!(bank);
         f32_to_bytes!(chord);
@@ -257,6 +283,7 @@ mod tests {
             cv2_calibration_offset: 0.93,
             solo: 0.94,
             style: 0.95,
+            solo_quantization: true,
         };
         let bytes = parameters.to_bytes();
         assert!(Parameters::from_bytes(bytes) == parameters);
