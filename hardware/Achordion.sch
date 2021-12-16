@@ -2312,8 +2312,8 @@ F 7 "CR0603-FX-1803ELF" H 1250 7450 50  0001 C CNN "Mfr Part Number"
 	1    1250 7450
 	0    -1   -1   0   
 $EndComp
-Text Notes 1000 8550 0    79   ~ 0
-R17-22 must be 1%
+Text Notes 1650 8575 0    79   ~ 0
+R17, R19, R20, R22, R23, R24, R26, R27, R29 and R31 should be 1%
 $Comp
 L Connector_Generic:Conn_02x08_Odd_Even J13
 U 1 1 618F852C
