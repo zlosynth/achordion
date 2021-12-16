@@ -12,6 +12,7 @@ backwards compatibility.
 * Divide each octave V/OCT input to 7 almost equal sections.
 * Document the depth of the module.
 * Fully utilize the display while indicating the chord mode.
+* Introduce V/OCT control of chords.
 
 ## 1.1.0
 

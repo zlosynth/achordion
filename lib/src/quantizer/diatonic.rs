@@ -66,7 +66,7 @@ fn to_voct(note: Note) -> f32 {
 //     T / 2 + T + ST + 3 * T + ST + O,
 // )
 // ```
-fn voct_to_white_key(voct: f32) -> usize {
+pub fn voct_to_white_key(voct: f32) -> usize {
     const T: f32 = 12.0 / 7.0 + 0.05;
     const ST: f32 = (12.0 - 5.0 * T) / 2.0;
     const O: f32 = 0.55;

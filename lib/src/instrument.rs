@@ -154,6 +154,7 @@ pub struct Instrument<'a> {
     chord_root_note: DiscreteParameter<Note>,
     chord_degrees_index: DiscreteParameter<usize>,
     chord_degrees_raw: f32,
+    chord_quantization: bool,
     selected_detune_index: DiscreteParameter<usize>,
     style_index: DiscreteParameter<usize>,
     amplitude: f32,
@@ -173,6 +174,7 @@ impl<'a> Instrument<'a> {
             chord_root_degree: 1,
             chord_degrees_index: DiscreteParameter::new(0, 0.001),
             chord_degrees_raw: 0.0,
+            chord_quantization: false,
             selected_detune_index: DiscreteParameter::new(0, 0.001),
             style_index: DiscreteParameter::new(0, 0.001),
             amplitude: 1.0,
@@ -318,6 +320,10 @@ impl<'a> Instrument<'a> {
         *self.style_index
     }
 
+    pub fn set_chord_quantization(&mut self, chord_quantization: bool) {
+        self.chord_quantization = chord_quantization;
+    }
+
     pub fn set_chord_degrees(&mut self, chord_degrees: f32) -> Option<[i8; CHORD_DEGREES]> {
         self.chord_degrees_raw = chord_degrees;
 
@@ -325,10 +331,14 @@ impl<'a> Instrument<'a> {
 
         let chords = STYLES[*self.style_index];
 
-        self.chord_degrees_index.set(
+        let index = if self.chord_quantization {
+            quantizer::diatonic::voct_to_white_key(chord_degrees.max(0.0))
+        } else {
             ((self.chord_degrees_index.offset_raw(chord_degrees) * chords.len() as f32) as usize)
-                .min(chords.len() - 1),
-        );
+                .min(chords.len() - 1)
+        };
+
+        self.chord_degrees_index.set(index);
         self.apply_settings();
 
         if original != *self.chord_degrees_index {
@@ -340,7 +350,7 @@ impl<'a> Instrument<'a> {
 
     pub fn chord_degrees(&self) -> [i8; CHORD_DEGREES] {
         let chords = STYLES[*self.style_index];
-        chords[*self.chord_degrees_index]
+        chords[self.chord_degrees_index.min(chords.len() - 1)]
     }
 
     pub fn set_wavetable_bank(&mut self, wavetable_bank: f32) -> Option<usize> {
@@ -926,6 +936,22 @@ mod tests {
     #[test]
     fn recover_after_chord_degrees_were_set_below_range() {
         let mut instrument = create_valid_instrument();
+        instrument.set_chord_degrees(-10.0);
+        assert_populate(&mut instrument);
+    }
+
+    #[test]
+    fn recover_after_chord_degrees_with_quantization_were_set_above_range() {
+        let mut instrument = create_valid_instrument();
+        instrument.set_chord_quantization(true);
+        instrument.set_chord_degrees(10.0);
+        assert_populate(&mut instrument);
+    }
+
+    #[test]
+    fn recover_after_chord_degrees_with_quantization_were_set_below_range() {
+        let mut instrument = create_valid_instrument();
+        instrument.set_chord_quantization(true);
         instrument.set_chord_degrees(-10.0);
         assert_populate(&mut instrument);
     }

@@ -268,6 +268,8 @@ fn reconcile_all_changes(
         None
     };
 
+    instrument.set_chord_quantization(controls.chord_quantization());
+
     let new_solo = instrument.set_solo_voct(controls.solo());
     let solo_action = if let Some(new_solo) = new_solo {
         Some(DisplayAction::SetSolo(new_solo))

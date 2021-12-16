@@ -67,6 +67,7 @@ pub struct Controls {
 enum CalibrationTarget {
     Cv1,
     Cv2,
+    Cv5,
     None,
 }
 
@@ -280,6 +281,7 @@ impl Controls {
         self.reconcile_scale_mode();
         self.reconcile_calibration();
         self.reconcile_solo_quantization();
+        self.reconcile_chord_quantization();
     }
 
     fn reconcile_note(&mut self) {
@@ -330,13 +332,28 @@ impl Controls {
         let pot = self.last_chord_pot_reading;
 
         self.parameters.chord = if self.cv5.connected() {
-            // CV is centered around zero, suited for LFO.
-            let chord = self.cv5.value() * 2.0 - 1.0;
-            let offset = pot;
-            (chord + offset).min(0.9999).max(0.0)
+            if self.parameters.chord_quantization {
+                let offset = pot;
+                self.cv5_sample_to_voct(self.cv5.value()) - 2.0 + offset
+            } else {
+                // CV is centered around zero, suited for LFO.
+                let chord = self.cv5.value() * 2.0 - 1.0;
+                let offset = pot;
+                (chord + offset).min(0.9999).max(0.0)
+            }
         } else {
             pot
         };
+    }
+
+    fn reconcile_chord_quantization(&mut self) {
+        if !self.cv5.connected() {
+            self.parameters.chord_quantization = false;
+        }
+    }
+
+    pub fn chord_quantization(&self) -> bool {
+        self.parameters.chord_quantization
     }
 
     fn reconcile_style(&mut self) {
@@ -394,6 +411,11 @@ impl Controls {
             self.calibration_state = CalibrationState::Inactive;
         }
 
+        if matches!(self.calibration_target, CalibrationTarget::Cv5) && self.cv5.was_unplugged() {
+            self.calibration_target = CalibrationTarget::None;
+            self.calibration_state = CalibrationState::Inactive;
+        }
+
         match self.calibration_state {
             CalibrationState::Inactive => {
                 if self.button.active() {
@@ -402,6 +424,9 @@ impl Controls {
                         self.calibration_state = CalibrationState::Entering;
                     } else if self.cv2.was_plugged() {
                         self.calibration_target = CalibrationTarget::Cv2;
+                        self.calibration_state = CalibrationState::Entering;
+                    } else if self.cv5.was_plugged() {
+                        self.calibration_target = CalibrationTarget::Cv5;
                         self.calibration_state = CalibrationState::Entering;
                     }
                 }
@@ -416,6 +441,7 @@ impl Controls {
                     let c_a = match self.calibration_target {
                         CalibrationTarget::Cv1 => self.cv1.value() * VOCT_CV_RANGE,
                         CalibrationTarget::Cv2 => self.cv2.value() * VOCT_CV_RANGE,
+                        CalibrationTarget::Cv5 => self.cv5.value() * VOCT_CV_RANGE,
                         _ => unreachable!(),
                     };
                     self.calibration_state = CalibrationState::CalibratingHigh(c_a);
@@ -426,6 +452,7 @@ impl Controls {
                     let c_b = match self.calibration_target {
                         CalibrationTarget::Cv1 => self.cv1.value() * VOCT_CV_RANGE,
                         CalibrationTarget::Cv2 => self.cv2.value() * VOCT_CV_RANGE,
+                        CalibrationTarget::Cv5 => self.cv5.value() * VOCT_CV_RANGE,
                         _ => unreachable!(),
                     };
                     self.calibration_state =
@@ -438,6 +465,9 @@ impl Controls {
             }
             CalibrationState::Succeeded => {
                 self.calibration_state = CalibrationState::Inactive;
+                if let CalibrationTarget::Cv5 = self.calibration_target {
+                    self.parameters.chord_quantization = true;
+                }
             }
             CalibrationState::Failed => {
                 self.calibration_state = CalibrationState::Inactive;
@@ -457,6 +487,10 @@ impl Controls {
                 CalibrationTarget::Cv2 => {
                     self.parameters.cv2_calibration_ratio = calibration_ratio;
                     self.parameters.cv2_calibration_offset = calibration_offset;
+                }
+                CalibrationTarget::Cv5 => {
+                    self.parameters.cv5_calibration_ratio = calibration_ratio;
+                    self.parameters.cv5_calibration_offset = calibration_offset;
                 }
                 _ => unreachable!(),
             }
@@ -484,6 +518,11 @@ impl Controls {
     fn cv2_sample_to_voct(&self, transposed_sample: f32) -> f32 {
         let voct = transposed_sample * VOCT_CV_RANGE;
         voct * self.parameters.cv2_calibration_ratio + self.parameters.cv2_calibration_offset
+    }
+
+    fn cv5_sample_to_voct(&self, transposed_sample: f32) -> f32 {
+        let voct = transposed_sample * VOCT_CV_RANGE - 5.0;
+        voct * self.parameters.cv5_calibration_ratio + self.parameters.cv5_calibration_offset
     }
 }
 

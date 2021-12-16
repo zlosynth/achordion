@@ -13,6 +13,7 @@ pub struct Parameters {
     pub wavetable: f32,
     pub bank: f32,
     pub chord: f32,
+    pub chord_quantization: bool,
     pub style: f32,
     pub detune: f32,
     pub scale_root: f32,
@@ -22,6 +23,8 @@ pub struct Parameters {
     pub cv1_calibration_offset: f32,
     pub cv2_calibration_ratio: f32,
     pub cv2_calibration_offset: f32,
+    pub cv5_calibration_ratio: f32,
+    pub cv5_calibration_offset: f32,
 }
 
 impl Default for Parameters {
@@ -33,6 +36,7 @@ impl Default for Parameters {
             wavetable: 0.0,
             bank: 0.0,
             chord: 0.0,
+            chord_quantization: false,
             style: 0.0,
             detune: 0.0,
             scale_root: 0.0,
@@ -42,6 +46,8 @@ impl Default for Parameters {
             cv1_calibration_offset: 0.0,
             cv2_calibration_ratio: 1.0,
             cv2_calibration_offset: 0.0,
+            cv5_calibration_ratio: 1.0,
+            cv5_calibration_offset: 0.0,
         }
     }
 }
@@ -74,6 +80,7 @@ impl Parameters {
             wavetable: f32_from_bytes!(wavetable),
             bank: f32_from_bytes!(bank),
             chord: f32_from_bytes!(chord),
+            chord_quantization: bool_from_bytes!(chord_quantization),
             style: f32_from_bytes!(style),
             detune: f32_from_bytes!(detune),
             scale_root: f32_from_bytes!(scale_root),
@@ -83,6 +90,8 @@ impl Parameters {
             cv1_calibration_offset: f32_from_bytes!(cv1_calibration_offset),
             cv2_calibration_ratio: f32_from_bytes!(cv2_calibration_ratio),
             cv2_calibration_offset: f32_from_bytes!(cv2_calibration_offset),
+            cv5_calibration_ratio: f32_from_bytes!(cv5_calibration_ratio),
+            cv5_calibration_offset: f32_from_bytes!(cv5_calibration_offset),
         }
     }
 
@@ -116,6 +125,7 @@ impl Parameters {
         f32_to_bytes!(wavetable);
         f32_to_bytes!(bank);
         f32_to_bytes!(chord);
+        bool_to_bytes!(chord_quantization);
         f32_to_bytes!(style);
         f32_to_bytes!(detune);
         f32_to_bytes!(scale_root);
@@ -125,6 +135,8 @@ impl Parameters {
         f32_to_bytes!(cv1_calibration_offset);
         f32_to_bytes!(cv2_calibration_ratio);
         f32_to_bytes!(cv2_calibration_offset);
+        f32_to_bytes!(cv5_calibration_ratio);
+        f32_to_bytes!(cv5_calibration_offset);
 
         bytes
     }
@@ -284,6 +296,9 @@ mod tests {
             solo: 0.94,
             style: 0.95,
             solo_quantization: true,
+            cv5_calibration_ratio: 0.96,
+            cv5_calibration_offset: 0.97,
+            chord_quantization: true,
         };
         let bytes = parameters.to_bytes();
         assert!(Parameters::from_bytes(bytes) == parameters);
