@@ -13,6 +13,7 @@ backwards compatibility.
 * Document the depth of the module.
 * Fully utilize the display while indicating the chord mode.
 * Introduce V/OCT control of chords.
+* Change CV range for chords to 0-10V.
 
 ## 1.1.0
 

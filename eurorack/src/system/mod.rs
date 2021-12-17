@@ -119,7 +119,7 @@ impl System<'_> {
             cv2: Cv2::new(pins.SEED_PIN_16, (0.0, 10.0)),
             cv3: Cv3::new(pins.SEED_PIN_19, (-5.0, 5.0)),
             cv4: Cv4::new(pins.SEED_PIN_18, (-5.0, 5.0)),
-            cv5: Cv5::new(pins.SEED_PIN_15, (-5.0, 5.0)),
+            cv5: Cv5::new(pins.SEED_PIN_15, (0.0, 10.0)),
             cv_probe: Probe::new(pins.SEED_PIN_10.into_push_pull_output()),
         };
 

@@ -521,7 +521,7 @@ impl Controls {
     }
 
     fn cv5_sample_to_voct(&self, transposed_sample: f32) -> f32 {
-        let voct = transposed_sample * VOCT_CV_RANGE - 5.0;
+        let voct = transposed_sample * VOCT_CV_RANGE;
         voct * self.parameters.cv5_calibration_ratio + self.parameters.cv5_calibration_offset
     }
 }

@@ -2313,7 +2313,7 @@ F 7 "CR0603-FX-1803ELF" H 1250 7450 50  0001 C CNN "Mfr Part Number"
 	0    -1   -1   0   
 $EndComp
 Text Notes 1650 8575 0    79   ~ 0
-R17, R19, R20, R22, R23, R24, R26, R27, R29 and R31 should be 1%
+R17 to R31 should be 1% for best CV accuracy
 $Comp
 L Connector_Generic:Conn_02x08_Odd_Even J13
 U 1 1 618F852C
@@ -2789,7 +2789,7 @@ L Device:R_Small R23
 U 1 1 62B59A31
 P 5125 7400
 F 0 "R23" V 5200 7400 50  0000 C CNN
-F 1 "200k" V 5025 7400 50  0000 C CNN
+F 1 "100k" V 5025 7400 50  0000 C CNN
 F 2 "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder" H 5125 7400 50  0001 C CNN
 F 3 "~" H 5125 7400 50  0001 C CNN
 F 4 "" H 5125 7400 50  0001 C CNN "LCSC Part #"
