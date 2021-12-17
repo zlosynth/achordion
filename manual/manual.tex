@@ -130,17 +130,28 @@ To select root note of the scale, hold the button while turning the TONE knob. L
 
 To select the scale mode, hold the button while turning the DETUNE knob. LEDs I through VII then symbolize each of the modes. Selected mode affects the mood or character of the tune you are playing:
 
-\begin{tabular}{@{}rl@{}}
-  I & Ionian (major) \\
-  II & Dorian \\
-  III & Phrygian \\
+\begin{tabular}{@{}rl@{}@{}rl@{}}
+  I & Ionian (major) \hspace{15mm} & V & Mixolydian  \\
+  II & Dorian & VI & Aeolian (minor) \\
+  III & Phrygian & VII & Locrian \\
   IV & Lydian \\
-  V & Mixolydian \\
-  VI & Aeolian (minor) \\
-  VII & Locrian
 \end{tabular}
 
 CV inputs TONE and TONE' are additionally quantized to the white keys of a piano keyboard. This allows to play any scale using only these keys.
+
+\section{Calibration}
+
+While inputs TONE and TONE' are following the 1V/oct standard, they may not be matching connected CV source device precisely. To calibrate each of these inputs follow this procedure:
+
+\begin{packed_enumerate}
+  \item While holding the button, connect jack to the input.
+  \item The left column of LEDs should light up.
+  \item Play the note C on the CV source and press the button.
+  \item Now the right column of LEDs should light up.
+  \item Play C one octave higher and press the button again.
+\end{packed_enumerate}
+
+If you don't use a keyboard to control TONE or TONE', there is no need for calibration.
 
 \section{Chords}
 
@@ -156,6 +167,8 @@ Furthermore, there are three different modes of playing chords. These can be acc
   \item Arpeggios -- four different chords that are incrementally built while the parameter is being increased. Starting with the root, adding second factor, third, ...
 \end{packed_enumerate_i}
 
+If the button is held while the chord CV is being plugged in, the input gets calibrated and then can used in 1V/oct mode, with each chord assigned to a white key.
+
 \section{Split Outputs}
 
 There are two audio outputs in the module: OUT and OUT'. When only one of these outputs is connected, it gets mixed with the unconnected one. When both outputs are connected, each plays different voices. This allows to run through two different effect chains.
@@ -163,21 +176,6 @@ There are two audio outputs in the module: OUT and OUT'. When only one of these 
 The content of these outputs depends on the playing lines. If the side line is playing, OUT plays the main line, controlled by TONE and OUT' is playing the side line, controlled by TONE'.
 
 However, when the side line is not connected, OUT contains the root note of the main line, while OUT' contains the rest of the chord played by the main line.
-
-\section{Calibration}
-
-
-While inputs TONE and TONE' are following the 1V/oct standard, they may not be matching connected CV source device precisely. To calibrate each of these inputs follow this procedure:
-
-\begin{packed_enumerate}
-  \item While holding the button, connect jack to the input.
-  \item The left column of LEDs should light up.
-  \item Play the note C on the CV source and press the button.
-  \item Now the right column of LEDs should light up.
-  \item Play C one octave higher and press the button again.
-\end{packed_enumerate}
-
-If you don't use a keyboard to control TONE or TONE', there is no need for calibration.
 
 \section{Reset}
 
