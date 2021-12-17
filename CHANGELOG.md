@@ -14,6 +14,7 @@ backwards compatibility.
 * Fully utilize the display while indicating the chord mode.
 * Introduce V/OCT control of chords.
 * Change CV range for chords to 0-10V.
+* Improve the amplitude balance between low and high number of voices.
 
 ## 1.1.0
 

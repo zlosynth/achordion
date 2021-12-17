@@ -524,7 +524,7 @@ impl<'a> Instrument<'a> {
         // This should make changes between different numbers of oscillators
         // less noticable.
         let target_amplitude = {
-            const COMPENSATION: f32 = 3.0;
+            const COMPENSATION: f32 = 2.0;
             let max_oscillators = (DEGREES * OSCILLATORS_IN_DEGREE) as f32;
             let enabled_oscillators =
                 self.degrees
