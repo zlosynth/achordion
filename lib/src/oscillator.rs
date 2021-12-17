@@ -31,7 +31,7 @@ impl<'a> Oscillator<'a> {
     pub fn new(wavetable_bank: &'a [Wavetable], sample_rate: u32) -> Self {
         assert!(!wavetable_bank.is_empty());
         Self {
-            frequency: 0.0,
+            frequency: 20.0,
             phase: 0.0,
             sample_rate: sample_rate as f32,
             previous_wavetable: None,
