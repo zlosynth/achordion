@@ -425,9 +425,9 @@ impl<'a> Instrument<'a> {
         self.amplitude = amplitude;
     }
 
-    pub fn populate(&mut self, buffer_solo: &mut [f32], buffer_chord: &mut [f32]) {
-        zero_slice(buffer_solo);
+    pub fn populate(&mut self, buffer_chord: &mut [f32], buffer_solo: &mut [f32]) {
         zero_slice(buffer_chord);
+        zero_slice(buffer_solo);
 
         if self.solo_enabled() {
             let solo_degree = self.degrees.len() - 1;
@@ -437,11 +437,11 @@ impl<'a> Instrument<'a> {
                 .iter_mut()
                 .for_each(|d| d.populate_add(buffer_chord));
         } else {
-            self.degrees[0].populate_add(buffer_solo);
+            self.degrees[0].populate_add(buffer_chord);
 
             self.degrees[1..]
                 .iter_mut()
-                .for_each(|d| d.populate_add(buffer_chord));
+                .for_each(|d| d.populate_add(buffer_solo));
         };
     }
 

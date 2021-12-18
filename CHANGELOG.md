@@ -16,6 +16,7 @@ backwards compatibility.
 * Change CV range for chords to 0-10V.
 * Improve the amplitude balance between low and high number of voices.
 * Fix a bug where uninitialized voices would cause bit noise.
+* Send solo output to SOLO' jack, as written in the documentation.
 
 ## 1.1.0
 
