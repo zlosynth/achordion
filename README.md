@@ -2,6 +2,15 @@
 
 Chord-crafting quantizing wavetable oscillator module for Eurorack.
 
+Find more details about the module, including a user manual, on its
+[website](zlosynth.com/achordion).
+
+# Development
+
+See [DEVELOPMENT.md](DEVELOPMENT.md) to find some basic commands to interact
+with the project. To learn more, read the code. A good place to start would be
+[eurorack/src/main.rs](eurorack/src/main.rs).
+
 # License
 
 Software of Achordion is distributed under the terms of the General Public
