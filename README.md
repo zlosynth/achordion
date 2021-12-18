@@ -3,7 +3,7 @@
 Chord-crafting quantizing wavetable oscillator module for Eurorack.
 
 Find more details about the module, including a user manual, on its
-[website](zlosynth.com/achordion).
+[website](https://zlosynth.com/achordion).
 
 # Development
 
