@@ -6,6 +6,8 @@ backwards compatibility.
 
 ## Unreleased
 
+## 1.2.0
+
 * Add mounting holes for distancing standoffs.
 * Label boards and their sides to allow clear identification while building.
 * Make it possible to disable quantization on the side line.
