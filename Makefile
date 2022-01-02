@@ -58,4 +58,4 @@ puredata:
 
 .PHONY: manual
 manual:
-	make -C manual
+	make -C manual/user

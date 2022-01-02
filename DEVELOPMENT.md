@@ -52,6 +52,12 @@ valgrind \
 kcachegrind callgrind.out.*
 ```
 
+Build the manual. Find built PDFs under `manual/user`:
+
+``` sh
+make manual
+```
+
 And more under `hack/` and in the `Makefile`.
 
 ## Bandlimiting algorithm
