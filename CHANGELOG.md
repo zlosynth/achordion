@@ -6,6 +6,8 @@ backwards compatibility.
 
 ## Unreleased
 
+* Introduce documentation of the build process.
+
 ## 1.2.0
 
 * Add mounting holes for distancing standoffs.
