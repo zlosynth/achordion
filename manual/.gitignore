@@ -4,3 +4,4 @@
 *.pdf_tex
 *.log
 *.aux
+*.out

@@ -3,7 +3,7 @@
    inkscape:export-ydpi="276.80777"
    inkscape:export-xdpi="276.80777"
    inkscape:export-filename="/home/phoracek/code/zlosynth/zlosynth.github.io/v2/layout.png"
-   inkscape:version="1.1 (c68e22c387, 2021-05-23)"
+   inkscape:version="1.1.1 (3bf5ae0d25, 2021-09-20)"
    width="303.66647"
    height="502.49741"
    viewBox="0 0 80.345088 132.95244"
@@ -33,11 +33,11 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="1.3368752"
-     inkscape:cx="-51.238888"
-     inkscape:cy="246.47027"
+     inkscape:zoom="1.2531333"
+     inkscape:cx="255.7589"
+     inkscape:cy="152.01894"
      inkscape:document-units="mm"
-     inkscape:current-layer="g332"
+     inkscape:current-layer="layer7"
      inkscape:document-rotation="0"
      showgrid="false"
      inkscape:window-width="1916"
@@ -1110,7 +1110,7 @@
        style="fill:#000000;stroke:#ffffff;stroke-width:0.2;stroke-miterlimit:4.19172;stroke-dasharray:none"
        transform="rotate(-160.77351)" />
     <path
-       d="M 39.547446,55.972428 37.102913,51.336574"
+       d="M 39.189867,55.281962 36.745334,50.646108"
        style="fill:#ffffff;stroke:#ffffff;stroke-width:0.571731"
        id="path2908-1-4" />
     <circle
@@ -1128,8 +1128,8 @@
        r="13.091979"
        transform="rotate(-174.14964)" />
     <path
-       d="m 28.905181,23.072774 6.541804,-5.325797"
-       style="fill:#000000;stroke:#000000;stroke-width:0.920244"
+       d="m 31.110455,21.291455 6.541804,-5.325797"
+       style="fill:#000000;stroke:#ffffff;stroke-width:0.572;stroke-miterlimit:4;stroke-dasharray:none"
        id="path3048" />
     <circle
        cx="67.698738"
@@ -1139,7 +1139,7 @@
        style="fill:#000000;stroke:#ffffff;stroke-width:0.2;stroke-miterlimit:4.19172;stroke-dasharray:none"
        transform="rotate(40.793669)" />
     <path
-       d="M 25.283258,74.079876 28.24208,69.754109"
+       d="M 25.771384,73.518847 28.730206,69.19308"
        style="fill:#ffffff;stroke:#ffffff;stroke-width:0.571731"
        id="path2908-1-4-3" />
     <circle
@@ -1149,7 +1149,7 @@
        id="id_s_Small-0-6"
        style="fill:#000000;stroke:#ffffff;stroke-width:0.2;stroke-miterlimit:4.19172;stroke-dasharray:none" />
     <path
-       d="m 39.715164,92.80373 -3.705866,3.705866"
+       d="M 39.229884,93.348944 35.524018,97.05481"
        style="fill:#ffffff;stroke:#ffffff;stroke-width:0.571731"
        id="path2908-1-4-2" />
     <g

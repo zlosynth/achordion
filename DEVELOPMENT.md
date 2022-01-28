@@ -52,7 +52,7 @@ valgrind \
 kcachegrind callgrind.out.*
 ```
 
-Build the manual. Find built PDFs under `manual/user`:
+Build the manual. Find built PDFs under `manual/user` and `manual/build`:
 
 ``` sh
 make manual
