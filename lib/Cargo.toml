@@ -9,11 +9,16 @@ repository = "https://github.com/zlosynth/achordion"
 readme = "../README.md"
 publish = false
 
+[features]
+default = ["stable_amplitude"]
+balanced_amplitude = []
+stable_amplitude = []
+
 [dependencies]
 micromath = "1.1"
 crc = "2"
 field-offset = "0.3"
-lazy_static = { version = "1.4", features = [ "spin_no_std" ] }
+lazy_static = { version = "1.4", features = ["spin_no_std"] }
 
 [dev-dependencies]
 approx = "0.4"

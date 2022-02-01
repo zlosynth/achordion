@@ -519,25 +519,40 @@ impl<'a> Instrument<'a> {
             Solo::Disabled
         };
 
-        // Amplitude of N mixed voices is not N times higher than the one of a
-        // single one. Express perceived amplitude by increasing lower values.
-        // This should make changes between different numbers of oscillators
-        // less noticable.
-        let target_amplitude = {
-            const COMPENSATION: f32 = 2.0;
-            let max_oscillators = (DEGREES * OSCILLATORS_IN_DEGREE) as f32;
-            let enabled_oscillators =
-                self.degrees
-                    .iter()
-                    .fold(0, |a, d| a + d.enabled_oscillators()) as f32;
-            let total_amplitude =
-                (enabled_oscillators + COMPENSATION) / (max_oscillators + COMPENSATION);
-            total_amplitude / enabled_oscillators
-        };
+        let target_amplitude = calculate_target_amplitude(&self.degrees);
         self.degrees
             .iter_mut()
             .for_each(|d| d.set_target_amplitude(target_amplitude));
     }
+}
+
+#[cfg(all(feature = "balanced_amplitude", feature = "stable_amplitude"))]
+compile_error!("feature \"balanced_amplitude\" and feature \"stable_amplitude\" cannot be enabled at the same time");
+
+// Amplitude of N mixed voices is not N times higher than the one of a single
+// one. Express perceived amplitude by increasing lower values.  This should
+// make changes between different numbers of oscillators less noticable. The
+// problem with this approach is that changes in size of chord affects loudness
+// of the solo/root output.
+#[cfg(feature = "balanced_amplitude")]
+fn calculate_target_amplitude(degrees: &[Degree]) -> f32 {
+    const COMPENSATION: f32 = 2.0;
+    let max_oscillators = (DEGREES * OSCILLATORS_IN_DEGREE) as f32;
+    let enabled_oscillators = self
+        .degrees
+        .iter()
+        .fold(0, |a, d| a + d.enabled_oscillators()) as f32;
+    let total_amplitude = (enabled_oscillators + COMPENSATION) / (max_oscillators + COMPENSATION);
+    total_amplitude / enabled_oscillators
+}
+
+// The total amplitude of all oscillators combined must be 1. This produces
+// stable loudness, but since it requires huge amount of headroom, it suffers
+// from weak signal.
+#[cfg(feature = "stable_amplitude")]
+fn calculate_target_amplitude(_: &[Degree]) -> f32 {
+    let max_oscillators = (DEGREES * OSCILLATORS_IN_DEGREE) as f32;
+    1.0 / max_oscillators
 }
 
 fn is_already_used_in_chord(chord_notes: [Option<Note>; CHORD_DEGREES], index: usize) -> bool {
@@ -624,6 +639,7 @@ impl<'a> Degree<'a> {
         self.apply_settings();
     }
 
+    #[cfg(feature = "balanced_amplitude")]
     pub fn enabled_oscillators(&self) -> usize {
         if !self.enabled {
             return 0;
