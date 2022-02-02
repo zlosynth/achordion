@@ -492,7 +492,7 @@ impl<'a> Instrument<'a> {
 
             let mut note = match self.solo {
                 Solo::Enabled { note, .. } => note,
-                _ => DiscreteParameter::new(Note::C1, 0.02),
+                _ => DiscreteParameter::new(Note::C1, 0.01),
             };
 
             let (new_note, degree) = quantizer::diatonic::quantize_voct(
@@ -1024,6 +1024,18 @@ mod tests {
             "Delta {} % is bigger than allowed",
             delta * 100.0
         );
+    }
+
+    #[test]
+    fn same_input_gives_same_result_on_chord_and_solo() {
+        let mut instrument = create_valid_instrument();
+        const MUL: i32 = 100;
+        for x in 0..10 * MUL {
+            let voct = x as f32 / MUL as f32;
+            let degree_chord = instrument.set_chord_root_voct(voct);
+            let degree_solo = instrument.set_solo_voct(Some(voct));
+            assert_eq!(degree_chord, degree_solo, "voct: {}", voct);
+        }
     }
 
     #[test]
