@@ -10,6 +10,8 @@ backwards compatibility.
 * Remove amplitude balancing on small chords. This causes weak signal output but
   guarantees stable loudness on continuous tones.
 * Adjust solo and chord V/OCT tracking to react uniformly to input voltage.
+* Avoid pops on chord changes by increasing the fade-in/out time of individual
+  oscillators to 3 ms.
 
 ## 1.2.0
 

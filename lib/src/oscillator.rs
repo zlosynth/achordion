@@ -3,8 +3,9 @@ use micromath::F32Ext;
 
 use super::wavetable::Wavetable;
 
-// With 44800 hz, it takes 50 cycles to fade in, 1 ms
-const STEPS: f32 = 50.0;
+// With 44800 hz, it takes 150 cycles to fade in, 3 ms. This deals with most of
+// the pops between chords with sine wavetable, while not feeling delayed.
+const STEPS: f32 = 150.0;
 
 #[derive(Clone, Copy, PartialEq, Debug)]
 pub enum Amplitude {
@@ -258,7 +259,7 @@ mod tests {
     }
 
     #[test]
-    fn fade_out_after_50_samples() {
+    fn fade_out_after_150_samples() {
         let mut oscillator = Oscillator::new(&WAVETABLE_BANK[..], SAMPLE_RATE);
         oscillator.amplitude = Stable(1.0);
         oscillator.frequency = 1.0;
@@ -275,7 +276,7 @@ mod tests {
         }
 
         oscillator.set_amplitude(0.0);
-        let mut buffer = [0.0; 50];
+        let mut buffer = [0.0; 150];
         oscillator.populate_add(&mut buffer);
         for i in 0..50 {
             if i % 10 == 0 {
