@@ -10,6 +10,7 @@ pub struct Parameters {
     pub note: f32,
     pub solo: f32,
     pub solo_quantization: bool,
+    pub solo_enabled: bool,
     pub wavetable: f32,
     pub bank: f32,
     pub chord: f32,
@@ -33,6 +34,7 @@ impl Default for Parameters {
             note: 0.0,
             solo: 0.0,
             solo_quantization: true,
+            solo_enabled: true,
             wavetable: 0.0,
             bank: 0.0,
             chord: 0.0,
@@ -77,6 +79,7 @@ impl Parameters {
             note: f32_from_bytes!(note),
             solo: f32_from_bytes!(solo),
             solo_quantization: bool_from_bytes!(solo_quantization),
+            solo_enabled: bool_from_bytes!(solo_enabled),
             wavetable: f32_from_bytes!(wavetable),
             bank: f32_from_bytes!(bank),
             chord: f32_from_bytes!(chord),
@@ -122,6 +125,7 @@ impl Parameters {
         f32_to_bytes!(note);
         f32_to_bytes!(solo);
         bool_to_bytes!(solo_quantization);
+        bool_to_bytes!(solo_enabled);
         f32_to_bytes!(wavetable);
         f32_to_bytes!(bank);
         f32_to_bytes!(chord);
@@ -296,6 +300,7 @@ mod tests {
             solo: 0.94,
             style: 0.95,
             solo_quantization: true,
+            solo_enabled: true,
             cv5_calibration_ratio: 0.96,
             cv5_calibration_offset: 0.97,
             chord_quantization: true,

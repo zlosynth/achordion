@@ -141,10 +141,10 @@ impl Controls {
     }
 
     pub fn solo(&self) -> Option<f32> {
-        if self.parameters.solo < 0.5 / 12.0 {
-            None
-        } else {
+        if self.parameters.solo_enabled {
             Some(self.parameters.solo)
+        } else {
+            None
         }
     }
 
@@ -387,11 +387,13 @@ impl Controls {
     }
 
     fn reconcile_solo(&mut self) {
-        self.parameters.solo = if self.cv2.connected() {
-            self.cv2_sample_to_voct(self.cv2.value())
+        if self.cv2.connected() {
+            self.parameters.solo = self.cv2_sample_to_voct(self.cv2.value());
+            self.parameters.solo_enabled = true;
         } else {
-            0.0
-        };
+            self.parameters.solo = 0.0;
+            self.parameters.solo_enabled = false;
+        }
     }
 
     fn reconcile_scale_root(&mut self) {
