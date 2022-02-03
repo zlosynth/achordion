@@ -6,6 +6,8 @@ backwards compatibility.
 
 ## Unreleased
 
+## 1.3.0
+
 * Introduce documentation of the build process.
 * Remove amplitude balancing on small chords. This causes weak signal output but
   guarantees stable loudness on continuous tones.
