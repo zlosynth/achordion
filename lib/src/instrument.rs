@@ -543,9 +543,10 @@ impl<'a> Instrument<'a> {
         };
 
         let target_amplitude = calculate_target_amplitude(&self.degrees);
+        let instrument_amplitude = self.amplitude();
         self.degrees
             .iter_mut()
-            .for_each(|d| d.set_target_amplitude(target_amplitude));
+            .for_each(|d| d.set_target_amplitude(target_amplitude * instrument_amplitude));
     }
 }
 

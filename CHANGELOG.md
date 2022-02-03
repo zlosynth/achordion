@@ -8,6 +8,7 @@ backwards compatibility.
 
 * Fix english, change "unisono" to "unison".
 * Disable line voice when its V/OCT input gets below zero.
+* Fix a regression where the module would not fade in on boot.
 
 ## 1.3.0
 
