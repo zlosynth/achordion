@@ -219,19 +219,19 @@ mod tests {
     }
 
     #[test]
-    fn find_index_of_unisono_in_scale_in_octave() {
+    fn find_index_of_unison_in_scale_in_octave() {
         let index = find_index_in_scale(Note::C3, Ionian, Note::C3);
         assert_eq!(index, 0);
     }
 
     #[test]
-    fn find_index_of_unisono_in_scale_higher_octave() {
+    fn find_index_of_unison_in_scale_higher_octave() {
         let index = find_index_in_scale(Note::C3, Ionian, Note::C4);
         assert_eq!(index, 0);
     }
 
     #[test]
-    fn find_index_of_unisono_in_scale_lower_octave() {
+    fn find_index_of_unison_in_scale_lower_octave() {
         let index = find_index_in_scale(Note::C3, Ionian, Note::C2);
         assert_eq!(index, 0);
     }

@@ -413,7 +413,7 @@ mod tests {
     }
 
     #[test]
-    fn reduce_chord_spanning_multiple_octaves_with_unisono() {
+    fn reduce_chord_spanning_multiple_octaves_with_unison() {
         let state = reduce(Action::SetChord([1, 8, -15, 0, 0]));
         assert_eq!(
             state,

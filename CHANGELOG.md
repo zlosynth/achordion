@@ -6,6 +6,8 @@ backwards compatibility.
 
 ## Unreleased
 
+* Fix english, change "unisono" to "unison".
+
 ## 1.3.0
 
 * Introduce documentation of the build process.
