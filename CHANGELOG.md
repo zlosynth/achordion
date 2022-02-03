@@ -7,6 +7,7 @@ backwards compatibility.
 ## Unreleased
 
 * Fix english, change "unisono" to "unison".
+* Disable the solo voice when V/OCT input gets below zero.
 
 ## 1.3.0
 

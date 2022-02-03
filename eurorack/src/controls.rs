@@ -137,7 +137,7 @@ impl Controls {
     }
 
     pub fn solo(&self) -> Option<f32> {
-        if self.parameters.solo < 0.01 {
+        if self.parameters.solo < 0.5 / 12.0 {
             None
         } else {
             Some(self.parameters.solo)
