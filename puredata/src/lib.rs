@@ -117,7 +117,7 @@ unsafe extern "C" fn set_solo(class: *mut Class, value: pd_sys::t_float) {
 unsafe extern "C" fn set_chord_root(class: *mut Class, value: pd_sys::t_float) {
     (*class)
         .instrument
-        .set_chord_root_linear(value.clamp(0.0, 10.0));
+        .set_chord_root_linear(Some(value.clamp(0.0, 10.0)));
 }
 
 unsafe extern "C" fn set_chord_degrees(class: *mut Class, value: pd_sys::t_float) {

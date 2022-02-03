@@ -132,8 +132,12 @@ impl Controls {
         self.parameters
     }
 
-    pub fn note(&self) -> f32 {
-        self.parameters.note
+    pub fn note(&self) -> Option<f32> {
+        if self.parameters.note < 0.5 / 12.0 {
+            None
+        } else {
+            Some(self.parameters.note)
+        }
     }
 
     pub fn solo(&self) -> Option<f32> {
@@ -296,7 +300,11 @@ impl Controls {
             let octave_offset = (pot * 3.95).trunc() - 2.0;
             let note = self.cv1_sample_to_voct(self.cv1.value());
             self.note_source = NoteSource::Cv;
-            note + octave_offset
+            if note < 0.5 / 12.0 {
+                0.0
+            } else {
+                note + octave_offset
+            }
         } else {
             self.note_source = NoteSource::Pot;
             pot * 6.0 + 2.0 + 0.7 / 7.0

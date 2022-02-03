@@ -241,12 +241,20 @@ impl<'a> Instrument<'a> {
         *self.scale_root
     }
 
-    pub fn set_chord_root_voct(&mut self, chord_root: f32) -> Option<u8> {
-        self.set_chord_root(ChordRoot::Voct(chord_root))
+    pub fn set_chord_root_voct(&mut self, chord_root: Option<f32>) -> Option<u8> {
+        if let Some(chord_root) = chord_root {
+            self.set_chord_root(ChordRoot::Voct(chord_root))
+        } else {
+            self.set_chord_root(ChordRoot::None)
+        }
     }
 
-    pub fn set_chord_root_linear(&mut self, chord_root: f32) -> Option<u8> {
-        self.set_chord_root(ChordRoot::Linear(chord_root))
+    pub fn set_chord_root_linear(&mut self, chord_root: Option<f32>) -> Option<u8> {
+        if let Some(chord_root) = chord_root {
+            self.set_chord_root(ChordRoot::Linear(chord_root))
+        } else {
+            self.set_chord_root(ChordRoot::None)
+        }
     }
 
     fn set_chord_root(&mut self, chord_root: ChordRoot) -> Option<u8> {
@@ -446,44 +454,55 @@ impl<'a> Instrument<'a> {
     }
 
     fn apply_settings(&mut self) {
-        let (chord_root_note, chord_root_degree) = match self.chord_root_raw {
-            ChordRoot::Linear(chord_root_raw) => quantizer::diatonic::quantize_linear(
-                self.scale_mode(),
-                self.scale_root(),
-                self.chord_root_note.offset_raw(chord_root_raw),
-            ),
-            ChordRoot::Voct(chord_root_raw) => quantizer::diatonic::quantize_voct(
-                self.scale_mode(),
-                self.scale_root(),
-                self.chord_root_note.offset_raw(chord_root_raw),
-            ),
-        };
-
-        self.chord_root_note.set(chord_root_note);
-        self.chord_root_degree = chord_root_degree;
-
-        let chord_notes = chords::diatonic::build(
-            self.scale_root(),
-            self.scale_mode(),
-            chord_root_note,
-            self.chord_degrees(),
-        );
-
         let last = self.degrees.len() - 1;
 
-        for (i, degree) in self.degrees[..last].iter_mut().enumerate() {
-            if let Some(note) = chord_notes[i] {
-                let frequency = if is_already_used_in_chord(chord_notes, i) {
-                    note.to_freq_f32() * 1.01
-                } else {
-                    note.to_freq_f32()
-                };
-                degree.set_frequency(frequency);
-                degree.enable();
-            } else {
+        let chord_notes = if matches!(self.chord_root_raw, ChordRoot::None) {
+            for degree in self.degrees[..last].iter_mut() {
                 degree.disable();
             }
-        }
+
+            [None; 5]
+        } else {
+            let (chord_root_note, chord_root_degree) = match self.chord_root_raw {
+                ChordRoot::Linear(chord_root_raw) => quantizer::diatonic::quantize_linear(
+                    self.scale_mode(),
+                    self.scale_root(),
+                    self.chord_root_note.offset_raw(chord_root_raw),
+                ),
+                ChordRoot::Voct(chord_root_raw) => quantizer::diatonic::quantize_voct(
+                    self.scale_mode(),
+                    self.scale_root(),
+                    self.chord_root_note.offset_raw(chord_root_raw),
+                ),
+                ChordRoot::None => unreachable!(),
+            };
+
+            self.chord_root_note.set(chord_root_note);
+            self.chord_root_degree = chord_root_degree;
+
+            let chord_notes = chords::diatonic::build(
+                self.scale_root(),
+                self.scale_mode(),
+                chord_root_note,
+                self.chord_degrees(),
+            );
+
+            for (i, degree) in self.degrees[..last].iter_mut().enumerate() {
+                if let Some(note) = chord_notes[i] {
+                    let frequency = if is_already_used_in_chord(chord_notes, i) {
+                        note.to_freq_f32() * 1.01
+                    } else {
+                        note.to_freq_f32()
+                    };
+                    degree.set_frequency(frequency);
+                    degree.enable();
+                } else {
+                    degree.disable();
+                }
+            }
+
+            chord_notes
+        };
 
         self.solo = if let Some(mut voct) = self.solo_raw {
             voct = voct.min(10.0);
@@ -576,6 +595,7 @@ fn is_already_used_by_chord(chord_notes: [Option<Note>; CHORD_DEGREES], note: No
 enum ChordRoot {
     Linear(f32),
     Voct(f32),
+    None,
 }
 
 enum Solo {
@@ -863,7 +883,7 @@ mod tests {
         let mut instrument = Instrument::new(&WAVETABLE_BANKS[..], SAMPLE_RATE);
         instrument.set_scale_mode(0.0);
         instrument.set_scale_root_voct(2.0);
-        instrument.set_chord_root_voct(2.5);
+        instrument.set_chord_root_voct(Some(2.5));
         instrument.set_chord_degrees(0.8);
         instrument.set_solo_voct(Some(3.5));
         instrument.set_wavetable(0.1);
@@ -917,14 +937,14 @@ mod tests {
     #[test]
     fn recover_after_chord_root_was_set_above_range() {
         let mut instrument = create_valid_instrument();
-        instrument.set_chord_root_voct(100.0);
+        instrument.set_chord_root_voct(Some(100.0));
         assert_populate(&mut instrument);
     }
 
     #[test]
     fn recover_after_chord_root_was_set_below_range() {
         let mut instrument = create_valid_instrument();
-        instrument.set_chord_root_voct(-100.0);
+        instrument.set_chord_root_voct(Some(-100.0));
         assert_populate(&mut instrument);
     }
 
@@ -1032,7 +1052,7 @@ mod tests {
         const MUL: i32 = 100;
         for x in 0..10 * MUL {
             let voct = x as f32 / MUL as f32;
-            let degree_chord = instrument.set_chord_root_voct(voct);
+            let degree_chord = instrument.set_chord_root_voct(Some(voct));
             let degree_solo = instrument.set_solo_voct(Some(voct));
             assert_eq!(degree_chord, degree_solo, "voct: {}", voct);
         }
@@ -1041,7 +1061,7 @@ mod tests {
     #[test]
     fn output_centered_around_zero_simple() {
         let mut instrument = create_valid_instrument();
-        instrument.set_chord_root_voct(2.5);
+        instrument.set_chord_root_voct(Some(2.5));
         instrument.set_chord_degrees(0.0);
 
         let mut solo_buffer = [0.0; 1024];
@@ -1055,7 +1075,7 @@ mod tests {
     #[test]
     fn output_centered_around_zero_with_detune() {
         let mut instrument = create_valid_instrument();
-        instrument.set_chord_root_voct(2.5);
+        instrument.set_chord_root_voct(Some(2.5));
         instrument.set_chord_degrees(0.0);
         instrument.set_detune(0.7);
 
@@ -1070,7 +1090,7 @@ mod tests {
     #[test]
     fn output_centered_around_zero_with_chord() {
         let mut instrument = create_valid_instrument();
-        instrument.set_chord_root_voct(2.5);
+        instrument.set_chord_root_voct(Some(2.5));
         instrument.set_chord_degrees(1.0);
 
         let mut solo_buffer = [0.0; 8 * 1024];
@@ -1167,12 +1187,12 @@ mod tests {
     #[test]
     fn change_chord_root() {
         let mut instrument = create_valid_instrument();
-        instrument.set_chord_root_voct(1.0);
+        instrument.set_chord_root_voct(Some(1.0));
 
-        let new_root = instrument.set_chord_root_voct(1.0 + 2.0 / 12.0);
+        let new_root = instrument.set_chord_root_voct(Some(1.0 + 2.0 / 12.0));
         assert!(new_root.is_some());
 
-        let new_root = instrument.set_chord_root_voct(1.0 + 2.0 / 12.0);
+        let new_root = instrument.set_chord_root_voct(Some(1.0 + 2.0 / 12.0));
         assert!(new_root.is_none());
     }
 
@@ -1180,10 +1200,10 @@ mod tests {
     fn get_chord_root_degree() {
         let mut instrument = create_valid_instrument();
 
-        instrument.set_chord_root_voct(1.0);
+        instrument.set_chord_root_voct(Some(1.0));
         let old_degree = instrument.chord_root_degree();
 
-        instrument.set_chord_root_voct(1.0 + 2.0 / 12.0);
+        instrument.set_chord_root_voct(Some(1.0 + 2.0 / 12.0));
         let new_degree = instrument.chord_root_degree();
 
         assert!(old_degree != new_degree);
