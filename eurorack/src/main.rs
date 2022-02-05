@@ -182,22 +182,27 @@ const APP: () = {
 
         controls.update();
 
+        let mut calibration_action = None;
+        let mut any_actions = None;
+        let mut pot_actions = None;
+        let mut chord_degrees = None;
+
         cx.resources.instrument.lock(|instrument| {
             let instrument = instrument.as_mut().unwrap();
-
-            let calibration_action = reconcile_calibration(controls);
-            let any_actions = reconcile_all_changes(controls, instrument);
-            let pot_actions = reconcile_pot_activity(controls, instrument);
-
-            if let Some(display_action) = activity.reconcile(
-                calibration_action,
-                pot_actions,
-                any_actions,
-                DisplayAction::SetChord(instrument.chord_degrees()),
-            ) {
-                display.set(display_lib::reduce(display_action));
-            };
+            calibration_action = Some(reconcile_calibration(controls));
+            any_actions = Some(reconcile_all_changes(controls, instrument));
+            pot_actions = Some(reconcile_pot_activity(controls, instrument));
+            chord_degrees = Some(instrument.chord_degrees());
         });
+
+        if let Some(display_action) = activity.reconcile(
+            calibration_action.unwrap(),
+            pot_actions.unwrap(),
+            any_actions.unwrap(),
+            DisplayAction::SetChord(chord_degrees.unwrap()),
+        ) {
+            display.set(display_lib::reduce(display_action));
+        };
 
         cx.schedule
             .reconcile_controls(Instant::now() + CV_PERIOD.cycles())
