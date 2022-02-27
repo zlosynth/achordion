@@ -6,6 +6,11 @@ backwards compatibility.
 
 ## Unreleased
 
+* Replace Daisy Seed with Daisy Patch Submodule, to assure CE requirements.
+* Switch to 0805 footprints for easier hand-soldering.
+* Change from 3 board to 2 board design to become skiff friendly.
+* Remove debug pins due to lack of I/O.
+
 ## 1.3.1
 
 * Fix english, change "unisono" to "unison".
