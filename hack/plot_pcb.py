@@ -27,7 +27,7 @@ def plot_gerber(board):
         popt = pctl.GetPlotOptions()
         popt.SetOutputDirectory('plot')
         popt.SetPlotFrameRef(False)
-        popt.SetLineWidth(pcbnew.FromMM(0.1))
+        popt.SetSketchPadLineWidth(pcbnew.FromMM(0.1))
         popt.SetAutoScale(False)
         popt.SetIncludeGerberNetlistInfo(True)
         popt.SetUseGerberProtelExtensions(False)
