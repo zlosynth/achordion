@@ -10,17 +10,19 @@ fn sector_address(sector_index: usize) -> u32 {
 
 pub struct Storage {
     flash: Flash,
+    version: u16,
 }
 
 impl Storage {
     pub fn new(flash: Flash) -> Self {
-        Self { flash }
+        Self { flash, version: 0 }
     }
 
-    pub fn save_parameters(&mut self, parameters: Parameters, version: u16) {
-        let data = Store::new(parameters, version).to_bytes();
+    pub fn save_parameters(&mut self, parameters: Parameters) {
+        let data = Store::new(parameters, self.version).to_bytes();
         self.flash
-            .write(sector_address(version as usize % NUM_SECTORS), &data);
+            .write(sector_address(self.version as usize % NUM_SECTORS), &data);
+        self.version += 1;
     }
 
     pub fn load_parameters(&mut self) -> Parameters {
@@ -43,6 +45,7 @@ impl Storage {
         }
 
         if let Some(latest) = latest_store {
+            self.version = latest.version() + 1;
             latest.parameters()
         } else {
             Parameters::default()

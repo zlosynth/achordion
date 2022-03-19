@@ -1,3 +1,6 @@
+#[allow(unused_imports)]
+use micromath::F32Ext;
+
 use core::convert::TryInto;
 use core::mem;
 
@@ -144,6 +147,34 @@ impl Parameters {
 
         bytes
     }
+
+    // For purposes of checking whether the new value is different enough from
+    // the previousy stored one
+    pub fn close_to(&self, other: &Self) -> bool {
+        f32_close(self.note, other.note)
+            && f32_close(self.solo, other.solo)
+            && f32_close(self.wavetable, other.wavetable)
+            && f32_close(self.bank, other.bank)
+            && f32_close(self.chord, other.chord)
+            && f32_close(self.style, other.style)
+            && f32_close(self.detune, other.detune)
+            && f32_close(self.scale_root, other.scale_root)
+            && f32_close(self.scale_mode, other.scale_mode)
+            && f32_close(self.amplitude, other.amplitude)
+            && self.cv1_calibration_ratio == other.cv1_calibration_ratio
+            && self.cv1_calibration_offset == other.cv1_calibration_offset
+            && self.cv2_calibration_ratio == other.cv2_calibration_ratio
+            && self.cv2_calibration_offset == other.cv2_calibration_offset
+            && self.cv5_calibration_ratio == other.cv5_calibration_ratio
+            && self.cv5_calibration_offset == other.cv5_calibration_offset
+            && self.solo_quantization == other.solo_quantization
+            && self.solo_enabled == other.solo_enabled
+            && self.chord_quantization == other.chord_quantization
+    }
+}
+
+fn f32_close(a: f32, b: f32) -> bool {
+    (a - b).abs() < 0.01
 }
 
 #[derive(Clone, Copy)]

@@ -52,6 +52,7 @@ const APP: () = {
         input_activity: InputActivity,
         audio: Audio<'static>,
         instrument: Option<Instrument<'static>>,
+        lastly_stored_parameters: Parameters,
     }
 
     /// Initialize all the peripherals.
@@ -111,10 +112,11 @@ const APP: () = {
             storage,
             instrument: None,
             input_activity: InputActivity::new(),
+            lastly_stored_parameters: parameters,
         }
     }
 
-    #[task(schedule = [fade_in, reconcile_controls], spawn = [backup_collector], resources = [display, instrument], priority = 2)]
+    #[task(schedule = [fade_in, reconcile_controls], spawn = [backup_countdown], resources = [display, instrument], priority = 2)]
     fn initialize(mut cx: initialize::Context) {
         let display = cx.resources.display;
         bank::setup(display);
@@ -135,7 +137,7 @@ const APP: () = {
         cx.schedule
             .fade_in(Instant::now() + (SECOND / 10).cycles())
             .unwrap();
-        cx.spawn.backup_collector(0).unwrap();
+        cx.spawn.backup_countdown(BACKUP_COUNTDOWN_LENGTH).unwrap();
     }
 
     #[task(binds = DMA1_STR1, priority = 3, resources = [audio, instrument])]
@@ -213,59 +215,57 @@ const APP: () = {
     }
 
     #[task(schedule = [backup_countdown], spawn = [backup_collector], priority = 2)]
-    fn backup_countdown(cx: backup_countdown::Context, version: u16, countdown: u8) {
-        fn launch_backup_collector(cx: backup_countdown::Context, version: u16) {
-            cx.spawn.backup_collector(version).ok().unwrap();
+    fn backup_countdown(cx: backup_countdown::Context, countdown: u8) {
+        fn launch_backup_collector(cx: backup_countdown::Context) {
+            cx.spawn.backup_collector().ok().unwrap();
         }
 
-        fn tick_countdown(cx: backup_countdown::Context, version: u16, countdown: u8) {
+        fn tick_countdown(cx: backup_countdown::Context, countdown: u8) {
             cx.schedule
-                .backup_countdown(
-                    Instant::now() + BACKUP_COUNTDOWN_SLEEP.cycles(),
-                    version,
-                    countdown,
-                )
+                .backup_countdown(Instant::now() + BACKUP_COUNTDOWN_SLEEP.cycles(), countdown)
                 .unwrap();
         }
 
-        if countdown == 1 {
-            launch_backup_collector(cx, version);
+        if countdown > 1 {
+            tick_countdown(cx, countdown - 1);
         } else {
-            tick_countdown(cx, version, countdown - 1);
+            launch_backup_collector(cx);
         }
     }
 
     #[task(spawn = [backup_executor], resources = [controls], priority = 2)]
-    fn backup_collector(cx: backup_collector::Context, version: u16) {
-        fn launch_backup_executor(
-            cx: backup_collector::Context,
-            parameters: Parameters,
-            version: u16,
-        ) {
-            cx.spawn.backup_executor(parameters, version).ok().unwrap();
+    fn backup_collector(cx: backup_collector::Context) {
+        fn launch_backup_executor(cx: backup_collector::Context, parameters: Parameters) {
+            cx.spawn.backup_executor(parameters).ok().unwrap();
         }
 
         let parameters = cx.resources.controls.parameters();
-        launch_backup_executor(cx, parameters, version);
+        launch_backup_executor(cx, parameters);
     }
 
-    #[task(schedule = [backup_countdown], resources = [storage])]
-    fn backup_executor(mut cx: backup_executor::Context, parameters: Parameters, version: u16) {
-        fn start_countdown(cx: backup_executor::Context, version: u16) {
+    #[task(schedule = [backup_countdown], resources = [storage, lastly_stored_parameters])]
+    fn backup_executor(mut cx: backup_executor::Context, parameters: Parameters) {
+        fn start_countdown(cx: backup_executor::Context) {
             cx.schedule
                 .backup_countdown(
                     Instant::now() + BACKUP_COUNTDOWN_SLEEP.cycles(),
-                    version,
                     BACKUP_COUNTDOWN_LENGTH,
                 )
                 .unwrap();
         }
 
-        let storage = &mut cx.resources.storage;
-        storage.save_parameters(parameters, version);
+        let lastly_stored_parameters = &mut cx.resources.lastly_stored_parameters;
 
-        let next_version = version.wrapping_add(1);
-        start_countdown(cx, next_version);
+        if parameters.close_to(lastly_stored_parameters) {
+            start_countdown(cx);
+        } else {
+            **lastly_stored_parameters = parameters;
+
+            let storage = &mut cx.resources.storage;
+            storage.save_parameters(parameters);
+
+            start_countdown(cx);
+        }
     }
 
     extern "C" {
