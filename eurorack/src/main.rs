@@ -38,7 +38,10 @@ use crate::system::System;
 
 const SECOND: u32 = 480_000_000;
 const CV_PERIOD: u32 = SECOND / 2000;
-const STORE_PERIOD: u32 = 4 * SECOND;
+
+// Backup every 60 seconds
+const BACKUP_COUNTDOWN_LENGTH: u8 = 12;
+const BACKUP_COUNTDOWN_SLEEP: u32 = 5 * SECOND;
 
 #[app(device = stm32h7xx_hal::pac, peripherals = true, monotonic = rtic::cyccnt::CYCCNT)]
 const APP: () = {
@@ -209,26 +212,60 @@ const APP: () = {
             .unwrap();
     }
 
-    #[task(spawn = [backup_executor], resources = [controls], priority = 2)]
-    fn backup_collector(cx: backup_collector::Context, version: u16) {
-        let controls = cx.resources.controls;
-        cx.spawn
-            .backup_executor(controls.parameters(), version)
-            .ok()
-            .unwrap();
+    #[task(schedule = [backup_countdown], spawn = [backup_collector], priority = 2)]
+    fn backup_countdown(cx: backup_countdown::Context, version: u16, countdown: u8) {
+        fn launch_backup_collector(cx: backup_countdown::Context, version: u16) {
+            cx.spawn.backup_collector(version).ok().unwrap();
+        }
+
+        fn tick_countdown(cx: backup_countdown::Context, version: u16, countdown: u8) {
+            cx.schedule
+                .backup_countdown(
+                    Instant::now() + BACKUP_COUNTDOWN_SLEEP.cycles(),
+                    version,
+                    countdown,
+                )
+                .unwrap();
+        }
+
+        if countdown == 1 {
+            launch_backup_collector(cx, version);
+        } else {
+            tick_countdown(cx, version, countdown - 1);
+        }
     }
 
-    #[task(schedule = [backup_collector], resources = [storage])]
-    fn backup_executor(cx: backup_executor::Context, parameters: Parameters, version: u16) {
-        let storage = cx.resources.storage;
+    #[task(spawn = [backup_executor], resources = [controls], priority = 2)]
+    fn backup_collector(cx: backup_collector::Context, version: u16) {
+        fn launch_backup_executor(
+            cx: backup_collector::Context,
+            parameters: Parameters,
+            version: u16,
+        ) {
+            cx.spawn.backup_executor(parameters, version).ok().unwrap();
+        }
+
+        let parameters = cx.resources.controls.parameters();
+        launch_backup_executor(cx, parameters, version);
+    }
+
+    #[task(schedule = [backup_countdown], resources = [storage])]
+    fn backup_executor(mut cx: backup_executor::Context, parameters: Parameters, version: u16) {
+        fn start_countdown(cx: backup_executor::Context, version: u16) {
+            cx.schedule
+                .backup_countdown(
+                    Instant::now() + BACKUP_COUNTDOWN_SLEEP.cycles(),
+                    version,
+                    BACKUP_COUNTDOWN_LENGTH,
+                )
+                .unwrap();
+        }
+
+        let storage = &mut cx.resources.storage;
         storage.save_parameters(parameters, version);
 
-        cx.schedule
-            .backup_collector(
-                Instant::now() + STORE_PERIOD.cycles(),
-                version.wrapping_add(1),
-            )
-            .unwrap();
+        let next_version = version.wrapping_add(1);
+        start_countdown(cx, next_version);
     }
 
     extern "C" {
