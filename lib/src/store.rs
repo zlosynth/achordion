@@ -4,9 +4,9 @@ use micromath::F32Ext;
 use core::convert::TryInto;
 use core::mem;
 
-use crc::{Crc, CRC_16_IBM_SDLC};
+use crc::{Crc, CRC_32_CKSUM};
 
-const CRC: Crc<u16> = Crc::<u16>::new(&CRC_16_IBM_SDLC);
+const CRC: Crc<u32> = Crc::<u32>::new(&CRC_32_CKSUM);
 
 #[derive(Clone, Copy, PartialEq)]
 pub struct Parameters {
@@ -179,9 +179,9 @@ fn f32_close(a: f32, b: f32) -> bool {
 
 #[derive(Clone, Copy)]
 pub struct Store {
-    version: u16,
+    version: u32,
     parameters_raw: [u8; Parameters::SIZE],
-    crc: u16,
+    crc: u32,
 }
 
 lazy_static! {
@@ -195,7 +195,7 @@ pub struct InvalidData;
 impl Store {
     pub const SIZE: usize = mem::size_of::<Self>();
 
-    pub fn new(parameters: Parameters, version: u16) -> Self {
+    pub fn new(parameters: Parameters, version: u32) -> Self {
         let parameters_raw = parameters.to_bytes();
         let crc = CRC.checksum(&parameters_raw);
         Self {
@@ -206,20 +206,20 @@ impl Store {
     }
 
     pub fn from_bytes(bytes: [u8; Self::SIZE]) -> Result<Self, InvalidData> {
-        macro_rules! u16_from_bytes {
+        macro_rules! u32_from_bytes {
             ( $attribute:ident ) => {{
                 let start = offset_of!(Self => $attribute).get_byte_offset();
-                let stop = start + mem::size_of::<u16>();
-                u16::from_be_bytes(bytes[start..stop].try_into().unwrap())
+                let stop = start + mem::size_of::<u32>();
+                u32::from_be_bytes(bytes[start..stop].try_into().unwrap())
             }}
         }
 
         let store = Store {
-            version: u16_from_bytes!(version),
+            version: u32_from_bytes!(version),
             parameters_raw: bytes[*PARAMETERS_RAW_START..*PARAMETERS_RAW_STOP]
                 .try_into()
                 .unwrap(),
-            crc: u16_from_bytes!(crc),
+            crc: u32_from_bytes!(crc),
         };
 
         let crc = CRC.checksum(&store.parameters_raw);
@@ -233,16 +233,16 @@ impl Store {
     pub fn to_bytes(self) -> [u8; Self::SIZE] {
         let mut bytes = [0; Self::SIZE];
 
-        macro_rules! u16_to_bytes {
+        macro_rules! u32_to_bytes {
             ( $attribute:ident ) => {{
                 let start = offset_of!(Self => $attribute).get_byte_offset();
-                let stop = start + mem::size_of::<u16>();
+                let stop = start + mem::size_of::<u32>();
                 bytes[start..stop].copy_from_slice(&self.$attribute.to_be_bytes());
             }}
         }
 
-        u16_to_bytes!(version);
-        u16_to_bytes!(crc);
+        u32_to_bytes!(version);
+        u32_to_bytes!(crc);
 
         let parameters_start = offset_of!(Self => parameters_raw).get_byte_offset();
         let parameters_stop = parameters_start + mem::size_of::<[u8; Parameters::SIZE]>();
@@ -255,7 +255,7 @@ impl Store {
         Parameters::from_bytes(self.parameters_raw)
     }
 
-    pub fn version(&self) -> u16 {
+    pub fn version(&self) -> u32 {
         self.version
     }
 }
