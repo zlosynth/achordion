@@ -74,8 +74,8 @@ impl InputActivity {
 
         // CV overtakes only aged pots or another CV
         let overtake = if let Some(last_action) = self.last_action {
-            last_action.source == Calibration && last_action.age > Self::LONG_IDLE
-                || last_action.source == Pot && last_action.age > Self::LONG_IDLE
+            (last_action.source == Pot || last_action.source == Calibration)
+                && last_action.age > Self::LONG_IDLE
                 || last_action.source == CV && last_action.age > Self::SHORT_IDLE
         } else {
             true
