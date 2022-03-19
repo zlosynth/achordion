@@ -10,6 +10,7 @@ backwards compatibility.
 * Switch to 0805 footprints for easier hand-soldering.
 * Change from 3 board to 2 board design to become skiff friendly.
 * Remove debug pins due to lack of I/O.
+* Prevent flash memory from getting worn out by utilizing its full range.
 
 ## 1.3.1
 
