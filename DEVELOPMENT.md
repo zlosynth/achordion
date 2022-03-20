@@ -60,6 +60,11 @@ make manual
 
 And more under `hack/` and in the `Makefile`.
 
+## Gerbers, BOM and CPL
+
+I extensivelly use https://github.com/Bouni/kicad-jlcpcb-tools to deal with the
+matters listed in the title, and to prepare project for manufacture.
+
 ## Bandlimiting algorithm
 
 Bandlimiting is available with two different filtering algorithms - fast fourier

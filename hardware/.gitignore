@@ -16,6 +16,8 @@ _autosave-*
 *-save.kicad_pcb
 fp-info-cache
 Achordion-backups/
+jlcpcb/gerber/
+jlcpcb/assembly/
 
 # Netlist files (exported from Eeschema)
 *.net
