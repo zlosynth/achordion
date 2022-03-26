@@ -1294,7 +1294,7 @@
       (effects (font (size 1 1) (thickness 0.15)))
       (tstamp cd50b8dc-829d-4a1d-8f2a-6471f378ba87)
     )
-    (fp_text value "BAT54S" (at 0 2.5) (layer "F.SilkS") hide
+    (fp_text value "BAT54S" (at 0 2.5) (layer "F.Fab")
       (effects (font (size 1 1) (thickness 0.15)))
       (tstamp 0c544a8c-9f45-4205-9bca-1d91c95d58ef)
     )
@@ -1339,7 +1339,7 @@
       (effects (font (size 1 1) (thickness 0.15)))
       (tstamp 58dc14f9-c158-4824-a84e-24a6a482a7a4)
     )
-    (fp_text value "TL072" (at 0.15 -3.61 90) (layer "Eco2.User") hide
+    (fp_text value "TL072" (at -1.626 3.49 90) (layer "F.Fab")
       (effects (font (size 1 1) (thickness 0.15)))
       (tstamp f976e2cc-36f9-4479-a816-2c74d1d5da6f)
     )
