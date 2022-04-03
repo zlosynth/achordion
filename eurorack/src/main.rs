@@ -39,9 +39,8 @@ use crate::system::System;
 const SECOND: u32 = 480_000_000;
 const CV_PERIOD: u32 = SECOND / 2000;
 
-// Backup every 60 seconds
-const BACKUP_COUNTDOWN_LENGTH: u8 = 12;
-const BACKUP_COUNTDOWN_SLEEP: u32 = 5 * SECOND;
+const BACKUP_COUNTDOWN_LENGTH: u8 = 60;
+const BACKUP_COUNTDOWN_SLEEP: u32 = SECOND;
 
 #[app(device = stm32h7xx_hal::pac, peripherals = true, monotonic = rtic::cyccnt::CYCCNT)]
 const APP: () = {
