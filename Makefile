@@ -60,3 +60,8 @@ puredata:
 manual:
 	make -C manual/build
 	make -C manual/user
+
+.PHONY: flash
+flash:
+	cd eurorack && cargo objcopy --release -- -O binary target/achordion.bin
+	dfu-util -a 0 -s 0x08000000:leave -D eurorack/target/achordion.bin -d ,0483:df11
