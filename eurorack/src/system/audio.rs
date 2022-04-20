@@ -1,48 +1,18 @@
-use daisy_bsp::audio::{self, Block, Interface, Sai1Pins};
+use daisy::audio::{self, Block, Interface};
 
-use crate::system::hal;
-use hal::gpio;
-
-pub const SAMPLE_RATE: u32 = audio::FS.0;
+pub const SAMPLE_RATE: u32 = audio::FS.to_Hz();
 pub const BLOCK_LENGTH: usize = audio::BLOCK_LENGTH;
 
 static mut BUFFER: [(f32, f32); BLOCK_LENGTH] = [(0.0, 0.0); BLOCK_LENGTH];
 
-pub struct AudioPins {
-    pub pdn: gpio::gpiob::PB11<gpio::Output<gpio::PushPull>>,
-    pub mclk_a: gpio::gpioe::PE2<gpio::Alternate<gpio::AF6>>,
-    pub sck_a: gpio::gpioe::PE5<gpio::Alternate<gpio::AF6>>,
-    pub fs_a: gpio::gpioe::PE4<gpio::Alternate<gpio::AF6>>,
-    pub sd_a: gpio::gpioe::PE6<gpio::Alternate<gpio::AF6>>,
-    pub sd_b: gpio::gpioe::PE3<gpio::Alternate<gpio::AF6>>,
+pub struct Audio {
+    interface: Option<Interface>,
 }
 
-impl From<AudioPins> for Sai1Pins {
-    fn from(audio_pins: AudioPins) -> Self {
-        (
-            audio_pins.pdn,
-            audio_pins.mclk_a,
-            audio_pins.sck_a,
-            audio_pins.fs_a,
-            audio_pins.sd_a,
-            audio_pins.sd_b,
-        )
-    }
-}
-
-pub struct Audio<'a> {
-    interface: Option<Interface<'a>>,
-}
-
-impl Audio<'_> {
-    pub fn init(
-        pins: AudioPins,
-        clocks: &hal::rcc::CoreClocks,
-        sai: hal::rcc::rec::Sai1,
-        dma: hal::rcc::rec::Dma1,
-    ) -> Self {
+impl Audio {
+    pub fn init(interface: daisy::audio::Interface) -> Self {
         Self {
-            interface: Some(Interface::init(clocks, sai, pins.into(), dma).unwrap()),
+            interface: Some(interface),
         }
     }
 

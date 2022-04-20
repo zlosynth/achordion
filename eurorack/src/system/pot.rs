@@ -33,7 +33,7 @@ macro_rules! pot {
 
             pub fn finish_sampling(&mut self, adc: &mut Adc<$adc, Enabled>) {
                 let sample: u32 = block!(adc.read_sample()).unwrap();
-                let transposed_sample = transpose_adc(sample as f32, adc.max_sample());
+                let transposed_sample = transpose_adc(sample as f32, adc.slope());
                 self.position_filter.write(transposed_sample);
                 self.movement_detector.write(transposed_sample);
             }
@@ -52,6 +52,6 @@ macro_rules! pot {
 pot!(ADC1);
 pot!(ADC2);
 
-fn transpose_adc(sample: f32, max_sample: u32) -> f32 {
-    sample / max_sample as f32
+fn transpose_adc(sample: f32, slope: u32) -> f32 {
+    sample / slope as f32
 }

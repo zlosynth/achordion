@@ -18,7 +18,7 @@ dependencies = [
  "achordion-bank",
  "achordion-lib",
  "cortex-m-rtic",
- "daisy_bsp",
+ "daisy",
  "micromath",
  "nb 1.0.0",
  "panic-halt",
@@ -33,15 +33,6 @@ dependencies = [
  "field-offset",
  "lazy_static",
  "micromath",
-]
-
-[[package]]
-name = "aligned"
-version = "0.3.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3a785a543aea40f5e4e2e93bb2655d31bc21bb391fff65697150973e383f16bb"
-dependencies = [
- "as-slice",
 ]
 
 [[package]]
@@ -97,22 +88,9 @@ checksum = "37b2a672a2cb129a2e41c10b1224bb368f9f37a2b16b612598138befd7b37eb5"
 
 [[package]]
 name = "cortex-m"
-version = "0.6.7"
+version = "0.7.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9075300b07c6a56263b9b582c214d0ff037b00d45ec9fde1cc711490c56f1bb9"
-dependencies = [
- "aligned",
- "bare-metal 0.2.5",
- "bitfield",
- "cortex-m 0.7.3",
- "volatile-register",
-]
-
-[[package]]
-name = "cortex-m"
-version = "0.7.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2ac919ef424449ec8c08d515590ce15d9262c0ca5f0da5b0c901e971a3b783b3"
+checksum = "37ff967e867ca14eba0c34ac25cd71ea98c678e741e3915d923999bb2fe7c826"
 dependencies = [
  "bare-metal 0.2.5",
  "bitfield",
@@ -147,7 +125,7 @@ version = "0.5.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "fb77bb72c171d0aa52a2954d8dc7e3f0800ab54b8df7d826f138abbea9eb2794"
 dependencies = [
- "cortex-m 0.7.3",
+ "cortex-m",
  "cortex-m-rtic-macros",
  "heapless",
  "rtic-core",
@@ -172,7 +150,7 @@ version = "0.3.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6bffa6c1454368a6aa4811ae60964c38e6996d397ff8095a8b9211b1c1f749bc"
 dependencies = [
- "cortex-m 0.7.3",
+ "cortex-m",
 ]
 
 [[package]]
@@ -191,28 +169,23 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ccaeedb56da03b09f598226e25e80088cb4cd25f316e6e4df7d695f0feeb1403"
 
 [[package]]
-name = "cty"
-version = "0.2.2"
+name = "daisy"
+version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b365fabc795046672053e29c954733ec3b05e4be654ab130fe8f1f94d7051f35"
-
-[[package]]
-name = "daisy_bsp"
-version = "0.4.2"
-source = "git+https://github.com/phoracek/daisy_bsp?rev=854c34539da2ced6e472d9b579b66e3623e2e10d#854c34539da2ced6e472d9b579b66e3623e2e10d"
+checksum = "cdb068565629e41ac407266936afd37c10adeb114265a474bb438adb51e8dccb"
 dependencies = [
- "cortex-m 0.7.3",
+ "cortex-m",
  "cortex-m-rt",
  "cortex-m-semihosting",
- "cty",
+ "num_enum",
  "stm32h7xx-hal",
 ]
 
 [[package]]
 name = "embedded-dma"
-version = "0.1.2"
+version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "46c8c02e4347a0267ca60813c952017f4c5948c232474c6010a381a337f1bda4"
+checksum = "994f7e5b5cb23521c22304927195f236813053eb9c065dd2226a32ba64695446"
 dependencies = [
  "stable_deref_trait",
 ]
@@ -235,6 +208,24 @@ checksum = "1e1c54951450cbd39f3dbcf1005ac413b49487dabf18a720ad2383eccfeffb92"
 dependencies = [
  "memoffset",
  "rustc_version 0.3.3",
+]
+
+[[package]]
+name = "fugit"
+version = "0.3.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f6d8595783d5ca52f0e9830036b3d24f359fae0fcc6bb5fde41f2dd82997cb58"
+dependencies = [
+ "gcd",
+]
+
+[[package]]
+name = "gcd"
+version = "2.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f37978dab2ca789938a83b2f8bc1ef32db6633af9051a6cd409eff72cbaaa79a"
+dependencies = [
+ "paste",
 ]
 
 [[package]]
@@ -367,6 +358,26 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9a64b1ec5cda2586e284722486d802acf1f7dbdc623e2bfc57e65ca1cd099290"
 dependencies = [
  "autocfg",
+]
+
+[[package]]
+name = "num_enum"
+version = "0.5.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "cf5395665662ef45796a4ff5486c5d41d29e0c09640af4c5f17fd94ee2c119c9"
+dependencies = [
+ "num_enum_derive",
+]
+
+[[package]]
+name = "num_enum_derive"
+version = "0.5.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3b0498641e53dd6ac1a4f22547548caa6864cc4933784319cd1775271c5a46ce"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
 ]
 
 [[package]]
@@ -513,21 +524,23 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6f0faa648e03579befdd7267ab5c669624729028001fcf3c973832f53e310a06"
 dependencies = [
  "bare-metal 1.0.0",
- "cortex-m 0.7.3",
+ "cortex-m",
  "cortex-m-rt",
  "vcell",
 ]
 
 [[package]]
 name = "stm32h7xx-hal"
-version = "0.10.0"
-source = "git+https://github.com/stm32-rs/stm32h7xx-hal?rev=cd09880208a6d2a1ac5f77305fe687e1a49db8ea#cd09880208a6d2a1ac5f77305fe687e1a49db8ea"
+version = "0.12.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0b8b90bf0214fc4aa8300ba720de372ec1307f27158e2823f561900ca430a522"
 dependencies = [
  "bare-metal 1.0.0",
  "cast",
- "cortex-m 0.7.3",
+ "cortex-m",
  "embedded-dma",
  "embedded-hal",
+ "fugit",
  "nb 1.0.0",
  "paste",
  "stm32h7",
@@ -548,11 +561,12 @@ dependencies = [
 
 [[package]]
 name = "synopsys-usb-otg"
-version = "0.2.4"
+version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d1216cb0fe29f65bfffe03c364640202eed1291d85d2f62bbadbe670106786e5"
+checksum = "5999b93d4d7e294fc26de39181dbe1428d61dd3b4046642ee0b3927ea2037c9b"
 dependencies = [
- "cortex-m 0.6.7",
+ "cortex-m",
+ "embedded-hal",
  "usb-device",
  "vcell",
 ]

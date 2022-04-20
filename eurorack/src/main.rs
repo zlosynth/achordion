@@ -49,7 +49,7 @@ const APP: () = {
         display: Display,
         storage: Storage,
         input_activity: InputActivity,
-        audio: Audio<'static>,
+        audio: Audio,
         instrument: Option<Instrument<'static>>,
         lastly_stored_parameters: Parameters,
     }

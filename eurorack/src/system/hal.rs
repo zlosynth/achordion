@@ -1,1 +1,1 @@
-pub use daisy_bsp::hal::*;
+pub use daisy::hal::*;

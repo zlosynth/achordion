@@ -43,9 +43,9 @@ macro_rules! cv {
                 let was_connected = self.connected();
 
                 let sample: u32 = block!(adc.read_sample()).unwrap();
-                self.value = transpose_adc(sample as f32, adc.max_sample());
+                self.value = transpose_adc(sample as f32, adc.slope());
                 self.probe_detector
-                    .write(is_high(sample, adc.max_sample(), self.input_range));
+                    .write(is_high(sample, adc.slope(), self.input_range));
 
                 let is_connected = self.connected();
                 self.was_plugged = !was_connected && is_connected;
@@ -74,14 +74,14 @@ macro_rules! cv {
 cv!(ADC1);
 cv!(ADC2);
 
-fn transpose_adc(sample: f32, max_sample: u32) -> f32 {
-    (max_sample as f32 - sample) / max_sample as f32
+fn transpose_adc(sample: f32, slope: u32) -> f32 {
+    (slope as f32 - sample) / slope as f32
 }
 
-fn is_high(sample: u32, max_sample: u32, input_range: (f32, f32)) -> bool {
+fn is_high(sample: u32, slope: u32, input_range: (f32, f32)) -> bool {
     // Calculate what does center of probe voltage translates to the range of
     // the input.
     let max_probe = 3.3;
     let center = (input_range.0 - max_probe / 2.0) / (input_range.0 - input_range.1);
-    transpose_adc(sample as f32, max_sample) > center
+    transpose_adc(sample as f32, slope) > center
 }

@@ -19,7 +19,7 @@ use hal::pac::{ADC1, ADC2};
 use hal::prelude::*;
 use rtic::Peripherals as CorePeripherals;
 
-use audio::{Audio, AudioPins};
+use audio::Audio;
 use button::Button as ButtonWrapper;
 use cv::Cv;
 use flash::Flash;
@@ -27,7 +27,7 @@ use led::Led;
 use pot::Pot;
 use probe::Probe as ProbeWrapper;
 
-pub type Button = ButtonWrapper<gpio::gpiog::PG11<gpio::Input<gpio::PullUp>>>; // PIN 8
+pub type Button = ButtonWrapper<gpio::gpiog::PG11<gpio::Input>>; // PIN 8
 pub type Pot1 = Pot<ADC2, gpio::gpioc::PC1<gpio::Analog>>; // PIN 20
 pub type Pot2 = Pot<ADC1, gpio::gpioc::PC4<gpio::Analog>>; // PIN 21
 pub type Pot3 = Pot<ADC1, gpio::gpioa::PA4<gpio::Analog>>; // PIN 23
@@ -47,7 +47,7 @@ pub type Led6 = Led<gpio::gpioc::PC10<gpio::Output<gpio::PushPull>>>; // PIN 2
 pub type Led7 = Led<gpio::gpioc::PC11<gpio::Output<gpio::PushPull>>>; // PIN 1
 pub type Led8 = Led<gpio::gpiob::PB12<gpio::Output<gpio::PushPull>>>; // PIN 0
 
-pub struct System<'a> {
+pub struct System {
     pub adc1: Adc<ADC1, Enabled>,
     pub adc2: Adc<ADC2, Enabled>,
     pub cvs: Cvs,
@@ -55,7 +55,7 @@ pub struct System<'a> {
     pub button: Button,
     pub leds: Leds,
     pub flash: Flash,
-    pub audio: Audio<'a>,
+    pub audio: Audio,
 }
 
 pub struct Cvs {
@@ -85,60 +85,53 @@ pub struct Leds {
     pub led8: Led8,
 }
 
-impl System<'_> {
+impl System {
     pub fn init(mut cp: CorePeripherals, dp: DevicePeripherals) -> Self {
         enable_cache(&mut cp);
         initialize_timers(&mut cp);
 
-        let board = daisy_bsp::Board::take().unwrap();
+        let board = daisy::Board::take().unwrap();
 
+        // TODO: Needed?
         let ccdr = {
-            let rcc = dp.RCC.constrain().pll2_p_ck(4.mhz());
+            let rcc = dp.RCC.constrain().pll2_p_ck(4.MHz());
             board.freeze_clocks(dp.PWR.constrain(), rcc, &dp.SYSCFG)
         };
-
-        let pins = board.split_gpios(
-            dp.GPIOA.split(ccdr.peripheral.GPIOA),
-            dp.GPIOB.split(ccdr.peripheral.GPIOB),
-            dp.GPIOC.split(ccdr.peripheral.GPIOC),
-            dp.GPIOD.split(ccdr.peripheral.GPIOD),
-            dp.GPIOE.split(ccdr.peripheral.GPIOE),
-            dp.GPIOF.split(ccdr.peripheral.GPIOF),
-            dp.GPIOG.split(ccdr.peripheral.GPIOG),
-        );
+        // let ccdr = daisy::board_freeze_clocks!(board, dp);
+        let pins = daisy::board_split_gpios!(board, ccdr, dp);
 
         let pots = Pots {
-            pot1: Pot1::new(pins.SEED_PIN_20),
-            pot2: Pot2::new(pins.SEED_PIN_21),
-            pot3: Pot3::new(pins.SEED_PIN_23),
-            pot4: Pot4::new(pins.SEED_PIN_22),
+            pot1: Pot1::new(pins.GPIO.PIN_20),
+            pot2: Pot2::new(pins.GPIO.PIN_21),
+            pot3: Pot3::new(pins.GPIO.PIN_23),
+            pot4: Pot4::new(pins.GPIO.PIN_22),
         };
 
         let cvs = Cvs {
-            cv1: Cv1::new(pins.SEED_PIN_17, (0.0, 10.0)),
-            cv2: Cv2::new(pins.SEED_PIN_16, (0.0, 10.0)),
-            cv3: Cv3::new(pins.SEED_PIN_19, (-5.0, 5.0)),
-            cv4: Cv4::new(pins.SEED_PIN_18, (-5.0, 5.0)),
-            cv5: Cv5::new(pins.SEED_PIN_15, (0.0, 10.0)),
-            cv_probe: Probe::new(pins.SEED_PIN_10.into_push_pull_output()),
+            cv1: Cv1::new(pins.GPIO.PIN_17, (0.0, 10.0)),
+            cv2: Cv2::new(pins.GPIO.PIN_16, (0.0, 10.0)),
+            cv3: Cv3::new(pins.GPIO.PIN_19, (-5.0, 5.0)),
+            cv4: Cv4::new(pins.GPIO.PIN_18, (-5.0, 5.0)),
+            cv5: Cv5::new(pins.GPIO.PIN_15, (0.0, 10.0)),
+            cv_probe: Probe::new(pins.GPIO.PIN_10.into_push_pull_output()),
         };
 
-        let button = Button::new(pins.SEED_PIN_8.into_pull_up_input());
+        let button = Button::new(pins.GPIO.PIN_8.into_pull_up_input());
 
         let leds = Leds {
-            led1: Led::new(pins.SEED_PIN_7.into_push_pull_output()),
-            led2: Led::new(pins.SEED_PIN_6.into_push_pull_output()),
-            led3: Led::new(pins.SEED_PIN_5.into_push_pull_output()),
-            led4: Led::new(pins.SEED_PIN_4.into_push_pull_output()),
-            led5: Led::new(pins.SEED_PIN_3.into_push_pull_output()),
-            led6: Led::new(pins.SEED_PIN_2.into_push_pull_output()),
-            led7: Led::new(pins.SEED_PIN_1.into_push_pull_output()),
-            led8: Led::new(pins.SEED_PIN_0.into_push_pull_output()),
+            led1: Led::new(pins.GPIO.PIN_7.into_push_pull_output()),
+            led2: Led::new(pins.GPIO.PIN_6.into_push_pull_output()),
+            led3: Led::new(pins.GPIO.PIN_5.into_push_pull_output()),
+            led4: Led::new(pins.GPIO.PIN_4.into_push_pull_output()),
+            led5: Led::new(pins.GPIO.PIN_3.into_push_pull_output()),
+            led6: Led::new(pins.GPIO.PIN_2.into_push_pull_output()),
+            led7: Led::new(pins.GPIO.PIN_1.into_push_pull_output()),
+            led8: Led::new(pins.GPIO.PIN_0.into_push_pull_output()),
         };
 
         let (adc1, adc2) = {
             let mut delay = DelayFromCountDownTimer::new(dp.TIM2.timer(
-                10.ms(),
+                100.Hz(),
                 ccdr.peripheral.TIM2,
                 &ccdr.clocks,
             ));
@@ -156,25 +149,8 @@ impl System<'_> {
             (adc1.enable(), adc2.enable())
         };
 
-        let flash = Flash::new(&ccdr.clocks, dp.QUADSPI, ccdr.peripheral.QSPI, pins.FMC);
-
-        let audio = {
-            let audio_pins = AudioPins {
-                pdn: pins.AK4556.PDN.into_push_pull_output(),
-                mclk_a: pins.AK4556.MCLK_A.into_alternate_af6(),
-                sck_a: pins.AK4556.SCK_A.into_alternate_af6(),
-                fs_a: pins.AK4556.FS_A.into_alternate_af6(),
-                sd_a: pins.AK4556.SD_A.into_alternate_af6(),
-                sd_b: pins.AK4556.SD_B.into_alternate_af6(),
-            };
-
-            let sai = ccdr
-                .peripheral
-                .SAI1
-                .kernel_clk_mux(hal::rcc::rec::Sai1ClkSel::PLL3_P);
-
-            Audio::init(audio_pins, &ccdr.clocks, sai, ccdr.peripheral.DMA1)
-        };
+        let flash = daisy::board_split_flash!(ccdr, dp, pins);
+        let audio = Audio::init(daisy::board_split_audio!(ccdr, pins));
 
         System {
             adc1,

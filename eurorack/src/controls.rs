@@ -2,7 +2,6 @@
 use micromath::F32Ext;
 
 use daisy::hal;
-use daisy_bsp as daisy;
 
 use hal::adc::{Adc, Enabled};
 use hal::pac::{ADC1, ADC2};

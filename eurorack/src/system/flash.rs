@@ -1,1 +1,1 @@
-pub use daisy_bsp::flash::Flash;
+pub use daisy::flash::Flash;

@@ -16,26 +16,11 @@ achordion-lib = { path = "../lib" }
 achordion-bank = { path = "../bank", features = ["fft"] }
 micromath = "1.1"
 nb = "1"
+daisy = { version = "0.4", features = ["seed_1_1"] }
 
-# Requires custom branch with QSPI and split ADC
-# TODO: HAL extended with QSPI support introduced by
-# https://github.com/stm32-rs/stm32h7xx-hal/pull/230 and rebased on the current
-# master. Once a new release is tagged, use it.
 [dependencies.stm32h7xx-hal]
-git = "https://github.com/stm32-rs/stm32h7xx-hal"
-rev = "cd09880208a6d2a1ac5f77305fe687e1a49db8ea"
+version = "0.12.1"
 features = [ "stm32h750v", "rt", "revision_v" ]
-
-# Requires custom branch with QSPI and split ADC
-# TODO: BSP extended with Flash drivers
-# https://github.com/antoinevg/daisy_bsp/pull/4, using rebased version of
-# https://github.com/stm32-rs/stm32h7xx-hal/pull/230. Once the HAL PR gets
-# merged, BSP PR should be rebased. This BSP rebase also fixes broken
-# constructor API introduced in HAL 0.11.0, that too should be fixed once the PR
-# gets in or once 0.11.0 comes out.
-[dependencies.daisy_bsp]
-git = "https://github.com/phoracek/daisy_bsp"
-rev = "854c34539da2ced6e472d9b579b66e3623e2e10d"
 
 [[bin]]
 name = "achordion-eurorack"
