@@ -13,7 +13,7 @@ use crate::system::Probe;
 use crate::system::{Cv1, Cv2, Cv3, Cv4, Cv5};
 use crate::system::{Pot1, Pot2, Pot3, Pot4};
 
-// V/OCT CV spans from 0.0 to 10.0 V.
+// V/OCT CV spans from -5.0 to 5.0 V.
 const VOCT_CV_RANGE: f32 = 10.0;
 
 pub struct ControlsConfig {
