@@ -27,25 +27,25 @@ use led::Led;
 use pot::Pot;
 use probe::Probe as ProbeWrapper;
 
-pub type Button = ButtonWrapper<gpio::gpiog::PG11<gpio::Input>>; // PIN 8
-pub type Pot1 = Pot<ADC2, gpio::gpioc::PC1<gpio::Analog>>; // PIN 20
-pub type Pot2 = Pot<ADC1, gpio::gpioc::PC4<gpio::Analog>>; // PIN 21
-pub type Pot3 = Pot<ADC1, gpio::gpioa::PA4<gpio::Analog>>; // PIN 23
-pub type Pot4 = Pot<ADC2, gpio::gpioa::PA5<gpio::Analog>>; // PIN 22
-pub type Cv1 = Cv<ADC1, gpio::gpiob::PB1<gpio::Analog>>; // PIN 17
-pub type Cv2 = Cv<ADC2, gpio::gpioa::PA3<gpio::Analog>>; // PIN 16
-pub type Cv3 = Cv<ADC1, gpio::gpioa::PA6<gpio::Analog>>; // PIN 19
-pub type Cv4 = Cv<ADC2, gpio::gpioa::PA7<gpio::Analog>>; // PIN 18
-pub type Cv5 = Cv<ADC1, gpio::gpioc::PC0<gpio::Analog>>; // PIN 15
-pub type Probe = ProbeWrapper<gpio::gpiob::PB5<gpio::Output<gpio::PushPull>>>; // PIN 10
-pub type Led1 = Led<gpio::gpiog::PG10<gpio::Output<gpio::PushPull>>>; // PIN 7
-pub type Led2 = Led<gpio::gpioc::PC12<gpio::Output<gpio::PushPull>>>; // PIN 6
-pub type Led3 = Led<gpio::gpiod::PD2<gpio::Output<gpio::PushPull>>>; // PIN 5
-pub type Led4 = Led<gpio::gpioc::PC8<gpio::Output<gpio::PushPull>>>; // PIN 4
-pub type Led5 = Led<gpio::gpioc::PC9<gpio::Output<gpio::PushPull>>>; // PIN 3
-pub type Led6 = Led<gpio::gpioc::PC10<gpio::Output<gpio::PushPull>>>; // PIN 2
-pub type Led7 = Led<gpio::gpioc::PC11<gpio::Output<gpio::PushPull>>>; // PIN 1
-pub type Led8 = Led<gpio::gpiob::PB12<gpio::Output<gpio::PushPull>>>; // PIN 0
+pub type Button = ButtonWrapper<gpio::gpiob::PB4<gpio::Input>>; // PIN D1
+pub type Pot1 = Pot<ADC2, gpio::gpioa::PA7<gpio::Analog>>; // PIN C2
+pub type Pot2 = Pot<ADC1, gpio::gpioa::PA6<gpio::Analog>>; // PIN C4
+pub type Pot3 = Pot<ADC2, gpio::gpiob::PB1<gpio::Analog>>; // PIN C8
+pub type Pot4 = Pot<ADC1, gpio::gpioa::PA1<gpio::Analog>>; // PIN A2
+pub type Cv1 = Cv<ADC1, gpio::gpioa::PA3<gpio::Analog>>; // PIN C5
+pub type Cv2 = Cv<ADC2, gpio::gpioc::PC1<gpio::Analog>>; // PIN C6
+pub type Cv3 = Cv<ADC1, gpio::gpioc::PC0<gpio::Analog>>; // PIN C7
+pub type Cv4 = Cv<ADC2, gpio::gpioc::PC4<gpio::Analog>>; // PIN C9
+pub type Cv5 = Cv<ADC1, gpio::gpioa::PA2<gpio::Analog>>; // PIN C3
+pub type Probe = ProbeWrapper<gpio::gpioc::PC11<gpio::Output<gpio::PushPull>>>; // PIN D2
+pub type Led1 = Led<gpio::gpiod::PD3<gpio::Output<gpio::PushPull>>>; // PIN D10
+pub type Led2 = Led<gpio::gpioc::PC3<gpio::Output<gpio::PushPull>>>; // PIN D9
+pub type Led3 = Led<gpio::gpioc::PC2<gpio::Output<gpio::PushPull>>>; // PIN D8
+pub type Led4 = Led<gpio::gpiod::PD2<gpio::Output<gpio::PushPull>>>; // PIN D7
+pub type Led5 = Led<gpio::gpioc::PC12<gpio::Output<gpio::PushPull>>>; // PIN D6
+pub type Led6 = Led<gpio::gpioc::PC8<gpio::Output<gpio::PushPull>>>; // PIN D5
+pub type Led7 = Led<gpio::gpioc::PC9<gpio::Output<gpio::PushPull>>>; // PIN D4
+pub type Led8 = Led<gpio::gpioc::PC10<gpio::Output<gpio::PushPull>>>; // PIN D3
 
 pub struct System {
     pub adc1: Adc<ADC1, Enabled>,
@@ -91,42 +91,36 @@ impl System {
         initialize_timers(&mut cp);
 
         let board = daisy::Board::take().unwrap();
-
-        // TODO: Needed?
-        let ccdr = {
-            let rcc = dp.RCC.constrain().pll2_p_ck(4.MHz());
-            board.freeze_clocks(dp.PWR.constrain(), rcc, &dp.SYSCFG)
-        };
-        // let ccdr = daisy::board_freeze_clocks!(board, dp);
+        let ccdr = daisy::board_freeze_clocks!(board, dp);
         let pins = daisy::board_split_gpios!(board, ccdr, dp);
 
         let pots = Pots {
-            pot1: Pot1::new(pins.GPIO.PIN_20),
-            pot2: Pot2::new(pins.GPIO.PIN_21),
-            pot3: Pot3::new(pins.GPIO.PIN_23),
-            pot4: Pot4::new(pins.GPIO.PIN_22),
+            pot1: Pot1::new(pins.GPIO.PIN_C2, (0.5, 0.0)),
+            pot2: Pot2::new(pins.GPIO.PIN_C4, (0.5, 0.0)),
+            pot3: Pot3::new(pins.GPIO.PIN_C8, (0.5, 0.0)),
+            pot4: Pot4::new(pins.GPIO.PIN_A2, (0.0, 1.0)),
         };
 
         let cvs = Cvs {
-            cv1: Cv1::new(pins.GPIO.PIN_17, (0.0, 10.0)),
-            cv2: Cv2::new(pins.GPIO.PIN_16, (0.0, 10.0)),
-            cv3: Cv3::new(pins.GPIO.PIN_19, (-5.0, 5.0)),
-            cv4: Cv4::new(pins.GPIO.PIN_18, (-5.0, 5.0)),
-            cv5: Cv5::new(pins.GPIO.PIN_15, (0.0, 10.0)),
-            cv_probe: Probe::new(pins.GPIO.PIN_10.into_push_pull_output()),
+            cv1: Cv1::new(pins.GPIO.PIN_C5, (-5.0, 5.0)),
+            cv2: Cv2::new(pins.GPIO.PIN_C6, (-5.0, 5.0)),
+            cv3: Cv3::new(pins.GPIO.PIN_C7, (-5.0, 5.0)),
+            cv4: Cv4::new(pins.GPIO.PIN_C9, (-5.0, 5.0)),
+            cv5: Cv5::new(pins.GPIO.PIN_C3, (-5.0, 5.0)),
+            cv_probe: Probe::new(pins.GPIO.PIN_D2.into_push_pull_output()),
         };
 
-        let button = Button::new(pins.GPIO.PIN_8.into_pull_up_input());
+        let button = Button::new(pins.GPIO.PIN_D1.into_pull_up_input());
 
         let leds = Leds {
-            led1: Led::new(pins.GPIO.PIN_7.into_push_pull_output()),
-            led2: Led::new(pins.GPIO.PIN_6.into_push_pull_output()),
-            led3: Led::new(pins.GPIO.PIN_5.into_push_pull_output()),
-            led4: Led::new(pins.GPIO.PIN_4.into_push_pull_output()),
-            led5: Led::new(pins.GPIO.PIN_3.into_push_pull_output()),
-            led6: Led::new(pins.GPIO.PIN_2.into_push_pull_output()),
-            led7: Led::new(pins.GPIO.PIN_1.into_push_pull_output()),
-            led8: Led::new(pins.GPIO.PIN_0.into_push_pull_output()),
+            led1: Led::new(pins.GPIO.PIN_D10.into_push_pull_output()),
+            led2: Led::new(pins.GPIO.PIN_D9.into_push_pull_output()),
+            led3: Led::new(pins.GPIO.PIN_D8.into_push_pull_output()),
+            led4: Led::new(pins.GPIO.PIN_D7.into_push_pull_output()),
+            led5: Led::new(pins.GPIO.PIN_D6.into_push_pull_output()),
+            led6: Led::new(pins.GPIO.PIN_D5.into_push_pull_output()),
+            led7: Led::new(pins.GPIO.PIN_D4.into_push_pull_output()),
+            led8: Led::new(pins.GPIO.PIN_D3.into_push_pull_output()),
         };
 
         let (adc1, adc2) = {

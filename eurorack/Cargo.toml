@@ -16,7 +16,7 @@ achordion-lib = { path = "../lib" }
 achordion-bank = { path = "../bank", features = ["fft"] }
 micromath = "1.1"
 nb = "1"
-daisy = { version = "0.4", features = ["seed_1_1"] }
+daisy = { version = "0.4.3", features = ["patch_sm"] }
 
 [dependencies.stm32h7xx-hal]
 version = "0.12.1"

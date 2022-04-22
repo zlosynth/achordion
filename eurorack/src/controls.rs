@@ -247,10 +247,10 @@ impl Controls {
         self.pot1.finish_sampling(&mut self.adc2);
         self.pot2.finish_sampling(&mut self.adc1);
 
-        self.pot3.start_sampling(&mut self.adc1);
-        self.pot4.start_sampling(&mut self.adc2);
-        self.pot3.finish_sampling(&mut self.adc1);
-        self.pot4.finish_sampling(&mut self.adc2);
+        self.pot3.start_sampling(&mut self.adc2);
+        self.pot4.start_sampling(&mut self.adc1);
+        self.pot3.finish_sampling(&mut self.adc2);
+        self.pot4.finish_sampling(&mut self.adc1);
 
         self.cv1.start_sampling(&mut self.adc1);
         self.cv2.start_sampling(&mut self.adc2);

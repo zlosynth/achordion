@@ -170,9 +170,9 @@ checksum = "ccaeedb56da03b09f598226e25e80088cb4cd25f316e6e4df7d695f0feeb1403"
 
 [[package]]
 name = "daisy"
-version = "0.4.0"
+version = "0.4.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cdb068565629e41ac407266936afd37c10adeb114265a474bb438adb51e8dccb"
+checksum = "6c16f55909bec586b89a5b8c160f755d50c493a4f4f28f913b2b130acc669948"
 dependencies = [
  "cortex-m",
  "cortex-m-rt",
