@@ -2,6 +2,21 @@
 
 Chord-crafting quantizing wavetable oscillator module for Eurorack.
 
+<p align="center">
+   <img src="panel.svg" alt="Panel illustration"/>
+</p>
+
+* Wavetable synthesis, 37 wavetables, smooth transitions
+* Up to 18 simultaneous voices
+* Sub-octaves, duplicated tones, and chords
+* 4 styles of playing - single tone, chords, arpeggios, intervals
+* Quantization to selected scale
+* Any scale can be played with the white piano keys
+* Two lines with independent 1V/oct inputs and audio outputs
+* LEDs visualizing dialed parameters
+* Based around Electro-Smith's [Daisy Patch SM](https://www.electro-smith.com/daisy/patch-sm) platform
+* Programmed in Rust
+
 Find more details about the module, including a user manual, on its
 [website](https://zlosynth.com/achordion).
 
