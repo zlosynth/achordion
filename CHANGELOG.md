@@ -6,6 +6,8 @@ backwards compatibility.
 
 ## Unreleased
 
+## 2.0.0
+
 * Replace Daisy Seed with Daisy Patch Submodule, to assure CE requirements.
 * Switch to 0805 footprints for easier hand-soldering.
 * Change from 3 board to 2 board design to become skiff friendly.
