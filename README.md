@@ -17,8 +17,8 @@ Chord-crafting quantizing wavetable oscillator module for Eurorack.
 * Based around Electro-Smith's [Daisy Patch SM](https://www.electro-smith.com/daisy/patch-sm) platform
 * Programmed in Rust
 
-Find more details about the module, including a user manual, on its
-[website](https://zlosynth.com/achordion).
+Find more details about the module, including a feature overview video and a
+user manual, on its [website](https://zlosynth.com/achordion).
 
 # Development
 
