@@ -7,6 +7,7 @@ backwards compatibility.
 ## Unreleased
 
 * Introduce togglable overdrive mode, compensating for big headroom.
+* Add tooling holes to the PCB.
 
 ## 2.0.0
 
