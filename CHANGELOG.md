@@ -6,6 +6,8 @@ backwards compatibility.
 
 ## Unreleased
 
+* Introduce togglable overdrive mode, compensating for big headroom.
+
 ## 2.0.0
 
 * Replace Daisy Seed with Daisy Patch Submodule, to assure CE requirements.

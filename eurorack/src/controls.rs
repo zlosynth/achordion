@@ -285,6 +285,7 @@ impl Controls {
         self.reconcile_calibration();
         self.reconcile_solo_quantization();
         self.reconcile_chord_quantization();
+        self.reconcile_overdrive();
     }
 
     fn reconcile_note(&mut self) {
@@ -517,6 +518,16 @@ impl Controls {
 
     pub fn solo_quantization(&self) -> bool {
         self.parameters.solo_quantization
+    }
+
+    fn reconcile_overdrive(&mut self) {
+        if self.button.active() && self.cv3.was_plugged() {
+            self.parameters.overdrive = !self.parameters.overdrive;
+        }
+    }
+
+    pub fn overdrive(&self) -> bool {
+        self.parameters.overdrive
     }
 
     fn cv1_sample_to_voct(&self, transposed_sample: f32) -> f32 {

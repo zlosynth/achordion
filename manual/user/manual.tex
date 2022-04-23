@@ -83,8 +83,7 @@ CV inputs TONE (1) and TONE' (2) used to control the root note that are playing 
 
 CV inputs TABLE (3), DETUNE (4) and CHORD (5) are controlling the same attributes as the knobs described above. The value set by the knob is added to the value set through CV. All CV inputs span between -5 and +5~V.
 
-Audio outputs OUT (6) and OUT' (7) play the main and the side line respectively. When only one is connected,
-the outputs are mixed together.
+Audio outputs OUT (6) and OUT' (7) play the main and the side line respectively. When only one is connected, the outputs are mixed together.
 
 \section{Two Lines}
 
@@ -124,8 +123,6 @@ While moving through each of the modes, secondary voices are being gradually det
 
 \section{Quantization}
 
-Quantizing makes sure that everything that comes out of the module stays in tune.
-
 To select root note of the scale, hold the button while turning the TONE knob. LEDs I through VII then symbolize notes of C major: C, D, ..., B. The \# LED signalizes that the note is sharp.
 
 To select the scale mode, hold the button while turning the DETUNE knob. LEDs I through VII then symbolize each of the modes. Selected mode affects the mood or character of the tune you are playing:
@@ -137,9 +134,7 @@ To select the scale mode, hold the button while turning the DETUNE knob. LEDs I 
   IV & Lydian \\
 \end{tabular}
 
-CV inputs TONE and TONE' are additionally quantized to the white keys of a piano keyboard. This allows to play any scale using only these keys.
-
-Quantization of TONE' can be toggled by holding the button while plugging in DETUNE.
+Quantization of TONE' can be switched off by tapping the DETUNE CV input with a jack while holding the button.
 
 \section{Calibration}
 
@@ -171,14 +166,18 @@ If the button is held while the chord CV is being plugged in, the input gets cal
 
 \section{Split Outputs}
 
-There are two audio outputs in the module: OUT and OUT'. When only one of these outputs is connected, it gets mixed with the unconnected one. When both outputs are connected, each plays different voices. This allows to run through two different effect chains.
+There are two audio outputs in the module: OUT and OUT'. When only one of these outputs is connected, it gets mixed with the unconnected one. When both outputs are connected, each plays different voices.
 
 The content of these outputs depends on the playing lines. If the side line is playing, OUT plays the main line, controlled by TONE and OUT' is playing the side line, controlled by TONE'.
 
 However, when the side line is not connected, OUT contains the root note of the main line, while OUT' contains the rest of the chord played by the main line.
 
+\section{Overdrive}
+
+Due to the headroom reserved for all 18 voices, output levels are quite weak. To compensate for that, digital overdrive can be enabled by tapping the WAVETABLE CV input with a jack while holding the button. Note that this has a negative effect on sound quality.
+
 \section{Reset}
 
-Calibration and all secondary parameters (wavetable bank, scale tonic, scale mode, chord mode) are stored between restarts of the module. To reset their values, hold the button pressed while powering on the module.
+Calibration settings and all secondary parameters (wavetable bank, scale tonic, scale mode, chord mode) are stored between restarts of the module. To reset their values, hold the button while powering on the module.
 
 \end{document}

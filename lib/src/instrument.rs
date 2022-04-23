@@ -9,6 +9,7 @@ use crate::chords;
 use crate::detune::DetuneConfig;
 use crate::note::Note;
 use crate::oscillator::Oscillator;
+use crate::overdrive::Overdrive;
 use crate::quantizer;
 use crate::scales;
 use crate::taper;
@@ -158,6 +159,7 @@ pub struct Instrument<'a> {
     selected_detune_index: DiscreteParameter<usize>,
     style_index: DiscreteParameter<usize>,
     amplitude: f32,
+    overdrive: bool,
     degrees: [Degree<'a>; DEGREES],
 }
 
@@ -178,6 +180,7 @@ impl<'a> Instrument<'a> {
             selected_detune_index: DiscreteParameter::new(0, 0.001),
             style_index: DiscreteParameter::new(0, 0.001),
             amplitude: 1.0,
+            overdrive: false,
             degrees: [
                 Degree::new(wavetable_banks, sample_rate),
                 Degree::new(wavetable_banks, sample_rate),
@@ -296,6 +299,10 @@ impl<'a> Instrument<'a> {
 
     pub fn set_solo_quantization(&mut self, quantized: bool) {
         self.solo_quantization = quantized;
+    }
+
+    pub fn set_overdrive(&mut self, overdrive: bool) {
+        self.overdrive = overdrive;
     }
 
     fn solo_enabled(&self) -> bool {
@@ -450,6 +457,16 @@ impl<'a> Instrument<'a> {
                 .iter_mut()
                 .for_each(|d| d.populate_add(buffer_solo));
         };
+
+        if self.overdrive {
+            let overdrive = Overdrive::new(3.0, 0.8);
+            buffer_chord
+                .iter_mut()
+                .for_each(|x| *x = overdrive.process(*x) * (5.0 / 6.0));
+            buffer_solo
+                .iter_mut()
+                .for_each(|x| *x = overdrive.process(*x) * (5.0 / 6.0));
+        }
     }
 
     fn apply_settings(&mut self) {
@@ -905,6 +922,13 @@ mod tests {
     #[test]
     fn populate_when_all_is_in_range() {
         let mut instrument = create_valid_instrument();
+        assert_populate(&mut instrument);
+    }
+
+    #[test]
+    fn populate_with_overdrive() {
+        let mut instrument = create_valid_instrument();
+        instrument.set_overdrive(true);
         assert_populate(&mut instrument);
     }
 

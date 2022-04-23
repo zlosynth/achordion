@@ -23,6 +23,7 @@ pub struct Parameters {
     pub scale_root: f32,
     pub scale_mode: f32,
     pub amplitude: f32,
+    pub overdrive: bool,
     pub cv1_calibration_ratio: f32,
     pub cv1_calibration_offset: f32,
     pub cv2_calibration_ratio: f32,
@@ -47,6 +48,7 @@ impl Default for Parameters {
             scale_root: 0.0,
             scale_mode: 0.0,
             amplitude: 0.0,
+            overdrive: false,
             cv1_calibration_ratio: 1.0,
             cv1_calibration_offset: 0.0,
             cv2_calibration_ratio: 1.0,
@@ -92,6 +94,7 @@ impl Parameters {
             scale_root: f32_from_bytes!(scale_root),
             scale_mode: f32_from_bytes!(scale_mode),
             amplitude: f32_from_bytes!(amplitude),
+            overdrive: bool_from_bytes!(overdrive),
             cv1_calibration_ratio: f32_from_bytes!(cv1_calibration_ratio),
             cv1_calibration_offset: f32_from_bytes!(cv1_calibration_offset),
             cv2_calibration_ratio: f32_from_bytes!(cv2_calibration_ratio),
@@ -138,6 +141,7 @@ impl Parameters {
         f32_to_bytes!(scale_root);
         f32_to_bytes!(scale_mode);
         f32_to_bytes!(amplitude);
+        bool_to_bytes!(overdrive);
         f32_to_bytes!(cv1_calibration_ratio);
         f32_to_bytes!(cv1_calibration_offset);
         f32_to_bytes!(cv2_calibration_ratio);
@@ -170,6 +174,7 @@ impl Parameters {
             && self.solo_quantization == other.solo_quantization
             && self.solo_enabled == other.solo_enabled
             && self.chord_quantization == other.chord_quantization
+            && self.overdrive == other.overdrive
     }
 }
 
@@ -335,6 +340,7 @@ mod tests {
             cv5_calibration_ratio: 0.96,
             cv5_calibration_offset: 0.97,
             chord_quantization: true,
+            overdrive: true,
         };
         let bytes = parameters.to_bytes();
         assert!(Parameters::from_bytes(bytes) == parameters);

@@ -384,6 +384,8 @@ fn reconcile_all_changes(
         None
     };
 
+    instrument.set_overdrive(controls.overdrive());
+
     [
         chord_root_action,
         degrees_action,

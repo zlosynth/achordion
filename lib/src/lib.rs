@@ -21,6 +21,7 @@ mod chords;
 mod detune;
 mod note;
 mod oscillator;
+mod overdrive;
 mod quantizer;
 mod scales;
 mod taper;
