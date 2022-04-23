@@ -3,6 +3,7 @@ pub mod button;
 pub mod cv;
 pub mod flash;
 pub mod led;
+pub mod led_user;
 pub mod pot;
 pub mod probe;
 
@@ -24,6 +25,7 @@ use button::Button as ButtonWrapper;
 use cv::Cv;
 use flash::Flash;
 use led::Led;
+use led_user::LedUser;
 use pot::Pot;
 use probe::Probe as ProbeWrapper;
 
@@ -56,6 +58,7 @@ pub struct System {
     pub leds: Leds,
     pub flash: Flash,
     pub audio: Audio,
+    pub led_user: LedUser,
 }
 
 pub struct Cvs {
@@ -145,6 +148,7 @@ impl System {
 
         let flash = daisy::board_split_flash!(ccdr, dp, pins);
         let audio = Audio::init(daisy::board_split_audio!(ccdr, pins));
+        let led_user = daisy::board_split_leds!(pins).USER;
 
         System {
             adc1,
@@ -155,6 +159,7 @@ impl System {
             leds,
             flash,
             audio,
+            led_user,
         }
     }
 }

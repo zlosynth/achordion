@@ -34,6 +34,7 @@ use crate::display::{Display, DisplayConfig};
 use crate::input_activity::InputActivity;
 use crate::storage::Storage;
 use crate::system::audio::{Audio, BLOCK_LENGTH, SAMPLE_RATE};
+use crate::system::led_user::{Led, LedUser};
 use crate::system::System;
 
 const SECOND: u32 = 480_000_000;
@@ -48,6 +49,7 @@ const APP: () = {
         controls: Controls,
         display: Display,
         storage: Storage,
+        led_user: LedUser,
         input_activity: InputActivity,
         audio: Audio,
         instrument: Option<Instrument<'static>>,
@@ -109,13 +111,14 @@ const APP: () = {
             display,
             audio,
             storage,
+            led_user: system.led_user,
             instrument: None,
             input_activity: InputActivity::new(),
             lastly_stored_parameters: parameters,
         }
     }
 
-    #[task(schedule = [fade_in, reconcile_controls], spawn = [backup_countdown], resources = [display, instrument], priority = 2)]
+    #[task(schedule = [fade_in, reconcile_controls], spawn = [backup_countdown, blink], resources = [display, instrument], priority = 2)]
     fn initialize(mut cx: initialize::Context) {
         let display = cx.resources.display;
         bank::setup(display);
@@ -137,6 +140,7 @@ const APP: () = {
             .fade_in(Instant::now() + (SECOND / 10).cycles())
             .unwrap();
         cx.spawn.backup_countdown(BACKUP_COUNTDOWN_LENGTH).unwrap();
+        cx.spawn.blink(true).unwrap();
     }
 
     #[task(binds = DMA1_STR1, priority = 3, resources = [audio, instrument])]
@@ -264,6 +268,24 @@ const APP: () = {
             storage.save_parameters(parameters);
 
             start_countdown(cx);
+        }
+    }
+
+    #[task(schedule = [blink], resources = [led_user])]
+    fn blink(cx: blink::Context, on: bool) {
+        const TIME_ON: u32 = SECOND / 5;
+        const TIME_OFF: u32 = 2 * SECOND;
+
+        if on {
+            cx.resources.led_user.on();
+            cx.schedule
+                .blink(Instant::now() + TIME_ON.cycles(), false)
+                .unwrap();
+        } else {
+            cx.resources.led_user.off();
+            cx.schedule
+                .blink(Instant::now() + TIME_OFF.cycles(), true)
+                .unwrap();
         }
     }
 

@@ -12,6 +12,8 @@ backwards compatibility.
 * Remove debug pins due to lack of I/O.
 * Prevent flash memory from getting worn out by utilizing its full range, saving
   only on change and increasing the backup interval.
+* Blink the on-board LED every 2 seconds to indicate that the firmware is
+  running.
 
 ## 1.3.1
 
