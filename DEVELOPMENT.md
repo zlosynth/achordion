@@ -21,12 +21,18 @@ cargo size -- -m
 cargo size -- -A
 ```
 
-Flash:
+Flash using ST-Link:
 
 ``` sh
 cd eurorack
 openocd &
 cargo run --release
+```
+
+Flash using DFU:
+
+``` sh
+make flash
 ```
 
 Benchmark:
