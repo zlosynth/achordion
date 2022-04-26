@@ -341,8 +341,10 @@ impl Controls {
 
         self.parameters.chord = if self.cv5.connected() {
             if self.parameters.chord_quantization {
-                let offset = pot;
-                self.cv5_sample_to_voct(self.cv5.value()) - 2.0 + offset
+                // Keep the multiplier below 7, so assure that the result won't get
+                // into the 8th octave when set on the edge.
+                let offset = (pot * 6.95).trunc() - 7.0;
+                self.cv5_sample_to_voct(self.cv5.value()) + offset
             } else {
                 // CV is centered around zero, suited for LFO.
                 let chord = self.cv5.value() * 2.0 - 1.0;
