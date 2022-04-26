@@ -295,9 +295,9 @@ impl Controls {
         let pot = self.last_note_pot_reading;
 
         self.parameters.note = if self.cv1.connected() {
-            // Keep the multiplier below 4, so assure that the result won't get
-            // into the 5th octave when set on the edge.
-            let octave_offset = (pot * 3.95).trunc() - 2.0;
+            // Keep the multiplier below 5, so assure that the result won't get
+            // into the 6th octave when set on the edge.
+            let octave_offset = (pot * 4.95).trunc() - 5.0;
             let note = self.cv1_sample_to_voct(self.cv1.value());
             self.note_source = NoteSource::Cv;
             if note < 0.5 / 12.0 {
@@ -388,7 +388,9 @@ impl Controls {
 
     fn reconcile_solo(&mut self) {
         if self.cv2.connected() {
-            self.parameters.solo = self.cv2_sample_to_voct(self.cv2.value());
+            let note = self.cv2_sample_to_voct(self.cv2.value());
+            let offset = -4.0;
+            self.parameters.solo = note + offset;
             self.parameters.solo_enabled = true;
         } else {
             self.parameters.solo = 0.0;
