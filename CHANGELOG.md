@@ -9,6 +9,7 @@ backwards compatibility.
 * Introduce togglable overdrive mode, compensating for big headroom.
 * Add tooling holes to the PCB.
 * Adjust V/oct response to reflect the new voltage range.
+* Fix contents of each TONE output.
 
 ## 2.0.0
 
