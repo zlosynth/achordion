@@ -6,6 +6,8 @@ backwards compatibility.
 
 ## Unreleased
 
+* Extend the build manual with additional notes.
+
 ## 2.1.0
 
 * Introduce togglable overdrive mode, compensating for big headroom.
