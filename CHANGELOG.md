@@ -7,6 +7,7 @@ backwards compatibility.
 ## Unreleased
 
 * Extend the build manual with additional notes.
+* Update pictures in the build manual to match version 2.
 
 ## 2.1.0
 
