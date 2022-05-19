@@ -46,15 +46,15 @@
 
 \vspace{5mm}
 
-Achordion allows you to do many things but in essence it is just a bunch of oscillators that never go out of tune nor out of scale! Apart from playing anything between lush pads and hellish walls of sound, it enables you to easily jam with other musicians and explore characters of different scales. If you don't know any music theory, don't despair, the module will do all the harmony maths and all left for you to do is to use your intuition. If you on the other hand do understand basics of music theory, with this instrument, you can leverage it.
+Achordion allows you to do many things, but in essence, it is just a bunch of oscillators that never go out of tune or out of scale! Apart from playing anything between lush pads and hellish walls of sound, it enables you to easily jam with other musicians and explore characters of different scales. If you don't know any music theory, don't despair, the module will do all the harmony maths, and all left for you to do is to use your intuition. If you, on the other hand, do understand the basics of music theory, with this instrument, you can leverage it.
 
 \section{Features}
 
-This module is based around wavetable synthesis, and contains a selection of 37 wavetables, offering smooth transitions between them. With up to 18 simultaneous voices, it allows to enable sub-octaves, duplicated tones or chords. Four modes of playing are available – single tone, selection of 18 standard chords (fifth, sevent and ninth), arpeggios, and intervals. All playing tones are quantized to a configurable scale. 1V/oct inputs are quantized so any scale can be played with white keys of the piano. Two lines can be played at the same time, each controlled by an independent 1V/oct input. There are also two separate outputs, enabling to send each line to a different effect chain. Last but not least, a display consisting of 8 LEDs is used to make dialing of parameters easier.
+This module is based on wavetable synthesis and contains a selection of 37 wavetables, offering smooth transitions between them. With up to 18 simultaneous voices, it allows enabling sub-octaves, duplicated tones or chords. Four modes of playing are available – single tone, selection of 18 standard chords (fifth, seventh and ninth), arpeggios, and intervals. All playing tones are quantized to a configurable scale. 1V/oct inputs are quantized, so any scale can be played with the white keys of the piano. Two lines can be played at the same time, each controlled by an independent 1V/oct input. There are also two separate outputs, enabling to send each line to a different effect chain. Last but not least, a display consisting of 8 LEDs is used to make dialling of parameters easier.
 
 \section{Installation}
 
-Achordion is 10 HP wide. It is powered by +12V/-12V 2x5 connector. The red stripe (-12V) must be connected on the side of the board marked with the white line. The module must be mounted in an Eurorack case.
+Achordion is 10 HP wide. It is powered by a +12V/-12V 2x5 connector. The red stripe (-12V) must be connected on the side of the board marked with the white line. The module must be mounted in a Eurorack case.
 
 \section{Specs}
 
@@ -69,25 +69,25 @@ Achordion is 10 HP wide. It is powered by +12V/-12V 2x5 connector. The red strip
 
 \section{Controls, inputs and outputs}
 
-On the left side, there is a column of LEDs (X) that are visualizing the currently selected parameter. The button bellow them (Y) accesses alternative parameters.
+On the left side, there is a column of LEDs (X) that visualize the currently selected parameter. The button below them (Y) accesses alternative parameters.
 
 WAVETABLE (A) knob selects the wavetable. When the button is held down, this knob scrolls through banks.
 
-TONE (B) knob selects root note that should be playing. When the button is held down, this knob is used to select tonic of the scale.
+TONE (B) knob selects the root note that should be playing. When the button is held down, this knob is used to select the scale's tonic.
 
-DETUNE (C) knob controls spread of secondary voices and amount of detune. When the button is held down, this knob controls the scale mode.
+DETUNE (C) knob controls the spread of secondary voices and the amount of detune. When the button is held down, this knob controls the scale mode.
 
 CHORD (D) knob selects the chord or interval that should be playing. When the button is held down, this knob selects the mode in which chords are built.
 
-CV inputs TONE (1) and TONE' (2) used to control the root note that are playing on the main and side line, respectively. When TONE is connected, the TONE knob controls octave offset. These inputs follow 1V/oct standard, between -5 and +5 V.
+CV inputs TONE (1) and TONE' (2) are used to control the root note playing on the main and the side line, respectively. When TONE is connected, the TONE knob controls octave offset. These inputs follow the 1V/oct standard, between -5 and +5 V.
 
-CV inputs TABLE (3), DETUNE (4) and CHORD (5) are controlling the same attributes as the knobs described above. The value set by the knob is added to the value set through CV. All CV inputs span between -5 and +5~V.
+CV inputs TABLE (3), DETUNE (4) and CHORD (5) control the same attributes as the knobs described above. The value set by the knob is added to the value set through the CV. All CV inputs span between -5 and +5~V.
 
-Audio outputs OUT (6) and OUT' (7) play the main and the side line respectively. When only one is connected, the outputs are mixed together.
+Audio outputs OUT (6) and OUT' (7) play the main and the side line, respectively. When only one is connected, the outputs are mixed.
 
 \section{Two Lines}
 
-The module has two lines, main and side. The tone of these lines can be controlled independently while all the other attributes are shared.
+The module has two lines, the main line and the side line. The tone of these lines can be controlled independently while all the other attributes are shared.
 
 The main line is controlled through the TONE knob and CV input. This line can play a chord, controlled through the CHORD knob and CV input.
 
@@ -98,34 +98,34 @@ The side line is controlled through the TONE' CV input and is playing only when 
 There are 37 wavetables, divided into 4 banks:
 
 \begin{packed_enumerate_i}
-  \item Perfect -- classic waveforms: triangle, sine, square and saw. All of these are containing pure harmonics.
+  \item Perfect -- classic waveforms: triangle, sine, square and saw. All of these are based on pure harmonics.
   \item Harsh -- full and distorted sounds. These can get very thick when played in rich chords.
   \item Soft -- cleaner sounds and bells.
-  \item Sines -- the bottom half of this bank is a sequence of sine function multiplications providing variety of different sounds from clean to crazy noises. The upper half contains sums of sine functions, sliding through them provides a low-pass filter effect.
+  \item Sines -- the bottom half of this bank is a sequence of sine function multiplications that provide various sounds from clean to crazy noises. The upper half contains sums of sine functions. Sliding through them provides a low-pass filter effect.
 \end{packed_enumerate_i}
 
-The transitions between wavetables within a single bank are gradual and very smooth, suitable for live modulation.
+The transitions between wavetables within a single bank are gradual and smooth, suitable for live modulation.
 
 The bank can be selected by pressing the button while turning the WAVETABLE knob.
 
 \section{Detune}
 
-This parameter is set through the DETUNE knob and CV input, and controls number of secondary voices per each played note and their detune. The knob/CV input scrolls through four of these detune modes:
+This parameter is set through the DETUNE knob and CV input. It controls the number of secondary voices per played note and their detune. The knob/CV input scrolls through four of these detune modes:
 
 \begin{packed_enumerate_i}
   \item Disabled, only primary tones of the selected chord are playing.
   \item The first factor of the chord is duplicated one octave lower. This is a classic sub-octave.
-  \item Each tone in the chord is duplicated once with a unison. This produces slight movement or vibrato effect, depending on the amount of the detune.
-  \item Two sub-octaves per each factor. This can produce very rich wall of sound and gets crazy with lot of detune.
+  \item Each tone in the chord is duplicated once with a unison. This produces a slight movement or vibrato effect, depending on the detune amount.
+  \item Two sub-octaves per each factor. This can produce a very rich wall of sound and gets crazy with a lot of detune.
 \end{packed_enumerate_i}
 
-While moving through each of the modes, secondary voices are being gradually detuned. In lower detunes, the difference in frequency is very small and produces ``beats'' -- making the sound moving and warm, when it is pushed higher it turns into a wild cacophony.
+While moving through each mode, secondary voices are being gradually detuned. In lower detunes, the difference in frequency is very small and produces ``beats'' -- making the sound moving and warm. When it is pushed higher, it turns into a wild cacophony.
 
 \section{Quantization}
 
-To select root note of the scale, hold the button while turning the TONE knob. LEDs I through VII then symbolize notes of C major: C, D, ..., B. The \# LED signalizes that the note is sharp.
+To select the scale's root note, hold the button while turning the TONE knob. LEDs I through VII then symbolize notes of C major: C, D, ..., B. The \# LED signalizes that the note is sharp.
 
-To select the scale mode, hold the button while turning the DETUNE knob. LEDs I through VII then symbolize each of the modes. Selected mode affects the mood or character of the tune you are playing:
+To select the scale's mode, hold the button while turning the DETUNE knob. LEDs I through VII then symbolize each of the modes. Selected mode affects the mood or character of the tune you are playing:
 
 \begin{tabular}{@{}rl@{}@{}rl@{}}
   I & Ionian (major) \hspace{15mm} & V & Mixolydian  \\
@@ -138,31 +138,31 @@ Quantization of TONE' can be switched off by tapping the DETUNE CV input with a 
 
 \section{Calibration}
 
-While inputs TONE and TONE' are following the 1V/oct standard, they may not be matching connected CV source device precisely. To calibrate each of these inputs follow this procedure:
+While inputs TONE and TONE' follow the 1V/oct standard, they may not precisely match the connected CV sources device. To calibrate each of these inputs, follow this procedure:
 
 \begin{packed_enumerate}
-  \item While holding the button, connect jack to the input.
+  \item While holding the button, connect a jack to the input.
   \item The left column of LEDs should light up.
-  \item Play the note C on the CV source and press the button.
-  \item Now the right column of LEDs should light up.
+  \item Play note C on the CV source and press the button.
+  \item Now, the right column of LEDs should light up.
   \item Play C one octave higher and press the button again.
 \end{packed_enumerate}
 
 \section{Chords}
 
-This module allows playing chords of up to 5 factors, each of them affected by the detune.
+This module allows playing chords of up to 5 factors, each affected by the detune.
 
-In order to visualize selected chords, the LEDs are displaying their factors. For example, if the selected chord is basic fifth, LEDs I, III and V light up to signalize that first, third and fifth are playing. If this does not sound like anything to you, don't worry and just use your ears.
+To visualize selected chords, the LEDs display their factors. For example, if the selected chord is basic fifth, LEDs I, III and V light up to signalize that the first, third and fifth are playing. If this does not sound like anything to you, don't worry and just use your ears.
 
 Furthermore, there are three different modes of playing chords. These can be accessed by holding the button while turning the CHORD knob:
 
 \begin{packed_enumerate_i}
-  \item Chords -- assorted set of 19 chords. Starting with single note, followed-up with fifth, seventh, ninth and ninth inversions.
-  \item Intervals -- not chords per-se. In this mode, the root note is accompanied by another note of interval between minus two octaves to plus two octaves.
+  \item Chords -- an assorted set of 19 chords. Starting with a single note, followed up with fifth, seventh, ninth and ninth inversions.
+  \item Intervals -- not chords per se. In this mode, the root note is accompanied by another note of interval between minus two octaves to plus two octaves.
   \item Arpeggios -- four different chords that are incrementally built while the parameter is being increased. Starting with the root, adding second factor, third, ...
 \end{packed_enumerate_i}
 
-If the button is held while the chord CV is being plugged in, the input gets calibrated and then can used in 1V/oct mode, with each chord assigned to a white key.
+If the button is held while the chord CV is being plugged in, the input gets calibrated and can be then used in 1V/oct mode, with each chord assigned to a white key.
 
 \section{Split Outputs}
 
@@ -174,7 +174,7 @@ However, when the side line is not connected, OUT contains the root note of the 
 
 \section{Overdrive}
 
-Due to the headroom reserved for all 18 voices, output levels are quite weak. To compensate for that, digital overdrive can be enabled by tapping the WAVETABLE CV input with a jack while holding the button. Note that this has a negative effect on sound quality.
+Due to the headroom reserved for all 18 voices, output levels are quite weak. To compensate for that, digital overdrive can be enabled by tapping the WAVETABLE CV input with a jack while holding the button. Note that this harms sound quality.
 
 \section{Reset}
 
