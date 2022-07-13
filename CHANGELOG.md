@@ -6,6 +6,7 @@ backwards compatibility.
 
 ## Unreleased
 
+* Add harmonic minor mode.
 * Extend the build manual with additional notes.
 * Update pictures in the build manual to match version 2.
 

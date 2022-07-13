@@ -196,20 +196,22 @@ impl<'a> Instrument<'a> {
         let original = self.scale_mode();
 
         let scale_mode = self.scale_mode.offset_raw(scale_mode);
-        self.scale_mode.set(if scale_mode < 1.0 / 7.0 {
+        self.scale_mode.set(if scale_mode < 1.0 / 8.0 {
             scales::diatonic::Ionian
-        } else if scale_mode < 2.0 / 7.0 {
+        } else if scale_mode < 2.0 / 8.0 {
             scales::diatonic::Dorian
-        } else if scale_mode < 3.0 / 7.0 {
+        } else if scale_mode < 3.0 / 8.0 {
             scales::diatonic::Phrygian
-        } else if scale_mode < 4.0 / 7.0 {
+        } else if scale_mode < 4.0 / 8.0 {
             scales::diatonic::Lydian
-        } else if scale_mode < 5.0 / 7.0 {
+        } else if scale_mode < 5.0 / 8.0 {
             scales::diatonic::Mixolydian
-        } else if scale_mode < 6.0 / 7.0 {
+        } else if scale_mode < 6.0 / 8.0 {
             scales::diatonic::Aeolian
-        } else {
+        } else if scale_mode < 7.0 / 8.0 {
             scales::diatonic::Locrian
+        } else {
+            scales::diatonic::HarmonicMinor
         });
         self.apply_settings();
 
