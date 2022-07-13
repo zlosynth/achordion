@@ -40,6 +40,8 @@ use crate::system::System;
 const SECOND: u32 = 480_000_000;
 const CV_PERIOD: u32 = SECOND / 2000;
 
+const BLINKS: u8 = 1;
+
 const BACKUP_COUNTDOWN_LENGTH: u8 = 60;
 const BACKUP_COUNTDOWN_SLEEP: u32 = SECOND;
 
@@ -140,7 +142,7 @@ const APP: () = {
             .fade_in(Instant::now() + (SECOND / 10).cycles())
             .unwrap();
         cx.spawn.backup_countdown(BACKUP_COUNTDOWN_LENGTH).unwrap();
-        cx.spawn.blink(true).unwrap();
+        cx.spawn.blink(true, BLINKS).unwrap();
     }
 
     #[task(binds = DMA1_STR1, priority = 3, resources = [audio, instrument])]
@@ -272,20 +274,27 @@ const APP: () = {
     }
 
     #[task(schedule = [blink], resources = [led_user])]
-    fn blink(cx: blink::Context, on: bool) {
+    fn blink(cx: blink::Context, on: bool, blinks: u8) {
         const TIME_ON: u32 = SECOND / 5;
-        const TIME_OFF: u32 = 2 * SECOND;
+        const TIME_OFF_SHORT: u32 = SECOND / 5;
+        const TIME_OFF_LONG: u32 = 2 * SECOND;
 
         if on {
             cx.resources.led_user.on();
             cx.schedule
-                .blink(Instant::now() + TIME_ON.cycles(), false)
+                .blink(Instant::now() + TIME_ON.cycles(), false, blinks)
                 .unwrap();
         } else {
             cx.resources.led_user.off();
-            cx.schedule
-                .blink(Instant::now() + TIME_OFF.cycles(), true)
-                .unwrap();
+            if blinks > 0 {
+                cx.schedule
+                    .blink(Instant::now() + TIME_OFF_SHORT.cycles(), true, blinks - 1)
+                    .unwrap();
+            } else {
+                cx.schedule
+                    .blink(Instant::now() + TIME_OFF_LONG.cycles(), true, BLINKS)
+                    .unwrap();
+            }
         }
     }
 
