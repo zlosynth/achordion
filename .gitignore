@@ -4,3 +4,4 @@ lib/Cargo.lock
 target/
 itm.txt
 __pycache__/
+release/
