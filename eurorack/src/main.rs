@@ -40,7 +40,7 @@ use crate::system::System;
 const SECOND: u32 = 480_000_000;
 const CV_PERIOD: u32 = SECOND / 2000;
 
-const BLINKS: u8 = 1;
+const BLINKS: u8 = 2;
 
 const BACKUP_COUNTDOWN_LENGTH: u8 = 60;
 const BACKUP_COUNTDOWN_SLEEP: u32 = SECOND;
@@ -286,7 +286,7 @@ const APP: () = {
                 .unwrap();
         } else {
             cx.resources.led_user.off();
-            if blinks > 0 {
+            if blinks > 1 {
                 cx.schedule
                     .blink(Instant::now() + TIME_OFF_SHORT.cycles(), true, blinks - 1)
                     .unwrap();
