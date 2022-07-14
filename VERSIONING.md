@@ -19,7 +19,11 @@ Finally, releases with major version 0 may break any time.
 
 ## Releasing
 
-All substantial changes are recorded in the [CHANGELOG.md](CHANGELOG.md). To
-release a new version of the module, versions in all `Cargo.toml` files, PCB
+All substantial changes are recorded in the [CHANGELOG.md](CHANGELOG.md).
+
+To release a new version of the module, versions in all `Cargo.toml` files, PCB
 layout, schematic and silkscreen on the board must be adjusted. The Unreleased
-section of the changelog must be renamed to the relevant version.
+section of the changelog must be renamed to the relevant version. New version of
+manuals and firmware must be uploaded as artifacts to the GitHub release.
+
+This process is automated through `./hack/release.sh <new_version>`.

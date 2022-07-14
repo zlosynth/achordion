@@ -17,10 +17,12 @@ sed -i "s/rev .*/rev \"v${version}\")/" hardware/Achordion.kicad_pcb
 rm -rf release
 mkdir release
 
+pushd eurorack && cargo objcopy --release -- -O binary ../release/achordion-firmware-${version}.bin && popd
+
 make manual
-cp -r manual/user/manual_digital.pdf release/achordion-user-manual.pdf
-cp -r manual/build/manual.pdf release/achordion-build-manual.pdf
+cp manual/user/manual_digital.pdf release/achordion-user-manual.pdf
+cp manual/build/manual.pdf release/achordion-build-manual.pdf
 
-export CHANGES=$(awk '/## Unreleased/{flag=1;next}/## */{flag=0}flag' CHANGELOG.md | awk 'NF')
+export CHANGES=$(awk "/## ${version}/{flag=1;next}/## */{flag=0}flag" CHANGELOG.md | awk 'NF')
 
-envsubst < hack/release.tmpl > release/notes.md
+envsubst < hack/release.tmpl.md > release/notes.md

@@ -20,6 +20,11 @@ Chord-crafting quantizing wavetable oscillator module for Eurorack.
 Find more details about the module, including a feature overview video and a
 user manual, on its [website](https://zlosynth.com/achordion).
 
+# Firmware
+
+If you wish to upgrade to a newer version of firmware, refer to the respective
+[Release description](https://github.com/zlosynth/achordion/releases).
+
 # Development
 
 See [DEVELOPMENT.md](DEVELOPMENT.md) to find some basic commands to interact

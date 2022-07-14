@@ -6,7 +6,7 @@ backwards compatibility.
 
 ## Unreleased
 
-* The board now double-blinks to signalize new version.
+* Blink the signal LED twice to signalize new version.
 * Add harmonic minor mode.
 * Extend the build manual with additional notes.
 * Update pictures in the build manual to match version 2.
