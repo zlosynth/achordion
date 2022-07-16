@@ -6,6 +6,7 @@ use daisy::hal;
 use hal::adc::{Adc, Enabled};
 use hal::pac::{ADC1, ADC2};
 
+use achordion_lib::config::Config;
 use achordion_lib::store::Parameters;
 
 use crate::system::Button;
@@ -60,6 +61,8 @@ pub struct Controls {
 
     calibration_target: CalibrationTarget,
     calibration_state: CalibrationState,
+
+    configuration_state: ConfigurationState,
 }
 
 #[derive(Clone, Copy)]
@@ -78,6 +81,33 @@ enum CalibrationState {
     CalibratingHigh(f32),
     Succeeded,
     Failed,
+}
+
+#[derive(Clone, Copy)]
+enum ConfigurationState {
+    Inactive,
+    Active,
+}
+
+#[derive(Clone, Copy)]
+enum Submenu {
+    None,
+    Calibration,
+    Configuration,
+}
+
+impl Submenu {
+    pub fn is_none(&self) -> bool {
+        matches!(self, Self::None)
+    }
+
+    pub fn is_calibration(&self) -> bool {
+        matches!(self, Self::Calibration)
+    }
+
+    pub fn is_configuration(&self) -> bool {
+        matches!(self, Self::Configuration)
+    }
 }
 
 #[derive(Clone, Copy)]
@@ -118,6 +148,8 @@ impl Controls {
 
             calibration_target: CalibrationTarget::None,
             calibration_state: CalibrationState::Inactive,
+
+            configuration_state: ConfigurationState::Inactive,
         };
 
         // Initial probe tick, so the signal has enough time to propagate to all
@@ -180,11 +212,11 @@ impl Controls {
     }
 
     pub fn active(&self) -> bool {
-        self.button.active()
-            || self.pot1.active()
-            || self.pot2.active()
-            || self.pot3.active()
-            || self.pot4.active()
+        self.button.active() || self.pots_active()
+    }
+
+    fn pots_active(&self) -> bool {
+        self.pot1.active() || self.pot2.active() || self.pot3.active() || self.pot4.active()
     }
 
     pub fn wavetable_bank_pot_active(&self) -> bool {
@@ -236,6 +268,14 @@ impl Controls {
         matches!(self.calibration_state, CalibrationState::Failed)
     }
 
+    pub fn config_open(&self) -> bool {
+        self.active_submenu().is_configuration()
+    }
+
+    pub fn config(&self) -> Config {
+        self.parameters.config
+    }
+
     pub fn update(&mut self) {
         self.sample();
         self.reconcile();
@@ -282,10 +322,16 @@ impl Controls {
         self.reconcile_solo();
         self.reconcile_scale_root();
         self.reconcile_scale_mode();
-        self.reconcile_calibration();
         self.reconcile_solo_quantization();
         self.reconcile_chord_quantization();
-        self.reconcile_overdrive();
+
+        if self.active_submenu().is_none() || self.active_submenu().is_calibration() {
+            self.reconcile_calibration();
+        }
+
+        if self.active_submenu().is_none() || self.active_submenu().is_configuration() {
+            self.reconcile_configuration();
+        }
     }
 
     fn reconcile_note(&mut self) {
@@ -414,6 +460,27 @@ impl Controls {
         self.parameters.scale_mode = self.last_scale_mode_pot_reading;
     }
 
+    fn reconcile_configuration(&mut self) {
+        if self.pots_active() {
+            self.button.long_click_reset();
+        }
+
+        if self.button.long_clicked() {
+            self.configuration_state = ConfigurationState::Active;
+        } else if matches!(self.configuration_state, ConfigurationState::Active)
+            && self.button.clicked()
+        {
+            self.configuration_state = ConfigurationState::Inactive;
+        }
+
+        if matches!(self.configuration_state, ConfigurationState::Active) && self.pot4.active() {
+            const OPTIONS: i32 = 1;
+            let scale = f32::powi(2.0, OPTIONS);
+            let config = (self.pot4.value() * scale - 0.01) as u8;
+            self.parameters.config = Config::from(config);
+        }
+    }
+
     fn reconcile_calibration(&mut self) {
         if matches!(self.calibration_target, CalibrationTarget::Cv1) && self.cv1.was_unplugged() {
             self.calibration_target = CalibrationTarget::None;
@@ -514,6 +581,16 @@ impl Controls {
         Err(())
     }
 
+    fn active_submenu(&self) -> Submenu {
+        if !matches!(self.calibration_state, CalibrationState::Inactive) {
+            Submenu::Calibration
+        } else if !matches!(self.configuration_state, ConfigurationState::Inactive) {
+            Submenu::Configuration
+        } else {
+            Submenu::None
+        }
+    }
+
     fn reconcile_solo_quantization(&mut self) {
         if self.button.active() && self.cv4.was_plugged() {
             self.parameters.solo_quantization = !self.parameters.solo_quantization;
@@ -524,14 +601,8 @@ impl Controls {
         self.parameters.solo_quantization
     }
 
-    fn reconcile_overdrive(&mut self) {
-        if self.button.active() && self.cv3.was_plugged() {
-            self.parameters.overdrive = !self.parameters.overdrive;
-        }
-    }
-
     pub fn overdrive(&self) -> bool {
-        self.parameters.overdrive
+        self.parameters.config.overdrive
     }
 
     fn cv1_sample_to_voct(&self, transposed_sample: f32) -> f32 {

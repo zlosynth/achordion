@@ -18,6 +18,7 @@ enum Source {
     Pot,
     CV,
     Calibration,
+    Configuration,
 }
 use Source::*;
 
@@ -32,6 +33,7 @@ impl InputActivity {
     pub fn reconcile<const N1: usize, const N2: usize>(
         &mut self,
         calibration_action: Option<DisplayAction>,
+        configuration_action: Option<DisplayAction>,
         pot_actions: [Option<DisplayAction>; N1],
         cv_actions: [Option<DisplayAction>; N2],
         fallback_action: DisplayAction,
@@ -40,10 +42,20 @@ impl InputActivity {
             last_action.age = last_action.age.saturating_add(1);
         }
 
-        // Calibration always takes precedence
+        // Calibration submenu always takes precedence
         if let Some(display_action) = calibration_action {
             self.last_action = Some(Action {
                 source: Calibration,
+                display_action,
+                age: 0,
+            });
+            return Some(display_action);
+        }
+
+        // Configuration submenu always takes precedence
+        if let Some(display_action) = configuration_action {
+            self.last_action = Some(Action {
+                source: Configuration,
                 display_action,
                 age: 0,
             });
@@ -74,7 +86,9 @@ impl InputActivity {
 
         // CV overtakes only aged pots or another CV
         let overtake = if let Some(last_action) = self.last_action {
-            (last_action.source == Pot || last_action.source == Calibration)
+            (last_action.source == Pot
+                || last_action.source == Calibration
+                || last_action.source == Configuration)
                 && last_action.age > Self::LONG_IDLE
                 || last_action.source == CV && last_action.age > Self::SHORT_IDLE
         } else {

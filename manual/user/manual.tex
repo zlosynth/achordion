@@ -134,6 +134,8 @@ To select the scale's mode, hold the button while turning the DETUNE knob. LEDs 
   IV & Lydian & VIII & Harmonic minor \\
 \end{tabular}
 
+CV inputs TONE and TONE' are additionally quantized to the white keys of a piano keyboard. This allows to play any scale using only these keys.
+
 Quantization of TONE' can be switched off by tapping the DETUNE CV input with a jack while holding the button.
 
 \section{Calibration}
@@ -166,24 +168,49 @@ If the button is held while the chord CV is being plugged in, the input gets cal
 
 \section{Split Outputs}
 
-There are two audio outputs in the module: OUT and OUT'. When only one of these outputs is connected, it gets mixed with the unconnected one. When both outputs are connected, each plays different voices.
+There are two audio outputs in the module: OUT and OUT'. When only one of these outputs is connected, it gets mixed with the unconnected one. When both outputs are connected, each plays different voices. This allows to run through two different effect chains.
 
 The content of these outputs depends on the playing lines. If the side line is playing, OUT plays the main line, controlled by TONE and OUT' is playing the side line, controlled by TONE'.
 
 However, when the side line is not connected, OUT contains the root note of the main line, while OUT' contains the rest of the chord played by the main line.
 
-\section{Overdrive}
-
-Due to the headroom reserved for all 18 voices, output levels are quite weak. To compensate for that, digital overdrive can be enabled by tapping the WAVETABLE CV input with a jack while holding the button. Note that this harms sound quality.
-
 \section{Reset}
 
-Calibration settings and all secondary parameters (wavetable bank, scale tonic, scale mode, chord mode) are stored between restarts of the module. To reset their values, hold the button while powering on the module.
+Calibration settings and all secondary parameters (wavetable bank, scale tonic, scale mode, chord mode) are stored between restarts of the module. To reset their values, hold the button pressed while powering on the module.
+
+\section{Configuration}
+
+Some configuration options of the module can be adjusted:
+
+\begin{packed_enumerate}
+  \item Hold the button for 8 seconds.
+  \item LEDs now signalize which options are enabled.
+  \item Turn the relevant knob to adjust these options.
+  \item Click the button to confirm the selection.
+\end{packed_enumerate}
+
+\begin{tabular}{@{}lll@{}}
+  \textbf{LED} & \textbf{Option} & \textbf{Knob} \\
+  VIII & \textit{reserved} & \textit{N/A} \\
+  VII  & \textit{reserved} & \textit{N/A} \\
+  VI   & \textit{reserved} & \textit{N/A} \\
+  V    & \textit{reserved} & \textit{N/A} \\
+  IV   & \textit{reserved} & \textit{N/A} \\
+  III  & \textit{reserved} & \textit{N/A} \\
+  II   & \textit{reserved} & \textit{N/A} \\
+  I    & Overdrive & CHORD
+\end{tabular}
+
+\subsection{Overdrive}
+
+Due to the headroom reserved for all 18 voices, default output levels are quite weak. To compensate for that, digital overdrive can be enabled. Note that this harms sound quality.
 
 \section{Changelog}
 
 \begin{tabular}{@{}rl@{}}
   v2.2.0 & The status LED blinks twice \\
+         & Introduced configuration menu \\
+         & Moved overdrive to the configuration menu \\
          & Added harmonic minor as the 8th mode
 \end{tabular}
 

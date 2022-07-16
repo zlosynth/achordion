@@ -6,6 +6,8 @@ use core::mem;
 
 use crc::{Crc, CRC_32_CKSUM};
 
+use crate::config::Config;
+
 const CRC: Crc<u32> = Crc::<u32>::new(&CRC_32_CKSUM);
 
 #[derive(Clone, Copy, PartialEq)]
@@ -23,13 +25,13 @@ pub struct Parameters {
     pub scale_root: f32,
     pub scale_mode: f32,
     pub amplitude: f32,
-    pub overdrive: bool,
     pub cv1_calibration_ratio: f32,
     pub cv1_calibration_offset: f32,
     pub cv2_calibration_ratio: f32,
     pub cv2_calibration_offset: f32,
     pub cv5_calibration_ratio: f32,
     pub cv5_calibration_offset: f32,
+    pub config: Config,
 }
 
 impl Default for Parameters {
@@ -48,13 +50,13 @@ impl Default for Parameters {
             scale_root: 0.0,
             scale_mode: 0.0,
             amplitude: 0.0,
-            overdrive: false,
             cv1_calibration_ratio: 1.0,
             cv1_calibration_offset: 0.0,
             cv2_calibration_ratio: 1.0,
             cv2_calibration_offset: 0.0,
             cv5_calibration_ratio: 1.0,
             cv5_calibration_offset: 0.0,
+            config: Config::default(),
         }
     }
 }
@@ -80,6 +82,14 @@ impl Parameters {
             }}
         }
 
+        macro_rules! config_from_bytes {
+            ( $attribute:ident ) => {{
+                let start = offset_of!(Self => $attribute).get_byte_offset();
+                let stop = start + mem::size_of::<u8>();
+                Config::from(u8::from_be_bytes(bytes[start..stop].try_into().unwrap()))
+            }}
+        }
+
         Parameters {
             note: f32_from_bytes!(note),
             solo: f32_from_bytes!(solo),
@@ -94,13 +104,13 @@ impl Parameters {
             scale_root: f32_from_bytes!(scale_root),
             scale_mode: f32_from_bytes!(scale_mode),
             amplitude: f32_from_bytes!(amplitude),
-            overdrive: bool_from_bytes!(overdrive),
             cv1_calibration_ratio: f32_from_bytes!(cv1_calibration_ratio),
             cv1_calibration_offset: f32_from_bytes!(cv1_calibration_offset),
             cv2_calibration_ratio: f32_from_bytes!(cv2_calibration_ratio),
             cv2_calibration_offset: f32_from_bytes!(cv2_calibration_offset),
             cv5_calibration_ratio: f32_from_bytes!(cv5_calibration_ratio),
             cv5_calibration_offset: f32_from_bytes!(cv5_calibration_offset),
+            config: config_from_bytes!(config),
         }
     }
 
@@ -128,6 +138,15 @@ impl Parameters {
             }}
         }
 
+        macro_rules! config_to_bytes {
+            ( $attribute:ident ) => {{
+                let start = offset_of!(Self => $attribute).get_byte_offset();
+                let stop = start + mem::size_of::<u8>();
+                let config: u8 = self.$attribute.into();
+                bytes[start..stop].copy_from_slice(&config.to_be_bytes());
+            }}
+        }
+
         f32_to_bytes!(note);
         f32_to_bytes!(solo);
         bool_to_bytes!(solo_quantization);
@@ -141,13 +160,13 @@ impl Parameters {
         f32_to_bytes!(scale_root);
         f32_to_bytes!(scale_mode);
         f32_to_bytes!(amplitude);
-        bool_to_bytes!(overdrive);
         f32_to_bytes!(cv1_calibration_ratio);
         f32_to_bytes!(cv1_calibration_offset);
         f32_to_bytes!(cv2_calibration_ratio);
         f32_to_bytes!(cv2_calibration_offset);
         f32_to_bytes!(cv5_calibration_ratio);
         f32_to_bytes!(cv5_calibration_offset);
+        config_to_bytes!(config);
 
         bytes
     }
@@ -174,7 +193,7 @@ impl Parameters {
             && self.solo_quantization == other.solo_quantization
             && self.solo_enabled == other.solo_enabled
             && self.chord_quantization == other.chord_quantization
-            && self.overdrive == other.overdrive
+            && self.config == other.config
     }
 }
 
@@ -340,7 +359,7 @@ mod tests {
             cv5_calibration_ratio: 0.96,
             cv5_calibration_offset: 0.97,
             chord_quantization: true,
-            overdrive: true,
+            config: Config::from(1),
         };
         let bytes = parameters.to_bytes();
         assert!(Parameters::from_bytes(bytes) == parameters);

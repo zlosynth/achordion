@@ -13,6 +13,7 @@ pub enum Action {
     SetStyle(usize),
     SetDetune(usize, f32),
     SetCalibration(CalibrationPhase),
+    SetConfiguration([bool; 8]),
 }
 
 #[derive(Clone, Copy)]
@@ -77,6 +78,7 @@ pub fn reduce(action: Action) -> State {
         Action::SetStyle(style_index) => reduce_set_style(style_index),
         Action::SetDetune(index, phase) => reduce_set_detune(index, phase),
         Action::SetCalibration(phase) => reduce_set_calibration(phase),
+        Action::SetConfiguration(options) => reduce_set_configuration(options),
     }
 }
 
@@ -228,6 +230,10 @@ fn reduce_set_calibration(phase: CalibrationPhase) -> State {
     };
 
     state_array.into()
+}
+
+fn reduce_set_configuration(options: [bool; 8]) -> State {
+    options.into()
 }
 
 #[cfg(test)]
@@ -1398,6 +1404,26 @@ mod tests {
                 led6: false,
                 led7: false,
                 led_sharp: false,
+            }
+        );
+    }
+
+    #[test]
+    fn reduce_set_configuration() {
+        let state = reduce(Action::SetConfiguration([
+            false, true, false, false, false, false, false, true,
+        ]));
+        assert_eq!(
+            state,
+            State {
+                led1: false,
+                led2: true,
+                led3: false,
+                led4: false,
+                led5: false,
+                led6: false,
+                led7: false,
+                led_sharp: true,
             }
         );
     }

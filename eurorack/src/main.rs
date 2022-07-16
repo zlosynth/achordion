@@ -37,7 +37,7 @@ use crate::system::audio::{Audio, BLOCK_LENGTH, SAMPLE_RATE};
 use crate::system::led_user::{Led, LedUser};
 use crate::system::System;
 
-const SECOND: u32 = 480_000_000;
+pub const SECOND: u32 = 480_000_000;
 const CV_PERIOD: u32 = SECOND / 2000;
 
 const BLINKS: u8 = 2;
@@ -193,6 +193,7 @@ const APP: () = {
         controls.update();
 
         let mut calibration_action = None;
+        let mut configuration_action = None;
         let mut any_actions = None;
         let mut pot_actions = None;
         let mut chord_degrees = None;
@@ -200,6 +201,7 @@ const APP: () = {
         cx.resources.instrument.lock(|instrument| {
             let instrument = instrument.as_mut().unwrap();
             calibration_action = Some(reconcile_calibration(controls));
+            configuration_action = Some(reconcile_configuration(controls));
             any_actions = Some(reconcile_all_changes(controls, instrument));
             pot_actions = Some(reconcile_pot_activity(controls, instrument));
             chord_degrees = Some(instrument.chord_degrees());
@@ -207,6 +209,7 @@ const APP: () = {
 
         if let Some(display_action) = activity.reconcile(
             calibration_action.unwrap(),
+            configuration_action.unwrap(),
             pot_actions.unwrap(),
             any_actions.unwrap(),
             DisplayAction::SetChord(chord_degrees.unwrap()),
@@ -313,6 +316,14 @@ fn reconcile_calibration(controls: &mut Controls) -> Option<DisplayAction> {
         Some(DisplayAction::SetCalibration(CalibrationPhase::Succeeded))
     } else if controls.calibration_failed() {
         Some(DisplayAction::SetCalibration(CalibrationPhase::Failed))
+    } else {
+        None
+    }
+}
+
+fn reconcile_configuration(controls: &mut Controls) -> Option<DisplayAction> {
+    if controls.config_open() {
+        Some(DisplayAction::SetConfiguration(controls.config().into()))
     } else {
         None
     }
