@@ -192,6 +192,7 @@ impl<'a> Instrument<'a> {
         }
     }
 
+    #[inline(always)]
     pub fn set_scale_mode(&mut self, scale_mode: f32) -> Option<scales::diatonic::Mode> {
         let original = self.scale_mode();
 
@@ -437,6 +438,7 @@ impl<'a> Instrument<'a> {
         self.amplitude
     }
 
+    #[inline(always)]
     pub fn set_amplitude(&mut self, amplitude: f32) {
         self.amplitude = amplitude;
     }

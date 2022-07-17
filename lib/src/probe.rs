@@ -17,6 +17,7 @@ impl<'a> ProbeGenerator<'a> {
         }
     }
 
+    #[inline(always)]
     pub fn read(&mut self) -> bool {
         let value = self.sequence[self.position];
         self.position = (self.position + 1) % self.sequence.len();

@@ -9,6 +9,7 @@ pub struct Wavetable<'a> {
 }
 
 impl<'a> Wavetable<'a> {
+    #[inline(always)]
     pub fn new(factors: &'a [&'a [f32]], sample_rate: u32) -> Self {
         Wavetable {
             niquist: sample_rate as f32 / 2.0,
