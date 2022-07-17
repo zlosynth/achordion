@@ -1,6 +1,3 @@
-#[allow(unused_imports)]
-use micromath::F32Ext;
-
 use super::wavetable::Wavetable;
 
 // With 44800 hz, it takes 150 cycles to fade in, 3 ms. This deals with most of
