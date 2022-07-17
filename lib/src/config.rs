@@ -1,12 +1,14 @@
 #[derive(Clone, Copy, Default, PartialEq)]
 pub struct Config {
     pub overdrive: bool,
+    pub reordered_modes: bool,
 }
 
 impl From<u8> for Config {
     fn from(other: u8) -> Self {
         Self {
             overdrive: other & 1 != 0,
+            reordered_modes: other & (1 << 1) != 0,
         }
     }
 }
@@ -16,6 +18,9 @@ impl From<Config> for u8 {
         let mut value = 0;
         if other.overdrive {
             value |= 1;
+        }
+        if other.reordered_modes {
+            value |= 1 << 1;
         }
         value
     }

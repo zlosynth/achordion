@@ -474,7 +474,7 @@ impl Controls {
         }
 
         if matches!(self.configuration_state, ConfigurationState::Active) && self.pot4.active() {
-            const OPTIONS: i32 = 1;
+            const OPTIONS: i32 = 2;
             let scale = f32::powi(2.0, OPTIONS);
             let config = (self.pot4.value() * scale - 0.01) as u8;
             self.parameters.config = Config::from(config);
@@ -603,6 +603,10 @@ impl Controls {
 
     pub fn overdrive(&self) -> bool {
         self.parameters.config.overdrive
+    }
+
+    pub fn reordered_modes(&self) -> bool {
+        self.parameters.config.reordered_modes
     }
 
     fn cv1_sample_to_voct(&self, transposed_sample: f32) -> f32 {

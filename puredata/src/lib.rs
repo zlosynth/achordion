@@ -125,7 +125,9 @@ unsafe extern "C" fn set_chord_degrees(class: *mut Class, value: pd_sys::t_float
 }
 
 unsafe extern "C" fn set_scale_mode(class: *mut Class, value: pd_sys::t_float) {
-    (*class).instrument.set_scale_mode(value.clamp(0.0, 1.0));
+    (*class)
+        .instrument
+        .set_scale_mode(value.clamp(0.0, 1.0), false);
 }
 
 unsafe extern "C" fn set_scale_root(class: *mut Class, value: pd_sys::t_float) {

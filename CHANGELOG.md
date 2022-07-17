@@ -10,6 +10,7 @@ backwards compatibility.
 * Add harmonic minor mode.
 * Introduce configuration menu.
 * Enable overdrive through the configuration menu.
+* Order of modes can be changed in the configuration menu.
 * Extend the build manual with additional notes.
 * Update pictures in the build manual to match version 2.
 

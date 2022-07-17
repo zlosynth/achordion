@@ -369,7 +369,8 @@ fn reconcile_all_changes(
         None
     };
 
-    let new_scale_mode = instrument.set_scale_mode(controls.scale_mode());
+    let new_scale_mode =
+        instrument.set_scale_mode(controls.scale_mode(), controls.reordered_modes());
     let scale_mode_action = if let Some(new_scale_mode) = new_scale_mode {
         Some(DisplayAction::SetScaleMode(new_scale_mode))
     } else {

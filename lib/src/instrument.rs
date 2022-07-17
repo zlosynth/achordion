@@ -193,22 +193,50 @@ impl<'a> Instrument<'a> {
     }
 
     #[inline(always)]
-    pub fn set_scale_mode(&mut self, scale_mode: f32) -> Option<scales::diatonic::Mode> {
+    pub fn set_scale_mode(
+        &mut self,
+        scale_mode: f32,
+        reordered_modes: bool,
+    ) -> Option<scales::diatonic::Mode> {
         let original = self.scale_mode();
 
         let scale_mode = self.scale_mode.offset_raw(scale_mode);
         self.scale_mode.set(if scale_mode < 1.0 / 8.0 {
-            scales::diatonic::Ionian
+            if reordered_modes {
+                scales::diatonic::Lydian
+            } else {
+                scales::diatonic::Ionian
+            }
         } else if scale_mode < 2.0 / 8.0 {
-            scales::diatonic::Dorian
+            if reordered_modes {
+                scales::diatonic::Ionian
+            } else {
+                scales::diatonic::Dorian
+            }
         } else if scale_mode < 3.0 / 8.0 {
-            scales::diatonic::Phrygian
+            if reordered_modes {
+                scales::diatonic::Mixolydian
+            } else {
+                scales::diatonic::Phrygian
+            }
         } else if scale_mode < 4.0 / 8.0 {
-            scales::diatonic::Lydian
+            if reordered_modes {
+                scales::diatonic::Dorian
+            } else {
+                scales::diatonic::Lydian
+            }
         } else if scale_mode < 5.0 / 8.0 {
-            scales::diatonic::Mixolydian
+            if reordered_modes {
+                scales::diatonic::Aeolian
+            } else {
+                scales::diatonic::Mixolydian
+            }
         } else if scale_mode < 6.0 / 8.0 {
-            scales::diatonic::Aeolian
+            if reordered_modes {
+                scales::diatonic::Phrygian
+            } else {
+                scales::diatonic::Aeolian
+            }
         } else if scale_mode < 7.0 / 8.0 {
             scales::diatonic::Locrian
         } else {
@@ -904,7 +932,7 @@ mod tests {
 
     fn create_valid_instrument() -> Instrument<'static> {
         let mut instrument = Instrument::new(&WAVETABLE_BANKS[..], SAMPLE_RATE);
-        instrument.set_scale_mode(0.0);
+        instrument.set_scale_mode(0.0, false);
         instrument.set_scale_root_voct(2.0);
         instrument.set_chord_root_voct(Some(2.5));
         instrument.set_chord_degrees(0.8);
@@ -939,14 +967,14 @@ mod tests {
     #[test]
     fn recover_after_scale_mode_was_set_above_range() {
         let mut instrument = create_valid_instrument();
-        instrument.set_scale_mode(100.0);
+        instrument.set_scale_mode(100.0, false);
         assert_populate(&mut instrument);
     }
 
     #[test]
     fn recover_after_scale_mode_was_set_below_range() {
         let mut instrument = create_valid_instrument();
-        instrument.set_scale_mode(-100.0);
+        instrument.set_scale_mode(-100.0, false);
         assert_populate(&mut instrument);
     }
 
@@ -1192,12 +1220,12 @@ mod tests {
     #[test]
     fn change_scale_mode() {
         let mut instrument = create_valid_instrument();
-        instrument.set_scale_mode(0.0);
+        instrument.set_scale_mode(0.0, false);
 
-        let new_mode = instrument.set_scale_mode(0.5);
+        let new_mode = instrument.set_scale_mode(0.5, false);
         assert!(new_mode.is_some());
 
-        let new_mode = instrument.set_scale_mode(0.5);
+        let new_mode = instrument.set_scale_mode(0.5, false);
         assert!(new_mode.is_none());
     }
 
@@ -1205,10 +1233,10 @@ mod tests {
     fn get_scale_mode() {
         let mut instrument = create_valid_instrument();
 
-        instrument.set_scale_mode(0.0);
+        instrument.set_scale_mode(0.0, false);
         let old_mode = instrument.scale_mode();
 
-        instrument.set_scale_mode(0.5);
+        instrument.set_scale_mode(0.5, false);
         let new_mode = instrument.scale_mode();
 
         assert!(old_mode != new_mode);
