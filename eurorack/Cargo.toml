@@ -34,7 +34,4 @@ opt-level = 3
 opt-level = "z" # This contains code used only during the boot, no need for speed
 
 [profile.release.package.crc]
-opt-level = "z"
-
-[profile.release.package.micromath]
-opt-level = "z"
+opt-level = "z" # CRC is only used while restoring a config on boot and does not need to be fast
