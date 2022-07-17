@@ -32,3 +32,9 @@ opt-level = 3
 
 [profile.release.package.achordion-bank]
 opt-level = "z" # This contains code used only during the boot, no need for speed
+
+[profile.release.package.crc]
+opt-level = "z"
+
+[profile.release.package.micromath]
+opt-level = "z"
