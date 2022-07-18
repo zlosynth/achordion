@@ -424,7 +424,7 @@ impl Controls {
         };
         let pot = self.last_detune_pot_reading;
 
-        self.parameters.detune = if self.cv4.connected() {
+        self.parameters.detune = if self.cv4.connected() && !self.modal_playing() {
             // CV is centered around zero, suited for LFO.
             let detune = self.cv4.value() * 2.0 - 1.0;
             let offset = pot;
@@ -435,7 +435,7 @@ impl Controls {
     }
 
     fn reconcile_solo(&mut self) {
-        if self.cv2.connected() {
+        if self.cv2.connected() && !self.modal_playing() {
             let note = self.cv2_sample_to_voct(self.cv2.value());
             let offset = -4.0;
             self.parameters.solo = note + offset;
@@ -447,17 +447,29 @@ impl Controls {
     }
 
     fn reconcile_scale_root(&mut self) {
-        if self.scale_root_pot_active() {
-            self.last_scale_root_pot_reading = self.pot2.value();
-        }
-        self.parameters.scale_root = self.last_scale_root_pot_reading * 0.98 + 0.01;
+        self.parameters.scale_root = if self.cv2.connected() && self.modal_playing() {
+            self.cv2_sample_to_voct(self.cv2.value())
+        } else {
+            if self.scale_root_pot_active() {
+                self.last_scale_root_pot_reading = self.pot2.value();
+            }
+            self.last_scale_root_pot_reading * 0.98 + 0.01
+        };
     }
 
     fn reconcile_scale_mode(&mut self) {
         if self.scale_mode_pot_active() {
             self.last_scale_mode_pot_reading = self.pot3.value();
         }
-        self.parameters.scale_mode = self.last_scale_mode_pot_reading;
+        self.parameters.scale_mode = if self.cv4.connected() && self.modal_playing() {
+            if self.last_scale_mode_pot_reading < 0.5 {
+                self.cv4.value()
+            } else {
+                self.cv4.value() * 2.0 - 1.0
+            }
+        } else {
+            self.last_scale_mode_pot_reading
+        };
     }
 
     fn reconcile_configuration(&mut self) {
@@ -473,10 +485,10 @@ impl Controls {
             self.configuration_state = ConfigurationState::Inactive;
         }
 
-        if matches!(self.configuration_state, ConfigurationState::Active) && self.pot4.active() {
-            const OPTIONS: i32 = 2;
+        if matches!(self.configuration_state, ConfigurationState::Active) && self.pot1.active() {
+            const OPTIONS: i32 = 3;
             let scale = f32::powi(2.0, OPTIONS);
-            let config = (self.pot4.value() * scale - 0.01) as u8;
+            let config = (self.pot1.value() * scale - 0.01) as u8;
             self.parameters.config = Config::from(config);
         }
     }
@@ -607,6 +619,10 @@ impl Controls {
 
     pub fn reordered_modes(&self) -> bool {
         self.parameters.config.reordered_modes
+    }
+
+    pub fn modal_playing(&self) -> bool {
+        self.parameters.config.modal_playing
     }
 
     fn cv1_sample_to_voct(&self, transposed_sample: f32) -> f32 {

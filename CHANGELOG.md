@@ -9,6 +9,7 @@ backwards compatibility.
 * Blink the signal LED twice to signalize new version.
 * Add harmonic minor mode.
 * Introduce configuration menu.
+* Allow remapping of CV inputs to control scale's tonic and mode.
 * Enable overdrive through the configuration menu.
 * Order of modes can be changed in the configuration menu.
 * Extend the build manual with additional notes.

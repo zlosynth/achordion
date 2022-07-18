@@ -2,6 +2,7 @@
 pub struct Config {
     pub overdrive: bool,
     pub reordered_modes: bool,
+    pub modal_playing: bool,
 }
 
 impl From<u8> for Config {
@@ -9,6 +10,7 @@ impl From<u8> for Config {
         Self {
             overdrive: other & 1 != 0,
             reordered_modes: other & (1 << 1) != 0,
+            modal_playing: other & (1 << 2) != 0,
         }
     }
 }
@@ -21,6 +23,9 @@ impl From<Config> for u8 {
         }
         if other.reordered_modes {
             value |= 1 << 1;
+        }
+        if other.modal_playing {
+            value |= 1 << 2;
         }
         value
     }
