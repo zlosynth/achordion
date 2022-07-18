@@ -4,7 +4,7 @@ use rtic::cyccnt::{Duration, Instant};
 use super::debounce_buffer::DebounceBuffer;
 use crate::system::hal::hal::digital::v2::InputPin;
 
-const LONG_CLICK: u32 = 8 * crate::SECOND;
+const LONG_CLICK: u32 = 5 * crate::SECOND;
 
 pub struct Button<P> {
     pin: P,
