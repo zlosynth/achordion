@@ -55,7 +55,8 @@ pub struct Controls {
     last_scale_root_pot_reading: f32,
     last_chord_pot_reading: f32,
     last_detune_pot_reading: f32,
-    last_scale_mode_pot_reading: f32,
+
+    scale_mode_cv: Option<f32>,
 
     note_source: NoteSource,
 
@@ -142,7 +143,8 @@ impl Controls {
             last_scale_root_pot_reading: 0.0,
             last_chord_pot_reading: 0.0,
             last_detune_pot_reading: 0.0,
-            last_scale_mode_pot_reading: 0.0,
+
+            scale_mode_cv: None,
 
             note_source: NoteSource::Pot,
 
@@ -208,7 +210,11 @@ impl Controls {
     }
 
     pub fn scale_mode(&self) -> f32 {
-        self.parameters.scale_mode
+        if let Some(scale_mode_cv) = self.scale_mode_cv {
+            scale_mode_cv
+        } else {
+            self.parameters.scale_mode
+        }
     }
 
     pub fn active(&self) -> bool {
@@ -459,16 +465,16 @@ impl Controls {
 
     fn reconcile_scale_mode(&mut self) {
         if self.scale_mode_pot_active() {
-            self.last_scale_mode_pot_reading = self.pot3.value();
+            self.parameters.scale_mode = self.pot3.value();
         }
-        self.parameters.scale_mode = if self.cv4.connected() && self.modal_playing() {
-            if self.last_scale_mode_pot_reading < 0.5 {
-                self.cv4.value()
+        self.scale_mode_cv = if self.cv4.connected() && self.modal_playing() {
+            if self.parameters.scale_mode < 0.5 {
+                Some(self.cv4.value())
             } else {
-                self.cv4.value() * 2.0 - 1.0
+                Some(self.cv4.value() * 2.0 - 1.0)
             }
         } else {
-            self.last_scale_mode_pot_reading
+            None
         };
     }
 
