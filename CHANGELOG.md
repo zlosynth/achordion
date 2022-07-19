@@ -6,6 +6,8 @@ backwards compatibility.
 
 ## Unreleased
 
+## 2.2.0
+
 * Blink the signal LED twice to signalize new version.
 * Add harmonic minor mode.
 * Introduce configuration menu.
