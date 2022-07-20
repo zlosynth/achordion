@@ -459,7 +459,8 @@ impl Controls {
             if self.scale_root_pot_active() {
                 self.last_scale_root_pot_reading = self.pot2.value();
             }
-            self.last_scale_root_pot_reading * 0.98 + 0.01
+            const HALF_SEMITONE: f32 = 0.5 / 12.0;
+            self.last_scale_root_pot_reading * 0.98 - HALF_SEMITONE
         };
     }
 

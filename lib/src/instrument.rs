@@ -258,9 +258,8 @@ impl<'a> Instrument<'a> {
     pub fn set_scale_root_voct(&mut self, scale_root: f32) -> Option<Note> {
         let original = self.scale_root();
 
-        const HALF_SEMITONE: f32 = 0.5 / 12.0;
         self.scale_root.set(quantizer::chromatic::quantize(
-            self.scale_root.offset_raw(scale_root) - HALF_SEMITONE,
+            self.scale_root.offset_raw(scale_root),
         ));
         self.apply_settings();
 
@@ -1187,21 +1186,13 @@ mod tests {
     #[test]
     fn change_scale_root() {
         let mut instrument = create_valid_instrument();
-        instrument.set_scale_root_voct(1.0 + 0.5 / 12.0);
+        instrument.set_scale_root_voct(1.0 + 1.0 / 12.0);
 
-        let new_root = instrument.set_scale_root_voct(1.0 + 2.5 / 12.0);
+        let new_root = instrument.set_scale_root_voct(1.0 + 2.0 / 12.0);
         assert!(new_root.is_some());
 
-        let new_root = instrument.set_scale_root_voct(1.0 + 2.5 / 12.0);
+        let new_root = instrument.set_scale_root_voct(1.0 + 2.0 / 12.0);
         assert!(new_root.is_none());
-    }
-
-    #[test]
-    fn set_scale_root_at_upper_edge_and_dont_wrap_back() {
-        let mut instrument = create_valid_instrument();
-        instrument.set_scale_root_voct(2.0 - 0.5 / 12.0);
-        let root = instrument.scale_root();
-        assert_eq!(root, Note::B0);
     }
 
     #[test]

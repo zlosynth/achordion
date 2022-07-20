@@ -6,6 +6,8 @@ backwards compatibility.
 
 ## Unreleased
 
+* Fix scaling of scale tonic CV to properly track 1V/oct.
+
 ## 2.2.0
 
 * Blink the signal LED twice to signalize new version.
