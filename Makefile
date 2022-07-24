@@ -61,6 +61,13 @@ manual:
 	make -C manual/build
 	make -C manual/user
 
+.PHONY: clean
+clean:
+	cd bank && cargo clean
+	cd eurorack && cargo clean
+	cd lib && cargo clean
+	cd puredata && cargo clean
+
 .PHONY: flash
 flash:
 	cd eurorack && cargo objcopy --release -- -O binary target/achordion.bin
