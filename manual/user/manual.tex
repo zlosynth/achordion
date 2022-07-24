@@ -195,17 +195,21 @@ Some configuration options of the module can be adjusted:
   VII  & \textit{reserved} \\
   VI   & \textit{reserved} \\
   V    & \textit{reserved} \\
-  IV   & \textit{reserved} \\
-  III  & Modal playing \\
-  II   & Reordered modes \\
+  IV   & Tonic controlled by TONE' CV \\
+  III  & Mode controlled by DETUNE CV \\
+  II   & Modes ordered by brightness \\
   I    & Overdrive
 \end{tabular}
 
-\subsection{Modal playing}
+\subsection{Tonic controlled by TONE' CV}
 
-Inputs of the module can be remapped to allow for modal playing, with an external CV source selecting scale's mode and tonic. Scale's tonic is then set by the TONE' CV input and maps to 1V/oct. Scale's mode is set by the DETUNE CV input. Depending on whether mode's knob (DETUNE pot with the button held down) is on its first or second half, scale modes are mapped between -5~and~+5~V, or 0~and~+5~V respectively.
+Scale's tonic can be controlled through the TONE' CV input, mapping to 1V/oct.
 
-\subsection{Reordered modes}
+\subsection{Mode controlled by DETUNE CV}
+
+Scale's mode can be controlled throught the DETUNE CV input. Depending on whether mode's knob (DETUNE pot with the button held down) is on its first or second half, scale modes are mapped between -5~and~+5~V, or 0~and~+5~V respectively.
+
+\subsection{Modes ordered by brightness}
 
 Modes can be reordered by their harmonic content, going from the brightest to the darkest.
 
@@ -216,12 +220,12 @@ Due to the headroom reserved for all 18 voices, default output levels are quite 
 \section{Changelog}
 
 \begin{tabular}{@{}rl@{}}
-  v2.2.0 & The status LED blinks twice \\
-         & Introduced configuration menu \\
-         & Allow control of scale through CV \\
-         & Add an option to order modes by brightness \\
-         & Moved overdrive to the configuration menu \\
-         & Added harmonic minor as the 8th mode
+  v2.2 & The status LED blinks twice \\
+       & Introduced configuration menu \\
+       & Allow control of scale through CV \\
+       & Add an option to order modes by brightness \\
+       & Moved overdrive to the configuration menu \\
+       & Added harmonic minor as the 8th mode
 \end{tabular}
 
 \section{Questions?}

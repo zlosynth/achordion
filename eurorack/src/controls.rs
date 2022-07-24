@@ -430,7 +430,7 @@ impl Controls {
         };
         let pot = self.last_detune_pot_reading;
 
-        self.parameters.detune = if self.cv4.connected() && !self.modal_playing() {
+        self.parameters.detune = if self.cv4.connected() && !self.mode_controlled_by_detune_cv() {
             // CV is centered around zero, suited for LFO.
             let detune = self.cv4.value() * 2.0 - 1.0;
             let offset = pot;
@@ -441,7 +441,7 @@ impl Controls {
     }
 
     fn reconcile_solo(&mut self) {
-        if self.cv2.connected() && !self.modal_playing() {
+        if self.cv2.connected() && !self.tonic_controlled_by_solo_cv() {
             let note = self.cv2_sample_to_voct(self.cv2.value());
             let offset = -4.0;
             self.parameters.solo = note + offset;
@@ -453,7 +453,7 @@ impl Controls {
     }
 
     fn reconcile_scale_root(&mut self) {
-        self.parameters.scale_root = if self.cv2.connected() && self.modal_playing() {
+        self.parameters.scale_root = if self.cv2.connected() && self.tonic_controlled_by_solo_cv() {
             self.cv2_sample_to_voct(self.cv2.value())
         } else {
             if self.scale_root_pot_active() {
@@ -468,7 +468,7 @@ impl Controls {
         if self.scale_mode_pot_active() {
             self.parameters.scale_mode = self.pot3.value();
         }
-        self.scale_mode_cv = if self.cv4.connected() && self.modal_playing() {
+        self.scale_mode_cv = if self.cv4.connected() && self.mode_controlled_by_detune_cv() {
             if self.parameters.scale_mode < 0.5 {
                 Some(self.cv4.value())
             } else {
@@ -493,7 +493,7 @@ impl Controls {
         }
 
         if matches!(self.configuration_state, ConfigurationState::Active) && self.pot1.active() {
-            const OPTIONS: i32 = 3;
+            const OPTIONS: i32 = 4;
             let scale = f32::powi(2.0, OPTIONS);
             let config = (self.pot1.value() * scale - 0.01) as u8;
             self.parameters.config = Config::from(config);
@@ -621,15 +621,19 @@ impl Controls {
     }
 
     pub fn overdrive(&self) -> bool {
-        self.parameters.config.overdrive
+        self.parameters.config.overdrive()
     }
 
-    pub fn reordered_modes(&self) -> bool {
-        self.parameters.config.reordered_modes
+    pub fn modes_ordered_by_brightness(&self) -> bool {
+        self.parameters.config.modes_ordered_by_brightness()
     }
 
-    pub fn modal_playing(&self) -> bool {
-        self.parameters.config.modal_playing
+    pub fn mode_controlled_by_detune_cv(&self) -> bool {
+        self.parameters.config.mode_controlled_by_detune_cv()
+    }
+
+    pub fn tonic_controlled_by_solo_cv(&self) -> bool {
+        self.parameters.config.tonic_controlled_by_solo_cv()
     }
 
     fn cv1_sample_to_voct(&self, transposed_sample: f32) -> f32 {

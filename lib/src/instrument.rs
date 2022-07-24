@@ -196,43 +196,43 @@ impl<'a> Instrument<'a> {
     pub fn set_scale_mode(
         &mut self,
         scale_mode: f32,
-        reordered_modes: bool,
+        modes_ordered_by_brightness: bool,
     ) -> Option<scales::diatonic::Mode> {
         let original = self.scale_mode();
 
         let scale_mode = self.scale_mode.offset_raw(scale_mode);
         self.scale_mode.set(if scale_mode < 1.0 / 8.0 {
-            if reordered_modes {
+            if modes_ordered_by_brightness {
                 scales::diatonic::Lydian
             } else {
                 scales::diatonic::Ionian
             }
         } else if scale_mode < 2.0 / 8.0 {
-            if reordered_modes {
+            if modes_ordered_by_brightness {
                 scales::diatonic::Ionian
             } else {
                 scales::diatonic::Dorian
             }
         } else if scale_mode < 3.0 / 8.0 {
-            if reordered_modes {
+            if modes_ordered_by_brightness {
                 scales::diatonic::Mixolydian
             } else {
                 scales::diatonic::Phrygian
             }
         } else if scale_mode < 4.0 / 8.0 {
-            if reordered_modes {
+            if modes_ordered_by_brightness {
                 scales::diatonic::Dorian
             } else {
                 scales::diatonic::Lydian
             }
         } else if scale_mode < 5.0 / 8.0 {
-            if reordered_modes {
+            if modes_ordered_by_brightness {
                 scales::diatonic::Aeolian
             } else {
                 scales::diatonic::Mixolydian
             }
         } else if scale_mode < 6.0 / 8.0 {
-            if reordered_modes {
+            if modes_ordered_by_brightness {
                 scales::diatonic::Phrygian
             } else {
                 scales::diatonic::Aeolian
