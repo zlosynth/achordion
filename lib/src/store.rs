@@ -391,9 +391,9 @@ mod tests {
     }
 
     #[test]
-    fn parameters_fit_into_one_sector() {
-        let sector_size = 4096;
+    fn parameters_fit_into_one_page() {
+        let page_size = 256;
         let parameters_size = mem::size_of::<Parameters>();
-        assert!(parameters_size < sector_size);
+        assert!(parameters_size < page_size);
     }
 }
