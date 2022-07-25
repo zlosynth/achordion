@@ -55,8 +55,6 @@ pub struct Controls {
     last_chord_pot_reading: f32,
     last_detune_pot_reading: f32,
 
-    scale_mode_cv: Option<f32>,
-
     note_source: NoteSource,
 
     calibration_target: CalibrationTarget,
@@ -142,8 +140,6 @@ impl Controls {
             last_chord_pot_reading: 0.0,
             last_detune_pot_reading: 0.0,
 
-            scale_mode_cv: None,
-
             note_source: NoteSource::Pot,
 
             calibration_target: CalibrationTarget::None,
@@ -208,11 +204,7 @@ impl Controls {
     }
 
     pub fn scale_mode(&self) -> f32 {
-        if let Some(scale_mode_cv) = self.scale_mode_cv {
-            scale_mode_cv
-        } else {
-            self.parameters.scale_mode
-        }
+        self.parameters.scale_mode
     }
 
     pub fn active(&self) -> bool {
@@ -461,16 +453,19 @@ impl Controls {
 
     fn reconcile_scale_mode(&mut self) {
         if self.scale_mode_pot_active() {
-            self.parameters.scale_mode = self.pot3.value();
+            self.parameters.last_scale_mode_pot_reading = self.pot3.value();
         }
-        self.scale_mode_cv = if self.cv4.connected() && self.mode_controlled_by_detune_cv() {
-            if self.parameters.scale_mode < 0.5 {
-                Some(self.cv4.value())
-            } else {
-                Some(self.cv4.value() * 2.0 - 1.0)
-            }
+
+        let pot = self.parameters.last_scale_mode_pot_reading;
+
+        self.parameters.scale_mode = if self.cv4.connected() && self.mode_controlled_by_detune_cv()
+        {
+            // CV is centered around zero, suited for LFO.
+            let scale_mode = self.cv4.value() * 2.0 - 1.0;
+            let offset = pot;
+            (scale_mode + offset).min(0.9999).max(0.0)
         } else {
-            None
+            pot
         };
     }
 

@@ -24,6 +24,7 @@ pub struct Parameters {
     pub detune: f32,
     pub scale_root: f32,
     pub scale_mode: f32,
+    pub last_scale_mode_pot_reading: f32,
     pub amplitude: f32,
     pub cv1_calibration_ratio: f32,
     pub cv1_calibration_offset: f32,
@@ -49,6 +50,7 @@ impl Default for Parameters {
             detune: 0.0,
             scale_root: 0.0,
             scale_mode: 0.0,
+            last_scale_mode_pot_reading: 0.0,
             amplitude: 0.0,
             cv1_calibration_ratio: 1.0,
             cv1_calibration_offset: 0.0,
@@ -103,6 +105,7 @@ impl Parameters {
             detune: f32_from_bytes!(detune),
             scale_root: f32_from_bytes!(scale_root),
             scale_mode: f32_from_bytes!(scale_mode),
+            last_scale_mode_pot_reading: f32_from_bytes!(last_scale_mode_pot_reading),
             amplitude: f32_from_bytes!(amplitude),
             cv1_calibration_ratio: f32_from_bytes!(cv1_calibration_ratio),
             cv1_calibration_offset: f32_from_bytes!(cv1_calibration_offset),
@@ -159,6 +162,7 @@ impl Parameters {
         f32_to_bytes!(detune);
         f32_to_bytes!(scale_root);
         f32_to_bytes!(scale_mode);
+        f32_to_bytes!(last_scale_mode_pot_reading);
         f32_to_bytes!(amplitude);
         f32_to_bytes!(cv1_calibration_ratio);
         f32_to_bytes!(cv1_calibration_offset);
@@ -183,6 +187,10 @@ impl Parameters {
             && f32_close(self.detune, other.detune)
             && f32_close(self.scale_root, other.scale_root)
             && f32_close(self.scale_mode, other.scale_mode)
+            && f32_close(
+                self.last_scale_mode_pot_reading,
+                other.last_scale_mode_pot_reading,
+            )
             && f32_close(self.amplitude, other.amplitude)
             && self.cv1_calibration_ratio == other.cv1_calibration_ratio
             && self.cv1_calibration_offset == other.cv1_calibration_offset
@@ -363,6 +371,7 @@ mod tests {
             detune: 0.5,
             scale_root: 0.6,
             scale_mode: 0.7,
+            last_scale_mode_pot_reading: 0.75,
             amplitude: 0.8,
             cv1_calibration_ratio: 0.9,
             cv1_calibration_offset: 0.91,
@@ -379,5 +388,12 @@ mod tests {
         };
         let bytes = parameters.to_bytes();
         assert!(Parameters::from_bytes(bytes) == parameters);
+    }
+
+    #[test]
+    fn parameters_fit_into_one_sector() {
+        let sector_size = 4096;
+        let parameters_size = mem::size_of::<Parameters>();
+        assert!(parameters_size < sector_size);
     }
 }
