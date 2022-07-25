@@ -23,7 +23,9 @@ impl Config {
 
 impl From<u8> for Config {
     fn from(other: u8) -> Self {
-        Self { config: other }
+        Self {
+            config: other & 0b1111,
+        }
     }
 }
 
