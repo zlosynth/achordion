@@ -6,8 +6,9 @@ backwards compatibility.
 
 ## Unreleased
 
-* Fix scaling of scale tonic CV to properly track 1V/oct.
 * Split modal playing control to bind mode and scale CVs separately.
+* Fix scaling of scale tonic CV to properly track 1V/oct.
+* Persist tonic configuration between restarts.
 
 ## 2.2.0
 

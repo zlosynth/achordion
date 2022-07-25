@@ -52,7 +52,6 @@ pub struct Controls {
 
     last_note_pot_reading: f32,
     last_wavetable_pot_reading: f32,
-    last_scale_root_pot_reading: f32,
     last_chord_pot_reading: f32,
     last_detune_pot_reading: f32,
 
@@ -140,7 +139,6 @@ impl Controls {
             // is in its alternative mode (depending on the button state).
             last_note_pot_reading: 0.0,
             last_wavetable_pot_reading: 0.0,
-            last_scale_root_pot_reading: 0.0,
             last_chord_pot_reading: 0.0,
             last_detune_pot_reading: 0.0,
 
@@ -453,15 +451,12 @@ impl Controls {
     }
 
     fn reconcile_scale_root(&mut self) {
-        self.parameters.scale_root = if self.cv2.connected() && self.tonic_controlled_by_solo_cv() {
-            self.cv2_sample_to_voct(self.cv2.value())
-        } else {
-            if self.scale_root_pot_active() {
-                self.last_scale_root_pot_reading = self.pot2.value();
-            }
+        if self.cv2.connected() && self.tonic_controlled_by_solo_cv() {
+            self.parameters.scale_root = self.cv2_sample_to_voct(self.cv2.value());
+        } else if self.scale_root_pot_active() {
             const HALF_SEMITONE: f32 = 0.5 / 12.0;
-            self.last_scale_root_pot_reading * 0.98 - HALF_SEMITONE
-        };
+            self.parameters.scale_root = self.pot2.value() * 0.98 - HALF_SEMITONE;
+        }
     }
 
     fn reconcile_scale_mode(&mut self) {
