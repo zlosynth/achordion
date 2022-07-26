@@ -19,6 +19,15 @@ Check firmware size:
 ``` sh
 cargo size -- -m
 cargo size -- -A
+cargo bloat --release -n 50
+```
+
+Analyze the call stack:
+
+``` sh
+cargo +nightly call-stack --bin achordion-eurorack > cg.dot
+dot -Tsvg cg.dot > cg.svg
+firefox cg.svg
 ```
 
 Flash using ST-Link:
