@@ -212,6 +212,7 @@ fn f32_close(a: f32, b: f32) -> bool {
 #[derive(Clone, Copy)]
 pub struct Store {
     version: u32,
+    token: u16,
     parameters_raw: [u8; Parameters::SIZE],
     crc: u16,
 }
@@ -221,6 +222,9 @@ lazy_static! {
     static ref PARAMETERS_RAW_STOP: usize =
         *PARAMETERS_RAW_START + mem::size_of::<[u8; Parameters::SIZE]>();
 }
+
+// This constant is used to invalidate data when needed
+const TOKEN: u16 = 100;
 
 pub struct InvalidData;
 
@@ -234,6 +238,7 @@ impl Store {
             version,
             parameters_raw,
             crc,
+            token: TOKEN,
         }
     }
 
@@ -260,7 +265,12 @@ impl Store {
                 .try_into()
                 .unwrap(),
             crc: u16_from_bytes!(crc),
+            token: u16_from_bytes!(token),
         };
+
+        if store.token != TOKEN {
+            return Err(InvalidData);
+        }
 
         let crc = CRC.checksum(&store.parameters_raw);
         if crc == store.crc {
@@ -291,6 +301,7 @@ impl Store {
 
         u32_to_bytes!(version);
         u16_to_bytes!(crc);
+        u16_to_bytes!(token);
 
         let parameters_start = offset_of!(Self => parameters_raw).get_byte_offset();
         let parameters_stop = parameters_start + mem::size_of::<[u8; Parameters::SIZE]>();
