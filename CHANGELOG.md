@@ -6,6 +6,8 @@ backwards compatibility.
 
 ## Unreleased
 
+## 2.2.1
+
 * Split modal playing control to bind mode and scale CVs separately.
 * Shift the range of TONE' by 2 octaves higher.
 * Fix scaling of scale tonic CV to properly track 1V/oct.
