@@ -433,7 +433,7 @@ impl Controls {
     fn reconcile_solo(&mut self) {
         if self.cv2.connected() && !self.tonic_controlled_by_solo_cv() {
             let note = self.cv2_sample_to_voct(self.cv2.value());
-            let offset = -4.0;
+            let offset = -2.0;
             self.parameters.solo = note + offset;
             self.parameters.solo_enabled = true;
         } else {
