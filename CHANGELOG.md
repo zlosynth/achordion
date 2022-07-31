@@ -6,6 +6,8 @@ backwards compatibility.
 
 ## Unreleased
 
+* Pure Data externals were moved to a [dedicated project](https://github.com/zlosynth/automaton).
+
 ## 2.2.1
 
 * Split modal playing control to bind mode and scale CVs separately.
