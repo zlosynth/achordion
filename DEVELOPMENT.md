@@ -8,12 +8,6 @@ Run formatting, linter and unit tests:
 make
 ```
 
-Run the module via Pure Data:
-
-```sh
-make puredata
-```
-
 Check firmware size:
 
 ``` sh
