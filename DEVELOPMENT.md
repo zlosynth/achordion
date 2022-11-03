@@ -1,5 +1,18 @@
 # Development
 
+## Rust version
+
+The firmware of this project fits really tight into the flash of Daisy Patch SM.
+With anything newer than Rust 1.63.0, it just won't fit. Before working with
+this project, please make sure to install needed Rust toolchains:
+
+``` sh
+rustup toolchain install 1.63.0-x86_64-unknown-linux-gnu
+rustup target add thumbv7em-none-eabihf --toolchain 1.63.0
+cargo +1.63.0 install cargo-binutils
+rustup +1.63.0 component add llvm-tools-preview
+```
+
 ## Cheat sheet
 
 Run formatting, linter and unit tests:

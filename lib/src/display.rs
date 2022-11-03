@@ -24,7 +24,7 @@ pub enum CalibrationPhase {
     Failed,
 }
 
-#[derive(Default, Clone, Copy, PartialEq, Debug)]
+#[derive(Default, Clone, Copy, PartialEq, Eq, Debug)]
 pub struct State {
     pub led1: bool,
     pub led2: bool,

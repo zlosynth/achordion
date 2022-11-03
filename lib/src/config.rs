@@ -1,4 +1,4 @@
-#[derive(Clone, Copy, Default, PartialEq)]
+#[derive(Clone, Copy, Default, PartialEq, Eq)]
 pub struct Config {
     config: u8,
 }

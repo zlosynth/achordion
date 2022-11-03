@@ -1,47 +1,49 @@
+CARGO = cargo +1.63.0
+
 .PHONY: all
 all: format clippy check test
 
 .PHONY: check-format
 check-format:
-	cd bank && cargo fmt --all -- --check
-	cd eurorack && cargo fmt --all -- --check
-	cd lib && cargo fmt --all -- --check
+	cd bank && $(CARGO) fmt --all -- --check
+	cd eurorack && $(CARGO) fmt --all -- --check
+	cd lib && $(CARGO) fmt --all -- --check
 
 .PHONY: format
 format:
-	cd bank && cargo fmt --all
-	cd eurorack && cargo fmt --all
-	cd lib && cargo fmt --all
+	cd bank && $(CARGO) fmt --all
+	cd eurorack && $(CARGO) fmt --all
+	cd lib && $(CARGO) fmt --all
 
 .PHONY: clippy
 clippy:
-	cd bank && cargo clippy --features fft --all -- -D warnings
-	cd bank && cargo clippy --features svf --all -- -D warnings
-	cd eurorack && cargo clippy --all -- -D warnings
-	cd lib && cargo clippy --all -- -D warnings
+	cd bank && $(CARGO) clippy --features fft --all -- -D warnings
+	cd bank && $(CARGO) clippy --features svf --all -- -D warnings
+	cd eurorack && $(CARGO) clippy --all -- -D warnings
+	cd lib && $(CARGO) clippy --all -- -D warnings
 
 .PHONY: check
 check:
-	cd bank && cargo check --features fft --all
-	cd bank && cargo check --features svf --all
-	cd eurorack && cargo check --all
-	cd lib && cargo check --all
-	cd lib && cargo check --benches --all
+	cd bank && $(CARGO) check --features fft --all
+	cd bank && $(CARGO) check --features svf --all
+	cd eurorack && $(CARGO) check --all
+	cd lib && $(CARGO) check --all
+	cd lib && $(CARGO) check --benches --all
 
 .PHONY: test
 test:
-	cd bank && cargo test --features fft --all
-	cd bank && cargo test --features svf --all
-	cd eurorack && cargo test --all
-	cd lib && cargo test --all
+	cd bank && $(CARGO) test --features fft --all
+	cd bank && $(CARGO) test --features svf --all
+	cd eurorack && $(CARGO) test --all
+	cd lib && $(CARGO) test --all
 	python -m unittest -v hack/calculate_adc_opamp_components.py
 	python -m unittest -v hack/calculate_reference_voltage_current_limiter.py
 
 .PHONY: update
 update:
-	cd bank && cargo update
-	cd eurorack && cargo update
-	cd lib && cargo update
+	cd bank && $(CARGO) update
+	cd eurorack && $(CARGO) update
+	cd lib && $(CARGO) update
 
 .PHONY: manual
 manual:
@@ -50,11 +52,11 @@ manual:
 
 .PHONY: clean
 clean:
-	cd bank && cargo clean
-	cd eurorack && cargo clean
-	cd lib && cargo clean
+	cd bank && $(CARGO) clean
+	cd eurorack && $(CARGO) clean
+	cd lib && $(CARGO) clean
 
 .PHONY: flash
 flash:
-	cd eurorack && cargo objcopy --release -- -O binary target/achordion.bin
+	cd eurorack && $(CARGO) objcopy --release -- -O binary target/achordion.bin
 	dfu-util -a 0 -s 0x08000000:leave -D eurorack/target/achordion.bin -d ,0483:df11
