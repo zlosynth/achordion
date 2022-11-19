@@ -25,6 +25,9 @@ impl<const N: usize> ControlBuffer<N> {
     }
 
     pub fn traveled(&self) -> f32 {
+        // NOTE: This does not panic only thanks to the release mode
+        // wrapping around instead of exploding on underflow.
+        // XXX: This works only if N is power of 2.
         let newest = (self.pointer - 1).rem_euclid(N);
         let oldest = self.pointer;
         (self.buffer[newest] - self.buffer[oldest]).abs()

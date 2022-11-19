@@ -17,6 +17,7 @@ pub struct Pot<A, P> {
     pin: P,
     input_range: (f32, f32),
     toleration: f32,
+    // XXX: ControlBuffer sizes must be power of 2.
     position_filter: ControlBuffer<8>,
     movement_detector: ControlBuffer<124>,
     _adc: PhantomData<A>,
