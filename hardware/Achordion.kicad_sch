@@ -2044,7 +2044,7 @@
     (uuid ffa442c7-cbef-461f-8613-c211201cec06)
   )
 
-  (text "Low ESR caps" (at 250.825 43.18 0)
+  (text "Low ESR caps\n10u or 22u is fine" (at 250.825 43.18 0)
     (effects (font (size 2.0066 2.0066)) (justify left bottom))
     (uuid 80095e91-6317-4cfb-9aea-884c9a1accc5)
   )

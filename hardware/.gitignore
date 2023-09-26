@@ -19,6 +19,7 @@ fp-info-cache
 Achordion-backups/
 jlcpcb/gerber/
 jlcpcb/assembly/
+jlcpcb/production_files/
 
 # Netlist files (exported from Eeschema)
 *.net
