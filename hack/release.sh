@@ -17,6 +17,7 @@ rm -rf release
 mkdir release
 
 pushd eurorack && cargo +1.63.0 objcopy --release -- -O binary ../release/achordion-firmware-${version}.bin && popd
+pushd eurorack && cargo +1.63.0 objcopy --release --features even_quantization -- -O binary ../release/achordion-firmware-${version}-even-quantization.bin && popd
 
 make manual
 cp manual/user/manual_digital.pdf release/achordion-user-manual.pdf

@@ -13,6 +13,7 @@ publish = false
 default = ["stable_amplitude"]
 balanced_amplitude = []
 stable_amplitude = []
+even_quantization = []
 
 [dependencies]
 micromath = "1.1"

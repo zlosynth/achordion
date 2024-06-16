@@ -327,6 +327,11 @@ impl Note {
     }
 
     #[inline(always)]
+    pub fn try_from_u8(note: u8) -> Option<Note> {
+        Self::try_from_i16(note as i16)
+    }
+
+    #[inline(always)]
     pub fn try_from_i16(note: i16) -> Option<Note> {
         if note >= 0 && note <= Note::HIGHEST_NOTE as i16 {
             Some(unsafe { core::mem::transmute(note as u8) })

@@ -35,3 +35,6 @@ opt-level = "z" # This contains code used only during the boot, no need for spee
 
 [profile.release.package.crc]
 opt-level = "z" # CRC is only used while restoring a config on boot and does not need to be fast
+
+[features]
+even_quantization = ["achordion-lib/even_quantization"]
