@@ -8,6 +8,7 @@ backwards compatibility.
 
 * Pure Data externals were moved to a [dedicated project](https://github.com/zlosynth/automaton).
 * Offer alternative firmware with white key quantization disabled.
+* Introduce basic detune to the first detune section.
 
 ## 2.2.1
 

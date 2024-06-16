@@ -111,12 +111,12 @@ const STYLES: [&[[i8; CHORD_DEGREES]]; 3] = [&CHORDS_A, &CHORDS_B, &CHORDS_C];
 
 const DETUNES: [[DetuneConfig; DEGREES]; 4] = [
     [
-        DetuneConfig::Disabled,
-        DetuneConfig::Disabled,
-        DetuneConfig::Disabled,
-        DetuneConfig::Disabled,
-        DetuneConfig::Disabled,
-        DetuneConfig::Disabled,
+        DetuneConfig::SingleVoice(1.0, 1.04),
+        DetuneConfig::SingleVoice(1.0, 0.96),
+        DetuneConfig::SingleVoice(1.0, 1.04),
+        DetuneConfig::SingleVoice(1.0, 0.96),
+        DetuneConfig::SingleVoice(1.0, 1.04),
+        DetuneConfig::SingleVoice(1.0, 0.96),
     ],
     [
         DetuneConfig::SingleSide(0.5, 0.5 + 0.02, 2),
@@ -720,7 +720,7 @@ impl<'a> Degree<'a> {
         }
 
         match self.detune_config {
-            DetuneConfig::Disabled => 1,
+            DetuneConfig::Disabled | DetuneConfig::SingleVoice(_, _) => 1,
             DetuneConfig::SingleSide(_, _, voices) | DetuneConfig::BothSides(_, _, voices) => {
                 voices
             }
@@ -793,6 +793,22 @@ impl<'a> Degree<'a> {
                     .iter_mut()
                     .for_each(|o| o.set_amplitude(target_amplitude));
                 self.oscillators[voices..]
+                    .iter_mut()
+                    .for_each(|o| o.set_amplitude(0.0));
+            }
+            DetuneConfig::SingleVoice(min, max) => {
+                const OFF: f32 = 0.1;
+                let detune_phase = if self.detune_phase < OFF {
+                    0.0
+                } else {
+                    (self.detune_phase - OFF) / (1.0 - OFF)
+                };
+                let detune_delta = max - min;
+                let detune = min + detune_delta * taper::log(detune_phase);
+                self.oscillators[0].frequency = self.frequency * detune;
+
+                self.oscillators[0].set_amplitude(target_amplitude);
+                self.oscillators[1..]
                     .iter_mut()
                     .for_each(|o| o.set_amplitude(0.0));
             }
