@@ -66,113 +66,12 @@ impl Default for Parameters {
 impl Parameters {
     const SIZE: usize = mem::size_of::<Self>();
 
-    fn from_bytes(bytes: [u8; Self::SIZE]) -> Parameters {
-        macro_rules! f32_from_bytes {
-            ( $attribute:ident ) => {{
-                let start = offset_of!(Self => $attribute).get_byte_offset();
-                let stop = start + mem::size_of::<f32>();
-                f32::from_be_bytes(bytes[start..stop].try_into().unwrap())
-            }}
-        }
-
-        macro_rules! bool_from_bytes {
-            ( $attribute:ident ) => {{
-                let start = offset_of!(Self => $attribute).get_byte_offset();
-                let stop = start + mem::size_of::<u8>();
-                let x = u8::from_be_bytes(bytes[start..stop].try_into().unwrap());
-                x != 0
-            }}
-        }
-
-        macro_rules! config_from_bytes {
-            ( $attribute:ident ) => {{
-                let start = offset_of!(Self => $attribute).get_byte_offset();
-                let stop = start + mem::size_of::<u8>();
-                Config::from(u8::from_be_bytes(bytes[start..stop].try_into().unwrap()))
-            }}
-        }
-
-        Parameters {
-            note: f32_from_bytes!(note),
-            solo: f32_from_bytes!(solo),
-            solo_quantization: bool_from_bytes!(solo_quantization),
-            solo_enabled: bool_from_bytes!(solo_enabled),
-            wavetable: f32_from_bytes!(wavetable),
-            bank: f32_from_bytes!(bank),
-            chord: f32_from_bytes!(chord),
-            chord_quantization: bool_from_bytes!(chord_quantization),
-            style: f32_from_bytes!(style),
-            detune: f32_from_bytes!(detune),
-            scale_root: f32_from_bytes!(scale_root),
-            scale_mode: f32_from_bytes!(scale_mode),
-            last_scale_mode_pot_reading: f32_from_bytes!(last_scale_mode_pot_reading),
-            amplitude: f32_from_bytes!(amplitude),
-            cv1_calibration_ratio: f32_from_bytes!(cv1_calibration_ratio),
-            cv1_calibration_offset: f32_from_bytes!(cv1_calibration_offset),
-            cv2_calibration_ratio: f32_from_bytes!(cv2_calibration_ratio),
-            cv2_calibration_offset: f32_from_bytes!(cv2_calibration_offset),
-            cv5_calibration_ratio: f32_from_bytes!(cv5_calibration_ratio),
-            cv5_calibration_offset: f32_from_bytes!(cv5_calibration_offset),
-            config: config_from_bytes!(config),
-        }
+    fn from_bytes(bytes: [u8; Self::SIZE]) -> Self {
+        unsafe { mem::transmute(bytes) }
     }
 
     fn to_bytes(self) -> [u8; Self::SIZE] {
-        let mut bytes = [0; Self::SIZE];
-
-        macro_rules! f32_to_bytes {
-            ( $attribute:ident ) => {{
-                let start = offset_of!(Self => $attribute).get_byte_offset();
-                let stop = start + mem::size_of::<f32>();
-                bytes[start..stop].copy_from_slice(&self.$attribute.to_be_bytes());
-            }}
-        }
-
-        macro_rules! bool_to_bytes {
-            ( $attribute:ident ) => {{
-                let start = offset_of!(Self => $attribute).get_byte_offset();
-                let stop = start + mem::size_of::<u8>();
-                let x: u8 = if self.$attribute {
-                    1
-                } else {
-                    0
-                };
-                bytes[start..stop].copy_from_slice(&x.to_be_bytes());
-            }}
-        }
-
-        macro_rules! config_to_bytes {
-            ( $attribute:ident ) => {{
-                let start = offset_of!(Self => $attribute).get_byte_offset();
-                let stop = start + mem::size_of::<u8>();
-                let config: u8 = self.$attribute.into();
-                bytes[start..stop].copy_from_slice(&config.to_be_bytes());
-            }}
-        }
-
-        f32_to_bytes!(note);
-        f32_to_bytes!(solo);
-        bool_to_bytes!(solo_quantization);
-        bool_to_bytes!(solo_enabled);
-        f32_to_bytes!(wavetable);
-        f32_to_bytes!(bank);
-        f32_to_bytes!(chord);
-        bool_to_bytes!(chord_quantization);
-        f32_to_bytes!(style);
-        f32_to_bytes!(detune);
-        f32_to_bytes!(scale_root);
-        f32_to_bytes!(scale_mode);
-        f32_to_bytes!(last_scale_mode_pot_reading);
-        f32_to_bytes!(amplitude);
-        f32_to_bytes!(cv1_calibration_ratio);
-        f32_to_bytes!(cv1_calibration_offset);
-        f32_to_bytes!(cv2_calibration_ratio);
-        f32_to_bytes!(cv2_calibration_offset);
-        f32_to_bytes!(cv5_calibration_ratio);
-        f32_to_bytes!(cv5_calibration_offset);
-        config_to_bytes!(config);
-
-        bytes
+        unsafe { mem::transmute(self) }
     }
 
     // For purposes of checking whether the new value is different enough from
@@ -224,7 +123,7 @@ lazy_static! {
 }
 
 // This constant is used to invalidate data when needed
-const TOKEN: u16 = 100;
+const TOKEN: u16 = 101;
 
 pub struct InvalidData;
 
