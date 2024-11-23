@@ -6,6 +6,7 @@ backwards compatibility.
 
 ## Unreleased
 
+* Tune the output to match 440 Hz at A.
 * Pure Data externals were moved to a [dedicated project](https://github.com/zlosynth/automaton).
 * Offer alternative firmware with white key quantization disabled.
 * Introduce basic detune to the first detune section.
