@@ -123,7 +123,7 @@ lazy_static! {
 }
 
 // This constant is used to invalidate data when needed
-const TOKEN: u16 = 101;
+const TOKEN: u16 = 102;
 
 pub struct InvalidData;
 
