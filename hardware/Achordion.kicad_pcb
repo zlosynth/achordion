@@ -8,7 +8,7 @@
   (title_block
     (title "Achordion")
     (date "2022-02-27")
-    (rev "v2.2.1")
+    (rev "v2.3.0")
     (company "Petr Horáček")
     (comment 1 "petr@zlosynth.com")
     (comment 2 "https://github.com/zlosynth/achordion")
@@ -4005,7 +4005,7 @@
   (gr_text "Petr Horáček <petr@zlosynth.com>, 2022, CC BY-SA" (at 165.65 92.6 90) (layer "F.SilkS") (tstamp 00000000-0000-0000-0000-0000621a2c46)
     (effects (font (size 1.2 1.1) (thickness 0.15)))
   )
-  (gr_text "board v2.2.1" (at 165.73 143.92 90) (layer "F.SilkS") (tstamp 00000000-0000-0000-0000-0000621b6893)
+  (gr_text "board v2.3.0" (at 165.73 143.92 90) (layer "F.SilkS") (tstamp 00000000-0000-0000-0000-0000621b6893)
     (effects (font (size 1.2 1.1) (thickness 0.15)) (justify left))
   )
   (gr_text "Achordion," (at 165.72 152.88 90) (layer "F.SilkS") (tstamp 00000000-0000-0000-0000-0000621e1412)

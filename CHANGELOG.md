@@ -6,6 +6,8 @@ backwards compatibility.
 
 ## Unreleased
 
+## 2.3.0
+
 * Introduce basic detune to the first detune section.
 * Tune the output to match 440 Hz at A.
 * Fix 1V/oct alignment of unquantized solo voice output.
