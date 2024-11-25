@@ -579,7 +579,7 @@ impl<'a> Instrument<'a> {
                         note.to_freq_f32()
                     }
                 } else {
-                    Note::AMinus1.to_freq_f32() * 2.0.powf(voct)
+                    Note::C0.to_freq_f32() * 2.0.powf(voct)
                 };
                 self.degrees[last].set_frequency(frequency);
 

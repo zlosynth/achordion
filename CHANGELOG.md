@@ -6,10 +6,11 @@ backwards compatibility.
 
 ## Unreleased
 
+* Introduce basic detune to the first detune section.
 * Tune the output to match 440 Hz at A.
+* Fix 1V/oct alignment of unquantized solo voice output.
 * Pure Data externals were moved to a [dedicated project](https://github.com/zlosynth/automaton).
 * Offer alternative firmware with white key quantization disabled.
-* Introduce basic detune to the first detune section.
 
 ## 2.2.1
 
