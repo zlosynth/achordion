@@ -7,16 +7,17 @@ use crate::scales::diatonic::{Mode, SEMITONES};
 
 pub type Degree = u8;
 
-#[cfg(feature = "even_quantization")]
+#[cfg(not(feature = "white_key_quantization"))]
 pub fn quantize_voct(mode: Mode, root: Note, voct: f32) -> (Note, Degree) {
     quantize_voct_center(mode, root, voct)
 }
 
-#[cfg(not(feature = "even_quantization"))]
+#[cfg(feature = "white_key_quantization")]
 pub fn quantize_voct(mode: Mode, root: Note, voct: f32) -> (Note, Degree) {
     quantize_voct_white_keys(mode, root, voct)
 }
 
+#[allow(dead_code)]
 fn quantize_voct_white_keys(mode: Mode, root: Note, mut voct: f32) -> (Note, Degree) {
     if voct > to_voct(Note::G9) {
         // One below the highest to allow it to quantize up
@@ -38,7 +39,6 @@ fn quantize_voct_white_keys(mode: Mode, root: Note, mut voct: f32) -> (Note, Deg
     (note, white_diff.rem_euclid(7) as u8 + 1)
 }
 
-#[allow(dead_code)]
 fn quantize_voct_center(mode: Mode, root: Note, voct: f32) -> (Note, Degree) {
     // XXX: This is making the method simpler by sacrificing a part of the
     // lowest octave.

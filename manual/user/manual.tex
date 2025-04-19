@@ -50,7 +50,7 @@ Achordion allows you to do many things, but in essence, it is just a bunch of os
 
 \section{Features}
 
-This module is based on wavetable synthesis and contains a selection of 37 wavetables, offering smooth transitions between them. With up to 18 simultaneous voices, it allows enabling sub-octaves, duplicated tones or chords. Four modes of playing are available – single tone, selection of 18 standard chords (fifth, seventh and ninth), arpeggios, and intervals. All playing tones are quantized to a configurable scale. 1V/oct inputs are quantized, so any scale can be played with the white keys of the piano. Two lines can be played at the same time, each controlled by an independent 1V/oct input. There are also two separate outputs, enabling to send each line to a different effect chain. Last but not least, a display consisting of 8 LEDs is used to make dialling of parameters easier.
+This module is based on wavetable synthesis and contains a selection of 37 wavetables, offering smooth transitions between them. With up to 18 simultaneous voices, it allows enabling sub-octaves, duplicated tones or chords. Four modes of playing are available – single tone, selection of 18 standard chords (fifth, seventh and ninth), arpeggios, and intervals. All playing tones are quantized to a configurable scale. Two lines can be played at the same time, each controlled by an independent 1V/oct input. There are also two separate outputs, enabling to send each line to a different effect chain. Last but not least, a display consisting of 8 LEDs is used to make dialling of parameters easier.
 
 \section{Installation}
 
@@ -134,9 +134,9 @@ To select the scale's mode, hold the button while turning the DETUNE knob. LEDs 
   IV & Lydian & VIII & Harmonic minor \\
 \end{tabular}
 
-CV inputs TONE and TONE' are additionally quantized to the white keys of a piano keyboard. This allows to play any scale using only these keys.
-
 Quantization of TONE' can be switched off by tapping the DETUNE CV input with a jack while holding the button.
+
+By default TONE and TONE' input CV snaps to the closest note. An alternative firmware can be installed to map white keyboard keys to the notes of any scale.
 
 \section{Calibration}
 
@@ -227,7 +227,8 @@ Due to the headroom reserved for all 18 voices, default output levels are quite 
        & Moved overdrive to the configuration menu \\
        & Added harmonic minor as the 8th mode \\
   v2.3 & The status LED blinks 3 times \\
-       & First detune mode detunes all playing notes
+       & First detune mode detunes all playing notes \\
+  v2.4 & White key quantization was disabled \\
 \end{tabular}
 
 \section{Questions?}

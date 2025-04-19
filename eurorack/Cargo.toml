@@ -37,4 +37,4 @@ opt-level = "z" # This contains code used only during the boot, no need for spee
 opt-level = "z" # CRC is only used while restoring a config on boot and does not need to be fast
 
 [features]
-even_quantization = ["achordion-lib/even_quantization"]
+even_quantization = ["achordion-lib/white_key_quantization"]
