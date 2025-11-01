@@ -6,6 +6,8 @@ backwards compatibility.
 
 ## Unreleased
 
+## 2.4.0
+
 * Quantize TONE input 1V/oct CV to the closest note. The original white key
   quantization is now available as an alternative firmware.
 

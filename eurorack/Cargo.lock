@@ -4,7 +4,7 @@ version = 3
 
 [[package]]
 name = "achordion-bank"
-version = "2.3.0"
+version = "2.4.0"
 dependencies = [
  "microfft",
  "micromath",
@@ -13,7 +13,7 @@ dependencies = [
 
 [[package]]
 name = "achordion-eurorack"
-version = "2.3.0"
+version = "2.4.0"
 dependencies = [
  "achordion-bank",
  "achordion-lib",
@@ -27,7 +27,7 @@ dependencies = [
 
 [[package]]
 name = "achordion-lib"
-version = "2.3.0"
+version = "2.4.0"
 dependencies = [
  "crc",
  "field-offset",
