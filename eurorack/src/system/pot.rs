@@ -38,10 +38,18 @@ macro_rules! pot {
                 }
             }
 
+            // NOTE: Prevent inlining to avoid duplicating ADC HAL code for each pot.
+            // This method is called 8 times (4 pots × 2 ADCs), and inlining would
+            // duplicate ~2KB of register configuration code per call site (~4KB total).
+            #[inline(never)]
             pub fn start_sampling(&mut self, adc: &mut Adc<$adc, Enabled>) {
                 adc.start_conversion(&mut self.pin);
             }
 
+            // NOTE: Prevent inlining to avoid duplicating ADC HAL code for each pot.
+            // This method is called 8 times (4 pots × 2 ADCs), and inlining would
+            // duplicate ~2KB of register configuration code per call site (~4KB total).
+            #[inline(never)]
             pub fn finish_sampling(&mut self, adc: &mut Adc<$adc, Enabled>) {
                 let sample: u32 = block!(adc.read_sample()).unwrap();
                 let transposed_sample = self.transpose_adc(sample, adc.slope());

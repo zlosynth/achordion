@@ -35,10 +35,18 @@ macro_rules! cv {
                 }
             }
 
+            // NOTE: Prevent inlining to avoid duplicating ADC HAL code for each CV input.
+            // This method is called 10 times (5 CVs × 2 ADCs), and inlining would
+            // duplicate ~2KB of register configuration code per call site (~4KB total).
+            #[inline(never)]
             pub fn start_sampling(&mut self, adc: &mut Adc<$adc, Enabled>) {
                 adc.start_conversion(&mut self.pin);
             }
 
+            // NOTE: Prevent inlining to avoid duplicating ADC HAL code for each CV input.
+            // This method is called 10 times (5 CVs × 2 ADCs), and inlining would
+            // duplicate ~2KB of register configuration code per call site (~4KB total).
+            #[inline(never)]
             pub fn finish_sampling(&mut self, adc: &mut Adc<$adc, Enabled>) {
                 let was_connected = self.connected();
 
