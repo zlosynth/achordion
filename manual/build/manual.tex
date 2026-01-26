@@ -28,7 +28,7 @@
 \posttitle{%
   \\
   \vspace{2cm}
-  \includegraphics[width=13cm]{schema.pdf}
+  \includegraphics[width=11cm]{schema.pdf}
   \end{center}
 }
 
@@ -47,6 +47,8 @@ You can always find the latest version of this build manual on \url{https://zlos
 This kit contains a printed circuit board (PCB) with all the surface mount device (SMD) parts already pre-soldered. The through-hole components are left to be assembled by you.
 
 Pay attention to the orientation and position of all the parts. Desoldering them would be difficult and may break the module. Also, be careful not to touch the pre-soldered SMD parts with the soldering iron. Read through the whole manual first. Make sure you understand all the steps before you start soldering.
+
+Electronic components are sensitive to static electricity. Before handling the PCB, ground yourself by touching a grounded metal object or use an anti-static wrist strap.
 
 \newpage
 
@@ -188,6 +190,16 @@ Connect the Daisy Patch Submodule to the main black PCB to complete the build.
   \includegraphics[width=\linewidth]{p08.jpg}
   \caption{Front view of the assembled module}
 \end{figure}
+
+\section{Testing and inspection}
+
+Before powering up the module, perform these checks to prevent damage:
+
+\begin{itemize}
+  \item Visually inspect all solder joints for missed connections, cold joints, and solder bridges.
+  \item Always connect power with the system off. Verify the red stripe on the ribbon cable aligns with -12V on the PCB.
+  \item If you can, test the module in an isolated case first to prevent damage to your entire Eurorack system if there are assembly errors.
+\end{itemize}
 
 \section{Congratulations}
 
