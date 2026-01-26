@@ -6,9 +6,6 @@ backwards compatibility.
 
 ## Unreleased
 
-* Prevent parameter jumps when releasing the button. The knob must return to its
-  original position before it starts controlling its primary attribute.
-
 ## 2.4.0
 
 * Quantize TONE input 1V/oct CV to the closest note. The original white key

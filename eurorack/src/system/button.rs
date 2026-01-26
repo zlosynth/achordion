@@ -12,7 +12,6 @@ pub struct Button<P> {
     active_for: Option<Duration>,
     active_timestamp: Option<Instant>,
     clicked: bool,
-    released: bool,
     long_clicked: bool,
 }
 
@@ -24,7 +23,6 @@ impl<P: InputPin> Button<P> {
             active_for: None,
             active_timestamp: None,
             clicked: false,
-            released: false,
             long_clicked: false,
         }
     }
@@ -35,7 +33,6 @@ impl<P: InputPin> Button<P> {
         let was_active = self.active_for.is_some();
 
         self.clicked = !was_active && is_active;
-        self.released = was_active && !is_active;
 
         self.long_clicked = false;
         if is_active {
@@ -72,10 +69,6 @@ impl<P: InputPin> Button<P> {
 
     pub fn clicked(&self) -> bool {
         self.clicked
-    }
-
-    pub fn released(&self) -> bool {
-        self.released
     }
 
     pub fn long_clicked(&self) -> bool {

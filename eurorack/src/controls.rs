@@ -17,9 +17,6 @@ use crate::system::{Pot1, Pot2, Pot3, Pot4};
 // V/OCT CV spans from -5.0 to 5.0 V.
 const VOCT_CV_RANGE: f32 = 10.0;
 
-// Threshold for pickup mode - pot must be within this range to resume tracking.
-const PICKUP_THRESHOLD: f32 = 0.02;
-
 pub struct ControlsConfig {
     pub adc1: Adc<ADC1, Enabled>,
     pub adc2: Adc<ADC2, Enabled>,
@@ -57,11 +54,6 @@ pub struct Controls {
     last_wavetable_pot_reading: f32,
     last_chord_pot_reading: f32,
     last_detune_pot_reading: f32,
-
-    note_pickup_mode: bool,
-    wavetable_pickup_mode: bool,
-    chord_pickup_mode: bool,
-    detune_pickup_mode: bool,
 
     note_source: NoteSource,
 
@@ -147,11 +139,6 @@ impl Controls {
             last_wavetable_pot_reading: 0.0,
             last_chord_pot_reading: 0.0,
             last_detune_pot_reading: 0.0,
-
-            note_pickup_mode: false,
-            wavetable_pickup_mode: false,
-            chord_pickup_mode: false,
-            detune_pickup_mode: false,
 
             note_source: NoteSource::Pot,
 
@@ -344,19 +331,8 @@ impl Controls {
     }
 
     fn reconcile_note(&mut self) {
-        if self.button.released() {
-            self.note_pickup_mode = true;
-        }
-
         if !self.button.active() {
-            if self.note_pickup_mode {
-                if (self.pot2.value() - self.last_note_pot_reading).abs() < PICKUP_THRESHOLD {
-                    self.note_pickup_mode = false;
-                    self.last_note_pot_reading = self.pot2.value();
-                }
-            } else {
-                self.last_note_pot_reading = self.pot2.value();
-            }
+            self.last_note_pot_reading = self.pot2.value();
         };
         let pot = self.last_note_pot_reading;
 
@@ -378,19 +354,8 @@ impl Controls {
     }
 
     fn reconcile_wavetable(&mut self) {
-        if self.button.released() {
-            self.wavetable_pickup_mode = true;
-        }
-
         if !self.button.active() {
-            if self.wavetable_pickup_mode {
-                if (self.pot1.value() - self.last_wavetable_pot_reading).abs() < PICKUP_THRESHOLD {
-                    self.wavetable_pickup_mode = false;
-                    self.last_wavetable_pot_reading = self.pot1.value();
-                }
-            } else {
-                self.last_wavetable_pot_reading = self.pot1.value();
-            }
+            self.last_wavetable_pot_reading = self.pot1.value();
         }
         let pot = self.last_wavetable_pot_reading;
 
@@ -411,19 +376,8 @@ impl Controls {
     }
 
     fn reconcile_chord(&mut self) {
-        if self.button.released() {
-            self.chord_pickup_mode = true;
-        }
-
         if !self.button.active() {
-            if self.chord_pickup_mode {
-                if (self.pot4.value() - self.last_chord_pot_reading).abs() < PICKUP_THRESHOLD {
-                    self.chord_pickup_mode = false;
-                    self.last_chord_pot_reading = self.pot4.value();
-                }
-            } else {
-                self.last_chord_pot_reading = self.pot4.value();
-            }
+            self.last_chord_pot_reading = self.pot4.value();
         };
         let pot = self.last_chord_pot_reading;
 
@@ -461,19 +415,8 @@ impl Controls {
     }
 
     fn reconcile_detune(&mut self) {
-        if self.button.released() {
-            self.detune_pickup_mode = true;
-        }
-
         if !self.button.active() {
-            if self.detune_pickup_mode {
-                if (self.pot3.value() - self.last_detune_pot_reading).abs() < PICKUP_THRESHOLD {
-                    self.detune_pickup_mode = false;
-                    self.last_detune_pot_reading = self.pot3.value();
-                }
-            } else {
-                self.last_detune_pot_reading = self.pot3.value();
-            }
+            self.last_detune_pot_reading = self.pot3.value();
         };
         let pot = self.last_detune_pot_reading;
 
