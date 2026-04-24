@@ -6,6 +6,8 @@ backwards compatibility.
 
 ## Unreleased
 
+* Use better footprints.
+
 ## 2.4.0
 
 * Quantize TONE input 1V/oct CV to the closest note. The original white key
