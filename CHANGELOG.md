@@ -6,6 +6,8 @@ backwards compatibility.
 
 ## Unreleased
 
+## 2.5.0
+
 * Use better footprints.
 * Increase PCB edge clearance.
 * Fix a freeze occurring when the TONE input drops below the lowest tonic of
