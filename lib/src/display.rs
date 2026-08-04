@@ -160,7 +160,7 @@ fn reduce_set_scale_mode(mode: Mode) -> State {
 
 fn reduce_set_degree(degree: u8) -> State {
     let mut state_array = [false; 8];
-    state_array[(degree - 1) as usize] = true;
+    state_array[(degree.clamp(1, 7) - 1) as usize] = true;
     state_array.into()
 }
 
@@ -776,6 +776,18 @@ mod tests {
                 led_sharp: false,
             }
         )
+    }
+
+    #[test]
+    fn reduce_chord_root_degree_out_of_range_is_clamped() {
+        assert_eq!(
+            reduce(Action::SetChordRootDegree(0)),
+            reduce(Action::SetChordRootDegree(1))
+        );
+        assert_eq!(
+            reduce(Action::SetChordRootDegree(9)),
+            reduce(Action::SetChordRootDegree(7))
+        );
     }
 
     #[test]

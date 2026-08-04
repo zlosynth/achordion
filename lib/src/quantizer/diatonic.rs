@@ -34,28 +34,45 @@ fn quantize_voct_white_keys(mode: Mode, root: Note, mut voct: f32) -> (Note, Deg
         white_diff - 1
     };
 
-    let note = scales::diatonic::lookup_degree(root, mode, root, interval).unwrap();
+    let note = lookup_degree_clamped(mode, root, interval);
 
     (note, white_diff.rem_euclid(7) as u8 + 1)
+}
+
+// Like `lookup_degree`, except when the target falls outside of the supported
+// note range, it is moved octave by octave back towards the root instead of
+// failing.
+fn lookup_degree_clamped(mode: Mode, root: Note, mut interval: i32) -> Note {
+    loop {
+        if let Some(note) = scales::diatonic::lookup_degree(root, mode, root, interval) {
+            return note;
+        }
+        if interval.abs() <= 7 {
+            return root;
+        }
+        interval += if interval > 0 { -7 } else { 7 };
+    }
 }
 
 fn quantize_voct_center(mode: Mode, root: Note, voct: f32) -> (Note, Degree) {
     // XXX: This is making the method simpler by sacrificing a part of the
     // lowest octave.
+    // Fallbacks return the tonic and thus degree 1. Degree 0 must never be
+    // returned, consumers expect degrees between 1 and 7.
     let lowest_tonic = lowest_note(root);
     if voct < lowest_tonic.to_voct() {
-        return (lowest_tonic, 0);
+        return (lowest_tonic, 1);
     }
 
     let closest_tonic = find_closest_tonic(lowest_tonic, voct);
     if closest_tonic.is_none() {
-        return (lowest_tonic, 0);
+        return (lowest_tonic, 1);
     }
     let closest_tonic = closest_tonic.unwrap();
 
     let surrounding_notes = find_surrounding_notes_ascending(mode, voct, closest_tonic);
     if surrounding_notes.is_none() {
-        return (lowest_tonic, 0);
+        return (lowest_tonic, 1);
     }
     let ((below_note, below_degree), (above_note, above_degree)) = surrounding_notes.unwrap();
 
@@ -254,7 +271,7 @@ pub fn quantize_linear(mode: Mode, root: Note, mut value: f32) -> (Note, Degree)
         white_diff - 1
     };
 
-    let note = scales::diatonic::lookup_degree(root, mode, root, interval).unwrap();
+    let note = lookup_degree_clamped(mode, root, interval);
 
     (note, white_diff.rem_euclid(7) as u8 + 1)
 }
@@ -816,6 +833,26 @@ mod tests {
             quantize_voct_white_keys(Ionian, root, voct + 0.05 / 12.0),
             (Note::ASharp1, 3)
         );
+    }
+
+    #[test]
+    fn quantize_voct_center_below_lowest_tonic_returns_valid_degree() {
+        let (note, degree) = quantize_voct_center(Ionian, Note::A0, 0.1);
+        assert_eq!(note, Note::AMinus1);
+        assert_eq!(degree, 1);
+    }
+
+    #[test]
+    fn quantize_voct_center_far_above_range_returns_valid_degree() {
+        let (_, degree) = quantize_voct_center(Ionian, Note::B0, 100.0);
+        assert!((1..=7).contains(&degree));
+    }
+
+    #[test]
+    fn quantize_voct_white_keys_below_note_range_does_not_panic() {
+        let (note, degree) = quantize_voct_white_keys(Locrian, Note::FMinus1, 0.05);
+        assert_eq!(note, Note::FMinus1);
+        assert!((1..=7).contains(&degree));
     }
 
     #[test]

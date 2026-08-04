@@ -8,6 +8,9 @@ backwards compatibility.
 
 * Use better footprints.
 * Increase PCB edge clearance.
+* Fix a freeze occurring when the TONE input drops below the lowest tonic of
+  the selected scale, e.g. with a CV patched in and the TONE knob at its
+  minimum.
 
 ## 2.4.0
 
